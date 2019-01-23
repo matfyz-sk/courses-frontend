@@ -5,6 +5,8 @@ import {BrowserRouter, Route} from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './scss/index.scss';
+import loadIcons from './icons';
+loadIcons();
 ReactDOM.render(
   <BrowserRouter>
     <div>
