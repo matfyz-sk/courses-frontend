@@ -1,0 +1,51 @@
+.modal-customs{
+  max-width:900px;
+}
+
+.modal-customs-full{
+  max-width: none;
+}
+
+.row{
+  margin:0px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.center-hor{
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.center-ver{
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.no-border{
+  border-width: 0px;
+}
+
+.full-width{
+  width:100%
+}
+
+.flex{
+  flex:1;
+}
+
+.clickable{
+  cursor: pointer;
+}
+
+.boldText{
+  font-weight: bold;
+}
+
+.p-l-4{
+  padding-left: 4px;
+}
+
+.p-l-10{
+  padding-left: 10px;
+}

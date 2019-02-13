@@ -45,25 +45,25 @@ export default class PageHeader extends Component{
 
         <Nav navbar>
           <NavItem>
-            <NavLink onClick={()=>this.props.history.push('/info')} >Info</NavLink>
+            <NavLink className="clickable" onClick={()=>this.props.history.push('/info')} >Info</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink onClick={()=>this.props.history.push('/lectures')} >Lectures</NavLink>
+            <NavLink className="clickable" onClick={()=>this.props.history.push('/lectures')} >Lectures</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink onClick={()=>this.props.history.push('/labs')} >Labs</NavLink>
+            <NavLink className="clickable" onClick={()=>this.props.history.push('/labs')} >Labs</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink onClick={()=>this.props.history.push('/assignments')} >Assignments</NavLink>
+            <NavLink className="clickable" onClick={()=>this.props.history.push('/assignments')} >Assignments</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink onClick={()=>this.props.history.push('/results')} >Results</NavLink>
+            <NavLink className="clickable" onClick={()=>this.props.history.push('/results')} >Results</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink onClick={()=>this.props.history.push('/quiz')} >Quiz</NavLink>
+            <NavLink className="clickable" onClick={()=>this.props.history.push('/quiz')} >Quiz</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink onClick={()=>this.props.history.push('/files')} >Files</NavLink>
+            <NavLink className="clickable" onClick={()=>this.props.history.push('/files')} >Files</NavLink>
           </NavItem>
         </Nav>
           <Nav className="ml-auto" navbar>
