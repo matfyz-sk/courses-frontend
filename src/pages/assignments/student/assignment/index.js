@@ -8,6 +8,7 @@ import {timestampToString} from '../../../../helperFunctions';
 import Submission from './submission';
 import CodeReview from './codeReview';
 import Reviews from './reviews';
+import TeamReview from './teamReview';
 
 const submissions = [
   {id:1,title:'Assignment 2',active:true, deadline:1549788300, body:'BBB this will be full body of assignment', description:'Short description of assignment'},
@@ -102,6 +103,9 @@ export default class Assignment extends Component{
               </TabPane>
               <TabPane tabId={2}>
                 <CodeReview history={this.props.history} match={this.props.match} />
+              </TabPane>
+              <TabPane tabId={3}>
+                <TeamReview history={this.props.history} match={this.props.match} />
               </TabPane>
             </TabContent>
 
