@@ -24,7 +24,6 @@ export default class TextTeview extends Component {
             <Label for="q2">Question 2</Label>
             <Input type="textarea" name="text" id="q2" />
           </FormGroup>
-          <Button color="success">Save</Button>
         </CardBody>
       </Card>
     )

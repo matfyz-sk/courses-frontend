@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input, FormText } from 'reactstrap';
+import { Button, Card, CardHeader, CardBody, FormGroup, Label, Input, FormText } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Select from 'react-select';
 
 import {timestampToString} from '../../../../../helperFunctions';
 
@@ -9,13 +11,26 @@ const submissions = [
   {id:0,title:'Submission 1',active:false, deadline:1547109900, body:'CCC' },
 ]
 
+const teams = [
+  {value:0,label:'Jarovice',members:[{id:1,name:'Jaroslav',surname:'Matejovic'},{id:2,name:'Jaroslav',surname:'Biely'},{id:0,name:'Juraj',surname:'Macek'}]},
+  {value:1,label:'Failures',members:[{id:4,name:'Barbora',surname:'Severna'},{id:5,name:'Martin',surname:'Juzny'},{id:0,name:'Juraj',surname:'Macek'}]}
+]
+
+const selectStyle = {
+			control: base => ({
+				...base,
+				minWidth: 250,
+			})
+		};
+
 export default class ViewReview extends Component{
   constructor(props){
     super(props);
     this.state={
       open:false,
-      submission:submissions.find((item)=>item.id===this.props.id)
+      submission:submissions.find((item)=>item.id===parseInt(this.props.match.params.id))
     }
+    console.log(this.props.match.params);
   }
 
   toggle(){
@@ -24,16 +39,16 @@ export default class ViewReview extends Component{
 
   render(){
     return(
-      <div>
-        {
-          this.state.submission.active?
-          <Button color="success" onClick={this.toggle.bind(this)}>Edit</Button>
-          :
-          <Button color="primary" onClick={this.toggle.bind(this)}>View</Button>
-        }
-        <Modal isOpen={this.state.open} className="modal-customs">
-          <ModalHeader toggle={this.toggle.bind(this)}>{this.state.submission.active?'Editing':'Viewing'} submission</ModalHeader>
-          <ModalBody>
+      <Card className="assignmentsContainer center-ver">
+        <CardHeader>
+          <FontAwesomeIcon
+            icon="envelope"
+            className="clickable"
+            onClick={()=>this.props.history.goBack()}
+          />
+          {this.state.submission.active?' Editing':' Viewing'} submission
+        </CardHeader>
+          <CardBody>
             <h2>Zadanie úlohy</h2>
             <FormGroup>
               <Label>Deadline: </Label>  {timestampToString(this.state.submission.deadline)}
@@ -52,13 +67,16 @@ export default class ViewReview extends Component{
                 It's a bit lighter and easily wraps to a new line.
               </FormText>
             </FormGroup>
-          </ModalBody>
-          <ModalFooter>
+          <div className="row">
+            <Select
+              styles={selectStyle}
+              options={teams}
+              />
             <Button color="success" onClick={this.toggle.bind(this)}>Save</Button>
             <Button color="secondary" onClick={this.toggle.bind(this)}>Cancel</Button>
-          </ModalFooter>
-        </Modal>
-      </div>
+            </div>
+          </CardBody>
+      </Card>
     )
   }
 }

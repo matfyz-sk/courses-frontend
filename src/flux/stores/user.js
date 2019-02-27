@@ -5,7 +5,7 @@ import dispatcher from "../dispatcher";
 class TodoStore extends EventEmitter {
   constructor() {
     super();
-    this.isAdmin = true;
+    this.isAdmin = false;
   }
 
   switchUserType(isAdmin) {

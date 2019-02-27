@@ -42,26 +42,35 @@ export default class ViewSubmission extends Component{
 
   render(){
     return(
-      <Card className="assignmentsContainer center-ver">
-        <CardHeader className="row">
-        <FontAwesomeIcon
-          icon="envelope"
-          className="clickable"
-          onClick={()=>this.props.history.goBack()}
-        />
-        Reviews
-      <div style={{marginLeft:'auto'}}>
-        <Select
-          styles={selectStyle}
-          options={reviewsSelect}
-          />
-      </div>
-      </CardHeader>
-        <CardBody>
-            <SingleReview match={this.props.match} />
-              <SingleReview match={this.props.match} />
-        </CardBody>
-        </Card>
+      <div>
+            <Nav tabs>
+            <NavItem>
+              <NavLink
+                className={classnames({ active: this.state.tab === 0, clickable:true })}
+                onClick={() => this.setState({tab:0})}
+              >
+                General review
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                className={classnames({ active: this.state.tab === 1, clickable:true })}
+                onClick={() => this.setState({tab:1})}
+              >
+                Code review
+              </NavLink>
+            </NavItem>
+          </Nav>
+
+          <TabContent activeTab={this.state.tab}>
+            <TabPane tabId={0}>
+              <TextReview />
+            </TabPane>
+            <TabPane tabId={1}>
+              <CodeReview review={this.state.review} />
+            </TabPane>
+          </TabContent>
+        </div>
     )
   }
 }

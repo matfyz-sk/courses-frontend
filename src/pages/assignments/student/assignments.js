@@ -27,7 +27,7 @@ export default class Assignments extends Component{
             </CardHeader>
             <Collapse isOpen={task.opened}>
               <CardBody>
-                <TaskView task={task} />
+                <TaskView task={task} history={this.props.history}/>
               </CardBody>
             </Collapse>
           </Card>

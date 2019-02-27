@@ -20,7 +20,7 @@ export default class Navigation extends Component {
             <div className="row">
               <div className="flex">
                 <Route exact path='/' component={MainPage} />
-                <Route exact path='/assignments' component={Assignments} />
+                <Route path='/assignments' component={Assignments} />
                 <Route exact path='/files' component={Files} />
                 <Route exact path='/info' component={Info} />
                 <Route exact path='/labs' component={Labs} />

@@ -48,7 +48,7 @@ export default class CodeReview extends Component {
             <Label for="q2">General comment</Label>
             <Input type="textarea" name="text" id="q2" />
           </FormGroup>
-          <Button color="success">Save</Button>
+          <Button color="success">Add comment</Button>
         </CardBody>
       </Card>
     )

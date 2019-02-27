@@ -15,6 +15,7 @@ export default class Assignments extends Component{
   }
 
   render(){
+    return(<Submissions history={this.props.history} />);
     return(
       <div>
         <Nav tabs>
@@ -65,10 +66,10 @@ export default class Assignments extends Component{
           HERE WILL BE OVERVIEW
         </TabPane>
         <TabPane tabId={1}>
-          <Submissions />
+          <Submissions history={this.props.history} />
         </TabPane>
         <TabPane tabId={2}>
-          <Reviews />
+          Reviews
         </TabPane>
         <TabPane tabId={3}>
           <Team task={this.props.task}/>
