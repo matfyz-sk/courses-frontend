@@ -41,9 +41,9 @@ export default class AssignmentView extends Component{
               </div>
               <h5>To review</h5>
               <div>
-                <Button color="primary">Submission 1</Button>{' '}
-                <Button color="primary">Submission 2</Button>{' '}
-                <Button color="primary">Submission 3</Button>{' '}
+                <Button color="primary" onClick={()=>this.props.history.push('/assignments/view/3/0')}>Submission 1</Button>{' '}
+                <Button color="primary" onClick={()=>this.props.history.push('/assignments/view/3/0')}>Submission 2</Button>{' '}
+                <Button color="primary" onClick={()=>this.props.history.push('/assignments/view/3/0')}>Submission 3</Button>{' '}
               </div>
             </CardBody>
           </Card>

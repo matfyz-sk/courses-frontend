@@ -30,14 +30,12 @@ export default class CodeReview extends Component {
             />
           <div className="row">
             <div className="flex">
-              <h4>{this.props.review.title}</h4>
               <h5>CODE.js</h5>
               <div className="codeBlock">
                 {bible}
               </div>
             </div>
             <div className="flex">
-              <h4>Review 1</h4>
               <h5>CODE.js</h5>
               <div className="codeBlock">
                 {bible}

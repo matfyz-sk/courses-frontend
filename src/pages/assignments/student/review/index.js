@@ -8,11 +8,10 @@ import {timestampToString} from '../../../../helperFunctions';
 import Submission from './submission';
 import CodeReview from './codeReview';
 import Reviews from './reviews';
-import TeamReview from './teamReview';
 
 const submissions = [
-  {id:1,title:'Assignment 2',active:true, deadline:1549788300, body:'BBB this will be full body of assignment', description:'Short description of assignment'},
-  {id:0,title:'Assignment 1',active:false, deadline:1547109900, body:'CCC this will be full body of assignment',description:'Short description of assignment' },
+  {id:2,title:'Assignment 2',active:true, deadline:1549788300, body:'BBB this will be full body of assignment', description:'Short description of assignment'},
+  {id:3,title:'Assignment 1',active:false, deadline:1547109900, body:'CCC this will be full body of assignment',description:'Short description of assignment' },
 ]
 
 const teams = [
@@ -30,6 +29,7 @@ const selectStyle = {
 export default class Assignment extends Component{
   constructor(props){
     super(props);
+    console.log(this.props.match.params.id);
     this.state={
       submission:submissions.find((item)=>item.id===parseInt(this.props.match.params.id)),
       tab:parseInt(this.props.match.params.tabID)
@@ -55,7 +55,7 @@ export default class Assignment extends Component{
                 />
             </Button>
             <h4 className="center-hor ml-5">
-              Assignment: {this.state.submission.title}
+              Assignment
             </h4>
           </CardHeader>
           <CardBody>
@@ -84,14 +84,6 @@ export default class Assignment extends Component{
                   Code reviews
                 </NavLink>
               </NavItem>
-              <NavItem>
-                <NavLink
-                  className={classnames({ active: this.state.tab === 3, clickable:true })}
-                  onClick={() =>{ this.setState({tab:3});this.props.history.push(tabURL+3)}}
-                  >
-                  Team review
-                </NavLink>
-              </NavItem>
             </Nav>
 
             <TabContent activeTab={this.state.tab}>
@@ -103,9 +95,6 @@ export default class Assignment extends Component{
               </TabPane>
               <TabPane tabId={2}>
                 <CodeReview history={this.props.history} match={this.props.match} />
-              </TabPane>
-              <TabPane tabId={3}>
-                <TeamReview history={this.props.history} match={this.props.match} />
               </TabPane>
             </TabContent>
 
