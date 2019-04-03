@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Collapse,Button } from 'reactstrap';
 import AssignmentView from './assignmentView';
-import AddAssignment from './assignment/addAssignment';
+import AddAssignment from './addAssignment';
 
 export default class Assignments extends Component{
   constructor(props){
@@ -15,21 +15,7 @@ export default class Assignments extends Component{
   render(){
     return(
       <div className="assignmentsContainer center-ver">
-        <div>
-          <Button color="success" className="ml-auto"
-            onClick={()=>this.setState({addOpen:!this.state.addOpen})}
-            >
-            Add assignment
-          </Button>
-          <Collapse isOpen={this.state.addOpen}>
-            <AddAssignment/>
-            <Button color="" className="ml-auto"
-              onClick={()=>this.setState({addOpen:!this.state.addOpen})}
-              >
-              Close
-            </Button>
-          </Collapse>
-        </div>
+        <AddAssignment/>
         <h1>
           Assignments
         </h1>

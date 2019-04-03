@@ -9,7 +9,7 @@ const selectStyle = {
   control: styles => ({ ...styles, width: 250 }),
 };
 
-export default class TextTeview extends Component {
+export default class PeerReview extends Component {
   constructor(props){
     super(props);
     this.state={
@@ -23,6 +23,7 @@ export default class TextTeview extends Component {
   render(){
     return(
       <div>
+        <h3>Peer review</h3>
         <div>
           <FormGroup>
             <Label for="q1">Short description</Label>
