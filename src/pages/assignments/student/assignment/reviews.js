@@ -20,22 +20,12 @@ export default class TextTeview extends Component {
               {
                 [1,2,3].map((answer)=>
                 <div className="row">
-                  <div style={{width:'50%'}}>
                   <label className="bolder italic">
                     Answer {answer}:
                   </label>
                   <div>
                     {randomSentence()}
                   </div>
-                </div>
-                <div style={{width:'50%'}}>
-                <label className="bolder italic">
-                  Old answer {answer}:
-                </label>
-                <div>
-                  {randomSentence()}
-                </div>
-              </div>
               </div>
             )}
           </div>

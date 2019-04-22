@@ -55,7 +55,7 @@ export default class Assignment extends Component{
                 />
             </Button>
             <h4 className="center-hor ml-5">
-              Assignment
+              {this.state.submission.title}
             </h4>
           </CardHeader>
           <CardBody>

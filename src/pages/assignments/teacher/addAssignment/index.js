@@ -8,6 +8,7 @@ import PeerReview from './peerReview';
 import Teams from './teams';
 import Reviews from './reviews';
 import TeamReviews from './teamReviews';
+import Attributes from './attributes';
 
 export default class ModalAdd extends Component {
   constructor(props){
@@ -34,28 +35,31 @@ export default class ModalAdd extends Component {
                 this.state.index===0 && <Info />
               }
               {
-                this.state.index===1 && <PeerReview />
+                this.state.index===1 && <Attributes />
               }
               {
-                this.state.index===2 && <Teams />
+                this.state.index===2 && <PeerReview />
               }
               {
-                this.state.index===3 && <Reviews />
+                this.state.index===3 && <Teams />
               }
               {
-                this.state.index===4 && <TeamReviews />
+                this.state.index===4 && <Reviews />
+              }
+              {
+                this.state.index===5 && <TeamReviews />
               }
           </ModalBody>
           <ModalFooter>
             <span className="mr-auto">
               <Button color="secondary" disabled={this.state.index===0} onClick={()=>this.setState({index:this.state.index-1})}>Prev</Button>{' '}
               <Button color="primary" onClick={()=>{
-                  if(this.state.index!==4){
+                  if(this.state.index!==5){
                     this.setState({index:this.state.index+1});
                   }else{
                     this.toggle();
                   }
-              }}>{this.state.index===4?'Add':'Next'}</Button>{' '}
+              }}>{this.state.index===5?'Add':'Next'}</Button>{' '}
             </span>
             <span>
             <Button outline color="secondary" onClick={this.toggle.bind(this)}>Cancel</Button>

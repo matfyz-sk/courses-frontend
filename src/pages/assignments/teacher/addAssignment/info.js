@@ -35,6 +35,12 @@ export default class TextTeview extends Component {
             <Input type="textarea" name="text" id="q1" />
           </FormGroup>
           <h4>Documents</h4>
+            <Button size="sm" color="success">
+              <FontAwesomeIcon
+                icon="plus"
+                className="clickable center-hor"
+                /> Add document
+            </Button>
             <Table>
               <thead>
                 <tr>
@@ -42,12 +48,6 @@ export default class TextTeview extends Component {
                   <th>Name</th>
                   <th>URL</th>
                   <th>
-                    <Button size="sm" color="">
-                      <FontAwesomeIcon
-                        icon="plus"
-                        className="clickable center-hor"
-                        />
-                    </Button>
                   </th>
                 </tr>
               </thead>
@@ -94,22 +94,6 @@ export default class TextTeview extends Component {
 
               </tbody>
             </Table>
-          <div className="row" style={{marginBottom:15,marginTop:15}}>
-            <Input style={{width:'auto',marginLeft:15}} type="text" name="text" id="q2" placeholder="Label" />
-            <Select options={inputTypes} styles={selectStyle}  />
-            <Input style={{width:'auto',marginLeft:15}} type="text" name="text" id="q2" placeholder="Description" />
-            <Button style={{marginLeft:15}} color="success">Add field</Button>
-          </div>
-          <FormGroup>
-            <Input style={{width:'auto', border:'none'}} type="text" name="text" id="q2" value={this.state.input1} onChange={(e)=>this.setState({input1:e.target.value})} />
-            <Input type="text" name="text" id="q2" style={{margin:'5px 0px'}} placeholder="description" />
-            <Input type="text" name="text" id="q2" />
-          </FormGroup>
-          <FormGroup>
-            <Input style={{width:'auto', border:'none'}} type="text" name="text" id="q2" value={this.state.input2} onChange={(e)=>this.setState({input2:e.target.value})} />
-            <Input type="text" name="text" id="q2" style={{margin:'5px 0px'}} placeholder="description" />
-            <Input type="textarea" name="text" id="q2" />
-          </FormGroup>
         </div>
 
 
