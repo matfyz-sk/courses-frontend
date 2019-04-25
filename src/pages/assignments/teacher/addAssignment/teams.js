@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { CardBody, Card, CardHeader, Button, FormGroup, Label, Input, FormText } from 'reactstrap';
+import { CardBody, Card, CardHeader, Button, FormGroup, Label, Input, FormText,InputGroup, InputGroupAddon } from 'reactstrap';
 import RichTextEditor from "react-rte";
 import Select from 'react-select';
 
@@ -16,7 +16,7 @@ export default class Teams extends Component {
       description: RichTextEditor.createValueFromString("", "html"),
       input1:'Custom input',
       input2:'Custom input 2',
-
+      disabled:false
     }
   }
 
@@ -25,38 +25,45 @@ export default class Teams extends Component {
       <div>
         <h3>Teams</h3>
         <div>
-          <FormGroup>
-            <Label for="q1">Short description</Label>
-            <Input type="textarea" name="text" id="q1" />
+          <FormGroup check>
+          <Label check>
+            <Input type="checkbox" id="checkbox2" checked={this.state.disabled} onChange={()=>this.setState({disabled:!this.state.disabled})} /> {' '}
+            Disabled
+          </Label>
+        </FormGroup>
+
+        <div className="row">
+          <FormGroup check>
+            <Label check>
+              <Input type="radio" name="radio2" disabled={this.state.disabled}/>{' '}
+              Team
+            </Label>
           </FormGroup>
-          <FormGroup>
-            <Label for="q2">Assignment body</Label>
-            <RichTextEditor
-              value={this.state.description}
-              onChange={e => {
-                this.setState({ description: e });
-              }}
-              placeholder="Enter assignment body"
-              toolbarClassName="demo-toolbar"
-              editorClassName="demo-editor"
-              />
-          </FormGroup>
-          <div className="row" style={{marginBottom:15}}>
-            <Select options={inputTypes} styles={selectStyle}  />
-            <Input style={{width:'auto',marginLeft:15}} type="text" name="text" id="q2" placeholder="Field name" />
-            <Button style={{marginLeft:15}} color="success">Add field</Button>
-          </div>
-          <FormGroup>
-            <Input style={{width:'auto', border:'none'}} type="text" name="text" id="q2" value={this.state.input1} onChange={(e)=>this.setState({input1:e.target.value})} />
-            <Input type="text" name="text" id="q2" />
-          </FormGroup>
-          <FormGroup>
-            <Input style={{width:'auto', border:'none'}} type="text" name="text" id="q2" value={this.state.input2} onChange={(e)=>this.setState({input2:e.target.value})} />
-            <Input type="textarea" name="text" id="q2" />
+          <FormGroup check style={{marginLeft:20}}>
+            <Label check>
+              <Input type="radio" name="radio2" disabled={this.state.disabled}/>{' '}
+              Individual
+            </Label>
           </FormGroup>
         </div>
 
-        <Button color="success">Add assignment</Button>
+        <FormGroup>
+          <Label>Size of a team min</Label>
+          <Input type="number" disabled={this.state.disabled}/>
+        </FormGroup>
+        <FormGroup>
+          <Label>Size of a team max</Label>
+          <Input type="number" disabled={this.state.disabled}/>
+        </FormGroup>
+
+        <FormGroup check>
+        <Label check>
+          <Input type="checkbox" id="checkbox2" disabled={this.state.disabled}/> {' '}
+          Multiple submissions
+        </Label>
+      </FormGroup>
+        </div>
+
       </div>
     )
   }

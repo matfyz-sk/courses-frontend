@@ -28,7 +28,7 @@ export default class TextTeview extends Component {
         <div>
           <FormGroup>
             <Label for="q1">Name</Label>
-            <Input type="textarea" name="text" id="q1" />
+            <Input type="text" name="text" id="q1" />
           </FormGroup>
           <FormGroup>
             <Label for="q1">Short description</Label>

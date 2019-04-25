@@ -16,7 +16,8 @@ export default class PeerReview extends Component {
       description: RichTextEditor.createValueFromString("", "html"),
       input1:'Custom input',
       input2:'Custom input 2',
-      disabled:false
+      disabled:false,
+      improvedSubmission:true
     }
   }
 
@@ -31,42 +32,52 @@ export default class PeerReview extends Component {
             Disabled
           </Label>
         </FormGroup>
-
-        <div className="row">
-          <FormGroup check>
-            <Label check>
-              <Input type="radio" name="radio2" disabled={this.state.disabled}/>{' '}
-              Team
-            </Label>
-          </FormGroup>
-          <FormGroup check style={{marginLeft:20}}>
-            <Label check>
-              <Input type="radio" name="radio2" disabled={this.state.disabled}/>{' '}
-              Single
-            </Label>
-          </FormGroup>
-        </div>
-
-        <Label>
-          Size of a team
-        </Label>
-        <FormGroup className="row mt-2">
-          <InputGroup className="col-6">
-            <InputGroupAddon addonType="prepend">Min</InputGroupAddon>
-            <Input type="text" name="text" id="q2" disabled={this.state.disabled}/>
-          </InputGroup>
-          <InputGroup className="col-6">
-            <InputGroupAddon addonType="prepend">Max</InputGroupAddon>
-            <Input type="text" name="text" id="q2" disabled={this.state.disabled}/>
-          </InputGroup>
-        </FormGroup>
-
         <FormGroup check>
         <Label check>
           <Input type="checkbox" id="checkbox2" disabled={this.state.disabled}/> {' '}
-          Multiple submissions
+          Anonymný submission
         </Label>
       </FormGroup>
+        <hr/>
+        <FormGroup>
+          <Label>Open time</Label>
+          <Input type="datetime-local" disabled={this.state.disabled}/>
+        </FormGroup>
+        <FormGroup>
+          <Label>Deadline</Label>
+          <Input type="datetime-local" disabled={this.state.disabled}/>
+        </FormGroup>
+        <FormGroup>
+          <Label>Extra time (in minutes)</Label>
+          <Input type="number" disabled={this.state.disabled}/>
+        </FormGroup>
+        <hr/>
+        <FormGroup check>
+        <Label check>
+          <Input type="checkbox" id="checkbox2" checked={this.state.improvedSubmission} onChange={()=>this.setState({improvedSubmission:!this.state.improvedSubmission})} disabled={this.state.disabled}/> {' '}
+          Improved submission
+        </Label>
+      </FormGroup>
+
+    {
+      this.state.improvedSubmission &&
+      <div>
+        <hr/>
+        <FormGroup>
+          <Label>Open time</Label>
+          <Input type="datetime-local" disabled={this.state.disabled}/>
+        </FormGroup>
+        <FormGroup>
+          <Label>Deadline</Label>
+          <Input type="datetime-local" disabled={this.state.disabled}/>
+        </FormGroup>
+        <FormGroup>
+          <Label>Extra time (in minutes)</Label>
+          <Input type="number" disabled={this.state.disabled}/>
+        </FormGroup>
+        <hr/>
+      </div>
+    }
         </div>
 
       </div>

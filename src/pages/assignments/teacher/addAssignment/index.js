@@ -52,6 +52,9 @@ export default class ModalAdd extends Component {
           </ModalBody>
           <ModalFooter>
             <span className="mr-auto">
+              <Button outline color="secondary" onClick={this.toggle.bind(this)}>Cancel</Button>
+            </span>
+            <span>
               <Button color="secondary" disabled={this.state.index===0} onClick={()=>this.setState({index:this.state.index-1})}>Prev</Button>{' '}
               <Button color="primary" onClick={()=>{
                   if(this.state.index!==5){
@@ -60,9 +63,6 @@ export default class ModalAdd extends Component {
                     this.toggle();
                   }
               }}>{this.state.index===5?'Add':'Next'}</Button>{' '}
-            </span>
-            <span>
-            <Button outline color="secondary" onClick={this.toggle.bind(this)}>Cancel</Button>
             </span>
           </ModalFooter>
         </Modal>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Collapse, CardBody, Card, CardHeader, Button } from 'reactstrap';
+import { Collapse, CardBody, Card, CardHeader, Button, Alert, Table } from 'reactstrap';
 
 export default class AssignmentView extends Component{
   constructor(props){
@@ -22,22 +22,119 @@ export default class AssignmentView extends Component{
         </Button>
         </div>
         <Collapse isOpen={this.state.opened}>
-          <div>
-            {this.props.task.description}
-          </div>
           <Card>
             <CardBody>
-              <h5>Submissions</h5>
               <div>
-                <Button onClick={()=>this.props.history.push(assignmentURL+'/0')} color='success'>Edit</Button>{' '}
-                <Button onClick={()=>this.props.history.push(assignmentURL+'/1')}>View submissions</Button>{' '}
-                <Button onClick={()=>this.props.history.push(assignmentURL+'/2')}>View code reviews</Button>{' '}
-                <Button onClick={()=>this.props.history.push(assignmentURL+'/3')}>View team reviews</Button>{' '}
+                {this.props.task.description}
               </div>
-              <h5>Reviews</h5>
-              <div>
-                <Button color="primary" onClick={()=>this.props.history.push('/assignments/view/3/0')}>Submission 1</Button>
-              </div>
+              {this.props.task.opened &&
+                <div>
+                  <div  className="row mb-1">
+                    <h5 className="mb-0">Deadline:</h5><span> {this.props.task.deadline}</span>
+                  </div>
+                  { !this.props.task.submitted &&
+                    <div>
+                      <Alert color="warning">
+                        No submissions yet!
+                      </Alert>
+                      <Button color="primary" onClick={()=>this.props.history.push(assignmentURL+'/0')}>Submit</Button>
+                    </div>
+                  }
+                  {
+                    this.props.task.submitted &&
+                    <div>
+                      <h5>Your submissions</h5>
+                      <Table>
+                        {false && <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Title</th>
+                            <th>
+                            </th>
+                          </tr>
+                        </thead>}
+                        <tbody>
+                          {this.props.task.submissions.map((submission)=>
+                            <tr>
+                              <td>
+                                {submission.date}
+                              </td>
+                              <td>
+                                {submission.title}
+                              </td>
+                              <td>
+                                <Button color="success" onClick={()=>this.props.history.push(assignmentURL+'/0')}>Update</Button>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </Table>
+                      <Button color="primary" onClick={()=>this.props.history.push(assignmentURL+'/0')}>Submit another</Button>
+                    </div>
+                  }
+                </div>
+              }
+              {
+                !this.props.task.opened &&
+                <div>
+                  <h5>Your submissions</h5>
+                    <Table>
+                      {false && <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Title</th>
+                          <th>
+                          </th>
+                        </tr>
+                      </thead>}
+                      <tbody>
+                        {this.props.task.submissions.map((submission,index)=>
+                          <tr>
+                            <td>
+                              {submission.date}
+                            </td>
+                            <td>
+                              {submission.title}
+                            </td>
+                            <td>
+                              <Button color="success" onClick={()=>this.props.history.push(assignmentURL+'/0')}>View</Button>
+                              <Button color="primary" onClick={()=>this.props.history.push(assignmentURL+'/3')}>{index%2===0?'Review team':'View team review'}</Button>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </Table>
+
+                  <h5>Submissions to review</h5>
+                    <Table>
+                      {false && <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Title</th>
+                          <th>
+                          </th>
+                        </tr>
+                      </thead>}
+                      <tbody>
+                        {this.props.task.submissions.map((submission, index)=>
+                          <tr>
+                            <td>
+                              {submission.date}
+                            </td>
+                            <td>
+                              Team {index}
+                            </td>
+                            <td>
+                              <Button color="primary" onClick={()=>this.props.history.push('/assignments/review/3/0')}>{index%2===0?'Review':'Update/Show review'}</Button>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </Table>
+                  <div>
+                  </div>
+                </div>
+              }
             </CardBody>
           </Card>
         </Collapse>
