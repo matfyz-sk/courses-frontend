@@ -8,7 +8,6 @@ import {timestampToString} from '../../../../helperFunctions';
 import Submission from './submission';
 import CodeReview from './codeReview';
 import Reviews from './reviews';
-
 import {submissions, teams} from './data';
 
 const selectStyle = {
@@ -47,7 +46,7 @@ export default class Assignment extends Component{
                 />
             </Button>
             <h4 className="center-hor ml-5">
-              Assignment
+              {this.state.submission.title}
             </h4>
           </CardHeader>
           <CardBody>

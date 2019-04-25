@@ -6,7 +6,6 @@ import Select from 'react-select';
 import {timestampToString} from '../../../../helperFunctions';
 import {submissions, teams} from './data';
 
-
 const selectStyle = {
   control: base => ({
     ...base,
@@ -24,8 +23,8 @@ export default class Assignment extends Component{
 
   render(){
     return(
-      <div>
-        <div className="submissionContainer bottomSeparator">
+      <div className="row">
+        <div className="submissionContainer bottomSeparator col-6">
           <h3>Zadanie úlohy</h3>
           <FormGroup>
             <Label className="bold">Deadline: </Label>  {timestampToString(this.state.submission.deadline)}
@@ -57,6 +56,7 @@ export default class Assignment extends Component{
               <Button color="success">Save</Button>
             </div>
           </div>
+          <div className="submissionContainer bottomSeparator col-6">
           <h3>
             Old submission
           </h3>
@@ -80,6 +80,7 @@ export default class Assignment extends Component{
               <Label className="bold mr-2">Team:</Label>
               {teams[0].label}
             </FormGroup>
+          </div>
         </div>
       )
     }

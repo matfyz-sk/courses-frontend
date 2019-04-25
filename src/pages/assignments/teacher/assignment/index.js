@@ -11,7 +11,6 @@ import Reviews from './reviews';
 import TeamReview from './teamReview';
 import {submissions, teams} from './data';
 
-
 const selectStyle = {
   control: base => ({
     ...base,
@@ -47,7 +46,7 @@ export default class Assignment extends Component{
                 />
             </Button>
             <h4 className="center-hor ml-5">
-              Assignment: {this.state.submission.title}
+              {this.state.submission.title}
             </h4>
           </CardHeader>
           <CardBody>

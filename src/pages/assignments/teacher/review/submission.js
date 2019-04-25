@@ -24,8 +24,8 @@ export default class Assignment extends Component{
 
   render(){
     return(
-      <div>
-        <div className="submissionContainer bottomSeparator">
+      <div className="row">
+        <div className="submissionContainer bottomSeparator col-6">
           <h3>Zadanie úlohy</h3>
           <FormGroup>
             <Label className="bold">Deadline: </Label>  {timestampToString(this.state.submission.deadline)}
@@ -54,7 +54,8 @@ export default class Assignment extends Component{
             {teams[0].label}
           </FormGroup>
           </div>
-          <div className="submissionContainer">
+          <div className="submissionContainer bottomSeparator col-6">
+            <h3>Staršie odovzdanie</h3>
             <FormGroup>
               <Label className="bold">Deadline: </Label>  {timestampToString(this.state.submission.deadline)}
               </FormGroup>
