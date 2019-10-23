@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { CardBody, Card, CardHeader, Button, FormGroup, Label, Input, Collapse } from 'reactstrap';
+import { Label } from 'reactstrap';
 import {randomSentence} from '../../../../helperFunctions';
 export default class TextTeview extends Component {
   constructor(props){

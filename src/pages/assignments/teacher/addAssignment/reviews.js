@@ -1,13 +1,8 @@
 import React, { Component } from 'react';
-import { CardBody, Card, CardHeader, Button, FormGroup, Label, Input, FormText,InputGroup, InputGroupAddon } from 'reactstrap';
+import { FormGroup, Label, Input } from 'reactstrap';
 import RichTextEditor from "react-rte";
-import Select from 'react-select';
 
-const inputTypes = [{label:'input',value:'input'},{label:'text area',value:'text area'},{label:'file',value:'file'},{label:'Link (URL)',value:'Link (URL)'},{label:'Rich text',value:'Rich text'}]
-
-const selectStyle = {
-  control: styles => ({ ...styles, width: 250 }),
-};
+//const inputTypes = [{label:'input',value:'input'},{label:'text area',value:'text area'},{label:'file',value:'file'},{label:'Link (URL)',value:'Link (URL)'},{label:'Rich text',value:'Rich text'}]
 
 export default class Reviews extends Component {
   constructor(props){

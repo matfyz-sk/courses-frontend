@@ -1,14 +1,9 @@
 import React, { Component } from 'react';
-import { CardBody, Card, CardHeader, Button, FormGroup, Label, Input, FormText,InputGroup, InputGroupAddon, Table } from 'reactstrap';
+import { Button, FormGroup, Label, Input, Table } from 'reactstrap';
 import RichTextEditor from "react-rte";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Select from 'react-select';
 
-const inputTypes = [{label:'input',value:'input'},{label:'text area',value:'text area'},{label:'file',value:'file'},{label:'Link (URL)',value:'Link (URL)'},{label:'Rich text',value:'Rich text'}]
-
-const selectStyle = {
-  control: styles => ({ ...styles, width: 250 }),
-};
+//const inputTypes = [{label:'input',value:'input'},{label:'text area',value:'text area'},{label:'file',value:'file'},{label:'Link (URL)',value:'Link (URL)'},{label:'Rich text',value:'Rich text'}]
 
 export default class TeamReview extends Component {
   constructor(props){

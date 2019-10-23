@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { CardBody, Card, CardHeader, Button, FormGroup, Label, Input, FormText } from 'reactstrap';
+import { Button, FormGroup, Label, Input, FormText } from 'reactstrap';
 
 
 export default class TextTeview extends Component {

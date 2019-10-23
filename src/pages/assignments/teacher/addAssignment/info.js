@@ -1,23 +1,26 @@
 import React, { Component } from 'react';
-import { CardBody, Card, CardHeader, Button, FormGroup, Label, Input, FormText, Table } from 'reactstrap';
-import RichTextEditor from "react-rte";
+import { Button, FormGroup, Label, Input, Table } from 'reactstrap';
+import CKEditor from 'ckeditor4-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Select from 'react-select';
-
-const inputTypes = [{label:'input',value:'input'},{label:'text area',value:'text area'},{label:'title',value:'title'},{label:'file',value:'file'},{label:'Link (URL)',value:'Link (URL)'},{label:'Rich text',value:'Rich text'}]
-
-const selectStyle = {
-  control: styles => ({ ...styles, width: 250 }),
-};
 
 export default class TextTeview extends Component {
   constructor(props){
     super(props);
-    this.state={
-      description: RichTextEditor.createValueFromString("", "html"),
-      input1:'Custom input',
-      input2:'Custom input 2',
+    this.setData.bind(this);
+    this.removeDocument.bind(this);
+  }
 
+  setData(parameter,value){
+    let newData={...this.props.data};
+    newData[parameter]=value;
+    this.props.setData(newData);
+  }
+
+  removeDocument(id){
+    if(window.confirm('Are you sure you want to delete this document?')){
+      let newDocuments=[...this.props.data.documents];
+      newDocuments.splice(newDocuments.findIndex((document)=>document.id===id),1);
+      this.setData('documents',newDocuments);
     }
   }
 
@@ -27,12 +30,22 @@ export default class TextTeview extends Component {
         <h3>Info</h3>
         <div>
           <FormGroup>
-            <Label for="q1">Name</Label>
-            <Input type="text" name="text" id="q1" />
+            <Label for="name">Name</Label>
+            <Input type="text" name="text" id="name" value={this.props.data.name} onChange={(e)=>this.setData('name',e.target.value)}/>
           </FormGroup>
           <FormGroup>
-            <Label for="q1">Short description</Label>
-            <Input type="textarea" name="text" id="q1" />
+            <Label for="desc">Short description</Label>
+              <CKEditor
+                data={this.props.data.description}
+                onChange={(e)=>this.setData('description',e.editor.getData())}
+                config={{
+                    height: [ '10em' ],
+                    codeSnippet_languages: {
+                      javascript: 'JavaScript',
+                      php: 'PHP'
+                    }
+                }}
+              />
           </FormGroup>
           <h4>Documents</h4>
             <Button size="sm" color="success">
@@ -52,46 +65,21 @@ export default class TextTeview extends Component {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <th scope="row">1</th>
-                  <td>Document 1</td>
-                  <td><a href="https://www.google.com/search?q=semantika">{"https://www.google.com/search?q=semantika"}</a></td>
-                  <td>
-                    <Button size="sm" color="">
-                      <FontAwesomeIcon
-                        icon="times"
-                        className="clickable center-hor"
-                        />
-                    </Button>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">2</th>
-                  <td>Document 2</td>
-                    <td><a href="https://www.google.com/search?q=matematika">{"https://www.google.com/search?q=matematika"}</a></td>
+                {this.props.data.documents.map((document)=>
+                  <tr>
+                    <th scope="row">{document.id}</th>
+                    <td>{document.name}</td>
+                    <td><a href={document.url}>{document.url}</a></td>
                     <td>
-                    <Button size="sm" color="">
-                      <FontAwesomeIcon
-                        icon="times"
-                        className="clickable center-hor"
-                        />
-                    </Button>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">3</th>
-                  <td>Document 3</td>
-                    <td><a href="https://www.google.com/search?q=logika">{"https://www.google.com/search?q=logika"}</a></td>
-                    <td>
-                    <Button size="sm" color="">
-                      <FontAwesomeIcon
-                        icon="times"
-                        className="clickable center-hor"
-                        />
-                    </Button>
-                  </td>
-                </tr>
-
+                      <Button size="sm" color="" onClick={()=>this.removeDocument(document.id)}>
+                        <FontAwesomeIcon
+                          icon="times"
+                          className="clickable center-hor"
+                          />
+                      </Button>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </Table>
         </div>

@@ -1,21 +1,12 @@
 import React, { Component } from 'react';
 import { Button, Card, CardHeader, CardBody,TabContent, TabPane, Nav, NavItem, NavLink } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Select from 'react-select';
 import classnames from 'classnames';
-import {timestampToString} from '../../../../helperFunctions';
 
 import Submission from './submission';
 import CodeReview from './codeReview';
 import Reviews from './reviews';
-import {submissions, teams} from './data';
-
-const selectStyle = {
-  control: base => ({
-    ...base,
-    minWidth: 250,
-  })
-};
+import {submissions} from './data';
 
 export default class Assignment extends Component{
   constructor(props){

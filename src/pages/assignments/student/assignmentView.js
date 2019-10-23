@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Collapse, CardBody, Card, CardHeader, Button, Alert, Table } from 'reactstrap';
+import { Collapse, CardBody, Card, Button, Alert, Table } from 'reactstrap';
 
 export default class AssignmentView extends Component{
   constructor(props){

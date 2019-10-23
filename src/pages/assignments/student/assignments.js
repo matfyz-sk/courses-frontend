@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Collapse } from 'reactstrap';
 import AssignmentView from './assignmentView';
 
 export default class Assignments extends Component{

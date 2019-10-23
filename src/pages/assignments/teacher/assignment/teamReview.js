@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import {Alert, CardBody, Card, CardHeader, Button, FormGroup, Label, Input, Collapse,ListGroup, ListGroupItem, FormText } from 'reactstrap';
-import {randomSentence} from '../../../../helperFunctions';
+import { CardBody, Card, Button, FormGroup, Label, Input, Collapse,ListGroup, ListGroupItem, FormText } from 'reactstrap';
 import { Slider, Rail, Handles, Tracks } from 'react-compound-slider';
 import{ SliderRail, Handle, Track } from '../../../../components/slider';
 

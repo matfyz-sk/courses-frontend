@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Card, CardHeader, CardBody, FormGroup, Label, Input, FormText } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button, FormGroup, Label, Input, FormText } from 'reactstrap';
 import Select from 'react-select';
 
 import {timestampToString} from '../../../../helperFunctions';

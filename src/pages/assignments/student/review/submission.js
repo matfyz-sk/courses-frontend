@@ -1,18 +1,8 @@
 import React, { Component } from 'react';
-import { Button, Card, CardHeader, CardBody, FormGroup, Label, Input, FormText } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Select from 'react-select';
-
+import { FormGroup, Label, FormText } from 'reactstrap';
 import {timestampToString} from '../../../../helperFunctions';
-
 import {submissions, teams} from './data';
 
-const selectStyle = {
-  control: base => ({
-    ...base,
-    minWidth: 250,
-  })
-};
 
 export default class Assignment extends Component{
   constructor(props){
