@@ -10,7 +10,6 @@ DropdownToggle,
 Nav,
 UncontrolledDropdown
 } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import UserStore from "./flux/stores/user";
 import {switchUser} from './flux/actions';
 
@@ -69,9 +68,7 @@ export default class PageHeader extends Component{
           <Nav className="ml-auto" navbar>
             <NavItem>
               <NavLink>
-                <FontAwesomeIcon
-                  icon="envelope"
-                />
+                <i className="fa fa-envelope clickable" />
               </NavLink>
             </NavItem>
             <UncontrolledDropdown nav inNavbar>

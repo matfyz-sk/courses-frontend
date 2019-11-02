@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Button, FormGroup, Label, Input, Table } from 'reactstrap';
 import CKEditor from 'ckeditor4-react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import ErrorMessage from '../../../../components/error';
 
 export default class TextTeview extends Component {
   constructor(props){
@@ -30,12 +31,14 @@ export default class TextTeview extends Component {
         <h3>Info</h3>
         <div>
           <FormGroup>
-            <Label for="name">Name</Label>
-            <Input type="text" name="text" id="name" value={this.props.data.name} onChange={(e)=>this.setData('name',e.target.value)}/>
+            <Label for="submission-add-name">Name</Label>
+            <Input type="text" id="submission-add-name" value={this.props.data.name} onChange={(e)=>this.setData('name',e.target.value)}/>
+            <ErrorMessage show={this.props.data.name.length <= 4 && this.props.showErrors} message="Assignment name should be at least 5 characters!" />
           </FormGroup>
           <FormGroup>
-            <Label for="desc">Short description</Label>
+            <Label for="submission-add-desc">Short description</Label>
               <CKEditor
+                id="submission-add-desc"
                 data={this.props.data.description}
                 onChange={(e)=>this.setData('description',e.editor.getData())}
                 config={{
@@ -49,10 +52,8 @@ export default class TextTeview extends Component {
           </FormGroup>
           <h4>Documents</h4>
             <Button size="sm" color="success">
-              <FontAwesomeIcon
-                icon="plus"
-                className="clickable center-hor"
-                /> Add document
+              <i className="fa fa-plus clickable" />
+              Add document
             </Button>
             <Table>
               <thead>
@@ -72,10 +73,7 @@ export default class TextTeview extends Component {
                     <td><a href={document.url}>{document.url}</a></td>
                     <td>
                       <Button size="sm" color="" onClick={()=>this.removeDocument(document.id)}>
-                        <FontAwesomeIcon
-                          icon="times"
-                          className="clickable center-hor"
-                          />
+                        <i className="fa fa-times clickable" />
                       </Button>
                     </td>
                   </tr>

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Button, Card, CardHeader, CardBody,TabContent, TabPane, Nav, NavItem, NavLink } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
 import Submission from './submission';
@@ -31,10 +30,7 @@ export default class Assignment extends Component{
         <Card className="assignmentsContainer center-ver">
           <CardHeader className="row">
             <Button size="sm" color="" onClick={()=>this.props.history.goBack()}>
-              <FontAwesomeIcon
-                icon="arrow-left"
-                className="clickable center-hor"
-                />
+              <i className="fa fa-arrow-left clickable" />
             </Button>
             <h4 className="center-hor ml-5">
               {this.state.submission.title}
