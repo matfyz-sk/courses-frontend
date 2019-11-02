@@ -1,32 +1,26 @@
 import React, { Component } from 'react';
-import UserStore from '../../flux/stores/user';
+import { connect } from "react-redux";
 
 import StudentNavigation from './student';
 import TeacherNavigation from './teacher';
 
 
-export default class Assignments extends Component{
-  constructor(props){
-    super(props);
-    this.state={
-      isAdmin:UserStore.isAdmin
-    }
-  }
-
-  handleUserStoreChange(){
-    this.setState({isAdmin:UserStore.isAdmin})
-  }
-
-  componentWillMount() {
-  UserStore.on("change", this.handleUserStoreChange.bind(this) );
-  }
-
+class Assignments extends Component{
 
   render(){
-    if(this.state.isAdmin){
+    if(this.props.isAdmin){
       return(<TeacherNavigation />)
-    }else{
-      return (<StudentNavigation />)
     }
+    return (<StudentNavigation />)
   }
 }
+
+
+const mapStateToProps = ({ userReducer }) => {
+	const { isAdmin } = userReducer;
+	return {
+    isAdmin
+	};
+};
+
+export default connect(mapStateToProps, {  })(Assignments);

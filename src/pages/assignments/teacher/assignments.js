@@ -22,7 +22,7 @@ export default class Assignments extends Component{
           Assignments
         </h1>
         {
-          this.state.tasks.map((task,index)=> <AssignmentView task={task} history={this.props.history}/>)
+          this.state.tasks.map((task,index)=> <AssignmentView key={index} task={task} history={this.props.history}/>)
         }
       </div>
     )

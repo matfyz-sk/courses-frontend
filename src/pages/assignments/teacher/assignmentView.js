@@ -54,8 +54,8 @@ export default class AssignmentView extends Component{
                           </tr>
                         </thead>}
                         <tbody>
-                          {this.props.task.submissions.map((submission)=>
-                            <tr>
+                          {this.props.task.submissions.map((submission,index)=>
+                            <tr key={index}>
                               <td>
                                 {submission.date}
                               </td>
@@ -89,7 +89,7 @@ export default class AssignmentView extends Component{
                       </thead>}
                       <tbody>
                         {this.props.task.submissions.map((submission,index)=>
-                          <tr>
+                          <tr key={index}>
                             <td>
                               {submission.date}
                             </td>
@@ -117,7 +117,7 @@ export default class AssignmentView extends Component{
                       </thead>}
                       <tbody>
                         {this.props.task.submissions.map((submission, index)=>
-                          <tr>
+                          <tr key={index}>
                             <td>
                               {submission.date}
                             </td>

@@ -10,26 +10,10 @@ DropdownToggle,
 Nav,
 UncontrolledDropdown
 } from 'reactstrap';
-import UserStore from "./flux/stores/user";
-import {switchUser} from './flux/actions';
+import { connect } from "react-redux";
+import { setUserAdmin } from './redux/actions';
 
-export default class PageHeader extends Component{
-
-  constructor(props){
-    super(props);
-    this.state={
-      isAdmin:UserStore.isAdmin
-    }
-  }
-
-  handleUserStoreChange(){
-    this.setState({isAdmin:UserStore.isAdmin})
-  }
-
-  componentWillMount() {
-  UserStore.on("change", this.handleUserStoreChange.bind(this) );
-  }
-
+class PageHeader extends Component{
   render(){
     return(
       <Navbar color="light" light expand="md">
@@ -73,14 +57,14 @@ export default class PageHeader extends Component{
             </NavItem>
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
-                {this.state.isAdmin?'Admin':'Student'}
+                {this.props.isAdmin?'Admin':'Student'}
               </DropdownToggle>
               <DropdownMenu right>
                 <DropdownItem>
                   Account settings
                 </DropdownItem>
-                <DropdownItem className="clickable" onClick={()=>switchUser(!this.state.isAdmin)}>
-                  Change to {this.state.isAdmin?'Student':'Admin'}
+                <DropdownItem className="clickable" onClick={()=>this.props.setUserAdmin(!this.props.isAdmin)}>
+                  Change to {this.props.isAdmin?'Student':'Admin'}
                 </DropdownItem>
                 <DropdownItem divider />
                 <DropdownItem>
@@ -94,3 +78,12 @@ export default class PageHeader extends Component{
     )
   }
 }
+
+const mapStateToProps = ({ userReducer }) => {
+	const { isAdmin } = userReducer;
+	return {
+    isAdmin
+	};
+};
+
+export default connect(mapStateToProps, { setUserAdmin })(PageHeader);
