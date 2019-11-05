@@ -38,6 +38,7 @@ export default class TextTeview extends Component {
           <FormGroup>
             <Label for="submission-add-desc">Short description</Label>
               <CKEditor
+                onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) }
                 id="submission-add-desc"
                 data={this.props.data.description}
                 onChange={(e)=>this.setData('description',e.editor.getData())}

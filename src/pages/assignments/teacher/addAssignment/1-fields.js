@@ -72,6 +72,7 @@ export default class Fields extends Component {
               <Label htmlFor="submission-add-description">Description</Label>
                 <CKEditor
                   id="submission-add-description"
+                  onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) }
                   data={this.state.description}
                   onChange={(e)=>this.setState({description:e.editor.getData()})}
                   config={{
@@ -109,6 +110,7 @@ export default class Fields extends Component {
                 <Label htmlFor={"submission-add-description"+field.id}>Description</Label>
                   <CKEditor
                     id={"submission-add-description"+field.id}
+                    onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) }
                     data={field.description}
                     onChange={(e)=>this.setData('description',e.editor.getData(),field.id)}
                     config={{

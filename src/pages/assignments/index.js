@@ -6,7 +6,6 @@ import TeacherNavigation from './teacher';
 
 
 class Assignments extends Component{
-
   render(){
     if(this.props.isAdmin){
       return(<TeacherNavigation />)
@@ -23,4 +22,4 @@ const mapStateToProps = ({ userReducer }) => {
 	};
 };
 
-export default connect(mapStateToProps, {  })(Assignments);
+export default connect(mapStateToProps, {})(Assignments);
