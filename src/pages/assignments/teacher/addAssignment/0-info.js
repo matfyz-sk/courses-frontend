@@ -4,7 +4,7 @@ import CKEditor from 'ckeditor4-react';
 
 import ErrorMessage from '../../../../components/error';
 
-export default class TextTeview extends Component {
+export default class TextReview extends Component {
   constructor(props){
     super(props);
     this.setData.bind(this);
@@ -68,7 +68,7 @@ export default class TextTeview extends Component {
               </thead>
               <tbody>
                 {this.props.data.documents.map((document)=>
-                  <tr>
+                  <tr key={document.id}>
                     <th scope="row">{document.id}</th>
                     <td>{document.name}</td>
                     <td><a href={document.url}>{document.url}</a></td>

@@ -69,7 +69,7 @@ export default class TeamReview extends Component {
           </thead>
           <tbody>
             {this.props.data.questions.map((question)=>
-              <tr>
+              <tr key={question.id}>
                 <th scope="row">{question.id}</th>
                 <td>{question.name}</td>
                 <td>

@@ -15,11 +15,11 @@ export default class TextTeview extends Component {
         <div>
           {
             [1,2,3,4].map((question)=>
-            <div className="bottomSeparator">
+            <div className="bottomSeparator" key={question}>
               <Label className="bold">Question {question}</Label>
               {
                 [1,2,3].map((answer)=>
-                <div className="row">
+                <div className="row" key={answer}>
                   <label className="bolder italic">
                     Answer {answer}:
                   </label>

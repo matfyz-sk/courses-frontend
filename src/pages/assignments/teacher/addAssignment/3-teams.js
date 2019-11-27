@@ -27,17 +27,17 @@ export default class Teams extends Component {
         </FormGroup>
 
         <div className="row">
-          <FormGroup tag="fieldset" onChange={(e)=>{this.setData('submittedAsTeam',e.target.value==='true');}}>
+          <FormGroup tag="fieldset">
             <Label style={{paddingRight:5}}>Tasks submited as:</Label>
             <FormGroup check>
               <Label check>
-                <Input type="radio" checked={this.props.data.submittedAsTeam} value={true} name="type" disabled={this.props.data.disabled}/>{' '}
+                <Input type="radio" checked={this.props.data.submittedAsTeam} value={true} onChange={()=>{this.setData('submittedAsTeam',true)}} name="type" disabled={this.props.data.disabled}/>{' '}
                 Team
               </Label>
             </FormGroup>
             <FormGroup check>
               <Label check>
-                <Input type="radio" checked={!this.props.data.submittedAsTeam} value={false} name="type" disabled={this.props.data.disabled}/>{' '}
+                <Input type="radio" checked={!this.props.data.submittedAsTeam} value={false} onChange={()=>{this.setData('submittedAsTeam',false)}} name="type" disabled={this.props.data.disabled}/>{' '}
                 Individual
               </Label>
             </FormGroup>

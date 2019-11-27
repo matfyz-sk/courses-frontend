@@ -18,9 +18,9 @@ const defaultForm={
   },
   fields:{
     fields:[
-      {id:0,title:'Nazov riesenia',description:'Nazvy riesenie',type:{label:'input',value:'input'},isTitle:false},
-      {id:1,title:'Popis riesenia',description:'Popis riesenie',type:{label:'text area',value:'text area'},isTitle:false},
-    ]
+      {id:0,title:'Nazov riesenia',description:'Nazvy riesenie',type:{label:'input',value:'input'}},
+      {id:1,title:'Popis riesenia',description:'Popis riesenie',type:{label:'text area',value:'text area'}},
+    ],
   },
   peerReview:{
     disabled:false,
@@ -47,7 +47,12 @@ const defaultForm={
     extraTime:15,
     reviewsPerSubmission:3,
     reviewedByTeam:true,
-    visibility:'blind'
+    visibility:'blind',
+    questions:[
+      {id:1,name:'Question 1'},
+      {id:2,name:'Question 2'},
+      {id:3,name:'Question 3'}
+    ]
   },
   teamReviews:{
     disabled:false,
@@ -142,6 +147,7 @@ export default class ModalAdd extends Component {
     let openTime = moment(reviews.openTime).unix();
     let deadline = moment(reviews.deadline).unix();
     return reviews.disabled||(
+      reviews.questions.length>0 &&
       !isNaN(openTime) &&
       !isNaN(deadline) &&
       openTime <= deadline &&

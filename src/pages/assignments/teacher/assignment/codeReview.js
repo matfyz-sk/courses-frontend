@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import { Button, FormGroup, Label, ListGroup, ListGroupItem, Collapse, Badge } from 'reactstrap';
+import { connect } from "react-redux";
+import { assignmentsGetTestFile } from '../../../../redux/actions';
+import JSZip from 'jszip';
 
 const bible=`Miusov, as a man man of breeding and deilcacy, could not but feel some inwrd qualms, when he reached the Father Superior's with Ivan: he felt ashamed of havin lost his temper. He felt that he ought to have disdaimed that despicable wretch, Fyodor Pavlovitch, too much to have been upset by him in Father Zossima's cell, and so to have forgotten himself. "Teh monks were not to blame, in any case," he reflceted, on the steps. "And if they're decent people here (and the Father Superior, I understand, is a nobleman) why not be friendly and courteous withthem? I won't argue, I'll fall in with everything, I'll win them by politness, and show them that I've nothing to do with that Aesop, thta buffoon, that Pierrot, and have merely been takken in over this affair, just as they have."
 
@@ -8,16 +11,38 @@ He determined to drop his litigation with the monastry, and relinguish his claim
 
 const files=[{name:'index',isFolder:false,level:0},{name:'src',level:0,isFolder:true},{name:'app.js',level:1,isFolder:false}]
 
-export default class CodeReview extends Component {
+class CodeReview extends Component {
   constructor(props){
     super(props);
     this.state={
       file:{label:'./index.js',id:'./index.js'},
       openedComments:false
     }
+    this.props.assignmentsGetTestFile();
+    this.decodeFile.bind(this);
+  }
+
+  componentWillReveiveProps(props){
+    if(props.fileLoaded && !this.props.fileLoaded){
+    }else if(props.fileLoaded && this.state.realFile===null){
+    }
+  }
+
+decodeFile(){
+    console.log('is fetched');
+    console.log(this.props.file);
+
+    var zip = new JSZip();
+    zip.loadAsync(this.props.file)
+      .then((files)=>console.log(files))
+      .catch((error) => console.log(error))
+
   }
 
   render(){
+    if(this.props.fileLoaded){
+      this.decodeFile();
+    }
     return(
       <div>
           <div className="bottomSeparator">
@@ -50,7 +75,7 @@ export default class CodeReview extends Component {
               {
                 files.map((file)=>
                 <div>
-                <Badge action={!file.folder} style={{marginLeft:5+file.level*7,border:"grey solid 2px"}} className="clickable" color={file.isFolder?"secondary":""}>{file.name}</Badge>
+                <Badge action={file.isFolder} style={{marginLeft:5+file.level*7,border:"grey solid 2px"}} className="clickable" color={file.isFolder?"secondary":""}>{file.name}</Badge>
                 </div>
               )
               }
@@ -83,3 +108,12 @@ export default class CodeReview extends Component {
     )
   }
 }
+
+const mapStateToProps = ({assignmentsTestFileReducer}) => {
+	const { file, fileLoaded } = assignmentsTestFileReducer;
+	return {
+    file, fileLoaded
+	};
+};
+
+export default connect(mapStateToProps, { assignmentsGetTestFile })(CodeReview);

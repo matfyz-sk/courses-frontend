@@ -12,7 +12,7 @@ export default class Fields extends Component {
       title:'',
       description:'',
       type:null,
-      newID:2
+      newID:this.props.data.fields.length
     }
     this.getNewID.bind(this);
   }
@@ -24,7 +24,7 @@ export default class Fields extends Component {
   }
 
   addField(){
-    let newField={id:this.getNewID(),title:this.state.title,description:this.state.description,type:this.state.type,isTitle:this.state.type.value==='title'};
+    let newField={id:this.getNewID(),title:this.state.title,description:this.state.description,type:this.state.type};
     this.setState({
       title:'',
       description:'',
@@ -45,17 +45,18 @@ export default class Fields extends Component {
     let newFields=[...this.props.data.fields];
     let field = newFields.find((item)=>item.id===id);
     field[parameter]=value;
-    if(parameter==='type'){
-      field.isTitle=value.value==='title';
-    }
     this.props.setData({...this.props.data,newFields});
   }
 
   render(){
-    let inputTypes = [{label:'input',value:'input'},{label:'text area',value:'text area'},{label:'title',value:'title'},{label:'file',value:'file'},{label:'Link (URL)',value:'Link (URL)'},{label:'Rich text',value:'Rich text'}]
-    if(this.props.data.fields.some((field)=>field.isTitle||(this.state.type!==null && this.state.type.value==='title'))){
+    let inputTypes = [{label:'input',value:'input'},{label:'text area',value:'text area'},{label:'title',value:'title'},{label:'File (for code review)',value:'codeReview'},{label:'file',value:'file'},{label:'Link (URL)',value:'Link (URL)'},{label:'Rich text',value:'Rich text'}]
+    if(this.props.data.fields.some((field)=>field.type.value==='title')){
       inputTypes.splice(inputTypes.findIndex((type)=>type.value==='title'),1);
     }
+    if(this.props.data.fields.some((field)=>field.type.value==='codeReview')){
+      inputTypes.splice(inputTypes.findIndex((type)=>type.value==='codeReview'),1);
+    }
+    console.log(inputTypes);
     return(
       <div>
         <h3>Submission form configuration</h3>

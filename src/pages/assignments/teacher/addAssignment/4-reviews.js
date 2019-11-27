@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FormGroup, Label, Input } from 'reactstrap';
+import { FormGroup, Label, Input, Button, Table } from 'reactstrap';
 import moment from 'moment';
 
 import ErrorMessage from '../../../../components/error';
@@ -9,12 +9,21 @@ export default class Reviews extends Component {
   constructor(props){
     super(props);
     this.setData.bind(this);
+    this.removeQuestion.bind(this);
   }
 
   setData(parameter,value){
     let newData={...this.props.data};
     newData[parameter]=value;
     this.props.setData(newData);
+  }
+
+  removeQuestion(id){
+    if(window.confirm('Are you sure you want to delete this question?')){
+      let newQuestions=[...this.props.data.questions];
+      newQuestions.splice(newQuestions.findIndex((question)=>question.id===id),1);
+      this.setData('questions',newQuestions);
+    }
   }
 
   render(){
@@ -53,17 +62,17 @@ export default class Reviews extends Component {
         <hr/>
 
         <div className="row">
-          <FormGroup tag="fieldset" onChange={(e)=>{this.setData('reviewedByTeam',e.target.value==='true');}}>
+          <FormGroup tag="fieldset">
             <Label style={{paddingRight:5}}>Reviewed by:</Label>
             <FormGroup check>
               <Label check>
-                <Input type="radio" name="reviewedByTeam" value={true} checked={this.props.data.reviewedByTeam===true} disabled={this.props.data.disabled}/>{' '}
+                <Input type="radio" name="reviewedByTeam" checked={this.props.data.reviewedByTeam===true} onChange={(e)=>{this.setData('reviewedByTeam',true)}} disabled={this.props.data.disabled}/>{' '}
                 Team
               </Label>
             </FormGroup>
             <FormGroup check>
               <Label check>
-                <Input type="radio" name="reviewedByTeam" value={false} checked={this.props.data.reviewedByTeam===false} disabled={this.props.data.disabled}/>{' '}
+                <Input type="radio" name="reviewedByTeam" checked={this.props.data.reviewedByTeam===false} onChange={(e)=>{this.setData('reviewedByTeam',false)}} disabled={this.props.data.disabled}/>{' '}
                 Individual
               </Label>
             </FormGroup>
@@ -71,28 +80,56 @@ export default class Reviews extends Component {
         </div>
 
         <div className="row">
-          <FormGroup tag="fieldset" onChange={(e)=>{this.setData('reviewedByTeam',e.target.value);}}>
+          <FormGroup tag="fieldset">
             <Label style={{paddingRight:5}}>Visibility of review:</Label>
             <FormGroup check>
               <Label check>
-                <Input type="radio" name="reviewedByTeam" value={'open'} checked={this.props.data.reviewedByTeam==='open'} disabled={this.props.data.disabled}/>{' '}
+                <Input type="radio" name="reviewVisibility" checked={this.props.data.visibility==='open'} onChange={(e)=>{this.setData('visibility','open');}} disabled={this.props.data.disabled}/>{' '}
                 Open
               </Label>
             </FormGroup>
             <FormGroup check>
               <Label check>
-                <Input type="radio" name="reviewedByTeam" value={'blind'} checked={this.props.data.reviewedByTeam==='blind'} disabled={this.props.data.disabled}/>{' '}
+                <Input type="radio" name="reviewVisibility" checked={this.props.data.visibility==='blind'} onChange={(e)=>{this.setData('visibility','blind');}} disabled={this.props.data.disabled}/>{' '}
                 Blind
               </Label>
             </FormGroup>
             <FormGroup check>
               <Label check>
-                <Input type="radio" name="reviewedByTeam" value={'doubleBlind'} checked={this.props.data.reviewedByTeam==='doubleBlind'} disabled={this.props.data.disabled}/>{' '}
+                <Input type="radio" name="reviewVisibility" checked={this.props.data.visibility==='doubleBlind'} onChange={(e)=>{this.setData('visibility','doubleBlind');}} disabled={this.props.data.disabled}/>{' '}
                 Double blind
               </Label>
             </FormGroup>
           </FormGroup>
         </div>
+        <Button size="sm" color="success">
+          <i className="fa fa-plus clickable" />
+          Add questions
+        </Button>
+        <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.questions.length < 1} message="There must be a review question!" />
+        <Table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.props.data.questions.map((question)=>
+              <tr key={question.id}>
+                <th scope="row">{question.id}</th>
+                <td>{question.name}</td>
+                <td>
+                  <Button size="sm" color="" onClick={()=>this.removeQuestion(question.id)}>
+                    <i className="fa fa-times clickable" />
+                  </Button>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
 
         </div>
 
