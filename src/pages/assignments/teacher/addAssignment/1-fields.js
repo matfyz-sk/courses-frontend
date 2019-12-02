@@ -56,7 +56,6 @@ export default class Fields extends Component {
     if(this.props.data.fields.some((field)=>field.type.value==='codeReview')){
       inputTypes.splice(inputTypes.findIndex((type)=>type.value==='codeReview'),1);
     }
-    console.log(inputTypes);
     return(
       <div>
         <h3>Submission form configuration</h3>

@@ -14,7 +14,14 @@ const defaultForm={
   info:{
     name:'',
     description:'',
-    documents:[{id:1,name:'Document 1',url:'https://www.google.com/search?q=semantika'},{id:2,name:'Document 2',url:'https://www.google.com/search?q=matematika'},{id:3,name:'Document 3',url:'https://www.google.com/search?q=logika'}]
+    documents:[{id:1,name:'Document 1',url:'https://www.google.com/search?q=semantika'},{id:2,name:'Document 2',url:'https://www.google.com/search?q=matematika'},{id:3,name:'Document 3',url:'https://www.google.com/search?q=logika'}],
+    openTime:'',
+    deadline:'',
+    extraTime:15,
+    improvedSubmission:false,
+    improvedOpenTime:'',
+    improvedDeadline:'',
+    improvedExtraTime:15
   },
   fields:{
     fields:[
@@ -105,7 +112,34 @@ export default class ModalAdd extends Component {
   }
 
   infoOK(info){
-    return info.name.length>4
+    let openTime = moment(info.openTime).unix();
+    let deadline = moment(info.deadline).unix();
+    let improvedOpenTime = moment(info.improvedOpenTime).unix();
+    let improvedDeadline = moment(info.improvedDeadline).unix();
+    let realCloseTime = parseInt(info.extraTime);
+    if(isNaN(realCloseTime)){
+      realCloseTime=0;
+    }
+    realCloseTime = realCloseTime*60;
+    if(!isNaN(deadline)){
+      realCloseTime += deadline;
+    }
+
+    return info.name.length>4 && (
+      !isNaN(openTime) &&
+      !isNaN(deadline) &&
+      openTime <= deadline &&
+      !isNaN(parseInt(info.extraTime)) &&
+      parseInt(info.extraTime)>=0 &&
+      (!info.improvedSubmission||(
+        !isNaN(improvedOpenTime) &&
+        !isNaN(improvedDeadline) &&
+        improvedOpenTime <= improvedDeadline &&
+        !isNaN(parseInt(info.improvedExtraTime)) &&
+        parseInt(info.improvedExtraTime)>=0 &&
+        realCloseTime <= improvedOpenTime
+      ))
+    )
   }
 
   fieldsOK(fields){
@@ -118,6 +152,14 @@ export default class ModalAdd extends Component {
     let deadline = moment(peerReview.deadline).unix();
     let improvedOpenTime = moment(peerReview.improvedOpenTime).unix();
     let improvedDeadline = moment(peerReview.improvedDeadline).unix();
+    let realCloseTime = parseInt(peerReview.extraTime);
+    if(isNaN(realCloseTime)){
+      realCloseTime=0;
+    }
+    realCloseTime = realCloseTime*60;
+    if(!isNaN(deadline)){
+      realCloseTime += deadline;
+    }
     return peerReview.disabled || (
       !isNaN(openTime) &&
       !isNaN(deadline) &&
@@ -129,7 +171,8 @@ export default class ModalAdd extends Component {
         !isNaN(improvedDeadline) &&
         improvedOpenTime <= improvedDeadline &&
         !isNaN(parseInt(peerReview.improvedExtraTime)) &&
-        parseInt(peerReview.improvedExtraTime)>=0
+        parseInt(peerReview.improvedExtraTime)>=0 &&
+        realCloseTime <= improvedOpenTime
       ))
     )
   }

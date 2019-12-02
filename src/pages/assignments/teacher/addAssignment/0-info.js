@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, FormGroup, Label, Input, Table } from 'reactstrap';
 import CKEditor from 'ckeditor4-react';
+import moment from 'moment';
 
 import ErrorMessage from '../../../../components/error';
 
@@ -23,6 +24,19 @@ export default class TextReview extends Component {
       newDocuments.splice(newDocuments.findIndex((document)=>document.id===id),1);
       this.setData('documents',newDocuments);
     }
+  }
+
+  getRealCloseTime(data){
+    let deadline = moment(data.deadline).unix();
+    let realCloseTime = parseInt(data.extraTime);
+    if(isNaN(realCloseTime)){
+      realCloseTime=0;
+    }
+    realCloseTime = realCloseTime*60;
+    if(!isNaN(deadline)){
+      realCloseTime += deadline;
+    }
+    return realCloseTime;
   }
 
   render(){
@@ -51,6 +65,53 @@ export default class TextReview extends Component {
                 }}
               />
           </FormGroup>
+          <h4>Submission</h4>
+          <FormGroup check>
+            <Label check>
+              <Input type="checkbox" id="checkbox2" checked={this.props.data.improvedSubmission} onChange={()=>this.setData('improvedSubmission',!this.props.data.improvedSubmission)} disabled={this.props.data.disabled}/> {' '}
+                Improved submission
+              </Label>
+            </FormGroup>
+          <div className="flex-row">
+            <div className="flex-clumn" className="flex-clumn mr-2" style={{width:'50%'}}>
+              <FormGroup>
+                <Label htmlFor="submission-add-openTime">Open time</Label>
+                <Input id="submission-add-openTime" type="datetime-local" disabled={this.props.data.disabled} value={this.props.data.openTime} onChange={(e)=>this.setData('openTime',e.target.value)}/>
+              </FormGroup>
+              <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.openTime===''} message="You must pick an open time!" />
+              <FormGroup>
+                <Label htmlFor="submission-add-deadline">Deadline</Label>
+                <Input id="submission-add-deadline" type="datetime-local" disabled={this.props.data.disabled} value={this.props.data.deadline} onChange={(e)=>this.setData('deadline',e.target.value)}/>
+              </FormGroup>
+              <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.deadline === '' } message="You must pick the deadline!" />
+              <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.openTime !== '' && this.props.data.deadline !== '' && moment(this.props.data.openTime).unix() > moment(this.props.data.deadline).unix() } message="Open time is later than deadline!" />
+              <FormGroup>
+                <Label htmlFor="submission-add-extraTime">Extra time (in minutes)</Label>
+                <Input id="submission-add-extraTime" type="number" disabled={this.props.data.disabled} value={this.props.data.extraTime} onChange={(e)=>this.setData('extraTime',e.target.value)}/>
+              </FormGroup>
+              <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && (isNaN(parseInt(this.props.data.extraTime)) || parseInt(this.props.data.extraTime) < 0)} message="Extra time is not an number or negative!" />
+            </div>
+            {this.props.data.improvedSubmission && <div className="flex-clumn ml-2" style={{width:'50%'}}>
+              <FormGroup>
+                <Label htmlFor="submission-add-improvedOpenTime">Open time</Label>
+                <Input id="submission-add-improvedOpenTime" type="datetime-local" disabled={this.props.data.disabled} value={this.props.data.improvedOpenTime} onChange={(e)=>this.setData('improvedOpenTime',e.target.value)}/>
+              </FormGroup>
+              <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.improvedOpenTime===''} message="You must pick an open time!" />
+              <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.improvedOpenTime!=='' && this.getRealCloseTime(this.props.data) > moment(this.props.data.improvedOpenTime).unix()} message="Improved open time must be after deadline!" />
+              <FormGroup>
+                <Label htmlFor="submission-add-improvedDeadline">Deadline</Label>
+                <Input id="submission-add-improvedDeadline" type="datetime-local" disabled={this.props.data.disabled} value={this.props.data.improvedDeadline} onChange={(e)=>this.setData('improvedDeadline',e.target.value)}/>
+              </FormGroup>
+              <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.improvedDeadline===''} message="You must pick the deadline!" />
+              <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.improvedOpenTime !== '' && this.props.data.improvedDeadline !== '' && moment(this.props.data.improvedOpenTime).unix() > moment(this.props.data.improvedDeadline).unix() } message="Open time is later than deadline!" />
+              <FormGroup>
+                <Label htmlFor="submission-add-improvedExtraTime">Extra time (in minutes)</Label>
+                <Input id="submission-add-improvedExtraTime" type="number" disabled={this.props.data.disabled} value={this.props.data.improvedExtraTime} onChange={(e)=>this.setData('improvedExtraTime',e.target.value)}/>
+              </FormGroup>
+              <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && (isNaN(parseInt(this.props.data.improvedExtraTime)) || parseInt(this.props.data.improvedExtraTime) < 0)} message="Extra time is not an number or negative!" />
+            </div>}
+
+          </div>
           <h4>Documents</h4>
             <Button size="sm" color="success">
               <i className="fa fa-plus clickable" />

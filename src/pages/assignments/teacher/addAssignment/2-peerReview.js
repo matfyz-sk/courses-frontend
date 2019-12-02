@@ -15,6 +15,19 @@ export default class PeerReview extends Component {
     this.props.setData(newData);
   }
 
+  getRealCloseTime(data){
+    let deadline = moment(data.deadline).unix();
+    let realCloseTime = parseInt(data.extraTime);
+    if(isNaN(realCloseTime)){
+      realCloseTime=0;
+    }
+    realCloseTime = realCloseTime*60;
+    if(!isNaN(deadline)){
+      realCloseTime += deadline;
+    }
+    return realCloseTime;
+  }
+
   render(){
     return(
       <div>
@@ -66,6 +79,7 @@ export default class PeerReview extends Component {
           <Input id="submission-add-improvedOpenTime" type="datetime-local" disabled={this.props.data.disabled} value={this.props.data.improvedOpenTime} onChange={(e)=>this.setData('improvedOpenTime',e.target.value)}/>
         </FormGroup>
         <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.improvedOpenTime===''} message="You must pick an open time!" />
+        <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.improvedOpenTime!=='' && this.getRealCloseTime(this.props.data) > moment(this.props.data.improvedOpenTime).unix()} message="Improved open time must be after deadline!" />
         <FormGroup>
           <Label htmlFor="submission-add-improvedDeadline">Deadline</Label>
           <Input id="submission-add-improvedDeadline" type="datetime-local" disabled={this.props.data.disabled} value={this.props.data.improvedDeadline} onChange={(e)=>this.setData('improvedDeadline',e.target.value)}/>

@@ -1,47 +1,59 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, ListGroup, ListGroupItem, Collapse, Badge } from 'reactstrap';
+import { Button, FormGroup, Label, ListGroup, ListGroupItem, Collapse, Table } from 'reactstrap';
 import { connect } from "react-redux";
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import classnames from 'classnames';
+
+import {timestampToString, getFileType} from '../../../../helperFunctions';
 import { assignmentsGetTestFile } from '../../../../redux/actions';
-import JSZip from 'jszip';
-
-const bible=`Miusov, as a man man of breeding and deilcacy, could not but feel some inwrd qualms, when he reached the Father Superior's with Ivan: he felt ashamed of havin lost his temper. He felt that he ought to have disdaimed that despicable wretch, Fyodor Pavlovitch, too much to have been upset by him in Father Zossima's cell, and so to have forgotten himself. "Teh monks were not to blame, in any case," he reflceted, on the steps. "And if they're decent people here (and the Father Superior, I understand, is a nobleman) why not be friendly and courteous withthem? I won't argue, I'll fall in with everything, I'll win them by politness, and show them that I've nothing to do with that Aesop, thta buffoon, that Pierrot, and have merely been takken in over this affair, just as they have."
-
-He determined to drop his litigation with the monastry, and relinguish his claims to the wood-cuting and fishery rihgts at once. He was the more ready to do this becuase the rights had becom much less valuable, and he had indeed the vaguest idea where the wood and river in quedtion were.
-`
-
-const files=[{name:'index',isFolder:false,level:0},{name:'src',level:0,isFolder:true},{name:'app.js',level:1,isFolder:false}]
 
 class CodeReview extends Component {
   constructor(props){
     super(props);
     this.state={
-      file:{label:'./index.js',id:'./index.js'},
-      openedComments:false
+      file:null,
+      openedComments:false,
+
+      currentFolder:'',
+      currentDocument:null,
+      loadingDocument:false,
     }
+    this.deconstructZIP.bind(this);
     this.props.assignmentsGetTestFile();
-    this.decodeFile.bind(this);
   }
 
-  componentWillReveiveProps(props){
-    if(props.fileLoaded && !this.props.fileLoaded){
-    }else if(props.fileLoaded && this.state.realFile===null){
-    }
-  }
-
-decodeFile(){
-    console.log('is fetched');
-    console.log(this.props.file);
-
-    var zip = new JSZip();
-    zip.loadAsync(this.props.file)
-      .then((files)=>console.log(files))
-      .catch((error) => console.log(error))
-
+  deconstructZIP(){
+    var entries = Object.keys(this.props.file.files).map((name) => {
+      return this.props.file.files[name];
+    });
+    return entries.filter((file)=>{
+      let name = file.name;
+      let folder = this.state.currentFolder;
+      if(!name.includes(folder)){
+        return false;
+      }
+      let fileName = name.substring(folder.length,name.length);
+      return (
+        name !== folder &&
+        (
+          (
+            file.dir &&
+            fileName.split('/').length===2
+          )||
+          (
+            !file.dir &&
+            fileName.split('/').length===1
+          )
+        )
+      )
+    });
   }
 
   render(){
+    let files = [];
     if(this.props.fileLoaded){
-      this.decodeFile();
+      files = this.deconstructZIP();
     }
     return(
       <div>
@@ -70,33 +82,62 @@ decodeFile(){
                 </ListGroup>
               </Collapse>
             </div>
-            <h3>Files</h3>
-            <div>
-              {
-                files.map((file)=>
-                <div>
-                <Badge action={file.isFolder} style={{marginLeft:5+file.level*7,border:"grey solid 2px"}} className="clickable" color={file.isFolder?"secondary":""}>{file.name}</Badge>
-                </div>
-              )
-              }
-            </div>
 
-            <div className="row">
-              <div className="flex">
-                <h4>{'Original submission'}</h4>
-                <h5>CODE.js</h5>
-                <div className="codeBlock">
-                  {bible}
-                </div>
+            <Table hover className="table-folder not-highlightable">
+              <tbody>
+                { this.state.currentFolder!=='' &&
+                  <tr
+                    className="clickable"
+                    onClick={()=>{
+                      let currentFolder = this.state.currentFolder;
+                      currentFolder = currentFolder.substring(0,currentFolder.lastIndexOf('/'));
+                      currentFolder = currentFolder.substring(0,currentFolder.lastIndexOf('/')+1);
+                      this.setState({currentFolder})
+                    }}>
+                    <td colSpan="3">..</td>
+                  </tr>
+                }
+                {files.map((file)=>
+                  <tr
+                    key={file.name}
+                    className={classnames({clickable:true})}
+                    onClick={()=>{
+                      if(file.dir){
+                        this.setState({currentFolder:file.name})
+                      }else if(!this.state.loadingDocument){
+                        let name = file.name.substring(this.state.currentFolder.length,file.name.length);
+                        if(this.state.currentDocument!==null && name===this.state.currentDocument.name){
+                          return;
+                        }
+                        this.setState({loadingDocument:true})
+                        this.props.file.file(file.name).async('string').then((text)=>{
+                          this.setState({
+                            loadingDocument:false,
+                            currentDocument:{
+                              body:text,
+                              name,
+                              fileExtension:name.substring(name.lastIndexOf('.')+1,name.length),
+                            }
+                          });
+                        })
+                      }
+                    }}>
+                    <td style={{width:20}}><i className={file.dir?"fa fa-folder":'fa fa-file'} /></td>
+                    <td>{file.name.substring(this.state.currentFolder.length,file.name.length)}</td>
+                    <td style={{width:150}}>{timestampToString(file.date.getTime())}</td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+
+            {this.state.currentDocument!==null &&
+              <div>
+                <h5>Viewing file: {this.state.currentDocument.name}</h5>
+                <SyntaxHighlighter language={getFileType(this.state.currentDocument.fileExtension)} style={docco}>
+                  {this.state.currentDocument.body}
+                </SyntaxHighlighter>
               </div>
-              <div className="flex">
-                <h4>{'Submission'}</h4>
-                <h5>CODE.js</h5>
-                <div className="codeBlock">
-                  {bible}
-                </div>
-              </div>
-            </div>
+          }
             <FormGroup>
               <Label className="bold">General comments</Label>
               <div>

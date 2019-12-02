@@ -11,7 +11,6 @@ import {submissions} from './data';
 export default class Assignment extends Component{
   constructor(props){
     super(props);
-    console.log(this.props.match.params.id);
     this.state={
       submission:submissions.find((item)=>item.id===parseInt(this.props.match.params.id)),
       tab:parseInt(this.props.match.params.tabID)
