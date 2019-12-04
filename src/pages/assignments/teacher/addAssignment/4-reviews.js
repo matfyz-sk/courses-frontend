@@ -84,7 +84,7 @@ export default class Reviews extends Component {
             <Label style={{paddingRight:5}}>Visibility of review:</Label>
             <FormGroup check>
               <Label check>
-                <Input type="radio" name="reviewVisibility" checked={this.props.data.visibility==='open'} onChange={(e)=>{this.setData('visibility','open');}} disabled={this.props.data.disabled}/>{' '}
+                <Input type="radio" name="reviewVisibility" checked={this.props.data.visibility==='open'} onChange={(e)=>{this.setData('visibility','open');}} disabled={this.props.data.disabled || this.props.openDisabled}/>{' '}
                 Open
               </Label>
             </FormGroup>

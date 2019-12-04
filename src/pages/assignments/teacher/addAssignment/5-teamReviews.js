@@ -7,21 +7,12 @@ export default class TeamReview extends Component {
   constructor(props){
     super(props);
     this.setData.bind(this);
-    this.removeQuestion.bind(this);
   }
 
   setData(parameter,value){
     let newData={...this.props.data};
     newData[parameter]=value;
     this.props.setData(newData);
-  }
-
-  removeQuestion(id){
-    if(window.confirm('Are you sure you want to delete this question?')){
-      let newQuestions=[...this.props.data.questions];
-      newQuestions.splice(newQuestions.findIndex((question)=>question.id===id),1);
-      this.setData('questions',newQuestions);
-    }
   }
 
   render(){
@@ -53,35 +44,6 @@ export default class TeamReview extends Component {
           <Input id="submission-add-extraTime" type="number" value={this.props.data.extraTime} onChange={(e)=>{this.setData('extraTime',e.target.value)}} disabled={this.props.data.disabled}/>
         </FormGroup>
         <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && (isNaN(parseInt(this.props.data.extraTime)) || parseInt(this.props.data.extraTime) < 0)} message="Extra time is not an number or negative!" />
-
-        <Button size="sm" color="success">
-          <i className="fa fa-plus clickable" />
-          Add questions
-        </Button>
-        <Table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.props.data.questions.map((question)=>
-              <tr key={question.id}>
-                <th scope="row">{question.id}</th>
-                <td>{question.name}</td>
-                <td>
-                  <Button size="sm" color="" onClick={()=>this.removeQuestion(question.id)}>
-                    <i className="fa fa-times clickable" />
-                  </Button>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
-
         </div>
 
       </div>

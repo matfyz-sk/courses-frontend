@@ -4,8 +4,8 @@ import classnames from 'classnames';
 import moment from 'moment';
 
 import Info from './0-info';
-import Fields from './1-fields';
-import PeerReview from './2-peerReview';
+import Submission from './1-submission';
+import Fields from './2-fields';
 import Teams from './3-teams';
 import Reviews from './4-reviews';
 import TeamReviews from './5-teamReviews';
@@ -15,13 +15,6 @@ const defaultForm={
     name:'',
     description:'',
     documents:[{id:1,name:'Document 1',url:'https://www.google.com/search?q=semantika'},{id:2,name:'Document 2',url:'https://www.google.com/search?q=matematika'},{id:3,name:'Document 3',url:'https://www.google.com/search?q=logika'}],
-    openTime:'',
-    deadline:'',
-    extraTime:15,
-    improvedSubmission:false,
-    improvedOpenTime:'',
-    improvedDeadline:'',
-    improvedExtraTime:15
   },
   fields:{
     fields:[
@@ -29,8 +22,7 @@ const defaultForm={
       {id:1,title:'Popis riesenia',description:'Popis riesenie',type:{label:'text area',value:'text area'}},
     ],
   },
-  peerReview:{
-    disabled:false,
+  submission:{
     anonymousSubmission:false,
     openTime:'',
     deadline:'',
@@ -65,12 +57,7 @@ const defaultForm={
     disabled:false,
     openTime:'',
     deadline:'',
-    extraTime:15,
-    questions:[
-      {id:1,name:'Question 1'},
-      {id:2,name:'Question 2'},
-      {id:3,name:'Question 3'}
-    ]
+    extraTime:15
   }
 }
 
@@ -86,7 +73,7 @@ export default class ModalAdd extends Component {
     this.toggle.bind(this);
     this.canSave.bind(this);
     this.infoOK.bind(this);
-    this.peerReviewOK.bind(this);
+    this.submissionOK.bind(this);
     this.teamsOK.bind(this);
     this.reviewsOK.bind(this);
     this.teamReviewsOK.bind(this);
@@ -105,54 +92,26 @@ export default class ModalAdd extends Component {
   canSave(){
     return this.infoOK(this.state.info) &&
       this.fieldsOK(this.state.fields) &&
-      this.peerReviewOK(this.state.peerReview) &&
+      this.submissionOK(this.state.submission) &&
       this.teamsOK(this.state.teams) &&
       this.reviewsOK(this.state.reviews) &&
       this.teamReviewsOK(this.state.teams, this.state.teamReviews)
   }
 
   infoOK(info){
-    let openTime = moment(info.openTime).unix();
-    let deadline = moment(info.deadline).unix();
-    let improvedOpenTime = moment(info.improvedOpenTime).unix();
-    let improvedDeadline = moment(info.improvedDeadline).unix();
-    let realCloseTime = parseInt(info.extraTime);
-    if(isNaN(realCloseTime)){
-      realCloseTime=0;
-    }
-    realCloseTime = realCloseTime*60;
-    if(!isNaN(deadline)){
-      realCloseTime += deadline;
-    }
-
-    return info.name.length>4 && (
-      !isNaN(openTime) &&
-      !isNaN(deadline) &&
-      openTime <= deadline &&
-      !isNaN(parseInt(info.extraTime)) &&
-      parseInt(info.extraTime)>=0 &&
-      (!info.improvedSubmission||(
-        !isNaN(improvedOpenTime) &&
-        !isNaN(improvedDeadline) &&
-        improvedOpenTime <= improvedDeadline &&
-        !isNaN(parseInt(info.improvedExtraTime)) &&
-        parseInt(info.improvedExtraTime)>=0 &&
-        realCloseTime <= improvedOpenTime
-      ))
-    )
+    return info.name.length>4
   }
 
   fieldsOK(fields){
     return fields.fields.length>0
   }
 
-  peerReviewOK(peerReview){
-    //openTime a iimrpoovedOpenTime su nezavysle
-    let openTime = moment(peerReview.openTime).unix();
-    let deadline = moment(peerReview.deadline).unix();
-    let improvedOpenTime = moment(peerReview.improvedOpenTime).unix();
-    let improvedDeadline = moment(peerReview.improvedDeadline).unix();
-    let realCloseTime = parseInt(peerReview.extraTime);
+  submissionOK(submission){
+    let openTime = moment(submission.openTime).unix();
+    let deadline = moment(submission.deadline).unix();
+    let improvedOpenTime = moment(submission.improvedOpenTime).unix();
+    let improvedDeadline = moment(submission.improvedDeadline).unix();
+    let realCloseTime = parseInt(submission.extraTime);
     if(isNaN(realCloseTime)){
       realCloseTime=0;
     }
@@ -160,21 +119,19 @@ export default class ModalAdd extends Component {
     if(!isNaN(deadline)){
       realCloseTime += deadline;
     }
-    return peerReview.disabled || (
-      !isNaN(openTime) &&
+    return !isNaN(openTime) &&
       !isNaN(deadline) &&
       openTime <= deadline &&
-      !isNaN(parseInt(peerReview.extraTime)) &&
-      parseInt(peerReview.extraTime)>=0 &&
-      (!peerReview.improvedSubmission||(
+      !isNaN(parseInt(submission.extraTime)) &&
+      parseInt(submission.extraTime)>=0 &&
+      (!submission.improvedSubmission||(
         !isNaN(improvedOpenTime) &&
         !isNaN(improvedDeadline) &&
         improvedOpenTime <= improvedDeadline &&
-        !isNaN(parseInt(peerReview.improvedExtraTime)) &&
-        parseInt(peerReview.improvedExtraTime)>=0 &&
+        !isNaN(parseInt(submission.improvedExtraTime)) &&
+        parseInt(submission.improvedExtraTime)>=0 &&
         realCloseTime <= improvedOpenTime
       ))
-    )
   }
 
   teamsOK(teams){
@@ -235,18 +192,18 @@ export default class ModalAdd extends Component {
               </NavItem>
               <NavItem>
                 <NavLink
-                  className={classnames({ active: this.state.activeTab === '2',hasError:!this.fieldsOK(this.state.fields)}, "clickable")}
+                  className={classnames({ active: this.state.activeTab === '2',hasError:!this.submissionOK(this.state.submission)}, "clickable")}
                   onClick={() => { this.setState({activeTab:'2'}) }}
-                >
-                  Fields
+                  >
+                  Submission
                 </NavLink>
               </NavItem>
               <NavItem>
                 <NavLink
-                  className={classnames({ active: this.state.activeTab === '3',hasError:!this.peerReviewOK(this.state.peerReview)}, "clickable")}
+                  className={classnames({ active: this.state.activeTab === '3',hasError:!this.fieldsOK(this.state.fields)}, "clickable")}
                   onClick={() => { this.setState({activeTab:'3'}) }}
                 >
-                  Peer Review
+                  Fields
                 </NavLink>
               </NavItem>
               <NavItem>
@@ -281,16 +238,26 @@ export default class ModalAdd extends Component {
                 <Info data={this.state.info} showErrors={this.state.showErrors} setData={(info)=>{this.setState({info})}} />
               </TabPane>
               <TabPane tabId="2">
-                <Fields data={this.state.fields} showErrors={this.state.showErrors} setData={(fields)=>{this.setState({fields})}} />
+                <Submission
+                  data={this.state.submission}
+                  showErrors={this.state.showErrors}
+                  setData={(submission)=>{this.setState({submission})}}
+                  setSubmissionAnonymous={(anonymousSubmission)=>{
+                    if(anonymousSubmission && this.state.reviews.visibility==='open'){
+                      this.setState({submission:{...this.state.submission,anonymousSubmission},reviews:{...this.state.reviews,visibility:'blind'}});
+                    }else{
+                      this.setState({submission:{...this.state.submission,anonymousSubmission}});
+                    }
+                  }} />
               </TabPane>
               <TabPane tabId="3">
-                <PeerReview data={this.state.peerReview} showErrors={this.state.showErrors} setData={(peerReview)=>{this.setState({peerReview})}} />
+                <Fields data={this.state.fields} showErrors={this.state.showErrors} setData={(fields)=>{this.setState({fields})}} />
               </TabPane>
               <TabPane tabId="4">
                 <Teams data={this.state.teams} showErrors={this.state.showErrors} setData={(teams)=>{this.setState({teams})}} />
               </TabPane>
               <TabPane tabId="5">
-                <Reviews data={this.state.reviews} showErrors={this.state.showErrors} setData={(reviews)=>{this.setState({reviews})}}/>
+                <Reviews data={this.state.reviews} showErrors={this.state.showErrors} openDisabled={this.state.submission.anonymousSubmission} setData={(reviews)=>{this.setState({reviews})}}/>
               </TabPane>
               <TabPane tabId="6">
                 <TeamReviews data={this.state.teamReviews} showErrors={this.state.showErrors} setData={(teamReviews)=>{this.setState({teamReviews})}}/>
