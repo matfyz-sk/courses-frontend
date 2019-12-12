@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="0d569b0c-0c0e-4c7d-ac2e-fcccf66937d1" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/constants/roles.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/constants/routes.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Account/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Admin/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/App/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Courses/Courses.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Courses/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/CreateTimeline/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Enrollments/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Events/Events.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Events/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Firebase/context.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Firebase/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Landing/Landing.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Landing/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Landing/random_photo.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/ModalCreateEvent/ModalCreateEvent.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/ModalCreateEvent/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Navigation/Navigation.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Navigation/bars.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Navigation/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/PasswordChange/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/PasswordForget/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Session/context.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Session/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Session/withAuthentication.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Session/withAuthorization.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Session/withCourse.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/SignIn/SignIn.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/SignIn/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/SignOut/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/SignUp/index.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Timeline/Timeline.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/core/Timeline/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/files/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/info/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/labs/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/lectures/index.js" beforeDir="false" />
+    </list>
+    <ignored path="$PROJECT_DIR$/.tmp/" />
+    <ignored path="$PROJECT_DIR$/temp/" />
+    <ignored path="$PROJECT_DIR$/tmp/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FUSProjectUsageTrigger">
+    <session id="518428690">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.open.time.3" value="1" />
+          <entry key="project.opened" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="js" value="8" />
+          <entry key="json" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="JSON" value="1" />
+          <entry key="JavaScript" value="8" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.js.language.service.starts">
+        <counts>
+          <entry key="ESLintLanguageService" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="js" value="40" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="JavaScript" value="40" />
+        </counts>
+      </usages-collector>
+    </session>
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/index.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="e#0#26#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pageHeader.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="43">
+              <caret line="70" column="25" selection-start-line="70" selection-start-column="25" selection-end-line="70" selection-end-column="25" />
+              <folding>
+                <element signature="e#0#41#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/pages/core/Firebase/firebase.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="240">
+              <caret line="18" column="34" lean-forward="true" selection-start-line="18" selection-start-column="34" selection-end-line="18" selection-end-column="34" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/navigation.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="330">
+              <caret line="30" column="18" selection-start-line="30" selection-start-column="18" selection-end-line="30" selection-end-column="18" />
+              <folding>
+                <element signature="e#0#39#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pages/mainPage/index.js">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/redux/store.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="225">
+              <caret line="15" selection-start-line="15" selection-end-line="15" />
+              <folding>
+                <element signature="e#0#79#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/package.json">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>API</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/navigation.js" />
+        <option value="$PROJECT_DIR$/src/pageHeader.js" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER">
+    <package-json value="$PROJECT_DIR$/package.json" />
+  </component>
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="NodeModulesDirectoryManager">
+    <handled-path value="$PROJECT_DIR$/fakeAPI/node_modules" />
+    <handled-path value="$PROJECT_DIR$/node_modules" />
+  </component>
+  <component name="NodePackageJsonFileManager">
+    <packageJsonPaths>
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/accepts/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/array-flatten/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/body-parser/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/bytes/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/content-disposition/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/content-type/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/cookie-signature/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/cookie/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/cors/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/debug/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/depd/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/destroy/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/ee-first/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/encodeurl/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/escape-html/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/etag/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/express/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/finalhandler/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/forwarded/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/fresh/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/http-errors/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/iconv-lite/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/inherits/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/ipaddr.js/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/media-typer/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/merge-descriptors/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/methods/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/mime-db/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/mime-types/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/mime/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/ms/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/negotiator/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/object-assign/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/on-finished/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/parseurl/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/path-to-regexp/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/proxy-addr/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/qs/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/range-parser/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/raw-body/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/safe-buffer/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/safer-buffer/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/send/node_modules/ms/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/send/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/serve-static/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/setprototypeof/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/statuses/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/toidentifier/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/type-is/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/unpipe/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/utils-merge/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/node_modules/vary/package.json" />
+      <path value="$PROJECT_DIR$/fakeAPI/package.json" />
+      <path value="$PROJECT_DIR$/package.json" />
+    </packageJsonPaths>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="y" value="23" />
+    <option name="width" value="1280" />
+    <option name="height" value="777" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="courses-frontend" type="b2602c69:ProjectViewProjectNode" />
+              <item name="courses-frontend" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="courses-frontend" type="b2602c69:ProjectViewProjectNode" />
+              <item name="courses-frontend" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="courses-frontend" type="b2602c69:ProjectViewProjectNode" />
+              <item name="courses-frontend" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="constants" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="courses-frontend" type="b2602c69:ProjectViewProjectNode" />
+              <item name="courses-frontend" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="pages" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="courses-frontend" type="b2602c69:ProjectViewProjectNode" />
+              <item name="courses-frontend" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="pages" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="courses-frontend" type="b2602c69:ProjectViewProjectNode" />
+              <item name="courses-frontend" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="pages" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="Firebase" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="courses-frontend" type="b2602c69:ProjectViewProjectNode" />
+              <item name="courses-frontend" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="pages" type="462c0819:PsiDirectoryNode" />
+              <item name="mainPage" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.standard" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.standard" value="project" />
+    <property name="node.js.selected.package.eslint" value="$PROJECT_DIR$/node_modules/eslint" />
+    <property name="node.js.selected.package.standard" value="" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0d569b0c-0c0e-4c7d-ac2e-fcccf66937d1" name="Default Changelist" comment="" />
+      <created>1576153641592</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1576153641592</updated>
+      <workItem from="1576153643359" duration="3007000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="3007000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="23" width="1280" height="777" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info id="npm" side_tool="true" />
+      <window_info id="Favorites" side_tool="true" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2494043" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Terminal" />
+      <window_info anchor="bottom" id="Event Log" side_tool="true" />
+      <window_info anchor="bottom" id="Messages" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.329927" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/redux/actions/assignmentsActions/index.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/redux/actions/assignmentsActions/testFileActions.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#53#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/redux/store.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
+          <folding>
+            <element signature="e#0#79#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package.json">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/mainPage/index.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/navigation.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="30" column="18" selection-start-line="30" selection-start-column="18" selection-end-line="30" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pageHeader.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="43">
+          <caret line="70" column="25" selection-start-line="70" selection-start-column="25" selection-end-line="70" selection-end-column="25" />
+          <folding>
+            <element signature="e#0#41#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pages/core/Firebase/firebase.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="18" column="34" lean-forward="true" selection-start-line="18" selection-start-column="34" selection-end-line="18" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

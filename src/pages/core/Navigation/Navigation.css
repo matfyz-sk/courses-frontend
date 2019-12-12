@@ -1,0 +1,46 @@
+.navbar {
+    background-color: #133F2A;
+    padding: 0;
+}
+
+.navbar-brand  {
+    background-color: #1D661D;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.navbar-brand:hover {
+    color: #F4B800;
+}
+
+.nav-link, .fake-nav{
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    height: 50px;
+    justify-content: center;
+}
+
+.nav-button:hover {
+    background-color: #1D661D;
+    color: white;
+}
+
+button {
+    background-color: #1D661D;
+    color: white;
+    border: none;
+}
+
+.navbar-toggler-icon {
+    background-image: url('bars.png');
+}
+
+@media only screen and (max-width: 767px) {
+    .nav {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+    }
+}

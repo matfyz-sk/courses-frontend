@@ -1,0 +1,14 @@
+label {
+    margin: 5px;
+}
+
+.sign-in-div {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.password-forget-link {
+    margin-top: 20px;
+}
