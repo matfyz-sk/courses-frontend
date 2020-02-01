@@ -1,3 +1,9 @@
+Problem with instalation of dependencies run cmd line as Administrator.
+
+If there is problem with sass(scss):
+
+### `npm rebuild node-sass`
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
