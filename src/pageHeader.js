@@ -10,6 +10,7 @@ DropdownToggle,
 Nav,
 UncontrolledDropdown
 } from 'reactstrap';
+import { NavLink as NV } from "react-router-dom";
 import { connect } from "react-redux";
 import { setUserAdmin } from './redux/actions';
 
@@ -28,25 +29,25 @@ class PageHeader extends Component{
 
         <Nav navbar>
           <NavItem>
-            <NavLink className="clickable" onClick={()=>this.props.history.push('/info')} >Info</NavLink>
+            <NavLink className="clickable" tag={NV} to="/info">Info</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink className="clickable" onClick={()=>this.props.history.push('/lectures')} >Lectures</NavLink>
+            <NavLink className="clickable" tag={NV} to="/lectures">Lectures</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink className="clickable" onClick={()=>this.props.history.push('/labs')} >Labs</NavLink>
+            <NavLink className="clickable" tag={NV} to="/labs">Labs</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink className="clickable" onClick={()=>this.props.history.push('/assignments')} >Assignments</NavLink>
+            <NavLink className="clickable" tag={NV} to="/assignments">Assignments</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink className="clickable" onClick={()=>this.props.history.push('/results')} >Results</NavLink>
+            <NavLink className="clickable" tag={NV} to="/results">Results</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink className="clickable" onClick={()=>this.props.history.push('/quiz')} >Quiz</NavLink>
+            <NavLink className="clickable" tag={NV} to="/quiz">Quiz</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink className="clickable" onClick={()=>this.props.history.push('/files')} >Files</NavLink>
+            <NavLink className="clickable" tag={NV} to="/files">Files</NavLink>
           </NavItem>
         </Nav>
           <Nav className="ml-auto" navbar>
