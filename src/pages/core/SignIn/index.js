@@ -3,24 +3,20 @@ import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import { SignUpLink } from '../SignUp';
 import { PasswordForgetLink } from '../PasswordForget';
-import { withFirebase } from '../Firebase';
-import * as ROUTES from '../../constants/routes';
+import { withFirebase } from '../../../components/Firebase';
+import * as ROUTES from '../../../constants/routes';
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import './SignIn.css';
-import Navigation from "../Navigation";
 
 const SignInPage = () => (
-    <div>
-        <Navigation />
-        <main>
-            <div className="sign-in-div">
-                <h1>Sign In</h1>
-                <SignInForm />
-                <PasswordForgetLink/>
-                <SignUpLink />
-            </div>
-        </main>
-    </div>
+    <main>
+        <div className="sign-in-div">
+            <h1>Sign In</h1>
+            <SignInForm />
+            <PasswordForgetLink/>
+            <SignUpLink />
+        </div>
+    </main>
 );
 
 const INITIAL_STATE = {

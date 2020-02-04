@@ -6,20 +6,20 @@ import TeacherNavigation from './teacher';
 
 
 class Assignments extends Component{
-  render(){
-    if(this.props.isAdmin){
-      return(<TeacherNavigation />)
+    render() {
+        if (this.props.isAdmin) {
+            return (
+                <TeacherNavigation/>
+            );
+        }
+        return (
+            <StudentNavigation/>
+        );
     }
-    return (<StudentNavigation />)
-  }
 }
 
-
 const mapStateToProps = ({ userReducer }) => {
-	const { isAdmin } = userReducer;
-	return {
-    isAdmin
-	};
+	return { isAdmin: userReducer.isAdmin };
 };
 
 export default connect(mapStateToProps, {})(Assignments);

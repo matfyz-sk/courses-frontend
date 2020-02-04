@@ -1,22 +1,18 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { withFirebase } from '../Firebase';
+import { withFirebase } from '../../../components/Firebase';
 import { compose } from 'recompose';
 
-import * as ROUTES from '../../constants/routes';
+import * as ROUTES from '../../../constants/routes';
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
-import Navigation from "../Navigation";
 
 const SignUpPage = () => (
-    <div>
-        <Navigation />
-        <main>
-            <div className="sign-in-div">
-                <h1>Registration</h1>
-                <SignUpForm />
-            </div>
-        </main>
-    </div>
+    <main>
+        <div className="sign-in-div">
+            <h1>Registration</h1>
+            <SignUpForm />
+        </div>
+    </main>
 );
 
 const INITIAL_STATE = {

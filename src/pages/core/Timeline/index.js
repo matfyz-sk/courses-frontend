@@ -1,11 +1,12 @@
-import withAuthorization from "../Session/withAuthorization";
+import withAuthorization from "../../../components/Session/withAuthorization";
+
 import {Component} from "react";
 import React from "react";
 import EventsList, {BlockMenu} from "../Events"
 import { Container, Row, Col } from 'reactstrap';
-import './Timeline.css';
-import {NavigationCourse} from "../Navigation";
+import {NavigationCourse} from "../../../components/Navigation";
 import ModalCreateEvent from "../ModalCreateEvent";
+import './Timeline.css';
 
 class Timeline extends Component {
     constructor(props) {

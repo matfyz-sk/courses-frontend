@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {withFirebase} from "../Firebase";
+import {withFirebase} from "../../../components/Firebase";
 import { withRouter } from 'react-router-dom';
 import {compose} from "recompose";
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';

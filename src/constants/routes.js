@@ -7,3 +7,4 @@ export const TIMELINE_ID = '/timeline/:id';
 export const ACCOUNT = '/account';
 export const ADMIN = '/admin';
 export const PASSWORD_FORGET = '/pw-forget';
+export const ASSIGNMENTS = '/assignments';

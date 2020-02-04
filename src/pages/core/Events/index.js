@@ -1,8 +1,9 @@
 import React from "react";
+
 import { ListGroup, ListGroupItem } from 'reactstrap';
-import './Events.css';
 import { Container, Row, Col } from 'reactstrap';
 import Moment from 'moment';
+import './Events.css';
 
 const EventsList = ({ courseEvents }) => {
     courseEvents.sort((e1, e2) => {

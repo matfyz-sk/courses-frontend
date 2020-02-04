@@ -1,12 +1,11 @@
 import React, {Component} from 'react';
-import {CourseContext, withAuthorization} from '../Session';
+import {CourseContext, withAuthorization} from '../../../components/Session';
 import {Link} from "react-router-dom";
 import {Enroll} from "../Enrollments";
 import { TabContent, TabPane, Nav, NavItem, NavLink } from 'reactstrap';
 import { ListGroup, ListGroupItem } from 'reactstrap';
 import classnames from 'classnames';
 import './Courses.css';
-import Navigation from "../Navigation";
 
 class CoursesPage extends Component {
     constructor(props) {
@@ -104,7 +103,6 @@ class CoursesPage extends Component {
 
         return (
             <div>
-                <Navigation />
                 <main className="courses_main">
                 <div className="courses">
 

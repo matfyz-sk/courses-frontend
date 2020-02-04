@@ -1,19 +1,17 @@
-import {SET_USER_ADMIN} from '../types'
+import { SET_USER_ADMIN } from '../types'
 
 const initialState = {
-  isAdmin:true,
+  isAdmin: false,
 };
 
 export default function userReducer(state = initialState, action) {
   switch (action.type) {
-    case SET_USER_ADMIN:{
+    case SET_USER_ADMIN:
       return {
         ...state,
         isAdmin: action.isAdmin
       };
-    }
-    default:{
+    default:
       return state;
-    }
   }
 }

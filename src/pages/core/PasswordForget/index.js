@@ -1,21 +1,17 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
-import { withFirebase } from '../Firebase';
-import * as ROUTES from '../../constants/routes';
+import { withFirebase } from '../../../components/Firebase';
+import * as ROUTES from '../../../constants/routes';
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
-import Navigation from "../Navigation";
 
 const PasswordForgetPage = () => (
-    <div>
-        <Navigation />
-        <main>
-            <div className="sign-in-div">
-        <h1>Reset password</h1>
-        <PasswordForgetForm />
-            </div>
-        </main>
-    </div>
+    <main>
+        <div className="sign-in-div">
+    <h1>Reset password</h1>
+    <PasswordForgetForm />
+        </div>
+    </main>
 );
 
 const INITIAL_STATE = {

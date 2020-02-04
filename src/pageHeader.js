@@ -1,19 +1,20 @@
 import React, { Component } from 'react';
+
 import {
-Navbar,
-NavbarBrand,
-NavLink,
-NavItem,
-DropdownMenu,
-DropdownItem,
-DropdownToggle,
-Nav,
-UncontrolledDropdown
-} from 'reactstrap';
+  Navbar,
+  NavbarBrand,
+  NavLink,
+  NavItem,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  Nav,
+  UncontrolledDropdown } from 'reactstrap';
+
 import { connect } from "react-redux";
 import { setUserAdmin } from './redux/actions';
 
-class PageHeader extends Component{
+class PageHeader extends Component {
   render(){
     return(
       <Navbar color="light" light expand="md">
@@ -28,13 +29,10 @@ class PageHeader extends Component{
 
         <Nav navbar>
           <NavItem>
-            <NavLink className="clickable" onClick={()=>this.props.history.push('/info')} >Info</NavLink>
+            <NavLink className="clickable" onClick={()=>this.props.history.push('/timeline')} >Timeline</NavLink>
           </NavItem>
           <NavItem>
-            <NavLink className="clickable" onClick={()=>this.props.history.push('/lectures')} >Lectures</NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink className="clickable" onClick={()=>this.props.history.push('/labs')} >Labs</NavLink>
+            <NavLink className="clickable" onClick={()=>this.props.history.push('/topics')} >Topics</NavLink>
           </NavItem>
           <NavItem>
             <NavLink className="clickable" onClick={()=>this.props.history.push('/assignments')} >Assignments</NavLink>
@@ -80,10 +78,10 @@ class PageHeader extends Component{
 }
 
 const mapStateToProps = ({ userReducer }) => {
-	const { isAdmin } = userReducer;
-	return {
+  const { isAdmin } = userReducer;
+  return {
     isAdmin
-	};
+  };
 };
 
 export default connect(mapStateToProps, { setUserAdmin })(PageHeader);
