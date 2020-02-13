@@ -15,3 +15,19 @@ export const assignmentsGetTestFile = () => {
      })
    };
 };
+
+export const assignmentsGetTestFileLocally = () => {
+   return (dispatch) => {
+     const URL = window.location.href.substring(0,window.location.href.indexOf('/assignments'));
+     fetch(URL+'/test.zip', {mode: 'no-cors'}) .then((response)=>{
+       response.blob().then((blob)=>{
+         var zip = new JSZip();
+         zip.loadAsync(blob)
+         .then((files)=>{
+           dispatch({ type: SET_ASIGNMENTS_TEST_FILE, file:files });
+         })
+         .catch((error) => console.log(error))
+       })
+     })
+   };
+};

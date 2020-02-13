@@ -14,11 +14,25 @@
   margin: 20px 0px;
 }
 
+.bigPopover{
+  max-width: 600px;
+}
+
 .codeBlock{
   border: solid lightGrey 4px;
   border-radius: 10px;
   margin:10px 5px;
   padding:10px;
+}
+
+.comment-reply-button{
+  display: none;
+}
+
+.comment-section:hover{
+  .comment-reply-button{
+    display:inherit;
+  }
 }
 
 .gallery-cat-image {

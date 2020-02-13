@@ -16,7 +16,7 @@ const endings=['.',', right?','.',', like I said.','.',', just like you!'];
 export const getFileType = (extension) =>{
   switch (extension) {
     case 'js':{
-      return 'javascript';
+      return 'jsx';
     }
     case 'scss':{
       return 'scss';
@@ -26,4 +26,8 @@ export const getFileType = (extension) =>{
     }
 
   }
+}
+
+export const htmlFixNewLines = (text) => {
+  return text.replace(/(?:\r\n|\r|\n)/g,'<br>');
 }
