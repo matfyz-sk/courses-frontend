@@ -7,6 +7,7 @@
     display: flex;
     flex-direction: column;
     /*align-items: center;*/
+    width: 90%;
 }
 
 .tab {
@@ -35,6 +36,12 @@ a.active.nav-link .tab {
     position: absolute;
     right: 10px;
     bottom: 10px;
+}
+
+.role_icon {
+    position: absolute;
+    right: 10px;
+    top: 10px;
 }
 
 @media only screen and (max-width: 800px) {

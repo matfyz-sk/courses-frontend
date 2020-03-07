@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import {withFirebase} from "../../../components/Firebase";
 import { withRouter } from 'react-router-dom';
 import {compose} from "recompose";
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
@@ -44,25 +43,25 @@ class CreateEventForm extends Component {
             type
         } = this.state;
 
-        this.props.firebase.courseEvents()
-            .add({
-                name: name,
-                about: about,
-                location: location,
-                type: type,
-                dateTime: Moment(from).format("DD/MM/YYYY HH:mm").toString(),
-                toDateTime: Moment(to).format("DD/MM/YYYY HH:mm").toString(),
-                course: this.state.id,
-            })
-            .then(docRef => {
-                // console.log("Document written with ID: ", docRef.id);
-                this.setState({ ...INITIAL_STATE });
-                window.location.reload(true)
-            })
-            .catch((error) => {
-                // console.log("Error getting documents: ", error);
-                this.setState({ error });
-            });
+        // this.props.firebase.courseEvents()
+        //     .add({
+        //         name: name,
+        //         about: about,
+        //         location: location,
+        //         type: type,
+        //         dateTime: Moment(from).format("DD/MM/YYYY HH:mm").toString(),
+        //         toDateTime: Moment(to).format("DD/MM/YYYY HH:mm").toString(),
+        //         course: this.state.id,
+        //     })
+        //     .then(docRef => {
+        //         // console.log("Document written with ID: ", docRef.id);
+        //         this.setState({ ...INITIAL_STATE });
+        //         window.location.reload(true)
+        //     })
+        //     .catch((error) => {
+        //         // console.log("Error getting documents: ", error);
+        //         this.setState({ error });
+        //     });
 
         event.preventDefault();
     };
@@ -177,7 +176,6 @@ class CreateEventForm extends Component {
 
 const CreateTimelineForm = compose(
     withRouter,
-    withFirebase
 )(CreateEventForm);
 
 export { CreateTimelineForm };

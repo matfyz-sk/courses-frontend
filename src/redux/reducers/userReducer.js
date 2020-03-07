@@ -1,7 +1,8 @@
-import { SET_USER_ADMIN } from '../types'
+import { SET_USER_ADMIN, SET_SIGNED_IN } from '../types'
 
 const initialState = {
-  isAdmin: false,
+  isAdmin: true,
+  isSignedIn: true,
 };
 
 export default function userReducer(state = initialState, action) {
@@ -10,6 +11,11 @@ export default function userReducer(state = initialState, action) {
       return {
         ...state,
         isAdmin: action.isAdmin
+      };
+    case SET_SIGNED_IN:
+      return {
+        ...state,
+        isSignedIn: action.isSignedIn
       };
     default:
       return state;

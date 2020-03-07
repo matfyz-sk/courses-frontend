@@ -25,44 +25,44 @@ class Timeline extends Component {
 
         const { match: { params } } = this.props;
 
-        this.props.firebase.courseInstance(params.id)
-            .get()
-            .then(snapshot => {
-                const courseInstance = { ...snapshot.data(), cid: snapshot.id };
-
-                if(courseInstance) {
-                    this.setState({
-                        courseInstance: courseInstance,
-                    });
-
-                    this.props.firebase.course(this.state.courseInstance.instanceOf)
-                        .get()
-                        .then(snapshot => {
-                            const course = snapshot.data();
-
-                            this.setState({
-                                course: course,
-                            });
-                        });
-
-                    this.props.firebase
-                        .courseEvents()
-                        .where("course", "==", params.id)
-                        .get()
-                        .then(async  snapshot => {
-                            let events = [];
-
-                            snapshot.forEach(doc =>
-                                    events.push({...doc.data(), eid: doc.id}),
-                            );
-
-                            this.setState({
-                                loading: false,
-                                events: events,
-                            });
-                        });
-                }
-            });
+        // this.props.firebase.courseInstance(params.id)
+        //     .get()
+        //     .then(snapshot => {
+        //         const courseInstance = { ...snapshot.data(), cid: snapshot.id };
+        //
+        //         if(courseInstance) {
+        //             this.setState({
+        //                 courseInstance: courseInstance,
+        //             });
+        //
+        //             this.props.firebase.course(this.state.courseInstance.instanceOf)
+        //                 .get()
+        //                 .then(snapshot => {
+        //                     const course = snapshot.data();
+        //
+        //                     this.setState({
+        //                         course: course,
+        //                     });
+        //                 });
+        //
+        //             this.props.firebase
+        //                 .courseEvents()
+        //                 .where("course", "==", params.id)
+        //                 .get()
+        //                 .then(async  snapshot => {
+        //                     let events = [];
+        //
+        //                     snapshot.forEach(doc =>
+        //                             events.push({...doc.data(), eid: doc.id}),
+        //                     );
+        //
+        //                     this.setState({
+        //                         loading: false,
+        //                         events: events,
+        //                     });
+        //                 });
+        //         }
+        //     });
     }
 
     render() {

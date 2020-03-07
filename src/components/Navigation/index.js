@@ -1,10 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import SignOutButton from '../../pages/core/SignOut';
 
 import { AuthUserContext } from '../Session';
 import * as ROUTES from '../../constants/routes';
-import * as ROLES from '../../constants/roles';
 import {
     Collapse,
     Navbar,
@@ -14,6 +12,10 @@ import {
     NavItem,
     NavLink } from 'reactstrap';
 import './Navigation.css';
+import {connect} from "react-redux";
+import {setUserAdmin} from "../../redux/actions";
+import logo from '../../images/hat.svg';
+import profilePicture from '../../images/profile.jpg';
 
 
 class Navigation extends React.Component {
@@ -35,12 +37,12 @@ class Navigation extends React.Component {
     render() {
         return (
             <Navbar className="navbar" expand="md">
-                <NavbarBrand href="/">Matfyz</NavbarBrand>
+                <NavbarBrand href="/"><img src={logo} alt="logo" width="70" height="40"/></NavbarBrand>
                 <NavbarToggler onClick={this.toggle} />
                 <Collapse isOpen={this.state.isOpen} navbar>
                     <AuthUserContext.Consumer>
-                        {authUser => authUser ? (
-                            <NavigationAuth authUser={authUser}/>
+                        {() => this.props.isSignedIn ? (
+                            <NavigationAuth isAdmin={this.props.isAdmin}/>
                         ) : (
                             <NavigationNonAuth/>
                         )}
@@ -51,22 +53,20 @@ class Navigation extends React.Component {
     };
 }
 
-const NavigationAuth = ({ authUser }) => (
+const NavigationAuth = ({ isAdmin }) => (
     <Nav>
         <NavItem>
             <Link to={ROUTES.COURSES} className="nav-link nav-button">Courses</Link>
         </NavItem>
-        {authUser.roles.includes(ROLES.ADMIN) && (
+
+        {isAdmin && (
             <NavItem>
-                <Link to={ROUTES.ADMIN} className="nav-link nav-button">Admin</Link>
+                <Link to={ROUTES.NEW_COURSE} className="nav-link nav-button">New Course</Link>
             </NavItem>
         )}
-        <NavItem>
-            <Link to={ROUTES.ACCOUNT} className="nav-link nav-button">Account</Link>
-        </NavItem>
-        <NavItem>
-            <NavLink>
-                <SignOutButton />
+        <NavItem className="navbar-right">
+            <NavLink className="profile">
+                <img src={profilePicture} alt="profile"  width="40" height="40"/>
             </NavLink>
         </NavItem>
     </Nav>
@@ -75,15 +75,20 @@ const NavigationAuth = ({ authUser }) => (
 const NavigationNonAuth = () => (
     <Nav>
         <NavItem>
-            <Link to={ROUTES.LANDING}  className="nav-link nav-button">Landing</Link>
+            <Link to={ROUTES.COURSES} className="nav-link nav-button">Courses</Link>
         </NavItem>
-        <NavItem>
-            <Link to={ROUTES.SIGN_IN} className="nav-link nav-button">Sign In</Link>
-        </NavItem>
+        <div className="navbar-right">
+            <NavItem>
+                <Link to={ROUTES.SIGN_UP} className="nav-link nav-button">Sign Up</Link>
+            </NavItem>
+            <NavItem>
+                <Link to={ROUTES.SIGN_IN} className="nav-link nav-button">Sign In</Link>
+            </NavItem>
+        </div>
     </Nav>
 );
 
-const NavigationCourse = ({ authUser, course }) => {
+const NavigationCourse = ({ isAdmin, course }) => {
     class InnerNavigation extends React.Component {
         constructor(props) {
             super(props);
@@ -103,7 +108,7 @@ const NavigationCourse = ({ authUser, course }) => {
         render() {
             return (
                 <Navbar className="navbar" expand="md">
-                    <NavbarBrand href="/courses">Matfyz</NavbarBrand>
+                    <NavbarBrand href="/courses">Abbrev</NavbarBrand>
                     <NavbarToggler onClick={this.toggle}/>
                     <Collapse isOpen={this.state.isOpen} navbar>
                         <Nav>
@@ -123,9 +128,7 @@ const NavigationCourse = ({ authUser, course }) => {
                                 </NavLink>
                             </NavItem>
                             <NavItem>
-                                <NavLink>
-                                    <span className="fake-nav">Assignments</span>
-                                </NavLink>
+                                <Link to={ROUTES.ASSIGNMENTS} className="nav-link nav-button">Assignments</Link>
                             </NavItem>
                             <NavItem>
                                 <NavLink>
@@ -142,9 +145,9 @@ const NavigationCourse = ({ authUser, course }) => {
                                     <span className="fake-nav">Info</span>
                                 </NavLink>
                             </NavItem>
-                            <NavItem>
-                                <NavLink>
-                                    <SignOutButton/>
+                            <NavItem className="navbar-right">
+                                <NavLink className="profile">
+                                    <img src={profilePicture} alt="profile"  width="40" height="40"/>
                                 </NavLink>
                             </NavItem>
                         </Nav>
@@ -157,6 +160,13 @@ const NavigationCourse = ({ authUser, course }) => {
     return <InnerNavigation/>;
 };
 
-export default Navigation;
+const mapStateToProps = ( { userReducer } ) => {
+    return {
+        isSignedIn: userReducer.isSignedIn,
+        isAdmin: userReducer.isAdmin
+    };
+};
+
+export default connect(mapStateToProps, { setUserAdmin })(Navigation);
 
 export { NavigationCourse };

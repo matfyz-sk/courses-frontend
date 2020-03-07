@@ -1,13 +1,23 @@
 import React, {Component} from 'react';
-import {CourseContext, withAuthorization} from '../../../components/Session';
+import {CourseContext, withAuthentication, withAuthorization, withCourse} from '../../../components/Session';
 import {Link} from "react-router-dom";
-import {Enroll} from "../Enrollments";
+// import {Enroll} from "../Enrollments";
 import { TabContent, TabPane, Nav, NavItem, NavLink } from 'reactstrap';
 import { ListGroup, ListGroupItem } from 'reactstrap';
 import classnames from 'classnames';
 import './Courses.css';
+import Navigation from "../../../components/Navigation";
+import {Courses} from "./courses-data.js";
+import student_icon from "../../../images/student.svg";
+import teacher_icon from "../../../images/teacher.svg";
+import admin_icon from "../../../images/admin.svg";
+import {connect} from "react-redux";
+import {setUserAdmin} from "../../../redux/actions";
+import {compose} from "recompose";
 
-class CoursesPage extends Component {
+const THIS_YEAR = 2019;
+
+class CoursesPageBase extends Component {
     constructor(props) {
         super(props);
         this.enroll = this.enroll.bind(this);
@@ -16,8 +26,8 @@ class CoursesPage extends Component {
         this.state = {
             activeTab: '1',
             loading: false,
-            courses: [],
-            myCourses: [],
+            courses: Courses,
+            myCourses: [], //enrolled || teaching || admin
             otherCourses: [],
         };
     }
@@ -31,82 +41,37 @@ class CoursesPage extends Component {
     }
 
     componentDidMount() {
-        this.setState({ loading: true });
-        let courseInstances = [];
-        let courses = [];
-        let combined = [];
+        this.setState({ loading:true });
 
-        this.props.firebase.courseInstances()
-            .get()
-            .then(snapshot => {
-
-                snapshot.forEach(doc =>
-                    courseInstances.push({ ...doc.data(), cid: doc.id }),
-                );
-
-                this.props.firebase.courses()
-                    .get()
-                    .then(snapshot => {
-
-                        snapshot.forEach(doc => {
-                            courses.push({...doc.data(), cid: doc.id});
-                        });
-
-                        courseInstances.forEach(courseInstance => {
-                            let course = courses.find(course => (courseInstance.instanceOf === course.cid));
-                            combined.push({...courseInstance, ...course, cid: courseInstance.cid});
-                        });
-
-                        this.setState({
-                            courses: combined,
-                            loading: false,
-                        });
-                    })
-                    .then(
-                        this.props.firebase.enrollments()
-                            .where("user", "==", this.props.authUser.uid)
-                            .get()
-                            .then(snapshot => {
-                                let enrollments = [];
-
-                                snapshot.forEach(doc => {
-                                    enrollments.push({...doc.data()});
-                                });
-                                let myCourses = [];
-                                this.state.courses.forEach(course => {enrollments.forEach(enrollment => {
-                                    if (course.cid === enrollment.courseInstance) {
-                                        myCourses.push(course);
-                                    }
-                                })});
-
-                                let otherCourses = this.state.courses.filter(x => !myCourses.map(x => x.cid).includes(x.cid));
-
-                                this.setState({
-                                    myCourses: myCourses,
-                                    otherCourses: otherCourses,
-                                });
-                            })
-                        )
-                    })
-    }
-
-    enroll(course) {
-        if (Enroll(this.props.authUser.uid, course.cid, this.props.firebase)){
-            this.props.history.push({
-                pathname: '/timeline/'+ course.cid
-            });
+        let myCourses = [];
+        let otherCourses = [];
+        for (let i in this.state.courses) {
+            let course = this.state.courses[i];
+            if (course.enrolled === true || course.instructor === true || course.admin === true) {
+                myCourses.push(course);
+            }
+            else {
+                otherCourses.push(course);
+            }
         }
+
+        this.setState({
+            myCourses: myCourses,
+            otherCourses: otherCourses,
+            loading: false
+        })
     }
+
+    enroll(course) {}
 
     render() {
         const {courses, myCourses, otherCourses, loading} = this.state;
 
         return (
             <div>
+                <Navigation />
                 <main className="courses_main">
                 <div className="courses">
-
-                    <h1>Welcome to Courses</h1>
 
                     {loading && <div>Loading ...</div>}
 
@@ -135,47 +100,58 @@ class CoursesPage extends Component {
                                 <span className="tab">Archived Courses</span>
                             </NavLink>
                         </NavItem>
+                        {this.props.isAdmin &&
+                        <NavItem>
+                            <NavLink
+                                className={classnames({ active: this.state.activeTab === '4' })}
+                                onClick={() => { this.toggle('4'); }}
+                            >
+                                <span className="tab">ALL Courses</span>
+                            </NavLink>
+                        </NavItem>
+                        }
                     </Nav>
                     <TabContent activeTab={this.state.activeTab}>
                         <TabPane tabId="1">
-                            <CoursesList courses={myCourses} fun={()=>true}  button={false} enroll={this.enroll}/>
+                            <CoursesList courses={myCourses} fun={year=>(year===THIS_YEAR)} enroll={null}/>
                         </TabPane>
                         <TabPane tabId="2">
-                            <CoursesList courses={otherCourses} fun={activeCourses} button={true} enroll={this.enroll}/>
+                            <CoursesList courses={otherCourses} fun={year=>(year===THIS_YEAR)} enroll={this.enroll}/>
                         </TabPane>
                         <TabPane tabId="3">
-                            <CoursesList courses={courses} fun={archivedCourses} button={false} enroll={this.enroll}/>
+                            <CoursesList courses={myCourses} fun={year=>(year<THIS_YEAR)} enroll={null}/>
                         </TabPane>
+                        {this.props.isAdmin &&
+                            <TabPane tabId="4">
+                                <CoursesList courses={courses} fun={()=>true} enroll={null}/>
+                            </TabPane>
+                        }
                     </TabContent>
                 </div>
                 </main>
             </div>
         );
     }
-
 }
 
-function activeCourses(year) {
-    return year === 2019;
-}
-
-function archivedCourses(year) {
-    return year < 2019;
-}
-
-const CoursesList = ({ courses, fun, button, enroll }) => (
+const CoursesList = ({ courses, fun, enroll }) => (
     <CourseContext.Consumer>
-    {({course, setCourse}) => (
+    {(setCourse) => (
         <ListGroup>
         {courses.filter(courses => (fun(courses.year))).map(course => (
-            <ListGroupItem key={course.cid} onClick={() => setCourse(course)}>
-                <Link to={'/timeline/'+course.cid}>
+            <ListGroupItem key={course.id} onClick={() => setCourse(course)}>
+                <Link to={'/timeline/'+course.id}>
                     <span className="name">{course.name}</span>
-                    <br></br>
-                    <span className="about">{course.about}</span>
-                    {button && <button className="enroll-button" onClick={() => {
-                        enroll(course)
-                    }}>Enroll</button>}
+                    <br/>
+                    <span className="about">{course.description}</span>
+                    {course.enrolled !== false &&
+                    <img className="role_icon" src={student_icon} alt="student" width="20px" height="20px"/>}
+                    {course.instructor !== false &&
+                    <img className="role_icon" src={teacher_icon} alt="teacher" width="20px" height="20px"/>}
+                    {course.admin !== false &&
+                    <img className="role_icon" src={admin_icon} alt="admin" width="20px" height="20px"/>}
+                    {enroll != null &&
+                    <button className="enroll-button" onClick={() => {enroll(course)}}>Enroll</button>}
                 </Link>
             </ListGroupItem>
         ))}
@@ -184,6 +160,20 @@ const CoursesList = ({ courses, fun, button, enroll }) => (
     </CourseContext.Consumer>
 );
 
-const condition = authUser => !!authUser;
+const mapStateToProps = ( { userReducer } ) => {
+    return {
+        isSignedIn: userReducer.isSignedIn,
+        isAdmin: userReducer.isAdmin
+    };
+};
 
-export default withAuthorization(condition)(CoursesPage);
+
+const condition = () => true;
+
+const CoursesPage = compose(
+    connect(mapStateToProps, { setUserAdmin }),
+    withAuthorization(condition),
+)(CoursesPageBase);
+
+export default CoursesPage;
+

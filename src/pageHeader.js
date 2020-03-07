@@ -55,14 +55,14 @@ class PageHeader extends Component {
             </NavItem>
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
-                {this.props.isAdmin?'Admin':'Student'}
+                {this.props.isAdmin?'UserManagement':'Student'}
               </DropdownToggle>
               <DropdownMenu right>
                 <DropdownItem>
                   Account settings
                 </DropdownItem>
                 <DropdownItem className="clickable" onClick={()=>this.props.setUserAdmin(!this.props.isAdmin)}>
-                  Change to {this.props.isAdmin?'Student':'Admin'}
+                  Change to {this.props.isAdmin?'Student':'UserManagement'}
                 </DropdownItem>
                 <DropdownItem divider />
                 <DropdownItem>
