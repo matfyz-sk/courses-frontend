@@ -22,7 +22,7 @@ const UserDropdown = (props) => (
                     <Link to={"/privacy-settings"}>Privacy settings</Link>
                 </DropdownItem>
                 <DropdownItem divider />
-                <DropdownItem onClick={()=>logout()}>
+                <DropdownItem onClick={()=>{logout(); props.history.push(`/`);}}>
                     Logout
                 </DropdownItem>
             </DropdownMenu>

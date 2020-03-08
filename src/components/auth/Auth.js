@@ -30,7 +30,7 @@ export function synchronize() {
     return false;
 }
 
-export function logout(redirect = true) {
+export function logout() {
     store.dispatch(setToken({name: '_token', value: null}));
     store.dispatch(setUser({name: 'user', value: {
             name: '',
@@ -39,7 +39,6 @@ export function logout(redirect = true) {
             email: '',
         }}));
     localStorage.clear();
-    if(redirect) {this.props.history.push(`/`);}
     return true;
 }
 
