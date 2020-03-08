@@ -19,29 +19,6 @@ export function registerData(_token, user) {
     return false;
 }
 
-export function synchronize() {
-    const _token = localStorage.getItem('_token');
-    const user = localStorage.getItem('user');
-    if(_token && _token !== "" && user && user !== "") {
-        store.dispatch(setToken({name: '_token', value: _token}));
-        store.dispatch(setUser({name: 'user', value: JSON.parse(user)}));
-        return true;
-    }
-    return false;
-}
-
-export function logout() {
-    store.dispatch(logoutRedux());
-    localStorage.clear();
-    return true;
-}
-
-export function isLogged() {
-    const _token = localStorage.getItem('_token');
-    const user = localStorage.getItem('user');
-    return _token && _token !== "" && user && user !== "";
-}
-
 export function getUser() {
     const user = localStorage.getItem('user');
     if(user && user !== "") {
@@ -56,6 +33,27 @@ export function getToken() {
         return _token;
     }
     return null;
+}
+
+export function synchronize() {
+    const _token = getToken();
+    const user = getUser();
+    if(_token && user) {
+        store.dispatch(setToken({name: '_token', value: _token}));
+        store.dispatch(setUser({name: 'user', value: JSON.parse(user)}));
+        return true;
+    }
+    return false;
+}
+
+export function logout() {
+    store.dispatch(logoutRedux());
+    localStorage.clear();
+    return true;
+}
+
+export function isLogged() {
+    return getToken() && getUser();
 }
 
 export function getUserType() {
