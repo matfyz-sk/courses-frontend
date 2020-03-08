@@ -2,6 +2,7 @@
   "name": "courses",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://matfyz.sk:3010",
   "dependencies": {
     "bootstrap": "^4.2.1",
     "ckeditor4-react": "^1.0.0",
@@ -11,6 +12,7 @@
     "react": "^16.7.0",
     "react-compound-slider": "^1.2.1",
     "react-dom": "^16.7.0",
+    "react-github-login": "^1.0.3",
     "react-redux": "^7.1.1",
     "react-router-dom": "^4.3.1",
     "react-rte": "^0.16.1",

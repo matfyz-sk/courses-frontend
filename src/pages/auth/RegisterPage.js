@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { Col, Row, Button, Form, FormGroup, Label, Input, Collapse, FormFeedback, Alert } from 'reactstrap';
 import {emailValidator, textValidator, passwordValidator} from "../../functions/validators";
+import {store} from "../../index";
+import {setToken, setUser} from "../../redux/actions/authActions";
+import {registerData} from "../../components/auth/Auth";
 
 export default class RegisterPage extends Component {
     constructor(props) {
@@ -35,33 +38,42 @@ export default class RegisterPage extends Component {
             },
             be_error: null,
             confirmed_conditions: false,
-            register_url: '',
+            register_url: 'http://matfyz.sk:3010/auth/register',
         }
     }
 
     handleSubmit() {
         if(this.registerValidation()) {
-            const formData = new FormData();
-            formData.append("user", JSON.stringify(this.state.user));
-            formData.append("privacy", JSON.stringify(this.state.privacy));
+            const header = new Headers({
+                'Content-Type':     'application/json',
+                "Accept":           "application/json",
+                'Cache-Control':    'no-cache',
+            });
+            const formData = {
+                "user": this.state.user,
+                "privacy": this.state.privacy
+            };
+
             fetch(this.state.register_url, {
                 method: 'POST',
-                headers: {
-                    "Accept": "application/json",
-                    'Cache-Control': 'no-cache',
-                },
-                credentials: 'same-origin',
-                mode: 'same-origin',
-                body: formData
+                headers: header,
+                mode: 'cors',
+                credentials: 'omit',
+                body: JSON.stringify(formData)
             }).then(response => {
-                if(!response.ok) throw new Error(response.status)
+                if(!response.ok) throw new Error(response)
                 else return response.json();
             }).then(data=> {
                 if(data.status) {
-                    this.props.history.push(`/dashboard`);
+                    if(registerData(data._token, data.user)) {
+                        this.props.history.push(`/dashboard`);
+                    }
+                    else {
+                        this.setState({be_error:"Something was wrong. Please, try it again."})
+                    }
                 }
                 else {
-                    this.state({be_error:data.msg})
+                    this.setState({be_error:data.msg})
                 }
             });
         }
@@ -114,12 +126,12 @@ export default class RegisterPage extends Component {
                     </Alert>
                 : null}
                 <Row>
-                    <Col sm={6} xs={12}>
+                    <Col sm={6} xs={12} key={"col1"}>
                         <h3>Basic information</h3>
                         <p>Complete all required information to register your profile.</p>
                         <Form>
                             <Row form>
-                                <Col md={6}>
+                                <Col md={6} key={"bi-1"}>
                                     <FormGroup>
                                         <Label for="first_name">Name *</Label>
                                         <Input type="text" name="first_name" id="first_name" placeholder="Nora"
@@ -130,7 +142,7 @@ export default class RegisterPage extends Component {
                                         <FormFeedback tooltip>{errors.first_name ? errors.first_name.msg : ""}</FormFeedback>
                                     </FormGroup>
                                 </Col>
-                                <Col md={6}>
+                                <Col md={6} key={"bi-2"}>
                                     <FormGroup>
                                         <Label for="last_name">Surname *</Label>
                                         <Input type="text" name="last_name" id="last_name" placeholder="Mojsejova"
@@ -184,7 +196,7 @@ export default class RegisterPage extends Component {
                             <Button onClick={this.handleSubmit} className={"mt-3"}>Register NOW!</Button>
                         </Form>
                     </Col>
-                    <Col sm={6} xs={12}>
+                    <Col sm={6} xs={12} key={"col2"}>
                         <h3>Privacy settings</h3>
                         <p>This settings can be filled or changed later.</p>
                         <Form>

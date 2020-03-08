@@ -5,6 +5,7 @@ import {connect} from "react-redux";
 import {withRouter} from "react-router-dom";
 import { store } from '../../index';
 import {setToken, setUser} from "../../redux/actions/authActions";
+import GithubAuth from '../../components/auth/GithubAuth';
 
 class LoginPage extends Component {
     constructor(props) {
@@ -85,6 +86,7 @@ class LoginPage extends Component {
                             </Row>
                             <Button onClick={()=>this.authenticate()}>Sign in</Button>
                         </Form>
+                        <GithubAuth />
                     </Col>
                 </Row>
             </React.Fragment>
