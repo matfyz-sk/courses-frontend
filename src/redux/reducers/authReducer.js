@@ -22,6 +22,8 @@ export function authReducer(state = initialState, action) {
                 ...state,
                 user : action.item.value,
             };
+        case AUTH_ACTIONS.LOGOUT:
+            return initialState;
         default:
             return state;
     }

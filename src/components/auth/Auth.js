@@ -1,6 +1,6 @@
 import React from 'react';
 import {store} from "../../index";
-import {setToken, setUser} from "../../redux/actions/authActions";
+import {setToken, setUser, logoutRedux} from "../../redux/actions/authActions";
 
 /**
  * Store data to storage and redux
@@ -31,13 +31,7 @@ export function synchronize() {
 }
 
 export function logout() {
-    store.dispatch(setToken({name: '_token', value: null}));
-    store.dispatch(setUser({name: 'user', value: {
-            name: '',
-            avatar: null,
-            type: 'student',
-            email: '',
-        }}));
+    store.dispatch(logoutRedux());
     localStorage.clear();
     return true;
 }

@@ -9,3 +9,8 @@ export const setUser = item => ({
     type: AUTH_ACTIONS.SET_USER,
     item,
 });
+
+export const logoutRedux = item => ({
+    type: AUTH_ACTIONS.LOGOUT,
+    item,
+});
