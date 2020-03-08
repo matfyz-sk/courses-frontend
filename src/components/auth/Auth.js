@@ -87,3 +87,20 @@ export function setUserProfile(user) {
     }
     return false;
 }
+
+export function authHeader() {
+    const token = getToken();
+    if(token) {
+        return {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Cache-Control':    'no-cache',
+            'Authorization': `Bearer ${token}`
+        }
+    }
+    return {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Cache-Control':    'no-cache',
+    }
+}
