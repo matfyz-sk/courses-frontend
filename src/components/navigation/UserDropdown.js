@@ -6,6 +6,7 @@ import {
     DropdownToggle,
     UncontrolledDropdown
 } from 'reactstrap';
+import {logout} from "../auth/Auth";
 
 const UserDropdown = (props) => (
     <React.Fragment>
@@ -21,8 +22,8 @@ const UserDropdown = (props) => (
                     <Link to={"/privacy-settings"}>Privacy settings</Link>
                 </DropdownItem>
                 <DropdownItem divider />
-                <DropdownItem>
-                    Log out
+                <DropdownItem onClick={()=>logout()}>
+                    Logout
                 </DropdownItem>
             </DropdownMenu>
         </UncontrolledDropdown>

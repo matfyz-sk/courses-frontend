@@ -30,14 +30,17 @@ export function synchronize() {
     return false;
 }
 
-export function unsetAuth() {
+export function logout(redirect = true) {
     store.dispatch(setToken({name: '_token', value: null}));
     store.dispatch(setUser({name: 'user', value: {
             name: '',
             avatar: null,
             type: 'student',
+            email: '',
         }}));
     localStorage.clear();
+    if(redirect) {this.props.history.push(`/`);}
+    return true;
 }
 
 export function isLogged() {
