@@ -68,6 +68,12 @@ export function getUserType() {
     return null;
 }
 
+export function getUserEmail() {
+    const user = getUser();
+    if(user) {return user.email;}
+    return null;
+}
+
 export function setUserToken(_token) {
     if(_token && _token !== "") {
         store.dispatch(setToken({name: '_token', value: _token}));

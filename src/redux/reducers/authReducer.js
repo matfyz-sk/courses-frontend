@@ -5,6 +5,7 @@ const initialState = {
         name: '',
         avatar: null,
         type: 'student',
+        email: '',
     },
     _token: null,
 };

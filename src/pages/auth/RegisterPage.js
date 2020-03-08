@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { Col, Row, Button, Form, FormGroup, Label, Input, Collapse, FormFeedback, Alert } from 'reactstrap';
 import {emailValidator, textValidator, passwordValidator} from "../../functions/validators";
-import {store} from "../../index";
-import {setToken, setUser} from "../../redux/actions/authActions";
 import {registerData} from "../../components/auth/Auth";
 
 export default class RegisterPage extends Component {

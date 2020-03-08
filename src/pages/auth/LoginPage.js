@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { Col, Row, Button, Form, FormGroup, Label, Input, FormFeedback } from 'reactstrap';
+import { Col, Row, Button, Form, FormGroup, Label, Input, FormFeedback, Alert } from 'reactstrap';
 import {emailValidator, passwordValidator} from "../../functions/validators";
 import {connect} from "react-redux";
 import {withRouter} from "react-router-dom";
-import { store } from '../../index';
-import {setToken, setUser} from "../../redux/actions/authActions";
 import GithubAuth from '../../components/auth/GithubAuth';
+import {registerData} from "../../components/auth/Auth";
 
 class LoginPage extends Component {
     constructor(props) {
@@ -16,10 +15,12 @@ class LoginPage extends Component {
         this.state={
             email: '',
             password: '',
+            login_url: 'http://matfyz.sk:3010/auth/login',
             errors: {
                 email: null,
                 password: null,
             },
+            be_error: null,
         }
     }
 
@@ -32,15 +33,38 @@ class LoginPage extends Component {
 
     authenticate() {
         if(this.loginValidation()) {
-            const {email, password} = this.state;
-            // todo backend fetch
-            store.dispatch(setToken({name: '_token', value: 'token'}));
-            store.dispatch(setUser({name: 'user', value: {
-                    name: 'Test login',
-                    avatar: null,
-                    type: 'student',
-                }}));
-            this.props.history.push('/dashboard');
+            const {email, password, login_url} = this.state;
+            const header = new Headers({
+                'Content-Type':     'application/json',
+                "Accept":           "application/json",
+                'Cache-Control':    'no-cache',
+            });
+            const formData = {
+                "email": email,
+                "password": password
+            };
+            fetch(login_url, {
+                method: 'POST',
+                headers: header,
+                mode: 'cors',
+                credentials: 'omit',
+                body: JSON.stringify(formData)
+            }).then(response => {
+                if(!response.ok) throw new Error(response)
+                else return response.json();
+            }).then(data=> {
+                if(data.status) {
+                    if(registerData(data._token, data.user)) {
+                        this.props.history.push(`/dashboard`);
+                    }
+                    else {
+                        this.setState({be_error:"Something was wrong. Please, try it again."})
+                    }
+                }
+                else {
+                    this.setState({be_error:data.msg})
+                }
+            });
         }
     }
 
@@ -53,10 +77,15 @@ class LoginPage extends Component {
     }
 
     render() {
-        const {email, password, errors} = this.state;
+        const {email, password, errors, be_error} = this.state;
         return (
             <React.Fragment>
                 <h1 className={"mb-5"}>Login page</h1>
+                {be_error ?
+                    <Alert color="danger">
+                        Error! {be_error}
+                    </Alert>
+                    : null}
                 <Row>
                     <Col sm={{ size: 4, offset: 4 }} xs={12}>
                         <Form>
