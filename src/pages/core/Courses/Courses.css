@@ -30,6 +30,7 @@ a.active.nav-link .tab {
 
 .enroll-button {
     background-color: #1D661D;
+    font-weight: bold;
     color: white;
     border: none;
     padding: 5px 15px;
@@ -38,10 +39,33 @@ a.active.nav-link .tab {
     bottom: 10px;
 }
 
+.collapse-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50px;
+}
+
+.collapse-arrow:hover {
+    cursor: pointer;
+}
+
 .role_icon {
     position: absolute;
     right: 10px;
     top: 10px;
+}
+
+.course-container {
+    position: relative;
+}
+
+.course-instances-card {
+    border: none;
+}
+
+.course-instances-card-body {
+    padding: 0;
+    padding-top: 10px;
 }
 
 @media only screen and (max-width: 800px) {

@@ -23,7 +23,7 @@ class Timeline extends Component {
     componentDidMount() {
         this.setState({ loading: true });
 
-        const { match: { params } } = this.props;
+        // const { match: { params } } = this.props;
 
         // this.props.firebase.courseInstance(params.id)
         //     .get()

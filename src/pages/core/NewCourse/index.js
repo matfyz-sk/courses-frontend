@@ -3,8 +3,20 @@ import Navigation from "../../../components/Navigation";
 import {compose} from "recompose";
 import {connect} from "react-redux";
 import {withAuthorization} from "../../../components/Session";
-import store from "../../../redux/store";
+// import store from "../../../redux/store";
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import TextField from '@material-ui/core/TextField';
+import Chip from '@material-ui/core/Chip';
+import {Courses} from "../Courses/courses-data.js";
+import './NewCourse.css';
+
+const UserOptions = [
+    { surname: 'Marmanova', name: 'Patricia' },
+    { surname: 'Palko', name: 'Pavol' },
+    { surname: 'Mrkvicka', name: 'Jozef' },
+    { surname: 'Peterson', name: 'Jordan' },
+];
 
 const NewCourse = () => (
     <div>
@@ -22,7 +34,8 @@ const INITIAL_STATE = {
     name: '',
     description: '',
     abbreviation: '',
-    prerequisites: '',
+    prerequisites: [],
+    admin: [],
 };
 
 class NewCourseForm extends Component {
@@ -32,12 +45,13 @@ class NewCourseForm extends Component {
     }
 
     onSubmit = event => {
-        const {
-            name,
-            description,
-            abbreviation,
-            prerequisites,
-        } = this.state;
+        // const {
+        //     name,
+        //     description,
+        //     abbreviation,
+        //     prerequisites,
+        //     admin,
+        // } = this.state;
 
         event.preventDefault();
     };
@@ -53,16 +67,16 @@ class NewCourseForm extends Component {
             description,
             abbreviation,
             prerequisites,
+            admin,
         } = this.state;
 
         const isInvalid =
             name === '' ||
             description === '' ||
-            abbreviation === '' ||
-            prerequisites === '';
+            abbreviation === '';
         return (
-            <Form onSubmit={this.onSubmit}>
-                <FormGroup>
+            <Form className="new-course-form" onSubmit={this.onSubmit}>
+                <FormGroup className="new-course-inputs">
                     <Label for="name">Name</Label>
                     <Input
                         name="name"
@@ -70,7 +84,6 @@ class NewCourseForm extends Component {
                         value={name}
                         onChange={this.onChange}
                         type="text"
-                        placeholder="Name"
                     />
                     <Label for="description">Description</Label>
                     <Input
@@ -79,7 +92,6 @@ class NewCourseForm extends Component {
                         value={description}
                         onChange={this.onChange}
                         type="textarea"
-                        placeholder="Description"
                     />
                     <Label for="abbreviation">Abbreviation</Label>
                     <Input
@@ -87,22 +99,49 @@ class NewCourseForm extends Component {
                         id="abbreviation"
                         value={abbreviation}
                         onChange={this.onChange}
-                        type="textarea"
-                        placeholder="Abbreviation"
+                        type="text"
                     />
                 </FormGroup>
                 <FormGroup>
                     <Label for="prerequisites">Prerequisites</Label>
-                    <Input
+                    <Autocomplete
+                        multiple
                         name="prerequisites"
                         id="prerequisites"
-                        value={prerequisites}
-                        onChange={this.onChange}
-                        type="textarea"
-                        placeholder="Prerequisites"
+                        options={Courses}
+                        getOptionLabel={option => option.name}
+                        defaultValue={prerequisites}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                                <Chip label={option.name} {...getTagProps({ index })} />
+                            ))
+                        }
+                        style={{ width: 500 }}
+                        renderInput={params => (
+                            <TextField  {...params} placeholder="" InputProps={{...params.InputProps, disableUnderline: true}}/>
+                        )}
+                    />
+
+                    <Label for="admin">Admin</Label>
+                    <Autocomplete
+                        multiple
+                        name="admin"
+                        id="admin"
+                        options={UserOptions}
+                        getOptionLabel={option => option.surname}
+                        defaultValue={admin}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                                <Chip label={option.surname} {...getTagProps({ index })}/>
+                            ))
+                        }
+                        style={{ width: 500 }}
+                        renderInput={params => (
+                            <TextField  {...params} placeholder="" InputProps={{...params.InputProps, disableUnderline: true}}/>
+                        )}
                     />
                 </FormGroup>
-                <Button disabled={isInvalid} type="submit">
+                <Button disabled={isInvalid} type="submit" className="create-button">
                     Create
                 </Button>
             </Form>

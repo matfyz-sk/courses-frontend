@@ -2,12 +2,12 @@ export const Courses = [
     {
         id:0,
         name:'Knowledge representation and reasoning',
-        description:'Knowledge representation and reasoning 2019',
+        description:'Knowledge representation and reasoning',
         year:2019,
         course_id:0,
         enrolled: true,
         instructor: false,
-        admin: false
+        admin: true
     },
     {
         id:1,
@@ -24,7 +24,7 @@ export const Courses = [
         name:'Web design Technology and Methodology',
         description:'Web design in a nutshell',
         year:2019,
-        course_id:2,
+        course_id:4,
         enrolled: false,
         instructor: true,
         admin: false
@@ -32,7 +32,7 @@ export const Courses = [
     {
         id:3,
         name:'Computational Logic',
-        description:'Computational Logic for beginners 2018',
+        description:'Computational Logic for beginners',
         year:2018,
         course_id:3,
         enrolled: false,
@@ -46,13 +46,13 @@ export const Courses = [
         year:2017,
         course_id:4,
         enrolled: false,
-        instructor: false,
+        instructor: true,
         admin: false
     },
     {
         id:5,
         name:'Computational Logic',
-        description:'Computational Logic for beginners 2017',
+        description:'Computational Logic for beginners',
         year:2017,
         course_id:3,
         enrolled: false,
@@ -62,7 +62,7 @@ export const Courses = [
     {
         id:7,
         name:'Computational Logic',
-        description:'Computational Logic for beginners 2016',
+        description:'Computational Logic for beginners',
         year:2016,
         course_id:3,
         enrolled: false,
@@ -76,13 +76,13 @@ export const Courses = [
         year:2018,
         course_id:4,
         enrolled: false,
-        instructor: false,
+        instructor: true,
         admin: false
     },
     {
         id:9,
         name:'Computational Logic',
-        description:'Computational Logic for beginners 2019',
+        description:'Computational Logic for beginners',
         year:2019,
         course_id:3,
         enrolled: false,

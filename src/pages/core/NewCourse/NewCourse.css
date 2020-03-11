@@ -1,0 +1,16 @@
+label {
+  padding-top: 10px;
+}
+
+.MuiAutocomplete-root	{
+  border: 1px solid #ced4da;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  border-radius: .25rem;
+  padding: .375rem .75rem;
+}
+
+.create-button {
+  background-color: #1D661D;
+  border: none;
+  font-weight: bold;
+}

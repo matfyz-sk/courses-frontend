@@ -4,7 +4,7 @@ import {compose} from "recompose";
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Moment from 'moment';
+// import Moment from 'moment';
 
 const INITIAL_STATE = {
     name: '',
@@ -34,14 +34,14 @@ class CreateEventForm extends Component {
     }
 
     onSubmit = event => {
-        const {
-            name,
-            about,
-            from,
-            to,
-            location,
-            type
-        } = this.state;
+        // const {
+        //     name,
+        //     about,
+        //     from,
+        //     to,
+        //     location,
+        //     type
+        // } = this.state;
 
         // this.props.firebase.courseEvents()
         //     .add({

@@ -1,0 +1,15 @@
+.enroll-button-modal {
+    background-color: #1D661D;
+    font-weight: bold;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+}
+
+.enroll-form-modal {
+    text-align: center;
+}
+
+.form-check {
+    text-align: left;
+}

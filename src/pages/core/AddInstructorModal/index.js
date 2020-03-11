@@ -2,6 +2,13 @@ import React, { Component } from 'react';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 import './ModalCreateEvent.css';
 
+const UserOptions = [
+    { surname: 'Marmanova', name: 'Patricia' },
+    { surname: 'Palko', name: 'Pavol' },
+    { surname: 'Mrkvicka', name: 'Jozef' },
+    { surname: 'Peterson', name: 'Jordan' },
+];
+
 class AddInstructorModal extends Component {
     constructor(props) {
         super(props);

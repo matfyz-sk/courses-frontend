@@ -1,16 +1,24 @@
 import React, {Component} from 'react';
-import {CourseContext, withAuthentication, withAuthorization, withCourse} from '../../../components/Session';
+import {CourseContext, withAuthorization} from '../../../components/Session';
 import {Link} from "react-router-dom";
-// import {Enroll} from "../Enrollments";
+
 import { TabContent, TabPane, Nav, NavItem, NavLink } from 'reactstrap';
 import { ListGroup, ListGroupItem } from 'reactstrap';
-import classnames from 'classnames';
+import { UncontrolledCollapse, CardBody, Card } from 'reactstrap';
+
 import './Courses.css';
 import Navigation from "../../../components/Navigation";
+import EnrollModal from "../EnrollModal"
+// import {Enroll} from "../Enrollments";
+
 import {Courses} from "./courses-data.js";
+
 import student_icon from "../../../images/student.svg";
 import teacher_icon from "../../../images/teacher.svg";
 import admin_icon from "../../../images/admin.svg";
+import arrow from "../../../images/arrow.svg";
+
+import classnames from 'classnames';
 import {connect} from "react-redux";
 import {setUserAdmin} from "../../../redux/actions";
 import {compose} from "recompose";
@@ -22,13 +30,15 @@ class CoursesPageBase extends Component {
         super(props);
         this.enroll = this.enroll.bind(this);
         this.toggle = this.toggle.bind(this);
+        this.groupCourses = this.groupCourses.bind(this);
 
         this.state = {
             activeTab: '1',
             loading: false,
-            courses: Courses,
-            myCourses: [], //enrolled || teaching || admin
-            otherCourses: [],
+            allCourses: Courses,
+            activeCourses: [],//ActiveCourses, //not (enrolled || teaching || admin) && this semester
+            myActiveCourses: [],//MyActiveCourses, //  (enrolled || teaching || admin) && this semester
+            myArchivedCourses: [],//MyArchivedCourses, // (enrolled || teaching || admin) && not this semester
         };
     }
 
@@ -40,24 +50,69 @@ class CoursesPageBase extends Component {
         }
     }
 
+    groupCourses(courses) {
+        let groupedCourses = {};
+        for(let i in courses) {
+            let course = courses[i];
+            if (!(course.course_id in groupedCourses)) {
+                groupedCourses[course.course_id] = {
+                    id: course.course_id,
+                    name: course.name,
+                    desc: course.description,
+                    abbr: course.abbreviation,
+                    admin: course.admin,
+                    courses: [],
+                };
+            }
+            groupedCourses[course.course_id].courses.push(
+                {
+                    id: course.id,
+                    year: course.year,
+                    enrolled: course.enrolled,
+                    instructor: course.instructor,
+                }
+            )
+        }
+        let groupedCoursesList = Object.keys(groupedCourses).map(function(key){
+            return groupedCourses[key];
+        });
+        return groupedCoursesList;
+    }
+
     componentDidMount() {
         this.setState({ loading:true });
 
-        let myCourses = [];
-        let otherCourses = [];
-        for (let i in this.state.courses) {
-            let course = this.state.courses[i];
+        let activeCourses = [];
+        let myActiveCourses = [];
+        let myArchivedCourses = [];
+
+        for(let i in this.state.allCourses) {
+            let course = this.state.allCourses[i];
             if (course.enrolled === true || course.instructor === true || course.admin === true) {
-                myCourses.push(course);
+                if (course.year === THIS_YEAR) {
+                    myActiveCourses.push(course);
+                }
+                else if(course.year < THIS_YEAR) {
+                    myArchivedCourses.push(course);
+                }
             }
             else {
-                otherCourses.push(course);
+                if (course.year === THIS_YEAR) {
+                    activeCourses.push(course);
+                }
             }
         }
 
+        activeCourses = this.groupCourses(activeCourses);
+        myActiveCourses = this.groupCourses(myActiveCourses);
+        myArchivedCourses = this.groupCourses(myArchivedCourses);
+        let allCourses = this.groupCourses(this.state.allCourses);
+
         this.setState({
-            myCourses: myCourses,
-            otherCourses: otherCourses,
+            activeCourses: activeCourses,
+            myActiveCourses: myActiveCourses,
+            myArchivedCourses: myArchivedCourses,
+            allCourses: allCourses,
             loading: false
         })
     }
@@ -65,7 +120,7 @@ class CoursesPageBase extends Component {
     enroll(course) {}
 
     render() {
-        const {courses, myCourses, otherCourses, loading} = this.state;
+        const {myActiveCourses, myArchivedCourses, activeCourses, allCourses, loading} = this.state;
 
         return (
             <div>
@@ -101,29 +156,29 @@ class CoursesPageBase extends Component {
                             </NavLink>
                         </NavItem>
                         {this.props.isAdmin &&
-                        <NavItem>
-                            <NavLink
-                                className={classnames({ active: this.state.activeTab === '4' })}
-                                onClick={() => { this.toggle('4'); }}
-                            >
-                                <span className="tab">ALL Courses</span>
-                            </NavLink>
-                        </NavItem>
+                            <NavItem>
+                                <NavLink
+                                    className={classnames({ active: this.state.activeTab === '4' })}
+                                    onClick={() => { this.toggle('4'); }}
+                                >
+                                    <span className="tab">ALL Courses</span>
+                                </NavLink>
+                            </NavItem>
                         }
                     </Nav>
                     <TabContent activeTab={this.state.activeTab}>
                         <TabPane tabId="1">
-                            <CoursesList courses={myCourses} fun={year=>(year===THIS_YEAR)} enroll={null}/>
+                            <CoursesList coursesList={myActiveCourses} enroll={null} tab='1'/>
                         </TabPane>
                         <TabPane tabId="2">
-                            <CoursesList courses={otherCourses} fun={year=>(year===THIS_YEAR)} enroll={this.enroll}/>
+                            <CoursesList coursesList={activeCourses} enroll={this.enroll} tab='2'/>
                         </TabPane>
                         <TabPane tabId="3">
-                            <CoursesList courses={myCourses} fun={year=>(year<THIS_YEAR)} enroll={null}/>
+                            <CoursesList coursesList={myArchivedCourses} enroll={null} tab='3'/>
                         </TabPane>
                         {this.props.isAdmin &&
                             <TabPane tabId="4">
-                                <CoursesList courses={courses} fun={()=>true} enroll={null}/>
+                                <CoursesList coursesList={allCourses} enroll={null} tab='4'/>
                             </TabPane>
                         }
                     </TabContent>
@@ -134,31 +189,80 @@ class CoursesPageBase extends Component {
     }
 }
 
-const CoursesList = ({ courses, fun, enroll }) => (
+const CoursesList = ({ coursesList, enroll, tab }) => (
     <CourseContext.Consumer>
-    {(setCourse) => (
+    { (setCourse) => (
         <ListGroup>
-        {courses.filter(courses => (fun(courses.year))).map(course => (
-            <ListGroupItem key={course.id} onClick={() => setCourse(course)}>
-                <Link to={'/timeline/'+course.id}>
-                    <span className="name">{course.name}</span>
-                    <br/>
-                    <span className="about">{course.description}</span>
-                    {course.enrolled !== false &&
-                    <img className="role_icon" src={student_icon} alt="student" width="20px" height="20px"/>}
-                    {course.instructor !== false &&
-                    <img className="role_icon" src={teacher_icon} alt="teacher" width="20px" height="20px"/>}
-                    {course.admin !== false &&
-                    <img className="role_icon" src={admin_icon} alt="admin" width="20px" height="20px"/>}
-                    {enroll != null &&
-                    <button className="enroll-button" onClick={() => {enroll(course)}}>Enroll</button>}
-                </Link>
-            </ListGroupItem>
-        ))}
+        {coursesList.map(course => (
+            <div className="course-container">
+                <ListGroupItem key={course.id+tab}>
+                    {course.courses && course.courses.length === 1 &&
+                        <div>
+                            <Link to={'/timeline/' + course.courses[0].id}>
+                                <span className="name">{course.name}</span>
+                                <br/>
+                                <span className="about">{course.desc}</span>
+                                <br/>
+                            </Link>
+                            <div className="role_icon">
+                                {course.admin !== false &&
+                                    <img src={admin_icon} alt="admin" width="20px" height="20px"/>}
+                                <RoleIcon course={course.courses[0]}/>
+                            </div>
+                            {enroll != null && <EnrollModal course={course}/>}
+                        </div>
+                    }
+                    {course.courses && course.courses.length > 1 &&
+                        <div>
+                            <div className="role_icon">
+                                {course.admin !== false &&
+                                    <img src={admin_icon} alt="admin" width="20px" height="20px"/>}
+                            </div>
+                            <span className="name">{course.name}</span>
+                            <br/>
+                            <span className="about">{course.desc}</span>
+                            <br/>
+                            <CollapsableCourse course={course} enroll={enroll} tab={tab}/>
+                        </div>
+                    }
+                </ListGroupItem>
+            </div>
+            ))}
         </ListGroup>
         )}
     </CourseContext.Consumer>
 );
+
+const CollapsableCourse = ({course, enroll, tab}) => (
+    <div>
+        <img src={arrow} alt="arrow" className="collapse-arrow" id={'toggler'+course.id} width="15px"/>
+        <UncontrolledCollapse toggler={'#toggler'+course.id}>
+            <Card className="course-instances-card">
+                <CardBody className="course-instances-card-body">
+                    {course.courses.sort((a, b) => (a.year > b.year) ? 1 : -1).map(courseInstance => (
+                        <ListGroup>
+                            <ListGroupItem key={courseInstance.id+tab}>
+                                <Link to={'/timeline/' + courseInstance.id}>
+                                    <span className="">{course.name}</span> <b>{courseInstance.year}</b>
+                                </Link>
+                                <div className="role_icon"><RoleIcon course={courseInstance}/></div>
+                                {enroll != null && <EnrollModal course={courseInstance}/>}
+                            </ListGroupItem>
+                        </ListGroup>
+                    ))}
+                </CardBody>
+            </Card>
+        </UncontrolledCollapse>
+    </div>
+);
+
+const RoleIcon = ({course}) => (
+    <div>
+        {course.enrolled !== false && <img src={student_icon} alt="student" width="20px" height="20px"/>}
+        {course.instructor !== false && <img src={teacher_icon} alt="teacher" width="20px" height="20px"/>}
+    </div>
+);
+
 
 const mapStateToProps = ( { userReducer } ) => {
     return {
@@ -166,7 +270,6 @@ const mapStateToProps = ( { userReducer } ) => {
         isAdmin: userReducer.isAdmin
     };
 };
-
 
 const condition = () => true;
 
