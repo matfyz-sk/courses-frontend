@@ -40,7 +40,7 @@ export function synchronize() {
     const user = getUser();
     if(_token && user) {
         store.dispatch(setToken({name: '_token', value: _token}));
-        store.dispatch(setUser({name: 'user', value: JSON.parse(user)}));
+        store.dispatch(setUser({name: 'user', value: user}));
         return true;
     }
     return false;

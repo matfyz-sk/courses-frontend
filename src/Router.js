@@ -19,6 +19,7 @@ import CookieDocument from "./pages/documents/CookieDocument";
 import PersonDetail from "./pages/profiles/PersonDetail";
 import Dashboard from "./pages/dashboard";
 import PrivateRoute from "./PrivateRouter";
+import PublicOnlyRoute from "./PublicOnlyRouter";
 
 const Router = () => (
     <BrowserRouter>
@@ -37,8 +38,8 @@ const Router = () => (
                     <Route exact path='/privacy-settings' component={PrivacySettings} />
                     <Route exact path='/profile-settings' component={ProfileSettings} />
                     {/** AUTH **/}
-                    <Route exact path="/login" component={LoginPage} />
-                    <Route exact path="/register" component={RegisterPage} />
+                    <PublicOnlyRoute exact path="/login" component={LoginPage} />
+                    <PublicOnlyRoute exact path="/register" component={RegisterPage} />
                     {/** VISITOR **/}
                     <Route exact path="/profile/:pattern" component={PersonDetail} />
                     <Route exact path="/privacy-policy" component={PrivacyPolicyDocument} />

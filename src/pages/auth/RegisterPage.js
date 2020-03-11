@@ -40,6 +40,15 @@ export default class RegisterPage extends Component {
         }
     }
 
+    componentDidMount() {
+        document.addEventListener("keyup", (event) => {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                this.handleSubmit();
+            }
+        });
+    }
+
     handleSubmit() {
         if(this.registerValidation()) {
             const header = new Headers({

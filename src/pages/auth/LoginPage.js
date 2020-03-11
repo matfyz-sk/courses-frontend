@@ -24,6 +24,15 @@ class LoginPage extends Component {
         }
     }
 
+    componentDidMount() {
+        document.addEventListener("keyup", (event) => {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                this.authenticate();
+            }
+        });
+    }
+
     handleInputChange(event) {
         const target = event.target;
         const value = target.type === 'checkbox' ? target.checked : target.value;
