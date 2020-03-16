@@ -5,6 +5,9 @@
 /fakeAPI/node_modules
 /.pnp
 .pnp.js
+package-lock.json
+.firebase
+firebase.json
 
 # testing
 /coverage

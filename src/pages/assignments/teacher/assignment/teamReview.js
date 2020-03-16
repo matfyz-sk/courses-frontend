@@ -121,7 +121,7 @@ export default class TextTeview extends Component {
             <ListGroup>
               {
                 students.map((item)=>
-                <ListGroupItem action>
+                <ListGroupItem action key={item.value}>
                   <div>
                     <div>
                       <Label className="bold mr-2">Teammate:</Label>{item.label}

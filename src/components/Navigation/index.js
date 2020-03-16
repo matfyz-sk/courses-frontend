@@ -93,7 +93,7 @@ const NavigationNonAuth = () => (
     </Nav>
 );
 
-const NavigationCourse = ({ isAdmin, course }) => {
+const NavigationCourse = ({ isAdmin, setUserAdmin, course }) => {
     class InnerNavigation extends React.Component {
         constructor(props) {
             super(props);
@@ -154,6 +154,14 @@ const NavigationCourse = ({ isAdmin, course }) => {
                                 <NavLink className="profile">
                                     <img src={profilePicture} alt="profile"  width="40" height="40"/>
                                 </NavLink>
+                                <UncontrolledDropdown setActiveFromChild>
+                                    <DropdownToggle tag="a" className="nav-link" caret>
+                                        {isAdmin ? ("ADMIN") : ("STUDENT")}
+                                    </DropdownToggle>
+                                    <DropdownMenu>
+                                        <DropdownItem active onClick={() => setUserAdmin(!isAdmin)}>{isAdmin ? ("STUDENT") : ("ADMIN")}</DropdownItem>
+                                    </DropdownMenu>
+                                </UncontrolledDropdown>
                             </NavItem>
                         </Nav>
                     </Collapse>

@@ -9,6 +9,8 @@ import ModalCreateEvent from "../ModalCreateEvent";
 import './Timeline.css';
 import {Events} from "./timeline-data";
 import {Courses} from "../Courses/courses-data";
+import {connect} from "react-redux";
+import {setUserAdmin} from "../../../redux/actions";
 
 class Timeline extends Component {
     constructor(props) {
@@ -43,7 +45,7 @@ class Timeline extends Component {
     render() {
         return (
             <div>
-                <NavigationCourse authUser={this.props.authUser} course={this.state.courseInstance} />
+                <NavigationCourse isAdmin={this.props.isAdmin} course={this.state.courseInstance} setUserAdmin={this.props.setUserAdmin}/>
                 {/*<main>*/}
                 {/*    {this.state.events.length===0 && !this.state.loading &&*/}
                 {/*    <p>Timeline for this course is empty.</p>*/}
@@ -69,7 +71,15 @@ class Timeline extends Component {
     }
 }
 
+const mapStateToProps = ( { userReducer } ) => {
+    return {
+        isSignedIn: userReducer.isSignedIn,
+        isAdmin: userReducer.isAdmin
+    };
+};
+
+export default connect(mapStateToProps, { setUserAdmin })(Timeline);
+
 // const condition = authUser => !!authUser;
 
 // export default withAuthorization(condition)(Timeline);
-export default Timeline;
