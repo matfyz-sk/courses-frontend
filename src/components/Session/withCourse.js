@@ -20,7 +20,7 @@ const withCourse = Component => {
 
         render() {
             return (
-                <CourseContext.Provider value={this.state}>
+                <CourseContext.Provider value={this.state.course}>
                     <Component {...this.props}/>,
                 </CourseContext.Provider>
             );

@@ -82,5 +82,5 @@ const condition = () => true;
 
 export default compose(
     connect(mapStateToProps, {}),
-    withAuthorization(condition),
+    // withAuthorization(condition),
 )(UserManagement);

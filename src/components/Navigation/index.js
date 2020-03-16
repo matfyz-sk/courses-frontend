@@ -4,13 +4,10 @@ import { Link } from 'react-router-dom';
 import { AuthUserContext } from '../Session';
 import * as ROUTES from '../../constants/routes';
 import {
-    Collapse,
-    Navbar,
-    NavbarToggler,
-    NavbarBrand,
-    Nav,
-    NavItem,
-    NavLink } from 'reactstrap';
+    Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink,
+    UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+
+
 import './Navigation.css';
 import {connect} from "react-redux";
 import {setUserAdmin} from "../../redux/actions";
@@ -42,7 +39,7 @@ class Navigation extends React.Component {
                 <Collapse isOpen={this.state.isOpen} navbar>
                     <AuthUserContext.Consumer>
                         {() => this.props.isSignedIn ? (
-                            <NavigationAuth isAdmin={this.props.isAdmin}/>
+                            <NavigationAuth isAdmin={this.props.isAdmin} setUserAdmin={this.props.setUserAdmin}/>
                         ) : (
                             <NavigationNonAuth/>
                         )}
@@ -53,7 +50,7 @@ class Navigation extends React.Component {
     };
 }
 
-const NavigationAuth = ({ isAdmin }) => (
+const NavigationAuth = ({ isAdmin, setUserAdmin }) => (
     <Nav>
         <NavItem>
             <Link to={ROUTES.COURSES} className="nav-link nav-button">Courses</Link>
@@ -68,6 +65,14 @@ const NavigationAuth = ({ isAdmin }) => (
             <NavLink className="profile">
                 <img src={profilePicture} alt="profile"  width="40" height="40"/>
             </NavLink>
+            <UncontrolledDropdown setActiveFromChild>
+                <DropdownToggle tag="a" className="nav-link" caret>
+                    {isAdmin ? ("ADMIN") : ("STUDENT")}
+                </DropdownToggle>
+                <DropdownMenu>
+                    <DropdownItem active onClick={() => setUserAdmin(!isAdmin)}>{isAdmin ? ("STUDENT") : ("ADMIN")}</DropdownItem>
+                </DropdownMenu>
+            </UncontrolledDropdown>
         </NavItem>
     </Nav>
 );

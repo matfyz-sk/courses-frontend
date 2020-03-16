@@ -1,7 +1,7 @@
 import { SET_USER_ADMIN, SET_SIGNED_IN } from '../types'
 
 const initialState = {
-  isAdmin: true,
+  isAdmin: false,
   isSignedIn: true,
 };
 

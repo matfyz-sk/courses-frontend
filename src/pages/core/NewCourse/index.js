@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Navigation from "../../../components/Navigation";
 import {compose} from "recompose";
 import {connect} from "react-redux";
-import {withAuthorization} from "../../../components/Session";
+// import {withAuthorization} from "../../../components/Session";
 // import store from "../../../redux/store";
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -157,9 +157,9 @@ const mapStateToProps = ( { userReducer } ) => {
 };
 
 // const condition = () => (store.isSignedIn && store.isAdmin);
-const condition = () => true;
+// const condition = () => true;
 
 export default compose(
     connect(mapStateToProps, {}),
-    withAuthorization(condition)
+    // withAuthorization(condition)
 )(NewCourse);

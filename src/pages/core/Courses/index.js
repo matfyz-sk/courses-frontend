@@ -2,15 +2,23 @@ import React, {Component} from 'react';
 import {CourseContext, withAuthorization} from '../../../components/Session';
 import {Link} from "react-router-dom";
 
-import { TabContent, TabPane, Nav, NavItem, NavLink } from 'reactstrap';
-import { ListGroup, ListGroupItem } from 'reactstrap';
-import { UncontrolledCollapse, CardBody, Card } from 'reactstrap';
+import {
+    Card,
+    CardBody,
+    ListGroup,
+    ListGroupItem,
+    Nav,
+    NavItem,
+    NavLink,
+    TabContent,
+    TabPane,
+    UncontrolledCollapse
+} from 'reactstrap';
 
 import './Courses.css';
 import Navigation from "../../../components/Navigation";
 import EnrollModal from "../EnrollModal"
-// import {Enroll} from "../Enrollments";
-
+import AddInstructorModal from "../AddInstructorModal"
 import {Courses} from "./courses-data.js";
 
 import student_icon from "../../../images/student.svg";
@@ -22,6 +30,7 @@ import classnames from 'classnames';
 import {connect} from "react-redux";
 import {setUserAdmin} from "../../../redux/actions";
 import {compose} from "recompose";
+// import {Enroll} from "../Enrollments";
 
 const THIS_YEAR = 2019;
 
@@ -73,10 +82,9 @@ class CoursesPageBase extends Component {
                 }
             )
         }
-        let groupedCoursesList = Object.keys(groupedCourses).map(function(key){
+        return Object.keys(groupedCourses).map(function (key) {
             return groupedCourses[key];
         });
-        return groupedCoursesList;
     }
 
     componentDidMount() {
@@ -168,17 +176,17 @@ class CoursesPageBase extends Component {
                     </Nav>
                     <TabContent activeTab={this.state.activeTab}>
                         <TabPane tabId="1">
-                            <CoursesList coursesList={myActiveCourses} enroll={null} tab='1'/>
+                            <CoursesList coursesList={myActiveCourses} enroll={null} isAdmin={this.props.isAdmin}/>
                         </TabPane>
                         <TabPane tabId="2">
-                            <CoursesList coursesList={activeCourses} enroll={this.enroll} tab='2'/>
+                            <CoursesList coursesList={activeCourses} enroll={this.enroll} isAdmin={this.props.isAdmin}/>
                         </TabPane>
                         <TabPane tabId="3">
-                            <CoursesList coursesList={myArchivedCourses} enroll={null} tab='3'/>
+                            <CoursesList coursesList={myArchivedCourses} enroll={null} isAdmin={this.props.isAdmin}/>
                         </TabPane>
                         {this.props.isAdmin &&
                             <TabPane tabId="4">
-                                <CoursesList coursesList={allCourses} enroll={null} tab='4'/>
+                                <CoursesList coursesList={allCourses} enroll={null} isAdmin={this.props.isAdmin}/>
                             </TabPane>
                         }
                     </TabContent>
@@ -189,62 +197,61 @@ class CoursesPageBase extends Component {
     }
 }
 
-const CoursesList = ({ coursesList, enroll, tab }) => (
+const CoursesList = ({ coursesList, enroll, isAdmin }) => (
     <CourseContext.Consumer>
     { (setCourse) => (
         <ListGroup>
         {coursesList.map(course => (
-            <div className="course-container">
-                <ListGroupItem key={course.id+tab}>
-                    {course.courses && course.courses.length === 1 &&
-                        <div>
-                            <Link to={'/timeline/' + course.courses[0].id}>
-                                <span className="name">{course.name}</span>
-                                <br/>
-                                <span className="about">{course.desc}</span>
-                                <br/>
-                            </Link>
-                            <div className="role_icon">
-                                {course.admin !== false &&
-                                    <img src={admin_icon} alt="admin" width="20px" height="20px"/>}
-                                <RoleIcon course={course.courses[0]}/>
-                            </div>
-                            {enroll != null && <EnrollModal course={course}/>}
-                        </div>
-                    }
-                    {course.courses && course.courses.length > 1 &&
-                        <div>
-                            <div className="role_icon">
-                                {course.admin !== false &&
-                                    <img src={admin_icon} alt="admin" width="20px" height="20px"/>}
-                            </div>
+            <ListGroupItem className="course-container" key={course.id}>
+                {course.courses && course.courses.length === 1 &&
+                    <div>
+                        <Link to={'/timeline/' + course.courses[0].id}>
                             <span className="name">{course.name}</span>
                             <br/>
                             <span className="about">{course.desc}</span>
-                            <br/>
-                            <CollapsableCourse course={course} enroll={enroll} tab={tab}/>
+                        </Link>
+                        {(isAdmin || course.admin) && <AddInstructorModal courseName={course.name}/>}
+                        <div className="role_icon">
+                            {course.admin !== false &&
+                                <img src={admin_icon} alt="admin" width="20px" height="20px"/>}
+                            <RoleIcon course={course.courses[0]}/>
                         </div>
-                    }
-                </ListGroupItem>
-            </div>
+                        {enroll != null && <EnrollModal course={course}/>}
+                    </div>
+                }
+                {course.courses && course.courses.length > 1 &&
+                    <div>
+                        <div className="role_icon">
+                            {course.admin !== false &&
+                                <img src={admin_icon} alt="admin" width="20px" height="20px"/>}
+                        </div>
+                        <span className="name">{course.name}</span>
+                        <br/>
+                        <span className="about">{course.desc}</span>
+                        <br/>
+                        <CollapsableCourse course={course} enroll={enroll} isAdmin={isAdmin}/>
+                    </div>
+                }
+            </ListGroupItem>
             ))}
         </ListGroup>
         )}
     </CourseContext.Consumer>
 );
 
-const CollapsableCourse = ({course, enroll, tab}) => (
+const CollapsableCourse = ({course, enroll, isAdmin}) => (
     <div>
         <img src={arrow} alt="arrow" className="collapse-arrow" id={'toggler'+course.id} width="15px"/>
         <UncontrolledCollapse toggler={'#toggler'+course.id}>
             <Card className="course-instances-card">
                 <CardBody className="course-instances-card-body">
                     {course.courses.sort((a, b) => (a.year > b.year) ? 1 : -1).map(courseInstance => (
-                        <ListGroup>
-                            <ListGroupItem key={courseInstance.id+tab}>
+                        <ListGroup key={courseInstance.id}>
+                            <ListGroupItem>
                                 <Link to={'/timeline/' + courseInstance.id}>
                                     <span className="">{course.name}</span> <b>{courseInstance.year}</b>
                                 </Link>
+                                {(isAdmin || course.admin) && <AddInstructorModal courseName={course.name}/>}
                                 <div className="role_icon"><RoleIcon course={courseInstance}/></div>
                                 {enroll != null && <EnrollModal course={courseInstance}/>}
                             </ListGroupItem>
