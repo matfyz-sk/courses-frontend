@@ -70,7 +70,9 @@ const NavigationAuth = ({ isAdmin, setUserAdmin }) => (
                     {isAdmin ? ("ADMIN") : ("STUDENT")}
                 </DropdownToggle>
                 <DropdownMenu>
-                    <DropdownItem active onClick={() => setUserAdmin(!isAdmin)}>{isAdmin ? ("STUDENT") : ("ADMIN")}</DropdownItem>
+                    <DropdownItem active onClick={() => setUserAdmin(!isAdmin)}>
+                        {isAdmin ? ("STUDENT") : ("ADMIN")}
+                    </DropdownItem>
                 </DropdownMenu>
             </UncontrolledDropdown>
         </NavItem>
@@ -93,7 +95,7 @@ const NavigationNonAuth = () => (
     </Nav>
 );
 
-const NavigationCourse = ({ isAdmin, setUserAdmin, course }) => {
+const NavigationCourse = ({ course, isAdmin, setUserAdmin }) => {
     class InnerNavigation extends React.Component {
         constructor(props) {
             super(props);
@@ -119,14 +121,14 @@ const NavigationCourse = ({ isAdmin, setUserAdmin, course }) => {
                         <Nav>
                             {course &&
                             <NavItem>
-                                <Link to={ROUTES.TIMELINE + course.cid} className="nav-link nav-button">Timeline</Link>
+                                <Link to={ROUTES.TIMELINE + course.id} className="nav-link nav-button">Timeline</Link>
                             </NavItem>
                             }
-                            <NavItem>
-                                <NavLink>
-                                    <span className="fake-nav">Topics</span>
-                                </NavLink>
-                            </NavItem>
+                            {/*<NavItem>*/}
+                            {/*    <NavLink>*/}
+                            {/*        <span className="fake-nav">Topics</span>*/}
+                            {/*    </NavLink>*/}
+                            {/*</NavItem>*/}
                             <NavItem>
                                 <NavLink>
                                     <span className="fake-nav">Results</span>
@@ -150,6 +152,12 @@ const NavigationCourse = ({ isAdmin, setUserAdmin, course }) => {
                                     <span className="fake-nav">Info</span>
                                 </NavLink>
                             </NavItem>
+                            {isAdmin && course &&
+                            <NavItem>
+                                <Link to={ROUTES.USER_MANAGEMENT + course.id} className="nav-link nav-button">User Management</Link>
+                            </NavItem>
+                            }
+
                             <NavItem className="navbar-right">
                                 <NavLink className="profile">
                                     <img src={profilePicture} alt="profile"  width="40" height="40"/>
@@ -159,7 +167,9 @@ const NavigationCourse = ({ isAdmin, setUserAdmin, course }) => {
                                         {isAdmin ? ("ADMIN") : ("STUDENT")}
                                     </DropdownToggle>
                                     <DropdownMenu>
-                                        <DropdownItem active onClick={() => setUserAdmin(!isAdmin)}>{isAdmin ? ("STUDENT") : ("ADMIN")}</DropdownItem>
+                                        <DropdownItem active onClick={() => setUserAdmin(!isAdmin)}>
+                                            {isAdmin ? ("STUDENT") : ("ADMIN")}
+                                        </DropdownItem>
                                     </DropdownMenu>
                                 </UncontrolledDropdown>
                             </NavItem>

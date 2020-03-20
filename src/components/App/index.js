@@ -20,7 +20,7 @@ const AppBase = () => (
             <Route path={ROUTES.COURSES} component={CoursesPage} />
             <Route path={ROUTES.TIMELINE_ID} component={Timeline} />
             <Route path={ROUTES.NEW_COURSE} component={NewCourse} />
-            <Route path={ROUTES.USER_MANAGEMENT} component={UserManagement} />
+            <Route path={ROUTES.USER_MANAGEMENT_ID} component={UserManagement} />
             <Route path={ROUTES.ASSIGNMENTS} component={Assignments} />
         </div>
     </BrowserRouter>

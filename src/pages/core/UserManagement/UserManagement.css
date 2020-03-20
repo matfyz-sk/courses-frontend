@@ -1,0 +1,28 @@
+.main-user-management-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.requests-container, .enrolled-container {
+    margin: 10px;
+}
+
+.requests-container h2, .enrolled-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.user-management-table  td, .user-management-table th{
+    padding: 5px;
+    vertical-align: baseline;
+}
+
+.table-button {
+    font-size: 0.8rem;
+    padding: 5px;
+}
+
+.table-button-confirm {
+    background-color: #1D661D;
+}
+
