@@ -1,81 +1,79 @@
 import React from "react";
 
-import { ListGroup, ListGroupItem } from 'reactstrap';
-import { Container, Row, Col } from 'reactstrap';
-import Moment from 'moment';
+import {
+    Container, Row, Col,
+    Card, CardSubtitle, CardHeader, CardBody, CardText,
+    ListGroup, ListGroupItem,
+} from 'reactstrap';
+import { FaChalkboardTeacher, FaLaptopCode, FaCalendarCheck, FaClipboardList } from 'react-icons/fa';
 import './Events.css';
 
-const EventsList = ({ courseEvents }) => {
-    courseEvents.sort((e1, e2) => {
-        var dateA = new Date(Moment(e1.dateTime, "DD/MM/YYYY HH:mm"));
-        var dateB = new Date(Moment(e2.dateTime, "DD/MM/YYYY HH:mm"));
-        return dateA > dateB ? 1 : -1;
-    });
-    return (
-    <ListGroup>
-        {courseEvents.filter(event => { return event.type === "Block"; }).map(event => (
-            <ListGroupItem key={event.eid}  className="block-item">
-                <h2 className="name">{event.name}</h2>
-                <p className="about">{event.about}</p>
-                <span>
-                  <strong> Date and time:</strong> {event.dateTime}
-                </span>
-
-                <Container>
-                    <Row>
-                        <Col>
-                            <ListGroup className="sessions">
-                                <h3>Sessions</h3>
-                                {courseEvents.filter(e => {
-                                    return e.type === "Session" &&
-                                        new Date(Moment(e.dateTime, "DD/MM/YYYY HH:mm")) > new Date(Moment(event.dateTime, "DD/MM/YYYY HH:mm"))&&
-                                        new Date(Moment(e.dateTime, "DD/MM/YYYY HH:mm")) < new Date(Moment(event.toDateTime, "DD/MM/YYYY HH:mm"));
-                                }).map(event => (
-                                    <ListGroupItem key={event.eid} className="subevents-item">
-                                        <span>{event.name}</span>
-                                    </ListGroupItem>
+const EventsList = ({ courseEvents }) => (
+    <div className="events-list">
+        {courseEvents.map(event => (
+            <Card className="event-card">
+                <CardHeader className="event-card-header">{event.name}</CardHeader>
+                <CardBody>
+                <CardText className="event-card-text">{event.description}</CardText>
+                <div>
+                  <strong> Start:</strong> {new Date(event.startDate).toLocaleString()}
+                  <br/>
+                  <strong> End:</strong> {new Date(event.endDate).toLocaleString()}
+                  <br/>
+                    {event.location && <span><strong> Location:</strong> {event.location}</span>}
+                </div>
+                {event.type==='Block' &&
+                    <Container>
+                        <Row>
+                            <Col>
+                                <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
+                                <Container>
+                                    {event.sessions && event.sessions.map(session => (
+                                        <Row>
+                                            <Col>{session.type==="Lecture" ?
+                                                <FaChalkboardTeacher  className="icon"/> :
+                                                <FaLaptopCode  className="icon"/>}
+                                                <span className="subevent-name">{session.name}</span>
+                                            </Col>
+                                            <Col>{new Date(session.startDate).toLocaleString()}</Col>
+                                        </Row>
                                     ))}
-                            </ListGroup>
-                        </Col>
-                        <Col>
-                            <ListGroup className="tasks">
-                                <h3>Tasks</h3>
-                                {courseEvents.filter(e => {
-                                    return e.type === "Task" &&
-                                        new Date(Moment(e.dateTime, "DD/MM/YYYY HH:mm")) > new Date(Moment(event.dateTime, "DD/MM/YYYY HH:mm"))&&
-                                        new Date(Moment(e.dateTime, "DD/MM/YYYY HH:mm")) < new Date(Moment(event.toDateTime, "DD/MM/YYYY HH:mm"));
-                                }).map(event => (
-                                    <ListGroupItem key={event.eid} className="subevents-item">
-                                        <span>{event.name}</span>
-                                    </ListGroupItem>
-                                ))}
-                            </ListGroup>
-                        </Col>
-                    </Row>
-                </Container>
-
-            </ListGroupItem>
+                                </Container>
+                            </Col>
+                            <Col>
+                                <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
+                                <Container>
+                                    {event.tasks && event.tasks.map(task => (
+                                        <Row>
+                                            <Col>{task.type==="Task" ?
+                                                <FaCalendarCheck  className="icon"/> :
+                                                <FaClipboardList  className="icon"/>}
+                                                <span className="subevent-name">{task.name}</span>
+                                            </Col>
+                                            <Col>{new Date(task.startDate).toDateString()}</Col>
+                                        </Row>
+                                    ))}
+                                </Container>
+                            </Col>
+                        </Row>
+                    </Container>
+                }
+                </CardBody>
+            </Card>
         ))}
-    </ListGroup>
-)};
+    </div>
+);
 
-const BlockMenu = ({ courseEvents }) => {
-    courseEvents.sort((e1, e2) => {
-        var dateA = new Date(Moment(e1.dateTime, "DD/MM/YYYY HH:mm"));
-        var dateB = new Date(Moment(e2.dateTime, "DD/MM/YYYY HH:mm"));
-        return dateA > dateB ? 1 : -1;
-    });
-    return (
+const BlockMenu = ({ courseEvents }) =>  (
     <ListGroup className="block-menu">
         <ListGroupItem className="timeline block-menu-item">Timeline</ListGroupItem>
-        {courseEvents.filter(event => { return event.type === "Block"; }).map(event => (
-            <ListGroupItem key={event.eid} className="block-menu-item">
+        {courseEvents.map(event => (
+            <ListGroupItem key={event.id} className="block-menu-item">
                 {event.name}
             </ListGroupItem>
         ))}
     </ListGroup>
-    );
-};
+);
 
 export default EventsList;
 

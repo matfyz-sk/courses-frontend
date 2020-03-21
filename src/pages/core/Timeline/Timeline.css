@@ -1,34 +1,19 @@
-/*main {*/
-/*margin-left: 10px;*/
-/*margin-right: 10px;*/
-/*}*/
-
-.container {
+.timeline-container {
     padding-left: 10px;
     padding-right: 10px;
     max-width: 100%;
 }
 
-.col {
+.event-list-col {
     padding-left: 0;
-    padding-right: 25px;
 }
 
-.col-auto{
-    min-width: 200px;
-    text-align: center;
+.timeline-row {
+    height: calc(100vh - 100px);
 }
 
 @media only screen and (max-width: 800px) {
-    .row {
-        display: flex;
-        flex-direction: column;
-    }
-    .col-auto{
-        text-align: center;
-    }
-
-    .col {
-        padding: 0;
+    .timeline-left-col {
+        display: none;
     }
 }

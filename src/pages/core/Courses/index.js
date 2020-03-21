@@ -3,15 +3,10 @@ import {CourseContext, withAuthorization} from '../../../components/Session';
 import {Link} from "react-router-dom";
 
 import {
-    Card,
-    CardBody,
-    ListGroup,
-    ListGroupItem,
-    Nav,
-    NavItem,
-    NavLink,
-    TabContent,
-    TabPane,
+    Card, CardBody,
+    ListGroup, ListGroupItem,
+    Nav, NavItem, NavLink,
+    TabContent, TabPane,
     UncontrolledCollapse
 } from 'reactstrap';
 

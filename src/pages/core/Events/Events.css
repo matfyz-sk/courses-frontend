@@ -1,24 +1,14 @@
-.list-group-item:first-child, .list-group-item:last-child {
-    border-radius: 0;
-}
-
-h3 {
+.subevents-title {
     font-size: 18px;
     font-weight: bold;
     text-align: center;
     margin-top: 5px;
 }
 
-.block-item {
-    display: flex;
-    flex-direction: column;
+.event-card {
     margin-bottom: 10px;
-    padding: 20px;
 }
 
-.name, .about {
-    text-align: center;
-}
 .block-menu-item {
     background-color: #1D661D;
     font-weight: bold;
@@ -26,9 +16,13 @@ h3 {
     margin-bottom: 2px;
 
     border: none;
-    height: 8px;
+    height: 12px;
     display: flex;
     align-items: center;
+}
+
+.block-menu {
+    margin-bottom: 20px;
 }
 
 .timeline {
@@ -38,13 +32,27 @@ h3 {
     justify-content: center;
 }
 
-.sessions, .tasks {
-    margin-top: 10px;
-}
-
 .subevents-item {
     border: none;
     height: 20px;
     display: flex;
     align-items: center;
 }
+
+.events-list {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    overflow: scroll;
+    -webkit-overflow-scrolling: touch;
+}
+
+.subevent-name {
+    padding-left: 10px;
+}
+
+/*.container, .col, .row{*/
+/*    padding: 0;*/
+/*    margin-left: 0;*/
+/*    margin-right: 0;*/
+/*}*/

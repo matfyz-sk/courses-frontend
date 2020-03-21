@@ -1,0 +1,36 @@
+.container {
+    margin-top: 30px;
+}
+
+.event-card-header {
+    font-weight: bold;
+}
+
+.event-card-subtitle {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.event-list-group-item {
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
+    align-items: center;
+}
+
+.event-card-text {
+    text-align: justify;
+}
+
+.icon {
+    color: #444444;
+}
+
+.material-list-group-icon {
+    padding-right: 5px;
+}
+
+.material-name {
+    padding-left: 5px;
+}
