@@ -25,35 +25,13 @@ const EventsList = ({ courseEvents }) => (
                 {event.type==='Block' &&
                     <Container>
                         <Row>
-                            <Col>
+                            <Col className='subevents-col'>
                                 <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
-                                <Container>
-                                    {event.sessions && event.sessions.map(session => (
-                                        <Row>
-                                            <Col>{session.type==="Lecture" ?
-                                                <FaChalkboardTeacher  className="icon"/> :
-                                                <FaLaptopCode  className="icon"/>}
-                                                <span className="subevent-name">{session.name}</span>
-                                            </Col>
-                                            <Col>{new Date(session.startDate).toLocaleString()}</Col>
-                                        </Row>
-                                    ))}
-                                </Container>
+                                <SubEventList events={event.sessions}/>
                             </Col>
-                            <Col>
+                            <Col className='subevents-col'>
                                 <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
-                                <Container>
-                                    {event.tasks && event.tasks.map(task => (
-                                        <Row>
-                                            <Col>{task.type==="Task" ?
-                                                <FaCalendarCheck  className="icon"/> :
-                                                <FaClipboardList  className="icon"/>}
-                                                <span className="subevent-name">{task.name}</span>
-                                            </Col>
-                                            <Col>{new Date(task.startDate).toDateString()}</Col>
-                                        </Row>
-                                    ))}
-                                </Container>
+                                <SubEventList events={event.tasks}/>
                             </Col>
                         </Row>
                     </Container>
@@ -64,7 +42,22 @@ const EventsList = ({ courseEvents }) => (
     </div>
 );
 
-const BlockMenu = ({ courseEvents }) =>  (
+const SubEventList = ({events}) => (
+    <div>
+        {events && events.map(task => (
+            <div className='subevents-row-container'>
+                <div className='subevents-left-container'>{task.type==="Task" ?
+                    <FaCalendarCheck  className="icon"/> :
+                    <FaClipboardList  className="icon"/>}
+                    <span className="subevent-name">{task.name}</span>
+                </div>
+                <div  className='subevents-right-container'>{task.displayDateTime}</div>
+            </div>
+        ))}
+    </div>
+);
+
+const BlockMenu = ({courseEvents}) =>  (
     <ListGroup className="block-menu">
         <ListGroupItem className="timeline block-menu-item">Timeline</ListGroupItem>
         {courseEvents.map(event => (
@@ -77,4 +70,4 @@ const BlockMenu = ({ courseEvents }) =>  (
 
 export default EventsList;
 
-export { BlockMenu };
+export { BlockMenu, SubEventList };

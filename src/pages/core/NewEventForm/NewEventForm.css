@@ -1,0 +1,12 @@
+.new-event-formGroup {
+    display: flex;
+    justify-content: top;
+}
+
+.new-event-label {
+    margin-right: 10px;
+}
+
+#name, #location, #type {
+    max-width: 200px;
+}

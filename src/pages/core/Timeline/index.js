@@ -1,10 +1,9 @@
 import {Component} from "react";
 import React from "react";
 import EventsList, {BlockMenu} from "../Events"
-import {Container, Row, Col} from 'reactstrap';
+import {Container, Row, Col, Button} from 'reactstrap';
 import { NavigationCourse } from "../../../components/Navigation";
 import NextCalendar from "../NextCalendar";
-import ModalCreateEvent from "../ModalCreateEvent";
 import './Timeline.css'
 // import withAuthorization from "../../../components/Session/withAuthorization";
 
@@ -31,6 +30,7 @@ class Timeline extends Component {
         this.greaterEqual = this.greaterEqual.bind(this);
         this.greater = this.greater.bind(this);
         this.sortEventsFunction = this.sortEventsFunction.bind(this);
+        this.getDisplayDateTime = this.getDisplayDateTime.bind(this);
     }
 
     componentDidMount() {
@@ -110,6 +110,7 @@ class Timeline extends Component {
                             !this.greaterEqual(event.startDate, block.startDate)) ||
                             (this.greater(event.endDate, block.startDate) &&
                             !this.greater(event.endDate, block.endDate)))) {
+                        event.displayDateTime = this.getDisplayDateTime(event.startDate);
                         block.sessions.push(event);
                     }
                     else if (((event.type === 'OralExam' || event.type === "TestTake") &&
@@ -117,12 +118,33 @@ class Timeline extends Component {
                             !this.greaterEqual(event.startDate, block.endDate))) ||
                         (event.type === 'Task' && (this.greater(event.endDate, block.startDate) &&
                             !this.greater(event.endDate, block.endDate)))) {
+                        if (event.type === 'OralExam' || event.type === "TestTake") {
+                            event.displayDateTime = this.getDisplayDateTime(event.startDate);
+                        }
+                        else if (event.type === 'Task') {
+                            event.displayDateTime = this.getDisplayDateTime(event.endDate);
+                        }
                         block.tasks.push(event);
                     }
                 }
             }
         }
         return timelineBlocks;
+    }
+
+    getDisplayDateTime(dateTime) {
+        let dateTimeISOFormat = new Date(dateTime);
+        let day = dateTimeISOFormat.getDay();
+        let dayFormated = (day < 10 ? '0' + day : day);
+        let month = (dateTimeISOFormat.getMonth()+1);
+        let monthFormated = (month < 10 ? '0' + month : month);
+        let hours = dateTimeISOFormat.getHours();
+        let hoursFormated = (hours < 10 ? '0' + hours : hours);
+        let minutes = dateTimeISOFormat.getMinutes();
+        let minutesFormated = (minutes < 10 ? '0' + minutes : minutes);
+        let date = dayFormated + '.' + monthFormated + '.';
+        let time = hoursFormated + ':' + minutesFormated;
+        return date + ' ' + time;
     }
 
     greaterEqual(dateTime1, dateTime2) {
@@ -143,7 +165,7 @@ class Timeline extends Component {
                             <Col xs="3" className="timeline-left-col">
                                 <BlockMenu courseEvents={timelineBlocks}/>
                                 {this.props.isAdmin && //|| myId===courseInstance.hasInstructor &&
-                                <ModalCreateEvent/> }
+                                <Button>New Event</Button>}
                                 <NextCalendar/>
                             </Col>
                             <Col className="event-list-col">

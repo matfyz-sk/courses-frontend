@@ -1,8 +1,8 @@
 .new-event-button {
     margin: 10px;
-    background-color: #F4B800;
-    color: black;
+    background-color: #1D661D;
+    color: white;
     font-weight: bold;
     border: none;
-    width: 80%;
+    width: 100%;
 }

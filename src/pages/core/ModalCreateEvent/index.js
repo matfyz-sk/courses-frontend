@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { CreateTimelineForm } from "../CreateTimeline";
+import NewEventForm from "../NewEventForm";
 import './ModalCreateEvent.css';
 
 class ModalCreateEvent extends React.Component {
@@ -22,11 +22,11 @@ class ModalCreateEvent extends React.Component {
     render() {
         return (
             <div>
-                <Button onClick={this.toggle} className="new-event-button">New Event</Button>
+                <Button onClick={this.toggle} className="new-event-button">New Subevent</Button>
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                    <ModalHeader toggle={this.toggle}>New Event</ModalHeader>
+                    <ModalHeader toggle={this.toggle}>New Subevent</ModalHeader>
                     <ModalBody>
-                        <CreateTimelineForm/>
+                        <NewEventForm type="Lecture" from={this.props.from} to={this.props.to}/>
                     </ModalBody>
                     <ModalFooter>
                         <Button color="secondary" onClick={this.toggle}>Cancel</Button>

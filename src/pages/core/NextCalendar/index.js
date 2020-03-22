@@ -8,7 +8,7 @@ class NextCalendar extends React.Component {
 
     render() {
         return (
-            <Card>
+            <Card className='next-calendar'>
                 <CardHeader>TODO1</CardHeader>
                 <CardHeader>TODO2</CardHeader>
                 <CardHeader>TODO3</CardHeader>

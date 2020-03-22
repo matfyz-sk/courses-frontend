@@ -4,7 +4,7 @@ import {compose} from "recompose";
 import {connect} from "react-redux";
 // import {withAuthorization} from "../../../components/Session";
 // import store from "../../../redux/store";
-import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import {Button, Form, FormGroup, Label, Input, Container, Card, CardHeader, CardBody} from 'reactstrap';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import Chip from '@material-ui/core/Chip';
@@ -21,12 +21,14 @@ const UserOptions = [
 const NewCourse = () => (
     <div>
         <Navigation />
-        <main>
-            <div>
-                <h1>New Course</h1>
-                <NewCourseForm/>
-            </div>
-        </main>
+        <Container>
+            <Card>
+                <CardHeader>New Course</CardHeader>
+                <CardBody>
+                    <NewCourseForm/>
+                </CardBody>
+            </Card>
+        </Container>
     </div>
 );
 
