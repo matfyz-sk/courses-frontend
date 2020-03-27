@@ -6,7 +6,9 @@ import {
 
 const GlobalMenu = (props) => (
     <React.Fragment>
-
+        <NavItem>
+            <Link to="/courses" className="clickable nav-link">Courses</Link>
+        </NavItem>
     </React.Fragment>
 );
 
