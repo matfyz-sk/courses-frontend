@@ -369,8 +369,8 @@ export const Events = [
             'was missing. Then the second son was ordered to watch; and at midnight he too fell asleep.',
         location: 'H6',
 
-        startDate: '2020-02-19T13:00+01:00',
-        endDate: '2020-02-19T15:00+01:00',
+        startDate: '2020-03-19T13:00+01:00',
+        endDate: '2020-03-19T15:00+01:00',
 
         subEvent: '', //Event
         superEvent: '', //Event
@@ -472,7 +472,7 @@ export const Events = [
         id: 19,
         courseInstance: 2,
 
-        name: 'Writing - DP',
+        name: 'Writing - ITSW',
         description: 'A certain king had a beautiful garden, and in the garden stood a ' +
             'tree which bore golden apples. These apples were always counted, and about ' +
             'was missing. Then the second son was ordered to watch; and at midnight he too fell asleep.',

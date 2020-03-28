@@ -12,7 +12,7 @@ const NewEvent = () => (
             <Card>
                 <CardHeader className="event-card-header">New Event</CardHeader>
                 <CardBody>
-                    <NewEventForm/>
+                    <NewEventForm typeOfForm='create'/>
                 </CardBody>
             </Card>
         </Container>

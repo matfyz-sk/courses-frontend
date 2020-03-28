@@ -4,6 +4,14 @@
     max-width: 100%;
 }
 
+.subevents-col-left {
+    padding: 0 3px 0 0;
+}
+
+.subevents-col-right {
+    padding: 0 0 0 3px;
+}
+
 .event-list-col {
     padding-left: 0;
 }

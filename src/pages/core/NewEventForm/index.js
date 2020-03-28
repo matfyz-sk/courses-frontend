@@ -4,7 +4,7 @@ import {compose} from "recompose";
 import {Button, Form, FormGroup, Label, Input, Container, Row, Col} from 'reactstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import './NewEventForm.css';
+import './NewEventFormStyle.css';
 // import Moment from 'moment';
 
 const INITIAL_STATE = {
@@ -13,7 +13,7 @@ const INITIAL_STATE = {
     from: new Date(),
     to: new Date(),
     location: '',
-    type: 'Block',
+    type: '',
 };
 
 class NewEventForm extends Component {
@@ -23,7 +23,6 @@ class NewEventForm extends Component {
         this.state = { ...INITIAL_STATE };
         this.handleChangeFrom = this.handleChangeFrom.bind(this);
         this.handleChangeTo = this.handleChangeTo.bind(this);
-
     }
 
     componentDidMount() {
@@ -31,7 +30,8 @@ class NewEventForm extends Component {
 
         this.setState({
             id: params.id,
-            type: this.props.type,
+            typeOfForm: this.props.typeOfForm,
+            typeOfEvent: this.props.typeOfEvent,
             from: this.props.from,
             to: this.props.to,
         })
@@ -47,25 +47,11 @@ class NewEventForm extends Component {
         //     type
         // } = this.state;
 
-        // this.props.firebase.courseEvents()
-        //     .add({
-        //         name: name,
-        //         about: about,
-        //         location: location,
-        //         type: type,
-        //         dateTime: Moment(from).format("DD/MM/YYYY HH:mm").toString(),
-        //         toDateTime: Moment(to).format("DD/MM/YYYY HH:mm").toString(),
-        //         course: this.state.id,
-        //     })
-        //     .then(docRef => {
-        //         // console.log("Document written with ID: ", docRef.id);
-        //         this.setState({ ...INITIAL_STATE });
-        //         window.location.reload(true)
-        //     })
-        //     .catch((error) => {
-        //         // console.log("Error getting documents: ", error);
-        //         this.setState({ error });
-        //     });
+        if (this.state.typeOfForm === 'create') {
+            //TODO create new event
+        } else {
+            //TODO update existing event
+        }
 
         event.preventDefault();
     };
@@ -110,7 +96,6 @@ class NewEventForm extends Component {
                         value={name}
                         onChange={this.onChange}
                         type="text"
-                        placeholder="Name"
                     />
                 </FormGroup>
                 <FormGroup className="new-event-formGroup">
@@ -118,18 +103,15 @@ class NewEventForm extends Component {
                     <Input id="type" type="select" name="type" value={type} onChange={this.onChange}>
                         <option value="Lecture">Lecture</option>
                         <option value="Lab">Lab</option>
-                        <option value="OralExam">OralExam</option>
-                        <option value="TestTake">TestTake</option>
-                        <option value="Task">Task</option>
                         <option value="Block">Block</option>
                     </Input>
                 </FormGroup>
 
                 <FormGroup>
-                    <Container>
+                    <Container className="event-form-dateTime-container">
                         <Row>
-                            <Col>
-                                <Label for="from" className="label-dateTime">From</Label>
+                            <Col className="event-form-dateTime-col">
+                                <Label id="from-label" for="from" className="label-dateTime">From</Label>
                                 <DatePicker
                                     name="from"
                                     id="from"
@@ -142,7 +124,7 @@ class NewEventForm extends Component {
                                     timeCaption="time"
                                 />
                             </Col>
-                            <Col>
+                            <Col className="event-form-dateTime-col">
                                 <Label for="to" className="label-dateTime">To</Label>
                                 <DatePicker
                                     name="to"
@@ -177,12 +159,13 @@ class NewEventForm extends Component {
                         value={location}
                         onChange={this.onChange}
                         type="text"
-                        placeholder="Location"
                     />
                 </FormGroup>
-                <Button disabled={isInvalid} type="submit" className="new-event-button">
-                    Create
-                </Button>
+                <div className="button-container">
+                    <Button  className="new-event-button" disabled={isInvalid} type="submit">
+                        Create
+                    </Button>
+                </div>
             </Form>
         )
     }

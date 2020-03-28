@@ -1,8 +1,4 @@
-.new-event-button {
-    margin: 10px;
-    background-color: #1D661D;
-    color: white;
-    font-weight: bold;
-    border: none;
-    width: 100%;
+.new-event-modal {
+    width: 70%;
+    max-width: 70%;
 }

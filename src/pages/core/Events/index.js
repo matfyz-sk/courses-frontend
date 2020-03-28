@@ -23,13 +23,13 @@ const EventsList = ({ courseEvents }) => (
                     {event.location && <span><strong> Location:</strong> {event.location}</span>}
                 </div>
                 {event.type==='Block' &&
-                    <Container>
+                    <Container className="sessions-tasks-container">
                         <Row>
-                            <Col className='subevents-col'>
+                            <Col className='subevents-col-left'>
                                 <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
                                 <SubEventList events={event.sessions}/>
                             </Col>
-                            <Col className='subevents-col'>
+                            <Col className='subevents-col-right'>
                                 <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
                                 <SubEventList events={event.tasks}/>
                             </Col>
@@ -43,12 +43,15 @@ const EventsList = ({ courseEvents }) => (
 );
 
 const SubEventList = ({events}) => (
-    <div>
+    <div className="subevents-container">
         {events && events.map(task => (
             <div className='subevents-row-container'>
-                <div className='subevents-left-container'>{task.type==="Task" ?
+                <div className='subevents-left-container'>
+                    {/*TODO different icons*/}
+                    {task.type==="Task" ?
                     <FaCalendarCheck  className="icon"/> :
-                    <FaClipboardList  className="icon"/>}
+                    <FaClipboardList  className="icon"/>
+                    }
                     <span className="subevent-name">{task.name}</span>
                 </div>
                 <div  className='subevents-right-container'>{task.displayDateTime}</div>

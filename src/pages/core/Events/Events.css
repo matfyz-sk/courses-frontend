@@ -28,6 +28,19 @@
     justify-content: center;
 }
 
+.sessions-tasks-container {
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.subevents-container {
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    padding: 15px;
+    width: 100%;
+    min-height: 60px;
+}
+
 .subevents-item {
     border: none;
     height: 20px;
@@ -58,7 +71,7 @@
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
-    max-width: 350px;
+    max-width: 500px;
     text-align: center;
 }
 

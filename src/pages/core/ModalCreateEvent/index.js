@@ -22,9 +22,9 @@ class ModalCreateEvent extends React.Component {
     render() {
         return (
             <div>
-                <Button onClick={this.toggle} className="new-event-button">New Subevent</Button>
-                <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                    <ModalHeader toggle={this.toggle}>New Subevent</ModalHeader>
+                <Button onClick={this.toggle} className="new-event-button">New Session</Button>
+                <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className + ' new-event-modal'}>
+                    <ModalHeader toggle={this.toggle}>New Session</ModalHeader>
                     <ModalBody>
                         <NewEventForm type="Lecture" from={this.props.from} to={this.props.to}/>
                     </ModalBody>
