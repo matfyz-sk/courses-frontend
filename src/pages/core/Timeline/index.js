@@ -12,6 +12,7 @@ import {Courses} from "../Courses/courses-data";
 
 import {connect} from "react-redux";
 import {setUserAdmin} from "../../../redux/actions";
+import {Link} from "react-router-dom";
 
 class Timeline extends Component {
     constructor(props) {
@@ -48,10 +49,9 @@ class Timeline extends Component {
             }
         }
 
-        //get all events where courseInstance.id = params
+        // TODO get all events where courseInstance.id = params
         let events = Events;
 
-        //TODO BLOCKS FIRST!
         events.sort(this.sortEventsFunction);
         console.log('events', events);
 
@@ -165,11 +165,13 @@ class Timeline extends Component {
                             <Col xs="3" className="timeline-left-col">
                                 <BlockMenu courseEvents={timelineBlocks}/>
                                 {this.props.isAdmin && //|| myId===courseInstance.hasInstructor &&
-                                <Button>New Event</Button>}
+                                <Link to={'/createtimeline/' + 1}> {/*TODO add proper id*/}
+                                    <Button className='new-event-button'>New Event</Button>
+                                </Link>}
                                 <NextCalendar/>
                             </Col>
                             <Col className="event-list-col">
-                                <EventsList courseEvents={nestedEvents}/>
+                                <EventsList courseEvents={nestedEvents} isAdmin={this.props.isAdmin}/>
                             </Col>
                         </Row>
                     </Container>

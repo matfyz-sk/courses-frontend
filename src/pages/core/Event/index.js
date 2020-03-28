@@ -4,11 +4,14 @@ import { NavigationCourse } from "../../../components/Navigation";
 import {
     Container, Row, Col,
     Card, CardSubtitle, CardHeader, CardBody, CardText,
-    ListGroup, ListGroupItem,
+    ListGroup, ListGroupItem, Button,
 } from 'reactstrap';
 import './Event.css';
 import { FaRegFile } from 'react-icons/fa';
 import NextCalendar from "../NextCalendar";
+import {connect} from "react-redux";
+import {setUserAdmin} from "../../../redux/actions";
+import {Link} from "react-router-dom";
 
 
 class Event extends React.Component {
@@ -17,6 +20,7 @@ class Event extends React.Component {
 
         this.state = {
             event: {
+                id: 2,
                 name: 'The Rabbit Sends in a Little Bill',
                 description: 'A certain king had a beautiful garden, and in the garden stood a ' +
                     'tree which bore golden apples. These apples were always counted, and about ' +
@@ -25,7 +29,7 @@ class Event extends React.Component {
                     'to keep watch all night under the tree. The gardener set his eldest son to watch; ' +
                     'but about twelve o’clock he fell asleep, and in the morning another of the apples ' +
                     'was missing. Then the second son was ordered to watch; and at midnight he too fell asleep.',
-                materials: ['How Dorothy Saved the Scarecrow', 'The Council with the Munchkins']
+                materials: [{id: 1, name: 'How Dorothy Saved the Scarecrow'}, {id:2, name: 'The Council with the Munchkins'}]
             }
         }
     }
@@ -39,24 +43,30 @@ class Event extends React.Component {
         const {event} = this.state;
         return (
             <div>
-                <NavigationCourse/>
+                <NavigationCourse isAdmin={this.props.isAdmin} course={this.state.courseInstance} setUserAdmin={this.props.setUserAdmin}/>
                 <Container>
                     <Row>
                         <Col xs="3">
                             <NextCalendar/>
                         </Col>
-                        <Col auto>
+                        <Col>
                             <Card>
-                                <CardHeader className="event-card-header">{event.name}</CardHeader>
+                                <CardHeader className="event-card-header">
+                                    {event.name}
+                                    {this.props.isAdmin &&
+                                    <Link to={'/editevent/' + event.id}>
+                                        <Button className='edit-button'> Edit</Button>
+                                    </Link>}
+                                </CardHeader>
                                 <CardBody>
                                     <CardText className="event-card-text">{event.description}</CardText>
                                     <CardSubtitle className="event-card-subtitle">Materials</CardSubtitle>
-                                    <ListGroup key={event.id}>
+                                    <ListGroup key={event.id} >
                                         { event.materials.map(material => (
-                                            <ListGroupItem className="event-list-group-item">
+                                            <ListGroupItem key={material.id} className="event-list-group-item">
                                                 <FaRegFile className="icon"/>
                                                 <div className="material-name">
-                                                    {material}
+                                                    {material.name}
                                                 </div>
                                             </ListGroupItem>
                                         ))}
@@ -72,4 +82,11 @@ class Event extends React.Component {
     }
 }
 
-export default Event;
+const mapStateToProps = ( { userReducer } ) => {
+    return {
+        isSignedIn: userReducer.isSignedIn,
+        isAdmin: userReducer.isAdmin
+    };
+};
+
+export default connect(mapStateToProps, { setUserAdmin })(Event);

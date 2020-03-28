@@ -2,7 +2,7 @@ import React from "react";
 import { NavigationCourse } from "../../../components/Navigation";
 
 import {Container, Card, CardHeader, CardBody } from 'reactstrap';
-import NewEventForm from "../NewEventForm";
+import EventForm from "../EventForm";
 
 
 const NewEvent = () => (
@@ -12,7 +12,7 @@ const NewEvent = () => (
             <Card>
                 <CardHeader className="event-card-header">New Event</CardHeader>
                 <CardBody>
-                    <NewEventForm typeOfForm='create'/>
+                    <EventForm typeOfForm='Create' type='Block'/>
                 </CardBody>
             </Card>
         </Container>

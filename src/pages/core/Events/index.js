@@ -3,16 +3,23 @@ import React from "react";
 import {
     Container, Row, Col,
     Card, CardSubtitle, CardHeader, CardBody, CardText,
-    ListGroup, ListGroupItem,
+    ListGroup, ListGroupItem, Button,
 } from 'reactstrap';
 import { FaChalkboardTeacher, FaLaptopCode, FaCalendarCheck, FaClipboardList } from 'react-icons/fa';
 import './Events.css';
+import {Link} from "react-router-dom";
 
-const EventsList = ({ courseEvents }) => (
+const EventsList = ({ courseEvents, isAdmin }) => (
     <div className="events-list">
         {courseEvents.map(event => (
-            <Card className="event-card">
-                <CardHeader className="event-card-header">{event.name}</CardHeader>
+            <Card className="event-card" key={event.id}>
+                <CardHeader className="event-card-header">
+                    {event.name}
+                    {isAdmin &&
+                    <Link to={'/editevent/' + event.id}>
+                        <Button className='edit-button'> Edit</Button>
+                    </Link>}
+                </CardHeader>
                 <CardBody>
                 <CardText className="event-card-text">{event.description}</CardText>
                 <div>
@@ -44,17 +51,19 @@ const EventsList = ({ courseEvents }) => (
 
 const SubEventList = ({events}) => (
     <div className="subevents-container">
-        {events && events.map(task => (
-            <div className='subevents-row-container'>
+        {events && events.map(subEvent => (
+            <div className='subevents-row-container' key={subEvent.id}>
                 <div className='subevents-left-container'>
                     {/*TODO different icons*/}
-                    {task.type==="Task" ?
+                    {subEvent.type==="Task" ?
                     <FaCalendarCheck  className="icon"/> :
                     <FaClipboardList  className="icon"/>
                     }
-                    <span className="subevent-name">{task.name}</span>
+                    <Link to={'/event/' + subEvent.id}>
+                        <span className="subevent-name">{subEvent.name}</span>
+                    </Link>
                 </div>
-                <div  className='subevents-right-container'>{task.displayDateTime}</div>
+                <div  className='subevents-right-container'>{subEvent.displayDateTime}</div>
             </div>
         ))}
     </div>

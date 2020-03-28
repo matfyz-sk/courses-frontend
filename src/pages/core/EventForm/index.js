@@ -5,18 +5,17 @@ import {Button, Form, FormGroup, Label, Input, Container, Row, Col} from 'reacts
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import './NewEventFormStyle.css';
-// import Moment from 'moment';
 
 const INITIAL_STATE = {
     name: '',
     description: '',
     from: new Date(),
     to: new Date(),
-    location: '',
+    place: '',
     type: '',
 };
 
-class NewEventForm extends Component {
+class EventForm extends Component {
     constructor(props) {
         super(props);
 
@@ -26,15 +25,29 @@ class NewEventForm extends Component {
     }
 
     componentDidMount() {
-        const { match: { params } } = this.props;
+        if (this.props.typeOfForm === 'Create') {
+            const { match: { params } } = this.props;
 
-        this.setState({
-            id: params.id,
-            typeOfForm: this.props.typeOfForm,
-            typeOfEvent: this.props.typeOfEvent,
-            from: this.props.from,
-            to: this.props.to,
-        })
+            this.setState({
+                typeOfForm: this.props.typeOfForm,
+                courseId: params.id,
+                type: this.props.type,
+                from: this.props.from,
+                to: this.props.to,
+            })
+        } else if (this.props.typeOfForm === 'Edit') {
+            this.setState({
+                typeOfForm: this.props.typeOfForm,
+                name: this.props.name,
+                description: this.props.description,
+                from: this.props.from,
+                to: this.props.to,
+                place: this.props.place,
+                type: this.props.type,
+                course: this.props.course,
+            });
+        }
+        console.log(this.props);
     }
 
     onSubmit = event => {
@@ -43,13 +56,13 @@ class NewEventForm extends Component {
         //     about,
         //     from,
         //     to,
-        //     location,
+        //     place,
         //     type
         // } = this.state;
 
-        if (this.state.typeOfForm === 'create') {
+        if (this.state.typeOfForm === 'Create') {
             //TODO create new event
-        } else {
+        } else if (this.state.typeOfForm === 'Edit') {
             //TODO update existing event
         }
 
@@ -75,8 +88,9 @@ class NewEventForm extends Component {
             description,
             from,
             to,
-            location,
+            place,
             type,
+            typeOfForm
         } = this.state;
 
         const isInvalid =
@@ -84,7 +98,7 @@ class NewEventForm extends Component {
             description === '' ||
             from === null ||
             to === null ||
-            location === '';
+            place === '';
 
         return(
             <Form onSubmit={this.onSubmit}>
@@ -152,18 +166,18 @@ class NewEventForm extends Component {
                     />
                 </FormGroup>
                 <FormGroup className="new-event-formGroup">
-                    <Label for="location" className="new-event-label">Location</Label>
+                    <Label for="place" className="new-event-label">Location</Label>
                     <Input
-                        name="location"
-                        id="location"
-                        value={location}
+                        name="place"
+                        id="place"
+                        value={place}
                         onChange={this.onChange}
                         type="text"
                     />
                 </FormGroup>
                 <div className="button-container">
                     <Button  className="new-event-button" disabled={isInvalid} type="submit">
-                        Create
+                        {typeOfForm}
                     </Button>
                 </div>
             </Form>
@@ -171,5 +185,5 @@ class NewEventForm extends Component {
     }
 }
 
-export default compose(withRouter,)(NewEventForm);
+export default compose(withRouter,)(EventForm);
 
