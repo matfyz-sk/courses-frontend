@@ -12,11 +12,10 @@
 .block-menu-item {
     background-color: #1D661D;
     font-weight: bold;
-    color: white;
     margin-bottom: 2px;
 
     border: none;
-    padding: 2px 10px;
+    padding: 4px 10px;
     display: flex;
     align-items: center;
 }
@@ -87,4 +86,16 @@
 
 .next-calendar {
     margin-top:20px;
+}
+
+a.scrolllink-item {
+    color: white;
+}
+
+a.scrolllink-item:hover {
+    color: #F4B800;
+}
+
+a.active-scrolllink-item {
+    color: #F4B800;
 }

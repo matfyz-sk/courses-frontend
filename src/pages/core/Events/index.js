@@ -8,11 +8,14 @@ import {
 import { FaChalkboardTeacher, FaLaptopCode, FaCalendarCheck, FaClipboardList } from 'react-icons/fa';
 import './Events.css';
 import {Link} from "react-router-dom";
+import Scroll from 'react-scroll';
+
+const ScrollLink = Scroll.Link;
 
 const EventsList = ({ courseEvents, isAdmin }) => (
-    <div className="events-list">
+    <div className="events-list" id="containerElement" >
         {courseEvents.map(event => (
-            <Card className="event-card" key={event.id}>
+            <Card id={event.id+''} name={event.id+''} key={event.id} className="event-card" >
                 <CardHeader className="event-card-header">
                     {event.name}
                     {isAdmin &&
@@ -74,7 +77,17 @@ const BlockMenu = ({courseEvents}) =>  (
         <ListGroupItem className="timeline block-menu-item">Timeline</ListGroupItem>
         {courseEvents.map(event => (
             <ListGroupItem key={event.id} className="block-menu-item">
+                <ScrollLink
+                    to={event.id+''}
+                    spy={true}
+                    smooth={true}
+                    duration={250}
+                    containerId="containerElement"
+                    className='scrolllink-item'
+                    activeClass='active-scrolllink-item'
+                >
                 {event.name}
+                </ScrollLink>
             </ListGroupItem>
         ))}
     </ListGroup>
