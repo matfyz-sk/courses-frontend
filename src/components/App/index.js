@@ -17,6 +17,7 @@ import * as ROUTES from '../../constants/routes';
 import { withAuthentication } from '../Session';
 import { withCourse } from '../Session';
 import { compose } from "recompose";
+import CourseMigration from "../../pages/core/CourseMigration";
 
 const AppBase = () => (
     <BrowserRouter>
@@ -31,6 +32,7 @@ const AppBase = () => (
             <Route path={ROUTES.NEW_EVENT} component={NewEvent} />
             <Route path={ROUTES.NEW_COURSE} component={NewCourse} />
             <Route path={ROUTES.USER_MANAGEMENT_ID} component={UserManagement} />
+            <Route path={ROUTES.COURSE_MIGRATION_ID} component={CourseMigration} />
             <Route path={ROUTES.ASSIGNMENTS} component={Assignments} />
         </div>
     </BrowserRouter>

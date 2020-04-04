@@ -36,8 +36,10 @@ class CoursesPageBase extends Component {
         this.toggle = this.toggle.bind(this);
         this.groupCourses = this.groupCourses.bind(this);
 
+        let activeTab = (this.props.isSignedIn ? '1' : '2');
+
         this.state = {
-            activeTab: '1',
+            activeTab: activeTab,
             loading: false,
             allCourses: Courses,
             activeCourses: [],//ActiveCourses, //not (enrolled || teaching || admin) && this semester
@@ -126,22 +128,23 @@ class CoursesPageBase extends Component {
         const {myActiveCourses, myArchivedCourses, activeCourses, allCourses, loading} = this.state;
 
         return (
-            <div>
+            <React.Fragment>
                 <Navigation />
                 <main className="courses_main">
                 <div className="courses">
-
-                    {loading && <div>Loading ...</div>}
-
                     <Nav tabs>
+                        {this.props.isSignedIn &&
                         <NavItem>
                             <NavLink
-                                className={classnames({ active: this.state.activeTab === '1' })}
-                                onClick={() => { this.toggle('1'); }}
+                                className={classnames({active: this.state.activeTab === '1'})}
+                                onClick={() => {
+                                    this.toggle('1');
+                                }}
                             >
                                 <span className="tab">My Courses</span>
                             </NavLink>
                         </NavItem>
+                        }
                         <NavItem>
                             <NavLink
                                 className={classnames({ active: this.state.activeTab === '2' })}
@@ -150,15 +153,19 @@ class CoursesPageBase extends Component {
                                 <span className="tab">Active Courses</span>
                             </NavLink>
                         </NavItem>
+                        {this.props.isSignedIn &&
                         <NavItem>
                             <NavLink
-                                className={classnames({ active: this.state.activeTab === '3' })}
-                                onClick={() => { this.toggle('3'); }}
+                                className={classnames({active: this.state.activeTab === '3'})}
+                                onClick={() => {
+                                    this.toggle('3');
+                                }}
                             >
                                 <span className="tab">Archived Courses</span>
                             </NavLink>
                         </NavItem>
-                        {this.props.isAdmin &&
+                        }
+                        {this.props.isSignedIn && this.props.isAdmin &&
                             <NavItem>
                                 <NavLink
                                     className={classnames({ active: this.state.activeTab === '4' })}
@@ -170,15 +177,19 @@ class CoursesPageBase extends Component {
                         }
                     </Nav>
                     <TabContent activeTab={this.state.activeTab}>
+                        {this.props.isSignedIn &&
                         <TabPane tabId="1">
                             <CoursesList coursesList={myActiveCourses} enroll={null} isAdmin={this.props.isAdmin}/>
                         </TabPane>
+                        }
                         <TabPane tabId="2">
-                            <CoursesList coursesList={activeCourses} enroll={this.enroll} isAdmin={this.props.isAdmin}/>
+                            <CoursesList coursesList={activeCourses} enroll={(this.props.isSignedIn ? this.enroll : null)} isAdmin={this.props.isAdmin}/>
                         </TabPane>
+                        {this.props.isSignedIn &&
                         <TabPane tabId="3">
                             <CoursesList coursesList={myArchivedCourses} enroll={null} isAdmin={this.props.isAdmin}/>
                         </TabPane>
+                        }
                         {this.props.isAdmin &&
                             <TabPane tabId="4">
                                 <CoursesList coursesList={allCourses} enroll={null} isAdmin={this.props.isAdmin}/>
@@ -187,7 +198,7 @@ class CoursesPageBase extends Component {
                     </TabContent>
                 </div>
                 </main>
-            </div>
+            </React.Fragment>
         );
     }
 }
@@ -264,7 +275,6 @@ const RoleIcon = ({course}) => (
         {course.instructor !== false && <img src={teacher_icon} alt="teacher" width="20px" height="20px"/>}
     </div>
 );
-
 
 const mapStateToProps = ( { userReducer } ) => {
     return {

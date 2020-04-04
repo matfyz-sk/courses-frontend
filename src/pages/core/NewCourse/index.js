@@ -10,9 +10,9 @@ import './NewCourse.css';
 const NewCourse = () => (
     <div>
         <Navigation />
-        <Container className="event-card-header">
+        <Container>
             <Card>
-                <CardHeader>New Course</CardHeader>
+                <CardHeader className="event-card-header">New Course</CardHeader>
                 <CardBody>
                     <CourseForm typeOfForm='Create'/>
                 </CardBody>

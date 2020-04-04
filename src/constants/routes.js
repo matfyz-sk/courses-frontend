@@ -14,4 +14,5 @@ export const EDIT_COURSE = '/editcourse';
 export const EDIT_COURSE_ID = '/editcourse/:id';
 export const USER_MANAGEMENT = '/usermanagement';
 export const USER_MANAGEMENT_ID = '/usermanagement/:id';
+export const COURSE_MIGRATION_ID = '/coursemigration/:id';
 export const ASSIGNMENTS = '/assignments';

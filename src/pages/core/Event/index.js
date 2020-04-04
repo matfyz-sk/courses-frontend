@@ -44,7 +44,7 @@ class Event extends React.Component {
         return (
             <div>
                 <NavigationCourse isAdmin={this.props.isAdmin} course={this.state.courseInstance} setUserAdmin={this.props.setUserAdmin}/>
-                <Container>
+                <Container timeline-container>
                     <Row>
                         <Col xs="3">
                             <NextCalendar/>

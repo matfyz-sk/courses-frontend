@@ -81,7 +81,7 @@ const BlockMenu = ({courseEvents}) =>  (
                     to={event.id+''}
                     spy={true}
                     smooth={true}
-                    duration={250}
+                    duration={500}
                     containerId="containerElement"
                     className='scrolllink-item'
                     activeClass='active-scrolllink-item'
