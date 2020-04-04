@@ -10,7 +10,7 @@ class CreateTimeline extends React.Component {
         return(
             <div>
                 <NavigationCourse/>
-                <Container className="timeline-container">
+                <Container className="core-container">
                     <Row>
                         <Col xs="3">
                             <BlockMenu courseEvents={[]}/>

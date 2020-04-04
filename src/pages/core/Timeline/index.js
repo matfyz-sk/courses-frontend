@@ -3,8 +3,9 @@ import React from "react";
 import EventsList, {BlockMenu} from "../Events"
 import {Container, Row, Col, Button} from 'reactstrap';
 import { NavigationCourse } from "../../../components/Navigation";
+import { getDisplayDateTime } from "../Helper";
 import NextCalendar from "../NextCalendar";
-import './Timeline.css'
+import './Timeline.css';
 // import withAuthorization from "../../../components/Session/withAuthorization";
 
 import {Events} from "./timeline-data";
@@ -24,6 +25,7 @@ class Timeline extends Component {
             eventsSorted: [],
             timelineBlocks: [], //for timeline purposes even Session can be a block
             nestedEvents: [],
+            courseAbbr: '',
         };
 
         this.getTimelineBlocks = this.getTimelineBlocks.bind(this);
@@ -31,7 +33,6 @@ class Timeline extends Component {
         this.greaterEqual = this.greaterEqual.bind(this);
         this.greater = this.greater.bind(this);
         this.sortEventsFunction = this.sortEventsFunction.bind(this);
-        this.getDisplayDateTime = this.getDisplayDateTime.bind(this);
     }
 
     componentDidMount() {
@@ -40,12 +41,12 @@ class Timeline extends Component {
         const { match: { params } } = this.props;
 
         let courses = Courses;
-        let courseInstance;
+        let courseAbbr;
 
         for(let i in courses) {
             let course = courses[i];
-            if (course.id === params) {
-                courseInstance = course;
+            if (course.id == params.id) {
+                courseAbbr = course.abbreviation;
             }
         }
 
@@ -53,19 +54,19 @@ class Timeline extends Component {
         let events = Events;
 
         events.sort(this.sortEventsFunction);
-        console.log('events', events);
 
         let timelineBlocks = this.getTimelineBlocks(events);
         let nestedEvents = this.getNestedEvents(events, timelineBlocks);
 
-        console.log('nestedEvents', nestedEvents);
-
         this.setState({
-            courseInstance: courseInstance,
             eventsSorted: events,
             timelineBlocks: timelineBlocks,
             nestedEvents: nestedEvents,
+            courseId: params.id,
+            courseAbbr: courseAbbr,
         });
+
+        console.log(courseAbbr);
     }
 
     sortEventsFunction(e1,e2) {
@@ -110,7 +111,7 @@ class Timeline extends Component {
                             !this.greaterEqual(event.startDate, block.startDate)) ||
                             (this.greater(event.endDate, block.startDate) &&
                             !this.greater(event.endDate, block.endDate)))) {
-                        event.displayDateTime = this.getDisplayDateTime(event.startDate);
+                        event.displayDateTime = getDisplayDateTime(event.startDate, false);
                         block.sessions.push(event);
                     }
                     else if (((event.type === 'OralExam' || event.type === "TestTake") &&
@@ -119,10 +120,10 @@ class Timeline extends Component {
                         (event.type === 'Task' && (this.greater(event.endDate, block.startDate) &&
                             !this.greater(event.endDate, block.endDate)))) {
                         if (event.type === 'OralExam' || event.type === "TestTake") {
-                            event.displayDateTime = this.getDisplayDateTime(event.startDate);
+                            event.displayDateTime = getDisplayDateTime(event.startDate, false);
                         }
                         else if (event.type === 'Task') {
-                            event.displayDateTime = this.getDisplayDateTime(event.endDate);
+                            event.displayDateTime = getDisplayDateTime(event.endDate, false);
                         }
                         block.tasks.push(event);
                     }
@@ -130,21 +131,6 @@ class Timeline extends Component {
             }
         }
         return timelineBlocks;
-    }
-
-    getDisplayDateTime(dateTime) {
-        let dateTimeISOFormat = new Date(dateTime);
-        let day = dateTimeISOFormat.getDay();
-        let dayFormated = (day < 10 ? '0' + day : day);
-        let month = (dateTimeISOFormat.getMonth()+1);
-        let monthFormated = (month < 10 ? '0' + month : month);
-        let hours = dateTimeISOFormat.getHours();
-        let hoursFormated = (hours < 10 ? '0' + hours : hours);
-        let minutes = dateTimeISOFormat.getMinutes();
-        let minutesFormated = (minutes < 10 ? '0' + minutes : minutes);
-        let date = dayFormated + '.' + monthFormated + '.';
-        let time = hoursFormated + ':' + minutesFormated;
-        return date + ' ' + time;
     }
 
     greaterEqual(dateTime1, dateTime2) {
@@ -155,17 +141,17 @@ class Timeline extends Component {
     }
 
     render() {
-        const {timelineBlocks, nestedEvents} = this.state;
+        const {timelineBlocks, nestedEvents, courseAbbr} = this.state;
         return (
             <div>
-                <NavigationCourse isAdmin={this.props.isAdmin} course={this.state.courseInstance} setUserAdmin={this.props.setUserAdmin}/>
+                <NavigationCourse courseAbbr={this.state.courseAbbr}/>
                     {this.state.eventsSorted.length===0 ? <p>Timeline for this course is empty.</p> :
-                    <Container className='timeline-container'>
+                    <Container className='core-container'>
                         <Row className="timeline-row">
                             <Col xs="3" className="timeline-left-col">
                                 <BlockMenu courseEvents={timelineBlocks}/>
                                 {this.props.isAdmin && //|| myId===courseInstance.hasInstructor &&
-                                <Link to={'/createtimeline/' + 1}> {/*TODO add proper id*/}
+                                <Link to={'/createtimeline/' + courseAbbr}>
                                     <Button className='new-event-button'>New Event</Button>
                                 </Link>}
                                 <NextCalendar/>

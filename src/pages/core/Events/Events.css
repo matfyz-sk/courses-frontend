@@ -30,6 +30,7 @@
 .sessions-tasks-container {
     padding: 0;
     margin-bottom: 20px;
+    width: 100%;
 }
 
 .subevents-container {
@@ -98,4 +99,8 @@ a.scrolllink-item:hover {
 
 a.active-scrolllink-item {
     color: #F4B800;
+}
+
+.subevent-name, .subevent-name:hover {
+    color: black;
 }

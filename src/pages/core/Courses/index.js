@@ -2,23 +2,15 @@ import React, {Component} from 'react';
 import {CourseContext, withAuthorization} from '../../../components/Session';
 import {Link} from "react-router-dom";
 
-import {
-    Card, CardBody,
-    ListGroup, ListGroupItem,
-    Nav, NavItem, NavLink,
-    TabContent, TabPane,
-    UncontrolledCollapse
-} from 'reactstrap';
+import { Card, CardBody, ListGroup, ListGroupItem, Nav, NavItem, NavLink, TabContent,
+        TabPane, UncontrolledCollapse} from 'reactstrap';
 
 import './Courses.css';
 import Navigation from "../../../components/Navigation";
 import EnrollModal from "../EnrollModal"
 import AddInstructorModal from "../AddInstructorModal"
 import {Courses} from "./courses-data.js";
-
-import student_icon from "../../../images/student.svg";
-import teacher_icon from "../../../images/teacher.svg";
-import admin_icon from "../../../images/admin.svg";
+import { getIcon} from "../Helper";
 import arrow from "../../../images/arrow.svg";
 
 import classnames from 'classnames';
@@ -40,7 +32,7 @@ class CoursesPageBase extends Component {
 
         this.state = {
             activeTab: activeTab,
-            loading: false,
+            // loading: false,
             allCourses: Courses,
             activeCourses: [],//ActiveCourses, //not (enrolled || teaching || admin) && this semester
             myActiveCourses: [],//MyActiveCourses, //  (enrolled || teaching || admin) && this semester
@@ -85,7 +77,7 @@ class CoursesPageBase extends Component {
     }
 
     componentDidMount() {
-        this.setState({ loading:true });
+        // this.setState({ loading:true });
 
         let activeCourses = [];
         let myActiveCourses = [];
@@ -118,14 +110,14 @@ class CoursesPageBase extends Component {
             myActiveCourses: myActiveCourses,
             myArchivedCourses: myArchivedCourses,
             allCourses: allCourses,
-            loading: false
+            // loading: false
         })
     }
 
     enroll(course) {}
 
     render() {
-        const {myActiveCourses, myArchivedCourses, activeCourses, allCourses, loading} = this.state;
+        const {myActiveCourses, myArchivedCourses, activeCourses, allCourses} = this.state;
 
         return (
             <React.Fragment>
@@ -204,9 +196,7 @@ class CoursesPageBase extends Component {
 }
 
 const CoursesList = ({ coursesList, enroll, isAdmin }) => (
-    <CourseContext.Consumer>
-    { (setCourse) => (
-        <ListGroup>
+    <ListGroup>
         {coursesList.map(course => (
             <ListGroupItem className="course-container" key={course.id}>
                 {course.courses && course.courses.length === 1 &&
@@ -218,8 +208,7 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
                         </Link>
                         {(isAdmin || course.admin) && <AddInstructorModal courseName={course.name}/>}
                         <div className="role_icon">
-                            {course.admin !== false &&
-                                <img src={admin_icon} alt="admin" width="20px" height="20px"/>}
+                            {course.admin !== false && getIcon("Admin") }
                             <RoleIcon course={course.courses[0]}/>
                         </div>
                         {enroll != null && <EnrollModal course={course}/>}
@@ -228,8 +217,7 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
                 {course.courses && course.courses.length > 1 &&
                     <div>
                         <div className="role_icon">
-                            {course.admin !== false &&
-                                <img src={admin_icon} alt="admin" width="20px" height="20px"/>}
+                            {course.admin !== false && getIcon("Admin") }
                         </div>
                         <span className="name">{course.name}</span>
                         <br/>
@@ -239,10 +227,8 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
                     </div>
                 }
             </ListGroupItem>
-            ))}
-        </ListGroup>
-        )}
-    </CourseContext.Consumer>
+        ))}
+    </ListGroup>
 );
 
 const CollapsableCourse = ({course, enroll, isAdmin}) => (
@@ -271,8 +257,8 @@ const CollapsableCourse = ({course, enroll, isAdmin}) => (
 
 const RoleIcon = ({course}) => (
     <div>
-        {course.enrolled !== false && <img src={student_icon} alt="student" width="20px" height="20px"/>}
-        {course.instructor !== false && <img src={teacher_icon} alt="teacher" width="20px" height="20px"/>}
+        {course.enrolled !== false && getIcon("Student")}
+        {course.instructor !== false && getIcon("Teacher")}
     </div>
 );
 

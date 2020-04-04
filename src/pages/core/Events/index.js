@@ -1,53 +1,18 @@
 import React from "react";
 
-import {
-    Container, Row, Col,
-    Card, CardSubtitle, CardHeader, CardBody, CardText,
-    ListGroup, ListGroupItem, Button,
-} from 'reactstrap';
-import { FaChalkboardTeacher, FaLaptopCode, FaCalendarCheck, FaClipboardList } from 'react-icons/fa';
+import { ListGroup, ListGroupItem, } from 'reactstrap';
+import {EventCard} from "../Event";
 import './Events.css';
 import {Link} from "react-router-dom";
 import Scroll from 'react-scroll';
-
+import {getIcon} from "../Helper";
 const ScrollLink = Scroll.Link;
+
 
 const EventsList = ({ courseEvents, isAdmin }) => (
     <div className="events-list" id="containerElement" >
         {courseEvents.map(event => (
-            <Card id={event.id+''} name={event.id+''} key={event.id} className="event-card" >
-                <CardHeader className="event-card-header">
-                    {event.name}
-                    {isAdmin &&
-                    <Link to={'/editevent/' + event.id}>
-                        <Button className='edit-button'> Edit</Button>
-                    </Link>}
-                </CardHeader>
-                <CardBody>
-                <CardText className="event-card-text">{event.description}</CardText>
-                <div>
-                  <strong> Start:</strong> {new Date(event.startDate).toLocaleString()}
-                  <br/>
-                  <strong> End:</strong> {new Date(event.endDate).toLocaleString()}
-                  <br/>
-                    {event.location && <span><strong> Location:</strong> {event.location}</span>}
-                </div>
-                {event.type==='Block' &&
-                    <Container className="sessions-tasks-container">
-                        <Row>
-                            <Col className='subevents-col-left'>
-                                <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
-                                <SubEventList events={event.sessions}/>
-                            </Col>
-                            <Col className='subevents-col-right'>
-                                <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
-                                <SubEventList events={event.tasks}/>
-                            </Col>
-                        </Row>
-                    </Container>
-                }
-                </CardBody>
-            </Card>
+            <EventCard event={event} isAdmin={isAdmin}  key={event.id}/>
         ))}
     </div>
 );
@@ -57,11 +22,7 @@ const SubEventList = ({events}) => (
         {events && events.map(subEvent => (
             <div className='subevents-row-container' key={subEvent.id}>
                 <div className='subevents-left-container'>
-                    {/*TODO different icons*/}
-                    {subEvent.type==="Task" ?
-                    <FaCalendarCheck  className="icon"/> :
-                    <FaClipboardList  className="icon"/>
-                    }
+                    {getIcon(subEvent.type)}
                     <Link to={'/event/' + subEvent.id}>
                         <span className="subevent-name">{subEvent.name}</span>
                     </Link>

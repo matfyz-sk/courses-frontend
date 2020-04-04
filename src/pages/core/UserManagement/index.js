@@ -65,7 +65,7 @@ class UserManagement extends Component {
 
         return (
             <div>
-                <NavigationCourse isAdmin={this.props.isAdmin} course={this.state.courseInstance} setUserAdmin={this.props.setUserAdmin}/>
+                <NavigationCourse/>
                 <main className="main-user-management-container">
                     <div className="requests-container">
                         <h2>Requests (Confirmation required)</h2>

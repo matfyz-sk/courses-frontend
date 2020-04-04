@@ -2,30 +2,39 @@
     background-color: #133F2A;
     padding: 0;
     height: 50px;
+    display: flex;
+    flex-direction: row;
 }
 
-.navbar-right {
+.navbar-profile {
     display: flex;
+    /*align-content: center;*/
+    /*align-items: center;*/
+    /*justify-content: center;*/
     position: absolute;
     right: 0;
-    margin-right: 10px;
 }
 
 .navbar-brand {
     color: white;
     font-weight: bold;
     line-height: 50px;
-    padding: 0 10px;
+    padding: 0 5px;
+    background-color: #1D661D;
+    height: 50px;
+}
+
+.nav-logo {
+    margin: 0;
+}
+
+.nav-course {
+    padding-right: 10px;
 }
 
 .profile {
     display: flex;
     align-items: center;
-}
-
-.navbar-brand  {
-    background-color: #1D661D;
-    height: 50px;
 }
 
 .navbar-brand:hover {
@@ -50,8 +59,22 @@
     color: white;
 }
 
+.show {
+    background-color: white;
+    z-index: 10;
+}
+.show li {
+    border-bottom: solid thin #DDDDDD;
+}
+
+.show .fake-nav, .show a {
+    color: black;
+}
+
+
 .navbar-toggler-icon {
     background-image: url('bars.png');
+    margin-right: 150px;
 }
 
 @media only screen and (max-width: 767px) {

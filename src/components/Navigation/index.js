@@ -3,10 +3,9 @@ import { Link } from 'react-router-dom';
 
 import { AuthUserContext } from '../Session';
 import * as ROUTES from '../../constants/routes';
-import {
-    Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink,
-    UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-
+import {Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink,
+        UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { NavigationCourse } from "./NavigationCourse";
 
 import './Navigation.css';
 import {connect} from "react-redux";
@@ -95,94 +94,6 @@ const NavigationNonAuth = () => (
     </Nav>
 );
 
-const NavigationCourse = ({ course, isAdmin, setUserAdmin }) => {
-    class InnerNavigation extends React.Component {
-        constructor(props) {
-            super(props);
-
-            this.toggle = this.toggle.bind(this);
-            this.state = {
-                isOpen: false
-            };
-        }
-
-        toggle() {
-            this.setState({
-                isOpen: !this.state.isOpen
-            });
-        }
-
-        render() {
-            return (
-                <Navbar className="navbar" expand="md">
-                    <NavbarBrand href="/courses">Abbrev</NavbarBrand>
-                    <NavbarToggler onClick={this.toggle}/>
-                    <Collapse isOpen={this.state.isOpen} navbar>
-                        <Nav>
-                            {course &&
-                            <NavItem>
-                                <Link to={ROUTES.TIMELINE + course.id} className="nav-link nav-button">Timeline</Link>
-                            </NavItem>
-                            }
-                            {/*<NavItem>*/}
-                            {/*    <NavLink>*/}
-                            {/*        <span className="fake-nav">Topics</span>*/}
-                            {/*    </NavLink>*/}
-                            {/*</NavItem>*/}
-                            <NavItem>
-                                <NavLink>
-                                    <span className="fake-nav">Results</span>
-                                </NavLink>
-                            </NavItem>
-                            <NavItem>
-                                <Link to={ROUTES.ASSIGNMENTS} className="nav-link nav-button">Assignments</Link>
-                            </NavItem>
-                            <NavItem>
-                                <NavLink>
-                                    <span className="fake-nav">Documents</span>
-                                </NavLink>
-                            </NavItem>
-                            <NavItem>
-                                <NavLink>
-                                    <span className="fake-nav">Quiz</span>
-                                </NavLink>
-                            </NavItem>
-                            <NavItem>
-                                <NavLink>
-                                    <span className="fake-nav">Info</span>
-                                </NavLink>
-                            </NavItem>
-                            {isAdmin && course &&
-                            <NavItem>
-                                <Link to={ROUTES.USER_MANAGEMENT + course.id} className="nav-link nav-button">User Management</Link>
-                            </NavItem>
-                            }
-
-                            <NavItem className="navbar-right">
-                                <NavLink className="profile">
-                                    <img src={profilePicture} alt="profile"  width="40" height="40"/>
-                                </NavLink>
-                                <UncontrolledDropdown setActiveFromChild>
-                                    <DropdownToggle tag="a" className="nav-link" caret>
-                                        {isAdmin ? ("ADMIN") : ("STUDENT")}
-                                    </DropdownToggle>
-                                    <DropdownMenu>
-                                        <DropdownItem active onClick={() => setUserAdmin(!isAdmin)}>
-                                            {isAdmin ? ("STUDENT") : ("ADMIN")}
-                                        </DropdownItem>
-                                    </DropdownMenu>
-                                </UncontrolledDropdown>
-                            </NavItem>
-                        </Nav>
-                    </Collapse>
-                </Navbar>
-            )
-        }
-    }
-
-    return <InnerNavigation/>;
-};
-
 const mapStateToProps = ( { userReducer } ) => {
     return {
         isSignedIn: userReducer.isSignedIn,
@@ -192,4 +103,4 @@ const mapStateToProps = ( { userReducer } ) => {
 
 export default connect(mapStateToProps, { setUserAdmin })(Navigation);
 
-export { NavigationCourse };
+export {NavigationCourse};
