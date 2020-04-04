@@ -60,7 +60,7 @@ const NavigationAuth = ({ isAdmin, setUserAdmin }) => (
                 <Link to={ROUTES.NEW_COURSE} className="nav-link nav-button">New Course</Link>
             </NavItem>
         )}
-        <NavItem className="navbar-right">
+        <NavItem className="navbar-profile">
             <NavLink className="profile">
                 <img src={profilePicture} alt="profile"  width="40" height="40"/>
             </NavLink>
