@@ -13,7 +13,7 @@ import {Courses} from "../Courses/courses-data";
 
 import {connect} from "react-redux";
 import {setUserAdmin} from "../../../redux/actions";
-import {Link} from "react-router-dom";
+import {NavLink} from "react-router-dom";
 
 class Timeline extends Component {
     constructor(props) {
@@ -151,9 +151,9 @@ class Timeline extends Component {
                             <Col xs="3" className="timeline-left-col">
                                 <BlockMenu courseEvents={timelineBlocks}/>
                                 {this.props.isAdmin && //|| myId===courseInstance.hasInstructor &&
-                                <Link to={'/createtimeline/' + courseAbbr}>
+                                <NavLink to={'/createtimeline/' + courseAbbr}>
                                     <Button className='new-event-button'>New Event</Button>
-                                </Link>}
+                                </NavLink>}
                                 <NextCalendar/>
                             </Col>
                             <Col className="event-list-col">

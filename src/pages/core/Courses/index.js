@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import {CourseContext, withAuthorization} from '../../../components/Session';
-import {Link} from "react-router-dom";
+import {withAuthorization} from '../../../components/Session';
+import {NavLink} from "react-router-dom";
 
-import { Card, CardBody, ListGroup, ListGroupItem, Nav, NavItem, NavLink, TabContent,
+import { Card, CardBody, ListGroup, ListGroupItem, Nav, NavItem, TabContent, NavLink as NL,
         TabPane, UncontrolledCollapse} from 'reactstrap';
 
 import './Courses.css';
@@ -127,44 +127,44 @@ class CoursesPageBase extends Component {
                     <Nav tabs>
                         {this.props.isSignedIn &&
                         <NavItem>
-                            <NavLink
+                            <NL
                                 className={classnames({active: this.state.activeTab === '1'})}
                                 onClick={() => {
                                     this.toggle('1');
                                 }}
                             >
                                 <span className="tab">My Courses</span>
-                            </NavLink>
+                            </NL>
                         </NavItem>
                         }
                         <NavItem>
-                            <NavLink
+                            <NL
                                 className={classnames({ active: this.state.activeTab === '2' })}
                                 onClick={() => { this.toggle('2'); }}
                             >
                                 <span className="tab">Active Courses</span>
-                            </NavLink>
+                            </NL>
                         </NavItem>
                         {this.props.isSignedIn &&
                         <NavItem>
-                            <NavLink
+                            <NL
                                 className={classnames({active: this.state.activeTab === '3'})}
                                 onClick={() => {
                                     this.toggle('3');
                                 }}
                             >
                                 <span className="tab">Archived Courses</span>
-                            </NavLink>
+                            </NL>
                         </NavItem>
                         }
                         {this.props.isSignedIn && this.props.isAdmin &&
                             <NavItem>
-                                <NavLink
+                                <NL
                                     className={classnames({ active: this.state.activeTab === '4' })}
                                     onClick={() => { this.toggle('4'); }}
                                 >
                                     <span className="tab">ALL Courses</span>
-                                </NavLink>
+                                </NL>
                             </NavItem>
                         }
                     </Nav>
@@ -201,11 +201,11 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
             <ListGroupItem className="course-container" key={course.id}>
                 {course.courses && course.courses.length === 1 &&
                     <div>
-                        <Link to={'/timeline/' + course.courses[0].id}>
+                        <NavLink to={'/timeline/' + course.courses[0].id}>
                             <span className="name">{course.name}</span>
                             <br/>
                             <span className="about">{course.desc}</span>
-                        </Link>
+                        </NavLink>
                         {(isAdmin || course.admin) && <AddInstructorModal courseName={course.name}/>}
                         <div className="role_icon">
                             {course.admin !== false && getIcon("Admin") }
@@ -240,9 +240,9 @@ const CollapsableCourse = ({course, enroll, isAdmin}) => (
                     {course.courses.sort((a, b) => (a.year > b.year) ? 1 : -1).map(courseInstance => (
                         <ListGroup key={courseInstance.id}>
                             <ListGroupItem>
-                                <Link to={'/timeline/' + courseInstance.id}>
+                                <NavLink to={'/timeline/' + courseInstance.id}>
                                     <span className="">{course.name}</span> <b>{courseInstance.year}</b>
-                                </Link>
+                                </NavLink>
                                 {(isAdmin || course.admin) && <AddInstructorModal courseName={course.name}/>}
                                 <div className="role_icon"><RoleIcon course={courseInstance}/></div>
                                 {enroll != null && <EnrollModal course={courseInstance}/>}

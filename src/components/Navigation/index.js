@@ -1,9 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 import { AuthUserContext } from '../Session';
 import * as ROUTES from '../../constants/routes';
-import {Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink,
+import {Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem,
         UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import { NavigationCourse } from "./NavigationCourse";
 
@@ -33,9 +33,8 @@ class Navigation extends React.Component {
     render() {
         return (
             <Navbar className="navbar" expand="md">
-                <NavbarBrand href="/"><img src={logo} alt="logo" width="70" height="40"/></NavbarBrand>
-                <NavbarToggler onClick={this.toggle} />
-                <Collapse isOpen={this.state.isOpen} navbar>
+                {/*<NavbarToggler onClick={this.toggle} />*/}
+                {/*<Collapse isOpen={this.state.isOpen} navbar>*/}
                     <AuthUserContext.Consumer>
                         {() => this.props.isSignedIn ? (
                             <NavigationAuth isAdmin={this.props.isAdmin} setUserAdmin={this.props.setUserAdmin}/>
@@ -43,7 +42,7 @@ class Navigation extends React.Component {
                             <NavigationNonAuth/>
                         )}
                     </AuthUserContext.Consumer>
-                </Collapse>
+                {/*</Collapse>*/}
             </Navbar>
         )
     };
@@ -51,44 +50,51 @@ class Navigation extends React.Component {
 
 const NavigationAuth = ({ isAdmin, setUserAdmin }) => (
     <Nav>
-        <NavItem>
-            <Link to={ROUTES.COURSES} className="nav-link nav-button">Courses</Link>
-        </NavItem>
-
-        {isAdmin && (
+        <div className="navbar-left">
+            <NavbarBrand href="/"><img src={logo} alt="logo" width="70" height="40"/></NavbarBrand>
             <NavItem>
-                <Link to={ROUTES.NEW_COURSE} className="nav-link nav-button">New Course</Link>
+                <NavLink activeClassName='is-active' to={ROUTES.COURSES} className="nav-link nav-button">Courses</NavLink>
             </NavItem>
-        )}
-        <NavItem className="navbar-profile">
-            <NavLink className="profile">
-                <img src={profilePicture} alt="profile"  width="40" height="40"/>
-            </NavLink>
-            <UncontrolledDropdown setActiveFromChild>
-                <DropdownToggle tag="a" className="nav-link" caret>
-                    {isAdmin ? ("ADMIN") : ("STUDENT")}
-                </DropdownToggle>
-                <DropdownMenu>
-                    <DropdownItem active onClick={() => setUserAdmin(!isAdmin)}>
-                        {isAdmin ? ("STUDENT") : ("ADMIN")}
-                    </DropdownItem>
-                </DropdownMenu>
-            </UncontrolledDropdown>
-        </NavItem>
+            {isAdmin && (
+                <NavItem>
+                    <NavLink activeClassName='is-active' to={ROUTES.NEW_COURSE} className="nav-link nav-button">New Course</NavLink>
+                </NavItem>
+            )}
+        </div>
+        <ProfileTab isAdmin={isAdmin} setUserAdmin={setUserAdmin}/>
     </Nav>
+);
+
+const ProfileTab = ({isAdmin, setUserAdmin}) => (
+    <NavItem className="navbar-profile">
+        <NavLink to="" className="profile">
+            <img src={profilePicture} alt="profile"  width="40" height="40"/>
+        </NavLink>
+        <UncontrolledDropdown>
+            <DropdownToggle tag="a" className="nav-link student-admin-button" caret>
+                {isAdmin ? ("ADMIN") : ("STUDENT")}
+            </DropdownToggle>
+            <DropdownMenu>
+                <DropdownItem onClick={() => setUserAdmin(!isAdmin)}>
+                    {isAdmin ? ("STUDENT") : ("ADMIN")}
+                </DropdownItem>
+            </DropdownMenu>
+        </UncontrolledDropdown>
+    </NavItem>
 );
 
 const NavigationNonAuth = () => (
     <Nav>
-        <NavItem>
-            <Link to={ROUTES.COURSES} className="nav-link nav-button">Courses</Link>
-        </NavItem>
-        <div className="navbar-right">
+        <div  className="navbar-left">
+            <NavbarBrand href="/"><img src={logo} alt="logo" width="70" height="40"/></NavbarBrand>
             <NavItem>
-                <Link to={ROUTES.SIGN_UP} className="nav-link nav-button">Sign Up</Link>
+                <NavLink to={ROUTES.COURSES} className="nav-link nav-button">Courses</NavLink>
             </NavItem>
             <NavItem>
-                <Link to={ROUTES.SIGN_IN} className="nav-link nav-button">Sign In</Link>
+                <NavLink to={ROUTES.SIGN_UP} className="nav-link nav-button">Sign Up</NavLink>
+            </NavItem>
+            <NavItem>
+                <NavLink to={ROUTES.SIGN_IN} className="nav-link nav-button">Sign In</NavLink>
             </NavItem>
         </div>
     </Nav>
@@ -103,4 +109,4 @@ const mapStateToProps = ( { userReducer } ) => {
 
 export default connect(mapStateToProps, { setUserAdmin })(Navigation);
 
-export {NavigationCourse};
+export {NavigationCourse, ProfileTab};

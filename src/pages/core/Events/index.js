@@ -3,7 +3,7 @@ import React from "react";
 import { ListGroup, ListGroupItem, } from 'reactstrap';
 import {EventCard} from "../Event";
 import './Events.css';
-import {Link} from "react-router-dom";
+import {NavLink} from "react-router-dom";
 import Scroll from 'react-scroll';
 import {getIcon} from "../Helper";
 const ScrollLink = Scroll.Link;
@@ -23,9 +23,9 @@ const SubEventList = ({events}) => (
             <div className='subevents-row-container' key={subEvent.id}>
                 <div className='subevents-left-container'>
                     {getIcon(subEvent.type)}
-                    <Link to={'/event/' + subEvent.id}>
+                    <NavLink to={'/event/' + subEvent.id}>
                         <span className="subevent-name">{subEvent.name}</span>
-                    </Link>
+                    </NavLink>
                 </div>
                 <div  className='subevents-right-container'>{subEvent.displayDateTime}</div>
             </div>

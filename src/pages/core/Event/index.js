@@ -7,7 +7,7 @@ import './Event.css';
 import NextCalendar from "../NextCalendar";
 import {connect} from "react-redux";
 import {setUserAdmin} from "../../../redux/actions";
-import {Link} from "react-router-dom";
+import {NavLink} from "react-router-dom";
 import {SubEventList} from "../Events";
 import {getDisplayDateTime, getIcon} from "../Helper";
 
@@ -62,13 +62,13 @@ class Event extends React.Component {
 const EventCard = ({ event, isAdmin }) => (
     <Card id={event.id+''} name={event.id+''} className="event-card" >
         <CardHeader className="event-card-header">
-            <Link to={'/event/' + event.id} className="subevent-name">
+            <NavLink to={'/event/' + event.id} className="subevent-name">
                 {event.name}
-            </Link>
+            </NavLink>
             {isAdmin &&
-            <Link to={'/editevent/' + event.id}>
+            <NavLink to={'/editevent/' + event.id}>
                 <Button className='edit-button'> Edit</Button>
-            </Link>
+            </NavLink>
             }
         </CardHeader>
         <CardBody>
