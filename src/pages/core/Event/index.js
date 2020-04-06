@@ -87,7 +87,7 @@ const EventCard = ({ event, isAdmin }) => (
                 </tbody>
             </Table>
             {event.type==='Block' &&
-            <Container className="sessions-tasks-container">
+            <Container className="sessions-tasks-container core-container">
                 <Row>
                     <Col className='subevents-col-left'>
                         <CardSubtitle className="subevents-title">Sessions</CardSubtitle>

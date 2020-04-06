@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { compose } from 'recompose';
 import {NavigationCourse} from "../../../components/Navigation";
-import {Button, Table} from 'reactstrap';
+import {Alert, Button, Table} from 'reactstrap';
 
 // import { withAuthorization } from '../../../components/Session';
 import {connect} from "react-redux";
 import {setUserAdmin} from "../../../redux/actions";
 
 import "./UserManagement.css";
+import {Courses} from "../Courses/courses-data";
 
 const users = [
     {id: 0, firstName : 'Jozef', lastName : 'Mrkva', username: 'jCarrot'},
@@ -27,10 +28,13 @@ class UserManagement extends Component {
         super(props);
 
         this.state = {
-            users: users,
+            enrolled: users,
+            requests: [],
             course: {},
             requestedUsers: [],
             enrolledUsers: [],
+            courseId: '',
+            courseAbbr: '',
         };
 
         this.deleteUserFromCourse = this.deleteUserFromCourse.bind(this);
@@ -39,13 +43,24 @@ class UserManagement extends Component {
     }
 
     componentDidMount() {
-        // const { match: { params } } = this.props;
+        this.setState({ loading: true });
 
-        // this.setState({
-        //     course: , //get Course with id
-        //     requestedUsers: , //get Users requested in Course with id
-        //     enrolledUsers:  //get Users enrolled in Course with id
-        // })
+        const { match: { params } } = this.props;
+
+        let courses = Courses;
+        let courseAbbr;
+
+        for(let i in courses) {
+            let course = courses[i];
+            if (course.id+'' === params.id) {
+                courseAbbr = course.abbreviation;
+            }
+        }
+
+        this.setState({
+            courseId: params.id,
+            courseAbbr: courseAbbr,
+        });
     }
 
     deleteUserFromCourse() {
@@ -61,19 +76,31 @@ class UserManagement extends Component {
     }
 
     render() {
-        const { users } = this.state;
+        const { enrolled, requests, courseAbbr } = this.state;
 
         return (
             <div>
-                <NavigationCourse/>
+                <NavigationCourse courseAbbr={courseAbbr}/>
                 <main className="main-user-management-container">
-                    <div className="requests-container">
-                        <h2>Requests (Confirmation required)</h2>
-                        <RequestedUserList users={users} delete={this.deleteUserFromCourse}/>
-                    </div>
+                    { requests.length>0 &&
+                        <div className="requests-container">
+                            <h2>Requests (Confirmation required)</h2>
+                            <RequestedUserList users={requests} delete={this.deleteUserFromCourse}/>
+                        </div>
+                        // :
+                        // <Alert color='secondary' className='empty-message'>
+                        //     There are no pending requests for this course.
+                        // </Alert>
+                    }
                     <div className="enrolled-container">
                         <h2>Enrolled users</h2>
-                        <EnrolledUserList users={users}/>
+                        { enrolled.length>0 ?
+                            <EnrolledUserList users={enrolled}/>
+                            :
+                            <Alert color='secondary' className='empty-message'>
+                                There are not any enrolled users in this course.
+                            </Alert>
+                        }
                     </div>
                 </main>
             </div>
@@ -94,14 +121,14 @@ const RequestedUserList = ({ users, confirmRequest, declineRequest }) => (
             </tr>
         </thead>
         <tbody>
-            {users.map(user => (
+            {users.map((user, index) => (
                 <tr key={user.id}>
-                    <th scope="row">1</th>
+                    <th scope="row" className='table-first'>{index+1}</th>
                     <td>{user.firstName}</td>
                     <td>{user.lastName}</td>
                     <td>{user.username}</td>
-                    <td><Button className="table-button table-button-confirm" onClick={confirmRequest}>Confirm</Button></td>
-                    <td><Button className="table-button" onClick={declineRequest}>Decline</Button></td>
+                    <td className='table-last'><Button className="table-button table-button-confirm" onClick={confirmRequest}>Confirm</Button></td>
+                    <td className='table-last'><Button className="table-button" onClick={declineRequest}>Decline</Button></td>
                 </tr>
             ))}
         </tbody>
@@ -120,13 +147,13 @@ const EnrolledUserList = ({ users, deleteUser }) => (
             </tr>
         </thead>
         <tbody>
-        {users.map(user => (
+        {users.map((user, index) => (
             <tr key={user.id}>
-                <th scope="row">1</th>
+                <th scope="row" className='table-first'>{index+1}</th>
                 <td>{user.firstName}</td>
                 <td>{user.lastName}</td>
                 <td>{user.username}</td>
-                <td><Button className="table-button" onClick={deleteUser}>Delete</Button></td>
+                <td  className='table-last'><Button className="table-button" onClick={deleteUser}>Delete</Button></td>
             </tr>
         ))}
         </tbody>

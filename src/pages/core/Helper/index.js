@@ -6,7 +6,7 @@ import admin_icon from "../../../images/admin.svg";
 
 export const getDisplayDateTime = (dateTime, fullVersion) => {
     let dateTimeISOFormat = new Date(dateTime);
-    let day = dateTimeISOFormat.getDay();
+    let day = dateTimeISOFormat.getDate();
     let dayFormated = (day < 10 ? '0' + day : day);
     let month = (dateTimeISOFormat.getMonth()+1);
     let monthFormated = (month < 10 ? '0' + month : month);

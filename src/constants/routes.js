@@ -8,6 +8,7 @@ export const EVENT_ID = '/event/:id';
 export const EDIT_EVENT_ID = '/editevent/:id';
 export const TIMELINE = '/timeline/';
 export const TIMELINE_ID = '/timeline/:id';
+export const CREATE_TIMELINE = '/createtimeline/';
 export const CREATE_TIMELINE_ID = '/createtimeline/:id';
 export const NEW_COURSE = '/newcourse';
 export const EDIT_COURSE = '/editcourse/';

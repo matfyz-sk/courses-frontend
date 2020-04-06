@@ -32,7 +32,7 @@ class AddInstructorModal extends Component {
         return (
             <div>
                 <Button onClick={this.toggle} className="add-instructor-button">+ Add Instructor</Button>
-                <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
+                <Modal  backdrop={true} fade={false} isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <ModalHeader toggle={this.toggle}>Add Instructor to {this.props.courseName}</ModalHeader>
                     <ModalBody>
                         <AddInstructorForm/>
@@ -76,7 +76,7 @@ class AddInstructorForm extends Component {
                                 <Chip label={option.surname} {...getTagProps({ index })}/>
                             ))
                         }
-                        style={{ width: 450 }}
+                        style={{ maxWidth: 450 }}
                         renderInput={params => (
                             <TextField  {...params} InputProps={{...params.InputProps, disableUnderline: true}}/>
                         )}

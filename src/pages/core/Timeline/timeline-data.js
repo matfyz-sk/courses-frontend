@@ -144,7 +144,7 @@ export const Events = [
 
         materials: [
             {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-            {id: 1, name: 'The Council with the Munchkins'}
+            {id: 2, name: 'Something Else Completely'}
         ],
 
         type: 'Lecture', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)

@@ -129,7 +129,7 @@ class CourseForm extends Component {
                         getOptionLabel={option => option.name}
                         value={prerequisites}
                         onChange={this.onPrerequisitesChange}
-                        style={{ width: 500 }}
+                        style={{ maxWidth: 500 }}
                         renderInput={params => (
                             <TextField  {...params} placeholder="" InputProps={{...params.InputProps, disableUnderline: true}}/>
                         )}
@@ -150,7 +150,7 @@ class CourseForm extends Component {
                         //         <Chip label={option.surname} {...getTagProps({ index })}/>
                         //     ))
                         // }
-                        style={{ width: 500 }}
+                        style={{ maxWidth: 500 }}
                         renderInput={params => (
                             <TextField  {...params}
                                         placeholder=""

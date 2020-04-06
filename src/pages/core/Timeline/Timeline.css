@@ -20,6 +20,13 @@
     height: calc(100vh - 100px);
 }
 
+.empty-message {
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+    z-index: 0;
+}
+
 @media only screen and (max-width: 800px) {
     .timeline-left-col {
         display: none;

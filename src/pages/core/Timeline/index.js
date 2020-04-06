@@ -1,10 +1,11 @@
 import {Component} from "react";
 import React from "react";
 import EventsList, {BlockMenu} from "../Events"
-import {Container, Row, Col, Button} from 'reactstrap';
+import {Container, Row, Col, Button, Alert} from 'reactstrap';
 import { NavigationCourse } from "../../../components/Navigation";
 import { getDisplayDateTime } from "../Helper";
 import NextCalendar from "../NextCalendar";
+import * as ROUTES from "../../../constants/routes";
 import './Timeline.css';
 // import withAuthorization from "../../../components/Session/withAuthorization";
 
@@ -33,6 +34,7 @@ class Timeline extends Component {
         this.greaterEqual = this.greaterEqual.bind(this);
         this.greater = this.greater.bind(this);
         this.sortEventsFunction = this.sortEventsFunction.bind(this);
+        this.mergeMaterials = this.mergeMaterials.bind(this);
     }
 
     componentDidMount() {
@@ -45,7 +47,7 @@ class Timeline extends Component {
 
         for(let i in courses) {
             let course = courses[i];
-            if (course.id == params.id) {
+            if (course.id+'' === params.id) {
                 courseAbbr = course.abbreviation;
             }
         }
@@ -65,8 +67,6 @@ class Timeline extends Component {
             courseId: params.id,
             courseAbbr: courseAbbr,
         });
-
-        console.log(courseAbbr);
     }
 
     sortEventsFunction(e1,e2) {
@@ -99,6 +99,9 @@ class Timeline extends Component {
     }
 
     getNestedEvents(events, timelineBlocks) {
+        if(events.length===0 || timelineBlocks===0) {
+            return timelineBlocks;
+        }
         for(let block of timelineBlocks){
             if (block.type === 'Block') {
                 block.sessions = [];
@@ -113,6 +116,7 @@ class Timeline extends Component {
                             !this.greater(event.endDate, block.endDate)))) {
                         event.displayDateTime = getDisplayDateTime(event.startDate, false);
                         block.sessions.push(event);
+                        this.mergeMaterials(block.materials, event.materials);
                     }
                     else if (((event.type === 'OralExam' || event.type === "TestTake") &&
                             (this.greaterEqual(event.startDate, block.startDate) &&
@@ -126,11 +130,20 @@ class Timeline extends Component {
                             event.displayDateTime = getDisplayDateTime(event.endDate, false);
                         }
                         block.tasks.push(event);
+                        this.mergeMaterials(block.materials, event.materials);
                     }
                 }
             }
         }
         return timelineBlocks;
+    }
+
+    mergeMaterials(arr1, arr2) {
+        arr2.map(element1 => {
+            if (arr1.find((element) => { return element.id===element1.id}) == null) {
+                arr1.push(element1)
+            }
+        })
     }
 
     greaterEqual(dateTime1, dateTime2) {
@@ -141,19 +154,28 @@ class Timeline extends Component {
     }
 
     render() {
-        const {timelineBlocks, nestedEvents, courseAbbr} = this.state;
+        const {timelineBlocks, nestedEvents, courseAbbr, courseId} = this.state;
         return (
             <div>
                 <NavigationCourse courseAbbr={this.state.courseAbbr}/>
-                    {this.state.eventsSorted.length===0 ? <p>Timeline for this course is empty.</p> :
+                    {this.state.eventsSorted.length===0 ?
+                        <Alert color="secondary" className='empty-message'>
+                            Timeline for this course is empty.<br/>
+                            {this.props.isAdmin &&
+                                <NavLink to={ROUTES.CREATE_TIMELINE + courseId} className="alert-link">Create NEW TIMELINE </NavLink>
+                            }
+                        </Alert>
+                        :
                     <Container className='core-container'>
                         <Row className="timeline-row">
                             <Col xs="3" className="timeline-left-col">
                                 <BlockMenu courseEvents={timelineBlocks}/>
                                 {this.props.isAdmin && //|| myId===courseInstance.hasInstructor &&
-                                <NavLink to={'/createtimeline/' + courseAbbr}>
-                                    <Button className='new-event-button'>New Event</Button>
-                                </NavLink>}
+                                    <div className='button-container'>
+                                        <NavLink to={'/createtimeline/' + courseAbbr}>
+                                            <Button className='new-event-button'>New Event</Button>
+                                        </NavLink>
+                                    </div>}
                                 <NextCalendar/>
                             </Col>
                             <Col className="event-list-col">

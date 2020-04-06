@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {withAuthorization} from '../../../components/Session';
 import {NavLink} from "react-router-dom";
+import * as ROUTES from "../../../constants/routes";
 
 import { Card, CardBody, ListGroup, ListGroupItem, Nav, NavItem, TabContent, NavLink as NL,
         TabPane, UncontrolledCollapse} from 'reactstrap';
@@ -201,7 +202,7 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
             <ListGroupItem className="course-container" key={course.id}>
                 {course.courses && course.courses.length === 1 &&
                     <div>
-                        <NavLink to={'/timeline/' + course.courses[0].id}>
+                        <NavLink to={ROUTES.TIMELINE + course.courses[0].id}>
                             <span className="name">{course.name}</span>
                             <br/>
                             <span className="about">{course.desc}</span>
@@ -240,7 +241,7 @@ const CollapsableCourse = ({course, enroll, isAdmin}) => (
                     {course.courses.sort((a, b) => (a.year > b.year) ? 1 : -1).map(courseInstance => (
                         <ListGroup key={courseInstance.id}>
                             <ListGroupItem>
-                                <NavLink to={'/timeline/' + courseInstance.id}>
+                                <NavLink to={ROUTES.TIMELINE + courseInstance.id}>
                                     <span className="">{course.name}</span> <b>{courseInstance.year}</b>
                                 </NavLink>
                                 {(isAdmin || course.admin) && <AddInstructorModal courseName={course.name}/>}

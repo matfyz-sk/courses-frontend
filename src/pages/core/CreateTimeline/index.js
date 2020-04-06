@@ -4,12 +4,41 @@ import {NavigationCourse} from "../../../components/Navigation";
 import EventForm from "../EventForm";
 import { BlockMenu, SubEventList } from "../Events";
 import ModalCreateEvent from "../ModalCreateEvent";
+import {Courses} from "../Courses/courses-data";
 
 class CreateTimeline extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = ({
+            courseId: '',
+            courseAbbr: '',
+        })
+    }
+    componentDidMount() {
+        this.setState({ loading: true });
+
+        const { match: { params } } = this.props;
+
+        let courses = Courses;
+        let courseAbbr;
+
+        for(let i in courses) {
+            let course = courses[i];
+            if (course.id+'' === params.id) {
+                courseAbbr = course.abbreviation;
+            }
+        }
+
+        this.setState({
+            courseId: params.id,
+            courseAbbr: courseAbbr,
+        });
+    }
+
     render() {
         return(
             <div>
-                <NavigationCourse/>
+                <NavigationCourse courseAbbr={this.state.courseAbbr}/>
                 <Container className="core-container">
                     <Row>
                         <Col xs="3">
