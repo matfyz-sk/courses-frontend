@@ -10,7 +10,6 @@ import { Button, Label, Form, FormGroup, Input } from 'reactstrap'
 import apiConfig from '../../../../configuration/api'
 import AgentOperator from '../../common/agent-operator'
 import AssignmentHeader from '../../common/assignment-header'
-import api from '../../../../api'
 
 export class QuestionAssignment extends Component {
   state = {
@@ -345,7 +344,7 @@ export class QuestionAssignment extends Component {
                 )
                 .then(({ status: statusQuestionAssignment }) => {
                   if (statusQuestionAssignment === 200) {
-                    history.push('/questionGroups')
+                    history.push('/quiz/questionGroups')
                   }
                 })
                 .catch(error => console.log(error))
@@ -360,6 +359,7 @@ export class QuestionAssignment extends Component {
               name: startDate.toISOString(),
               startDate: startDate.toISOString(),
               endDate: endDate.toISOString(),
+              courseInstance: courseInstanceId,
             }),
             {
               headers: {
@@ -370,7 +370,7 @@ export class QuestionAssignment extends Component {
             }
           )
           .then(res => {
-            if (res.status === 201) {
+            if (res.status === 200) {
               const creationPeriod = res.data.resource.iri
               axios
                 .post(
@@ -392,7 +392,7 @@ export class QuestionAssignment extends Component {
                   }
                 )
                 .then(({ status: statusQuestionAssignment }) => {
-                  if (statusQuestionAssignment === 201) {
+                  if (statusQuestionAssignment === 200) {
                     history.push('/questionGroups')
                   }
                 })

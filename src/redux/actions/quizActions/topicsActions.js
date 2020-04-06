@@ -33,13 +33,14 @@ import { SET_TOPICS_DATA } from '../../types'
 //   }
 // }
 
-export const postTopic = topic => {
+export const postTopic = (topic, token) => {
   return dispatch => {
     axios
       .post(`${apiConfig.API_URL}/topic`, JSON.stringify(topic), {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
+          Authorization: token,
         },
       })
       .then(({ data }) => {

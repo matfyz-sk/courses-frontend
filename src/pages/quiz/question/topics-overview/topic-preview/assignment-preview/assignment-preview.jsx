@@ -1,8 +1,8 @@
 /* eslint-disable react/forbid-prop-types */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import { CardSubtitle, CardText, Button } from 'reactstrap';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { Link } from 'react-router-dom'
+import { CardSubtitle, CardText, Button, CardHeader, Row } from 'reactstrap'
 
 export default function AssignmentPreview({
   id,
@@ -10,12 +10,26 @@ export default function AssignmentPreview({
   startTime,
   endTime,
   isTeacher,
+  deleteAssignment,
 }) {
   return (
     <>
-      <CardSubtitle tag="h3" className="h4">
-        Assignment
-      </CardSubtitle>
+      <CardHeader>
+        <Row>
+          <CardSubtitle tag="h3" className="h4">
+            Assignment
+          </CardSubtitle>
+          {deleteAssignment && (
+            <Button
+              color="danger"
+              onClick={deleteAssignment}
+              className="text-center"
+            >
+              X
+            </Button>
+          )}
+        </Row>
+      </CardHeader>
       <CardText>{description}</CardText>
       <CardText>
         Start date:
@@ -27,7 +41,7 @@ export default function AssignmentPreview({
       </CardText>
       {isTeacher ? (
         <Button
-          color="primary"
+          color="success"
           tag={Link}
           to={`/quiz/questionAssignment/${encodeURIComponent(id)}`}
         >
@@ -35,7 +49,7 @@ export default function AssignmentPreview({
         </Button>
       ) : null}
     </>
-  );
+  )
 }
 
 AssignmentPreview.propTypes = {
@@ -44,7 +58,7 @@ AssignmentPreview.propTypes = {
   startTime: PropTypes.any,
   endTime: PropTypes.any,
   isTeacher: PropTypes.bool,
-};
+}
 
 AssignmentPreview.defaultProps = {
   id: null,
@@ -52,4 +66,4 @@ AssignmentPreview.defaultProps = {
   startTime: null,
   endTime: null,
   isTeacher: false,
-};
+}
