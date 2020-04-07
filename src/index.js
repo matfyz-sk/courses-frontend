@@ -1,23 +1,24 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './scss/index.scss';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'react-datepicker/dist/react-datepicker.css'
+import './scss/index.scss'
 
-import { Provider } from 'react-redux';
-import createStore from './redux/store';
+import { Provider } from 'react-redux'
+import createStore from './redux/store'
 
-import App from './components/App';
+import App from './components/App'
 
-import * as serviceWorker from './serviceWorker';
+import * as serviceWorker from './serviceWorker'
 
-const store = createStore();
+const store = createStore()
 
 ReactDOM.render(
-    <Provider store={store}>
-        <App/>
-    </Provider>,
-    document.getElementById('root')
-);
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('root')
+)
 
-serviceWorker.unregister();
+serviceWorker.unregister()
