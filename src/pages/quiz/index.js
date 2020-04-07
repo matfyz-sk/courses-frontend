@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
 import { Route, Switch } from 'react-router-dom'
-import { Container, Row, Col } from 'reactstrap'
+import {
+  // Container,
+  Row,
+  Col,
+} from 'reactstrap'
 import axios from 'axios'
 
 import apiConfig from '../../configuration/api'
 import NewTopic from './topics/new-topic'
 import { QuestionAssignment } from './question/question-assignment/question-assignment'
 import SideNav from '../../side-nav.tsx'
-import Question from './question/question/question'
 import QuestionOverview from './question/question-overview/question-overview'
 
 import QuizAssignmentsOverview from './quiz/quiz-assignment-overview/quiz-assignments-overview'
@@ -92,16 +95,21 @@ class Quiz extends Component {
 
   render() {
     const { activeUser, courseInstanceId } = this.state
-    const { token, userId, studentOf, instructorOf } = activeUser
+    const {
+      token,
+      userId,
+      // studentOf,
+      instructorOf,
+    } = activeUser
 
     let isTeacher = null
-    let isStudent = null
+    // let isStudent = null
     if (instructorOf) {
       isTeacher = instructorOf.includes(courseInstanceId)
     }
-    if (studentOf) {
-      isStudent = studentOf.includes(courseInstanceId)
-    }
+    // if (studentOf) {
+    //   isStudent = studentOf.includes(courseInstanceId)
+    // }
     return (
       <Row>
         <Col xs="12" md="3">

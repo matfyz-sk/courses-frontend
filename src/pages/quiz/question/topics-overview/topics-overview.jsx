@@ -6,7 +6,6 @@ import PropTypes from 'prop-types'
 import { Card, Button } from 'reactstrap'
 
 import apiConfig from '../../../../configuration/api'
-import SideNav from '../../../../side-nav.tsx'
 import TopicPreview from './topic-preview/topic-preview'
 
 class TopicsOverview extends Component {
@@ -158,7 +157,10 @@ class TopicsOverview extends Component {
         <div>
           {topics &&
             topics.map((topic, index) => {
-              const { name, questions } = topic
+              const {
+                name,
+                // questions
+              } = topic
               const id = topic['@id']
               const assignment = questionAssignments.find(
                 questionAssignment => {

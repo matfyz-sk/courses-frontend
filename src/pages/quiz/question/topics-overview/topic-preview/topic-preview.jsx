@@ -1,21 +1,21 @@
 /* eslint-disable react/forbid-prop-types */
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
+import React from 'react'
+// import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
+// import axios from 'axios'
 import {
   CardBody,
   CardLink,
   CardSubtitle,
   Collapse,
   Button,
-  Row,
-  Col,
+  // Row,
+  // Col,
   CardTitle,
 } from 'reactstrap'
 
-import apiConfig from '../../../../../configuration/api'
+// import apiConfig from '../../../../../configuration/api'
 // import InfoTable from './info-table/info-table'
 
 import AssignmentPreview from './assignment-preview/assignment-preview'

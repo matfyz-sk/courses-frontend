@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 
 import PropTypes from 'prop-types'
-import { Button, Label, Form, FormGroup, Input } from 'reactstrap'
+import { Button, Label, FormGroup, Input } from 'reactstrap'
 
 import apiConfig from '../../../../configuration/api'
 import AssignmentHeader from '../../common/assignment-header'

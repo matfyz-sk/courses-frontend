@@ -3,7 +3,10 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Label, FormGroup, Input, Form, Button } from 'reactstrap'
-import { getTopics, postTopic } from '../../../redux/actions'
+import {
+  // getTopics,
+  postTopic,
+} from '../../../redux/actions'
 
 class NewTopic extends Component {
   state = {
