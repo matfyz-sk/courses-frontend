@@ -16,30 +16,87 @@ class TopicsOverview extends Component {
   }
 
   componentDidMount() {
-    const { courseInstanceId, token } = this.props
-    this.getAssignments(
-      courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-      token
-    )
-  }
-
-  componentDidUpdate(prevProps) {
-    const { courseInstanceId, token } = this.props
-    if (
-      courseInstanceId !== prevProps.courseInstanceId ||
-      token !== prevProps.token
-    ) {
+    const { courseInstanceId, token, isTeacher, userId } = this.props
+    if (courseInstanceId && isTeacher !== null && userId && token) {
       this.getAssignments(
         courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
+        isTeacher ? null : userId.substring(userId.lastIndexOf('/') + 1),
         token
       )
     }
   }
 
-  getAssignments = (courseInstanceId, token) => {
+  componentDidUpdate(prevProps) {
+    const { courseInstanceId, token, isTeacher, userId } = this.props
+    if (
+      courseInstanceId &&
+      token &&
+      isTeacher !== null &&
+      userId &&
+      (courseInstanceId !== prevProps.courseInstanceId ||
+        token !== prevProps.token ||
+        isTeacher !== prevProps.isTeacher ||
+        userId !== prevProps.userId)
+    ) {
+      this.getAssignments(
+        courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
+        isTeacher ? null : userId.substring(userId.lastIndexOf('/') + 1),
+        token
+      )
+    }
+  }
+
+  fetchDeleteAssignment = assignmentId => {
+    const { token } = this.props
+    this.deleteAssignment(assignmentId, token)
+  }
+
+  fetchAssignments = () => {
+    const { courseInstanceId, token, isTeacher, userId } = this.props
+    this.getAssignments(
+      courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
+      isTeacher ? null : userId.substring(userId.lastIndexOf('/') + 1),
+      token
+    )
+  }
+
+  deleteAssignment = (assignmentId, token) => {
+    return axios
+      .delete(
+        `${apiConfig.API_URL}/questionAssignment/${assignmentId.substring(
+          assignmentId.lastIndexOf('/') + 1
+        )}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        }
+      )
+      .then(({ data }) => {
+        this.fetchAssignments()
+      })
+      .catch(error => console.log(error))
+  }
+
+  fetchAssignments = () => {
+    const { courseInstanceId, token, isTeacher, userId } = this.props
+    this.getAssignments(
+      courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
+      isTeacher ? null : userId.substring(userId.lastIndexOf('/') + 1),
+      token
+    )
+  }
+
+  getAssignments = (courseInstanceId, userId, token) => {
     return axios
       .get(
-        `${apiConfig.API_URL}/questionAssignment?courseInstance=${courseInstanceId}&_join=creationPeriod`, // TODO if teacher get all if student get only assignedTo me
+        `${
+          apiConfig.API_URL
+        }/questionAssignment?courseInstance=${courseInstanceId}${
+          userId ? `&assignedTo=${userId}` : ''
+        }`,
         {
           headers: {
             Accept: 'application/json',
@@ -55,20 +112,27 @@ class TopicsOverview extends Component {
           data['@graph'].length &&
           data['@graph'].length > 0
         ) {
-          // TODO if only one question assigment came data['@graph'] is object if more data['@graph'] is array
           const questionAssignments = data['@graph'].map(questionAssignment => {
             let questionAssignmentMapped = {}
+
             if (questionAssignment) {
-              const { description, covers, creationPeriod } = questionAssignment
+              const {
+                description,
+                covers,
+                startDate,
+                endDate,
+              } = questionAssignment
               questionAssignmentMapped = {
                 id: questionAssignment['@id'],
                 description,
                 covers,
-                creationPeriod,
+                startDate,
+                endDate,
               }
             }
             return questionAssignmentMapped
           })
+          console.log(questionAssignments)
           this.setState({
             questionAssignments,
           })
@@ -87,23 +151,22 @@ class TopicsOverview extends Component {
 
   render() {
     const { topicCollapse, questionAssignments } = this.state
-    const { topics, isAdmin } = this.props
+    const { topics, isTeacher } = this.props
     return (
       <>
-        <SideNav />
         <h1>Questions by topic</h1>
         <div>
           {topics &&
             topics.map((topic, index) => {
               const { name, questions } = topic
               const id = topic['@id']
-              const assignment = questionAssignments.filter(
+              const assignment = questionAssignments.find(
                 questionAssignment => {
                   if (
                     questionAssignment.covers &&
-                    questionAssignment.covers['@id']
+                    questionAssignment.covers[0]['@id']
                   ) {
-                    return questionAssignment.covers['@id'] === id
+                    return questionAssignment.covers[0]['@id'] === id
                   }
                   return false
                 }
@@ -113,21 +176,17 @@ class TopicsOverview extends Component {
                   <TopicPreview
                     id={id}
                     name={name}
-                    assignment={
-                      assignment &&
-                      assignment.length &&
-                      assignment.length > 0 &&
-                      assignment[0]
-                    }
+                    assignment={assignment}
                     // questions={questions}
-                    isTeacher={isAdmin} // TODO eventually change for isTeacher?
+                    isTeacher={isTeacher}
                     toggle={this.toggle(index)}
                     collapse={topicCollapse[index]}
+                    fetchDeleteAssignment={this.fetchDeleteAssignment}
                   />
                 </Card>
               )
             })}
-          {isAdmin ? ( // TODO eventually change for isTeacher?
+          {isTeacher ? (
             <Button color="success" tag={Link} to="/quiz/createTopic">
               <h2 className="h5">+ Create topic</h2>
             </Button>
@@ -140,12 +199,12 @@ class TopicsOverview extends Component {
 
 TopicsOverview.propTypes = {
   topics: PropTypes.any,
-  isAdmin: PropTypes.bool,
+  isTeacher: PropTypes.bool,
 }
 
 TopicsOverview.defaultProps = {
   topics: [],
-  isAdmin: false,
+  isTeacher: false,
 }
 
 export default TopicsOverview

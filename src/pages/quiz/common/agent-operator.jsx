@@ -45,11 +45,14 @@ class AgentOperator extends Component {
   selectAgent = () => {
     const { allAgents, selectedAgents, setSelectedAgents } = this.props
     const { agent } = this.state
-    const currentSelectedAgents = selectedAgents
+    const currentSelectedAgents = [...selectedAgents]
     let selectFind = false
     let nextAgent = agent
     allAgents.forEach(agentFromAllAgents => {
       if (agentFromAllAgents.id === agent) {
+        console.log(agentFromAllAgents.id)
+        console.log(agent)
+        console.log('agentFromAllAgents.id === agent')
         currentSelectedAgents.push(agent)
         selectFind = !selectFind
       }

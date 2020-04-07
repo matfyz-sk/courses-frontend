@@ -38,10 +38,8 @@ function TopicPreview(props) {
   if (assignment) {
     assignmentId = assignment.id
     description = assignment.description
-    if (assignment.creationPeriod) {
-      startTime = assignment.creationPeriod.startDate
-      endTime = assignment.creationPeriod.endDate
-    }
+    startTime = assignment.startDate
+    endTime = assignment.endDate
   }
   const deleteAssignment =
     isTeacher && assignmentId
@@ -123,8 +121,8 @@ function TopicPreview(props) {
             ) : null}
           </Row> */}
           {(assignment &&
-            new Date(assignment.startTime) < new Date() &&
-            new Date(assignment.endTime) > new Date()) ||
+            new Date(startTime) < new Date() &&
+            new Date(endTime) > new Date()) ||
           isTeacher ? (
             <Button
               color="success"

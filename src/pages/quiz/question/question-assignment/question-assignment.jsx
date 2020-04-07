@@ -8,12 +8,11 @@ import PropTypes from 'prop-types'
 import { Button, Label, Form, FormGroup, Input } from 'reactstrap'
 
 import apiConfig from '../../../../configuration/api'
-import AgentOperator from '../../common/agent-operator'
 import AssignmentHeader from '../../common/assignment-header'
+import AgentOperatorNew from '../../common/agent-operator-new'
 
 export class QuestionAssignment extends Component {
   state = {
-    taskEventId: null,
     startDate: new Date(),
     endDate: new Date(),
     allTopics: [],
@@ -131,7 +130,7 @@ export class QuestionAssignment extends Component {
   getQuestionAssignment = (questionAssignmentId, token) => {
     return axios
       .get(
-        `${apiConfig.API_URL}/questionAssignment/${questionAssignmentId}?_join=creationPeriod,covers,assignedTo`,
+        `${apiConfig.API_URL}/questionAssignment/${questionAssignmentId}?_join=covers,assignedTo`,
         {
           headers: {
             Accept: 'application/json',
@@ -151,24 +150,20 @@ export class QuestionAssignment extends Component {
           const {
             description,
             covers: topic,
-            creationPeriod,
             assignedTo,
+            startDate,
+            endDate,
           } = questionAssignment
           let selectedAgents = []
-          if (Array.isArray(assignedTo)) {
-            selectedAgents = assignedTo.map(student => {
-              return student['@id']
-            })
-          } else if (assignedTo['@id']) {
-            selectedAgents = [assignedTo['@id']]
-          }
+          selectedAgents = assignedTo.map(student => {
+            return { id: student['@id'], name: student.name }
+          })
           this.setState({
-            taskEventId: creationPeriod['@id'],
-            startDate: new Date(creationPeriod.startDate),
-            endDate: new Date(creationPeriod.endDate),
+            startDate: startDate ? new Date(startDate) : new Date(),
+            endDate: endDate ? new Date(endDate) : new Date(),
             description,
-            topicOldValue: { id: topic['@id'], name: topic.name },
-            topic: { id: topic['@id'], name: topic.name },
+            topicOldValue: { id: topic[0]['@id'], name: topic[0].name },
+            topic: { id: topic[0]['@id'], name: topic[0].name },
             selectedAgents,
           })
         }
@@ -229,9 +224,16 @@ export class QuestionAssignment extends Component {
           data['@graph'].length &&
           data['@graph'].length > 0
         ) {
-          const disabledTopicsRaw = data['@graph'].map(questionAssignment => {
-            return questionAssignment.covers['@id']
-          })
+          const disabledTopicsRaw = data['@graph'].reduce(
+            (accumulator, questionAssignment) => {
+              const { covers } = questionAssignment
+              if (covers && covers.length && covers.length > 0) {
+                accumulator.push(covers[0]['@id'])
+              }
+              return accumulator
+            },
+            []
+          )
           this.setState({
             disabledTopicsRaw,
           })
@@ -301,20 +303,22 @@ export class QuestionAssignment extends Component {
       description,
       topic,
       selectedAgents,
-      taskEventId,
     } = this.state
+    const selectedAgentsIds = selectedAgents.map(
+      selectedAgent => selectedAgent.id
+    )
     const { match, history, courseInstanceId } = this.props
     if (topic) {
-      if (this.isEdit() && taskEventId) {
+      if (this.isEdit()) {
         axios
           .patch(
-            `${apiConfig.API_URL}/taskEvent/${taskEventId.substring(
-              taskEventId.lastIndexOf('/') + 1
-            )}`,
+            `${apiConfig.API_URL}/questionAssignment/${match.params.id}`,
             JSON.stringify({
-              name: startDate.toISOString(),
-              startDate: startDate.toISOString(),
-              endDate: endDate.toISOString(),
+              description,
+              covers: topic ? [topic] : [],
+              assignedTo: selectedAgentsIds,
+              startDate,
+              endDate,
             }),
             {
               headers: {
@@ -324,42 +328,24 @@ export class QuestionAssignment extends Component {
               },
             }
           )
-          .then(({ status }) => {
-            if (status === 200) {
-              axios
-                .patch(
-                  `${apiConfig.API_URL}/questionAssignment/${match.params.id}`,
-                  JSON.stringify({
-                    description,
-                    covers: topic ? [topic] : [],
-                    assignedTo: selectedAgents,
-                  }),
-                  {
-                    headers: {
-                      Accept: 'application/json',
-                      'Content-Type': 'application/json',
-                      Authorization: token,
-                    },
-                  }
-                )
-                .then(({ status: statusQuestionAssignment }) => {
-                  if (statusQuestionAssignment === 200) {
-                    history.push('/quiz/questionGroups')
-                  }
-                })
-                .catch(error => console.log(error))
+          .then(({ status: statusQuestionAssignment }) => {
+            if (statusQuestionAssignment === 200) {
+              history.push('/quiz/questionGroups')
             }
           })
           .catch(error => console.log(error))
       } else {
         axios
           .post(
-            `${apiConfig.API_URL}/taskEvent`,
+            `${apiConfig.API_URL}/questionAssignment`,
             JSON.stringify({
-              name: startDate.toISOString(),
-              startDate: startDate.toISOString(),
-              endDate: endDate.toISOString(),
+              name: '',
+              description,
+              covers: topic ? [topic] : [],
+              assignedTo: selectedAgentsIds,
               courseInstance: courseInstanceId,
+              startDate,
+              endDate,
             }),
             {
               headers: {
@@ -369,34 +355,9 @@ export class QuestionAssignment extends Component {
               },
             }
           )
-          .then(res => {
-            if (res.status === 200) {
-              const creationPeriod = res.data.resource.iri
-              axios
-                .post(
-                  `${apiConfig.API_URL}/questionAssignment`,
-                  JSON.stringify({
-                    name: '',
-                    description,
-                    covers: topic ? [topic] : [],
-                    assignedTo: selectedAgents,
-                    courseInstance: courseInstanceId,
-                    creationPeriod,
-                  }),
-                  {
-                    headers: {
-                      Accept: 'application/json',
-                      'Content-Type': 'application/json',
-                      Authorization: token,
-                    },
-                  }
-                )
-                .then(({ status: statusQuestionAssignment }) => {
-                  if (statusQuestionAssignment === 200) {
-                    history.push('/questionGroups')
-                  }
-                })
-                .catch(error => console.log(error))
+          .then(({ status: statusQuestionAssignment }) => {
+            if (statusQuestionAssignment === 200) {
+              history.push('/quiz/questionGroups')
             }
           })
           .catch(error => console.log(error))
@@ -404,10 +365,37 @@ export class QuestionAssignment extends Component {
     }
   }
 
-  setSelectedAgents = selectedAgents => {
-    this.setState({
-      selectedAgents,
+  addSelectedAgent = selectedAgent => {
+    const { allAgents, selectedAgents } = this.state
+    const findAgentRaw = allAgents.find(agent => {
+      return agent.id === selectedAgent
     })
+    if (
+      findAgentRaw &&
+      selectedAgents.findIndex(updatedSelectedAgent => {
+        return updatedSelectedAgent.id === selectedAgent
+      }) === -1
+    ) {
+      this.setState({
+        selectedAgents: [...selectedAgents, findAgentRaw],
+      })
+    }
+  }
+
+  deleteSelectedAgent = selectedAgent => {
+    const { selectedAgents } = this.state
+    const updatedSelectedAgents = [...selectedAgents]
+    if (selectedAgent) {
+      const index = updatedSelectedAgents.findIndex(updatedSelectedAgent => {
+        return updatedSelectedAgent.id === selectedAgent
+      })
+      if (index > -1) {
+        updatedSelectedAgents.splice(index, 1)
+        this.setState({
+          selectedAgents: updatedSelectedAgents,
+        })
+      }
+    }
   }
 
   selectTopic = (topicOldValue, allTopics, disabledTopics) => {
@@ -444,9 +432,27 @@ export class QuestionAssignment extends Component {
       allTopics,
       allAgents,
       selectedAgents,
-      topicOldValue,
       disabledTopics,
     } = this.state
+    const agentOptions = allAgents.reduce((accumulator, agent) => {
+      const index = selectedAgents.findIndex(selectedAgent => {
+        return selectedAgent.id === agent.id
+      })
+      if (index === -1) {
+        accumulator.push({
+          ...agent,
+          addSelectedAgent: () => this.addSelectedAgent(agent.id),
+        })
+      }
+      return accumulator
+    }, [])
+
+    const selectedAgentsMapped = selectedAgents.map(agent => {
+      return {
+        ...agent,
+        deleteSelectedAgent: () => this.deleteSelectedAgent(agent.id),
+      }
+    })
     const topicOptions = allTopics.map(topicFromAll => {
       return (
         <option
@@ -458,50 +464,37 @@ export class QuestionAssignment extends Component {
         </option>
       )
     })
-    if (
-      Array.isArray(topicOptions) &&
-      topicOptions.length === 0 &&
-      topicOldValue
-    ) {
-      topicOptions.concat(
-        <option key={topicOldValue.id} value={topicOldValue.id}>
-          {topicOldValue.name}
-        </option>
-      )
-    }
     return isTeacher ? (
       <>
         <h3>Create new question assignment</h3>
-        <Form>
-          <AssignmentHeader
-            startDate={startDate}
-            endDate={endDate}
-            description={description}
-            onStartDateChange={this.onStartDateChange}
-            onEndDateChange={this.onEndDateChange}
-            handleChange={this.handleChange}
-          />
-          <FormGroup>
-            <Label for="topic">Topic</Label>
-            <Input
-              type="select"
-              name="topic"
-              id="topic"
-              value={topic}
-              onChange={this.handleChange}
-            >
-              {topicOptions}
-            </Input>
-          </FormGroup>
-          <AgentOperator
-            allAgents={allAgents}
-            selectedAgents={selectedAgents}
-            setSelectedAgents={this.setSelectedAgents}
-          />
-          <Button color="success" onClick={this.formSubmitWithToken}>
-            {this.isEdit() ? 'Edit assignment' : 'Create assignment'}
-          </Button>
-        </Form>
+        <AssignmentHeader
+          startDate={startDate}
+          endDate={endDate}
+          description={description}
+          onStartDateChange={this.onStartDateChange}
+          onEndDateChange={this.onEndDateChange}
+          handleChange={this.handleChange}
+        />
+        <FormGroup>
+          <Label for="topic">Topic</Label>
+          <Input
+            type="select"
+            name="topic"
+            id="topic"
+            value={topic}
+            onChange={this.handleChange}
+          >
+            {topicOptions}
+          </Input>
+        </FormGroup>
+        <AgentOperatorNew
+          allAgents={allAgents}
+          agentOptions={agentOptions}
+          selectedAgents={selectedAgentsMapped}
+        />
+        <Button color="success" onClick={this.formSubmitWithToken}>
+          {this.isEdit() ? 'Edit assignment' : 'Create assignment'}
+        </Button>
       </>
     ) : (
       <div>Not authorized.</div>
