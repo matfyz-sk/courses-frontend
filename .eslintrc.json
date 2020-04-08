@@ -37,6 +37,7 @@
     "import/prefer-default-export": [0],
     "react/prop-types": 0,
     "react/jsx-props-no-spreading": 0,
-    "spaced-comment": "off"
+    "spaced-comment": "off",
+    "consistent-return": "off"
   }
 }
