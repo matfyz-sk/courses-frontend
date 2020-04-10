@@ -29,7 +29,7 @@ class UserManagement extends Component {
 
         this.state = {
             enrolled: users,
-            requests: [],
+            requests: users,
             course: {},
             requestedUsers: [],
             enrolledUsers: [],

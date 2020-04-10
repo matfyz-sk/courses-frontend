@@ -1,67 +1,82 @@
 .main-user-management-container {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
-.requests-container, .enrolled-container {
-    margin: 10px;
+.requests-container,
+.enrolled-container {
+  margin: 10px;
 }
 
-.requests-container h2, .enrolled-container h2 {
-    text-align: center;
-    margin-bottom: 20px;
+.requests-container h2,
+.enrolled-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.user-management-table  td, .user-management-table th{
-    padding: 5px;
-    vertical-align: baseline;
+.user-management-table td,
+.user-management-table th {
+  padding: 5px;
+  vertical-align: baseline;
 }
 
 .table-button {
-    font-size: 0.8rem;
-    padding: 5px;
+  font-size: 0.8rem;
+  padding: 5px;
 }
 
 .table-button-confirm {
-    background-color: #1D661D;
+  background-color: #1d661d;
 }
 
-@media
-only screen and (max-width: 500px) {
+@media only screen and (max-width: 500px) {
+  /* Force table to not be like tables anymore */
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
 
-    /* Force table to not be like tables anymore */
-    table, thead, tbody, th, td, tr {
-        display: block;
-    }
+  /* Hide table headers (but not display: none;, for accessibility) */
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
 
-    /* Hide table headers (but not display: none;, for accessibility) */
-    thead tr {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-    }
+  tr {
+    border: 1px solid #ccc;
+  }
 
-    tr { border: 1px solid #ccc; }
+  td {
+    /* Behave  like a "row" */
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    padding-left: 50%;
+  }
 
-    td {
-        /* Behave  like a "row" */
-        border: none;
-        border-bottom: 1px solid #eee;
-        position: relative;
-        padding-left: 50%;
-    }
+  td:before {
+    width: 33%;
+    padding: 0 2%;
+    font-weight: bold;
+  }
 
-    td:before {
-        width: 33%;
-        padding: 0 2%;
-        font-weight: bold;
-    }
+  td:nth-of-type(1):before {
+    content: 'First Name';
+  }
+  td:nth-of-type(2):before {
+    content: 'Last Name';
+  }
+  td:nth-of-type(3):before {
+    content: 'Username';
+  }
 
-    td:nth-of-type(1):before { content: "First Name"; }
-    td:nth-of-type(2):before { content: "Last Name"; }
-    td:nth-of-type(3):before { content: "Username"; }
-
-    .table-first, .table-last {
-        text-align: center;
-    }
+  .table-first,
+  .table-last {
+    text-align: center;
+  }
 }
