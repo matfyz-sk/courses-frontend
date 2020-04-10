@@ -1,12 +1,12 @@
-import { CourseContext } from './context'
 import React from 'react'
+import { CourseContext } from './context'
 
-const withCourse = (Component) => {
+const withCourse = Component => {
   class WithCourse extends React.Component {
     constructor(props) {
       super(props)
 
-      this.setCourse = (course) => {
+      this.setCourse = course => {
         this.setState({
           course,
         })
@@ -19,9 +19,10 @@ const withCourse = (Component) => {
     }
 
     render() {
+      const course = this.state
       return (
-        <CourseContext.Provider value={this.state.course}>
-          <Component {...this.props} />,
+        <CourseContext.Provider value={course}>
+          <Component {...this.props} />
         </CourseContext.Provider>
       )
     }

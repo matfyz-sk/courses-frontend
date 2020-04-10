@@ -37,8 +37,6 @@ class Timeline extends Component {
   }
 
   componentDidMount() {
-    this.setState({ loading: true })
-
     const {
       match: { params },
     } = this.props
@@ -147,9 +145,9 @@ class Timeline extends Component {
   }
 
   mergeMaterials(arr1, arr2) {
-    arr2.map((element1) => {
+    arr2.map(element1 => {
       if (
-        arr1.find((element) => {
+        arr1.find(element => {
           return element.id === element1.id
         }) == null
       ) {

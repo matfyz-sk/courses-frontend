@@ -1,91 +1,103 @@
 .courses_main {
-    justify-content: center;
+  justify-content: center;
 }
 
 .courses {
-    min-width: 750px;
-    display: flex;
-    flex-direction: column;
-    /*align-items: center;*/
-    width: 90%;
+  min-width: 750px;
+  display: flex;
+  flex-direction: column;
+  /*align-items: center;*/
+  width: 90%;
 }
 
 .tab {
-    color: #1D661D;
-    min-width: 900px;
+  color: #1d661d;
+  min-width: 900px;
 }
 
 a.active.nav-link .tab {
-    color: #133F2A;
+  color: #133f2a;
 }
 
 .list-group-item a {
-    color: black;
+  color: black;
 }
 
 .name {
-    font-weight: bold;
-    font-size: 20px;
+  font-weight: bold;
+  font-size: 20px;
 }
 
 .enroll-button {
-    background-color: #1D661D;
-    font-weight: bold;
-    color: white;
-    border: none;
-    padding: 5px 15px;
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
+  background-color: #1d661d;
+  font-weight: bold;
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  margin-left: 10px;
 }
 
 .collapse-arrow {
-    position: absolute;
-    right: 12px;
-    top: 50px;
+  position: absolute;
+  right: 12px;
+  top: 50px;
 }
 
 .collapse-arrow:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 
-.role_icon {
-    position: absolute;
-    right: 10px;
-    top: 10px;
+.courses-right-top-corner-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.single-course-container, .multiple-course-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.edit-course-button {
+  font-weight: bold;
+  color: white;
+  border: none;
+
+  height: 34px;
+  width: 70px;
+  margin-left: 5px;
 }
 
 .course-container {
-    position: relative;
+  position: relative;
 }
 
 .course-instances-card {
-    border: none;
+  border: none;
 }
 
 .course-instances-card-body {
-    padding: 0;
-    padding-top: 10px;
+  padding: 10px 0 0;
 }
 
 @media only screen and (max-width: 800px) {
-    .courses {
-        min-width: 200px;
-        display: flex;
-        flex-direction: column;
-        /*align-items: center;*/
-    }
+  .courses {
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    /*align-items: center;*/
+  }
 
-    .enroll-button {
-        position: relative;
-        display: block;
-        margin-top: 20px;
-        max-width: 100px;
-    }
-    .list-group-item a {
-        display: flex;
-        flex-direction: column;
-        align-content: center;
-        align-items: center;
-    }
+  .enroll-button {
+    position: relative;
+    display: block;
+    margin-top: 20px;
+    max-width: 100px;
+  }
+  .list-group-item a {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
+  }
 }
