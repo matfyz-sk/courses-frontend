@@ -1,16 +1,16 @@
-import React from 'react';
-import './Landing.css';
-import Navigation from "../../../components/Navigation";
+import React from 'react'
+import './Landing.css'
+import Navigation from '../../../components/Navigation'
 
 const Landing = () => (
-    <div>
-        <Navigation />
-        <main>
-            <div>
-                <h1>About Courses</h1>
-            </div>
-        </main>
-    </div>
-);
+  <div>
+    <Navigation />
+    <main>
+      <div>
+        <h1>About Courses</h1>
+      </div>
+    </main>
+  </div>
+)
 
-export default Landing;
+export default Landing

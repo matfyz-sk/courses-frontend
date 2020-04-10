@@ -99,3 +99,42 @@ export const Courses = [
     admin: true,
   },
 ]
+
+const Courses2 = [
+  {
+    name: 'Knowledge representation and reasoning',
+    description: 'Knowledge representation and reasoning',
+    abbreviation: 'KnowRepReas',
+    hasPrerequisite: [],
+    mentions: [],
+    covers: [],
+  },
+  {
+    name: 'Computational Logic',
+    description: 'Computational Logic for beginners',
+    abbreviation: 'CompLogic',
+    hasPrerequisite: [],
+    mentions: [],
+    covers: [],
+  },
+  {
+    name: 'Web design Technology and Methodology',
+    description:
+      'Web design encompasses many different skills and disciplines ' +
+      'in the production and maintenance of websites. The different areas of web design ' +
+      'include web graphic design; interface design; authoring, including standardised code ' +
+      'and proprietary software; user experience design; and search engine optimization.',
+    abbreviation: 'WebDesign',
+    hasPrerequisite: [],
+    mentions: [],
+    covers: [ 'w14DB', 'PQXeT', 'NuUyB', 'zP0ri' ],
+  },
+  {
+    name: 'Princípy databáz',
+    description: 'Naučíte sa princípy databáz ;)',
+    abbreviation: 'Databazy',
+    hasPrerequisite: [],
+    mentions: [],
+    covers: [],
+  },
+]

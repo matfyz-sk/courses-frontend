@@ -9,11 +9,13 @@ import {
   TabContent,
   NavLink as NL,
   TabPane,
-  UncontrolledCollapse, Button,
+  UncontrolledCollapse,
+  Button,
 } from 'reactstrap'
 import { NavLink } from 'react-router-dom'
 import classnames from 'classnames'
 import { connect } from 'react-redux'
+import { compose } from 'recompose'
 import { withAuthorization } from '../../../components/Session'
 import * as ROUTES from '../../../constants/routes'
 
@@ -25,11 +27,16 @@ import { Courses } from './courses-data.js'
 import { getIcon } from '../Helper'
 import arrow from '../../../images/arrow.svg'
 
-import { setUserAdmin } from '../../../redux/actions'
-import { compose } from 'recompose'
+import {
+  setUserAdmin,
+  fetchUser,
+  fetchCourseInstances,
+} from '../../../redux/actions'
 // import {Enroll} from "../Enrollments";
 
-const THIS_YEAR = 2019
+const THIS_YEAR = '2020'
+const TOKEN =
+  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU'
 
 class CoursesPageBase extends Component {
   constructor(props) {
@@ -50,48 +57,67 @@ class CoursesPageBase extends Component {
   }
 
   componentDidMount() {
-    // this.setState({ loading:true });
+    this.props.fetchCourseInstances(TOKEN).then(() => {
+      this.props.fetchUser(TOKEN, 'OMPq2').then(() => {
+        const { courses, user } = this.props
 
-    let activeCourses = []
-    let myActiveCourses = []
-    let myArchivedCourses = []
+        console.log(courses)
+        console.log(user)
 
-    for (let i in this.state.allCourses) {
-      let course = this.state.allCourses[i]
-      if (
-        course.enrolled === true ||
-        course.instructor === true ||
-        course.admin === true
-      ) {
-        if (course.year === THIS_YEAR) {
-          myActiveCourses.push(course)
-        } else if (course.year < THIS_YEAR) {
-          myArchivedCourses.push(course)
+        for (const i in courses) {
+          const course = courses[i]
+          for (const j in user.enrolled) {
+            const course2 = user.enrolled[j]
+            course.enrolled = course.fullId === `${course2['@id']}`
+          }
+          for (const j in user.instructorOf) {
+            const course2 = user.instructorOf[j]
+            course.instructor = course.fullId === `${course2['@id']}`
+          }
+          course.admin = user.admin //course.id in user.admin
+          console.log(course)
         }
-      } else {
-        if (course.year === THIS_YEAR) {
-          activeCourses.push(course)
+
+        let activeCourses = []
+        let myActiveCourses = []
+        let myArchivedCourses = []
+
+        for (const i in courses) {
+          const course = courses[i]
+          if (
+            course.enrolled === true ||
+            course.instructor === true ||
+            course.admin === true
+          ) {
+            if (course.year === THIS_YEAR) {
+              myActiveCourses.push(course)
+            } else if (course.year < THIS_YEAR) {
+              myArchivedCourses.push(course)
+            }
+          } else if (course.year === THIS_YEAR) {
+            activeCourses.push(course)
+          }
         }
-      }
-    }
 
-    activeCourses = this.groupCourses(activeCourses)
-    myActiveCourses = this.groupCourses(myActiveCourses)
-    myArchivedCourses = this.groupCourses(myArchivedCourses)
-    let allCourses = this.groupCourses(this.state.allCourses)
+        activeCourses = this.groupCourses(activeCourses)
+        myActiveCourses = this.groupCourses(myActiveCourses)
+        myArchivedCourses = this.groupCourses(myArchivedCourses)
+        const allCourses = this.groupCourses(this.state.allCourses)
 
-    this.setState({
-      activeCourses,
-      myActiveCourses,
-      myArchivedCourses,
-      allCourses,
+        this.setState({
+          activeCourses,
+          myActiveCourses,
+          myArchivedCourses,
+          allCourses,
+        })
+      })
     })
   }
 
   groupCourses(courses) {
-    let groupedCourses = {}
-    for (let i in courses) {
-      let course = courses[i]
+    const groupedCourses = {}
+    for (const i in courses) {
+      const course = courses[i]
       if (!(course.courseId in groupedCourses)) {
         groupedCourses[course.courseId] = {
           id: course.courseId,
@@ -133,7 +159,7 @@ class CoursesPageBase extends Component {
     } = this.state
 
     return (
-      <React.Fragment>
+      <>
         <Navigation />
         <main className="courses_main">
           <div className="courses">
@@ -231,7 +257,7 @@ class CoursesPageBase extends Component {
             </TabContent>
           </div>
         </main>
-      </React.Fragment>
+      </>
     )
   }
 }
@@ -340,17 +366,19 @@ const RoleIcon = ({ course }) => (
   </div>
 )
 
-const mapStateToProps = ({ userReducer }) => {
+const mapStateToProps = ({ userReducer, coursesReducer }) => {
   return {
     isSignedIn: userReducer.isSignedIn,
     isAdmin: userReducer.isAdmin,
+    user: userReducer.user,
+    courses: coursesReducer.courses,
   }
 }
 
 const condition = () => true
 
 const CoursesPage = compose(
-  connect(mapStateToProps, { setUserAdmin }),
+  connect(mapStateToProps, { setUserAdmin, fetchCourseInstances, fetchUser }),
   withAuthorization(condition)
 )(CoursesPageBase)
 
