@@ -39,3 +39,17 @@ export const getIcon = (name) => {
         default: return ;
     }
 };
+
+export const mergeMaterials = (arr1, arr2) => {
+  let arr3 = [...arr1]
+  arr2.map(element1 => {
+    if (
+      arr1.find(element => {
+        return element.id === element1.id
+      }) == null
+    ) {
+      arr3.push(element1)
+    }
+  })
+  return arr3
+}

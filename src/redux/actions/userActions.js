@@ -1,6 +1,16 @@
-import axios from "axios";
-import { SET_USER_ADMIN, SET_SIGNED_IN, SET_USER } from '../types'
+import axios from 'axios'
+import {
+  SET_USER_ADMIN,
+  SET_SIGNED_IN,
+  SET_USER,
+} from '../types'
 import apiConfig from '../../configuration/api'
+
+export const setUser = user => {
+  return dispatch => {
+    dispatch({ type: SET_USER, user })
+  }
+}
 
 export const setUserAdmin = isAdmin => {
   return dispatch => {
@@ -39,6 +49,9 @@ export const fetchUser = (token, userId) => {
               requested: userData.requests,
               instructorOf: userData.instructorOf,
               admin: false,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              nickname: userData.nickname,
             }
           })[0]
           dispatch({ type: SET_USER, user })

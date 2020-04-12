@@ -9,49 +9,44 @@ import {
   Col,
   CardSubtitle,
 } from 'reactstrap'
+import { connect } from 'react-redux'
 import { NavigationCourse } from '../../../components/Navigation'
 import EventForm from '../EventForm'
 import { BlockMenu, SubEventList } from '../Events'
 import ModalCreateEvent from '../ModalCreateEvent'
 import { Courses } from '../Courses/courses-data'
+import { fetchCourseInstance, setUserAdmin } from '../../../redux/actions'
+
+const TOKEN =
+  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU'
 
 class CreateTimeline extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      courseId: '',
-      courseAbbr: '',
+      course: {},
     }
   }
 
   componentDidMount() {
-    this.setState({ loading: true })
-
     const {
       match: { params },
     } = this.props
 
-    const courses = Courses
-    let courseAbbr
+    this.props.fetchCourseInstance(TOKEN, params.id).then(() => {
+      const { course } = this.props
 
-    for (let i in courses) {
-      let course = courses[i]
-      if (course.id + '' === params.id) {
-        courseAbbr = course.abbreviation
-      }
-    }
-
-    this.setState({
-      courseId: params.id,
-      courseAbbr: courseAbbr,
+      this.setState({
+        course,
+      })
     })
   }
 
   render() {
-    const courseAbbr = this.state
+    const { course } = this.state
     return (
       <div>
-        <NavigationCourse courseAbbr={courseAbbr} />
+        <NavigationCourse courseAbbr={course.abbreviation} />
         <Container className="core-container">
           <Row>
             <Col xs="3">
@@ -108,4 +103,14 @@ const NewEventTimelineCard = () => (
   </Card>
 )
 
-export default CreateTimeline
+
+const mapStateToProps = ({ userReducer, eventsReducer, coursesReducer }) => {
+  return {
+    isSignedIn: userReducer.isSignedIn,
+    isAdmin: userReducer.isAdmin,
+    events: eventsReducer.events,
+    course: coursesReducer.course,
+  }
+}
+
+export default connect(mapStateToProps, { setUserAdmin, fetchCourseInstance })(CreateTimeline)

@@ -1,72 +1,64 @@
-import React from "react";
-import { NavigationCourse } from "../../../components/Navigation";
-import EventForm from '../EventForm';
-
-import {Container, Card, CardHeader, CardBody } from 'reactstrap';
-
-// const INITIAL_STATE = {
-//     name: '',
-//     description: '',
-//     from: new Date(),
-//     to: new Date(),
-//     place: '',
-//     type: '',
-// };
-
-const EVENT = {
-    name: 'Some Event',
-    description: '...here goes description for Some Event',
-    startDate: '2020-02-27T15:00+01:00',
-    endDate: '2020-02-27T17:00+01:00',
-    location: 'Matfyz H6',
-    type: 'Lab',
-};
+import React from 'react'
+import { Container, Card, CardHeader, CardBody } from 'reactstrap'
+import { NavigationCourse } from '../../../components/Navigation'
+import EventForm from '../EventForm'
+import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, TOKEN } from '../constants'
+import { axiosRequest, getData } from '../AxiosRequests'
 
 class EditEvent extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            name: EVENT.name,
-            description: EVENT.description,
-            from: new Date(EVENT.startDate),
-            to: new Date(EVENT.endDate),
-            place: EVENT.location,
-            type: EVENT.type,
-            course: 2,
-        };
-    }
+  constructor(props) {
+    super(props)
+    this.state = { event: INITIAL_EVENT_STATE }
+  }
 
-    componentDidMount() {
-        // const { match: { params } } = this.props; TODO get Event ID
+  componentDidMount() {
+    const {
+      match: { params },
+    } = this.props
 
-        //TODO get Event with ID
+    const url = `${BASE_URL + EVENT_URL}/${params.id}`
+    axiosRequest('get', TOKEN, null, url).then(response => {
+      const data = getData(response)
+      if (data != null) {
+        const event = data.map(eventData => {
+          return {
+            id: eventData['@id'].substring(eventData['@id'].length - 5),
+            name: eventData.name,
+            description: eventData.description,
+            startDate: new Date(eventData.startDate),
+            endDate: new Date(eventData.endDate),
+            place: eventData.location,
+            type: eventData.type,
+            // courseId: eventData.courseInstance[0]['@id'],
+          }
+        })[0]
 
         this.setState({
-            // name: EVENT.name,
-            // description: EVENT.description,
-            // from: new Date(EVENT.startDate),
-            // to: new Date(EVENT.endDate),
-            // place: EVENT.location,
-            // type: EVENT.type,
-            // course: 2,
-        });
-    }
+          event,
+        })
+      } else {
+        // TODO zle id
+        console.log(response.status)
+      }
+    })
+  }
 
-    render() {
-        return (
-            <div>
-                <NavigationCourse/>
-                <Container>
-                    <Card>
-                        <CardHeader className="event-card-header">Edit Event</CardHeader>
-                        <CardBody>
-                            <EventForm typeOfForm='Edit' {...this.state}/>
-                        </CardBody>
-                    </Card>
-                </Container>
-            </div>
-        );
-    }
+  render() {
+    console.log(this.state.event)
+    return (
+      <div>
+        <NavigationCourse />
+        <Container>
+          <Card>
+            <CardHeader className="event-card-header">Edit Event</CardHeader>
+            <CardBody>
+              <EventForm typeOfForm="Edit" {...this.state.event} />
+            </CardBody>
+          </Card>
+        </Container>
+      </div>
+    )
+  }
 }
 
-export default EditEvent;
+export default EditEvent

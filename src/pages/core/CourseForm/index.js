@@ -1,67 +1,127 @@
 import React, { Component } from 'react'
 import { Button, Form, FormGroup, Input, Label } from 'reactstrap'
+import { Redirect } from 'react-router-dom'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import { Courses } from '../Courses/courses-data'
 // import Chip from "@material-ui/core/Chip";
 import './CourseForm.css'
-
-const INITIAL_STATE = {
-  name: '',
-  description: '',
-  abbreviation: '',
-  prerequisites: [],
-  admin: [],
-}
-
-const UserOptions = [
-  { surname: 'Marmanova', name: 'Patricia' },
-  { surname: 'Palko', name: 'Pavol' },
-  { surname: 'Mrkvicka', name: 'Jozef' },
-  { surname: 'Peterson', name: 'Jordan' },
-]
+import { GRAPH_URI } from '../../../constants/constants'
+import { COURSES } from '../../../constants/routes'
+import { axiosRequest, getData } from '../AxiosRequests'
+import {
+  TOKEN,
+  INITIAL_COURSE_STATE,
+  BASE_URL,
+  COURSE_URL,
+  USER_URL,
+} from '../constants'
 
 class CourseForm extends Component {
   constructor(props) {
     super(props)
-    this.state = { ...INITIAL_STATE }
+    this.state = { ...INITIAL_COURSE_STATE, courses: [], users: [] }
   }
 
   componentDidMount() {
-    if (this.props.typeOfForm === 'Create') {
-      this.setState({
-        typeOfForm: this.props.typeOfForm,
-      })
-    } else if (this.props.typeOfForm === 'Edit') {
-      this.setState({
-        typeOfForm: this.props.typeOfForm,
-        name: this.props.name,
-        description: this.props.description,
-        abbreviation: this.props.abbreviation,
-        prerequisites: this.props.prerequisites,
-        admin: this.props.admin,
-      })
+    this.setState({ ...this.props })
+
+    let url = BASE_URL + COURSE_URL
+    axiosRequest('get', TOKEN, null, url).then(response => {
+      const data = getData(response)
+      if (data != null) {
+        const courses = data.map(course => {
+          return {
+            fullId: course['@id'],
+            name: course.name,
+          }
+        })
+        this.setState({
+          courses,
+        })
+      }
+    })
+
+    url = BASE_URL + USER_URL
+    axiosRequest('get', TOKEN, null, url).then(response => {
+      const data = getData(response)
+      if (data != null) {
+        const users = data.map(user => {
+          return {
+            fullId: user['@id'],
+            name: user.name,
+          }
+        })
+        this.setState({
+          users,
+        })
+      }
+    })
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.name !== this.props.name) {
+      this.setState({ ...this.props })
     }
   }
 
-  onSubmit = (event) => {
-    // const {
-    //     name,
-    //     description,
-    //     abbreviation,
-    //     prerequisites,
-    //     admin,
-    // } = this.state;
+  onSubmit = event => {
+    const {
+      id,
+      name,
+      description,
+      abbreviation,
+      prerequisites,
+      admins,
+    } = this.state
+    const { typeOfForm } = this.props
 
-    // if (this.props.typeOfForm === "Create") {
-    // }
-    // else if (this.props.typeOfForm === "Edit") {
-    // }
+    const hasPrerequisite = prerequisites.map(prerequisite => {
+      return prerequisite.fullId
+    })
+
+    const hasAdmin = admins.map(admin => {
+      return admin.fullId
+    })
+
+    let url = BASE_URL + COURSE_URL
+    let method = 'post'
+
+    if (typeOfForm === 'Edit') {
+      url += `/${id}`
+      method = 'put'
+    }
+
+    axiosRequest(
+      method,
+      TOKEN,
+      JSON.stringify({
+        name,
+        description,
+        abbreviation,
+        hasPrerequisite,
+        // TODO uncomment when implemented
+        // hasAdmin
+      }),
+      url
+    ).then(response => {
+      if (response.status === 200) {
+        // TODO
+        console.log('Hurray!')
+        if (typeOfForm === 'Create') {
+          // redirect to new Instance
+        } else {
+          // redirect to courses
+        }
+      } else {
+        // TODO
+        console.log('Ooops!')
+      }
+    })
     event.preventDefault()
   }
 
-  onChange = (event) => {
-    console.log(event.target.name, ': ', event.target.value)
+  onChange = event => {
     this.setState({ [event.target.name]: event.target.value })
   }
 
@@ -69,19 +129,22 @@ class CourseForm extends Component {
     this.setState({ prerequisites: values })
   }
 
-  onAdminChange = (event, values) => {
-    this.setState({ admin: values })
+  onAdminsChange = (event, values) => {
+    this.setState({ admins: values })
   }
 
   render() {
+    console.log(this.state)
     const {
       name,
       description,
       abbreviation,
       prerequisites,
-      admin,
-      typeOfForm,
+      admins,
+      courses,
+      users,
     } = this.state
+    const { typeOfForm } = this.props
 
     const isInvalid = name === '' || description === '' || abbreviation === ''
     return (
@@ -118,12 +181,12 @@ class CourseForm extends Component {
             multiple
             name="prerequisites"
             id="prerequisites"
-            options={Courses}
-            getOptionLabel={(option) => option.name}
+            options={courses}
+            getOptionLabel={option => option.name}
             value={prerequisites}
             onChange={this.onPrerequisitesChange}
             style={{ maxWidth: 500 }}
-            renderInput={(params) => (
+            renderInput={params => (
               <TextField
                 {...params}
                 placeholder=""
@@ -132,23 +195,18 @@ class CourseForm extends Component {
             )}
           />
 
-          <Label for="admin">Admin</Label>
+          <Label for="admins">Admin</Label>
           <Autocomplete
             multiple
-            name="admin"
-            id="admin"
-            options={UserOptions}
-            getOptionLabel={(option) => option.surname}
-            onChange={this.onAdminChange}
+            name="admins"
+            id="admins"
+            options={users}
+            getOptionLabel={option => option.name}
+            onChange={this.onAdminsChange}
             filterSelectedOptions
-            value={admin}
-            // renderTags={(value, getTagProps) =>
-            //     value.map((option, index) => (
-            //         <Chip label={option.surname} {...getTagProps({ index })}/>
-            //     ))
-            // }
+            value={admins}
             style={{ maxWidth: 500 }}
-            renderInput={(params) => (
+            renderInput={params => (
               <TextField
                 {...params}
                 placeholder=""

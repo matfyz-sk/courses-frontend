@@ -1,6 +1,4 @@
 import React from 'react'
-import { NavigationCourse } from '../../../components/Navigation'
-
 import {
   Container,
   Row,
@@ -15,49 +13,43 @@ import {
   Button,
   Table,
 } from 'reactstrap'
-import './Event.css'
-import NextCalendar from '../NextCalendar'
 import { connect } from 'react-redux'
-import { setUserAdmin } from '../../../redux/actions'
 import { NavLink } from 'react-router-dom'
+
+import { NavigationCourse } from '../../../components/Navigation'
+import './Event.css'
+// import NextCalendar from '../NextCalendar'
+import { setUserAdmin, fetchCourseInstance } from '../../../redux/actions'
 import { SubEventList } from '../Events'
-import { getDisplayDateTime, getIcon } from '../Helper'
+import { getDisplayDateTime, getIcon, mergeMaterials } from '../Helper'
+
+const TOKEN =
+  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU'
 
 class Event extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      event: {
-        id: 2,
-        name: 'The Rabbit Sends in a Little Bill',
-        startDate: '2020-02-18T09:00+01:00',
-        endDate: '2020-02-18T13:00+01:00',
-        description:
-          'A certain king had a beautiful garden, and in the garden stood a ' +
-          'tree which bore golden apples. These apples were always counted, and about ' +
-          'the time when they began to grow ripe it was found that every night one of ' +
-          'them was gone. The king became very angry at this, and ordered the gardener ' +
-          'to keep watch all night under the tree. The gardener set his eldest son to watch; ' +
-          'but about twelve o’clock he fell asleep, and in the morning another of the apples ' +
-          'was missing. Then the second son was ordered to watch; and at midnight he too fell asleep.',
-        materials: [
-          { id: 1, name: 'How Dorothy Saved the Scarecrow' },
-          { id: 2, name: 'The Council with the Munchkins' },
-        ],
-      },
+      event: undefined,
+      course: {},
     }
   }
 
   componentDidMount() {
-    // const { match: { params } } = this.props;
+    const {
+      match: { params },
+    } = this.props
+
+
   }
 
   render() {
-    const { event } = this.state
+    const { event, course } = this.state
+    const { isAdmin } = this.props
     return (
       <div>
-        <NavigationCourse />
+        <NavigationCourse courseAbbr={course.abbreviation}/>
         <Container>
           {/*// className="core-container">*/}
           {/*<Row>*/}
@@ -65,7 +57,7 @@ class Event extends React.Component {
           {/*        <NextCalendar/>*/}
           {/*    </Col>*/}
           {/*    <Col>*/}
-          <EventCard event={event} isAdmin={this.props.isAdmin} />
+          {event && <EventCard event={event} isAdmin={isAdmin} />}
           {/*    </Col>*/}
           {/*</Row>*/}
         </Container>
@@ -75,7 +67,7 @@ class Event extends React.Component {
 }
 
 const EventCard = ({ event, isAdmin }) => (
-  <Card id={event.id + ''} name={event.id + ''} className="event-card">
+  <Card id={`${event.id}`} name={`${event.id}`} className="event-card">
     <CardHeader className="event-card-header">
       <NavLink to={`/event/${event.id}`} className="subevent-name">
         {event.name}
@@ -117,8 +109,8 @@ const EventCard = ({ event, isAdmin }) => (
           </Row>
         </Container>
       )}
-      {event.materials.length > 0 && (
-        <React.Fragment>
+      {event.materials && event.materials.length > 0 && (
+        <>
           <CardSubtitle className="event-card-subtitle">Materials</CardSubtitle>
           <ListGroup key={event.id}>
             {event.materials.map(material => (
@@ -131,16 +123,17 @@ const EventCard = ({ event, isAdmin }) => (
               </ListGroupItem>
             ))}
           </ListGroup>
-        </React.Fragment>
+        </>
       )}
     </CardBody>
   </Card>
 )
 
-const mapStateToProps = ({ userReducer }) => {
+const mapStateToProps = ({ userReducer, coursesReducer }) => {
   return {
     isSignedIn: userReducer.isSignedIn,
     isAdmin: userReducer.isAdmin,
+    course: coursesReducer.course,
   }
 }
 

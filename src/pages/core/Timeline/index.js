@@ -4,28 +4,22 @@ import { NavLink } from 'react-router-dom'
 import { Container, Row, Col, Button, Alert } from 'reactstrap'
 import EventsList, { BlockMenu } from '../Events'
 import { NavigationCourse } from '../../../components/Navigation'
-import { getDisplayDateTime } from '../Helper'
+import { getDisplayDateTime, mergeMaterials } from '../Helper'
 import NextCalendar from '../NextCalendar'
 import * as ROUTES from '../../../constants/routes'
 import './Timeline.css'
 // import withAuthorization from "../../../components/Session/withAuthorization";
-
-import { Events } from './timeline-data'
-import { Courses } from '../Courses/courses-data'
-
-import { setUserAdmin } from '../../../redux/actions'
+import { setUserAdmin, fetchCourseInstance } from '../../../redux/actions'
 
 class Timeline extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      loading: true,
-      courseInstance: undefined,
+      course: {},
       eventsSorted: [],
       timelineBlocks: [], // for timeline purposes even Session can be a block
       nestedEvents: [],
-      courseAbbr: '',
     }
 
     this.getTimelineBlocks = this.getTimelineBlocks.bind(this)
@@ -33,7 +27,6 @@ class Timeline extends Component {
     this.greaterEqual = this.greaterEqual.bind(this)
     this.greater = this.greater.bind(this)
     this.sortEventsFunction = this.sortEventsFunction.bind(this)
-    this.mergeMaterials = this.mergeMaterials.bind(this)
   }
 
   componentDidMount() {
@@ -41,31 +34,28 @@ class Timeline extends Component {
       match: { params },
     } = this.props
 
-    const courses = Courses
-    let courseAbbr
-
-    for (const i in courses) {
-      const course = courses[i]
-      if (`${course.id}` === params.id) {
-        courseAbbr = course.abbreviation
-      }
-    }
-
-    // TODO get all events where courseInstance.id = params
-    const events = Events
-
-    events.sort(this.sortEventsFunction)
-
-    const timelineBlocks = this.getTimelineBlocks(events)
-    const nestedEvents = this.getNestedEvents(events, timelineBlocks)
-
-    this.setState({
-      eventsSorted: events,
-      timelineBlocks,
-      nestedEvents,
-      courseId: params.id,
-      courseAbbr,
-    })
+    // this.props.fetchCourseInstance(TOKEN, params.id).then(() => {
+    //   const { course } = this.props
+    //
+    //   this.props.fetchEvents(TOKEN, course.id).then(() => {
+    //     const { events } = this.props
+    //
+    //     events.sort(this.sortEventsFunction)
+    //
+    //     events.map(event => {
+    //       event.materials = mergeMaterials(event.uses, event.covers)
+    //     })
+    //
+    //     const timelineBlocks = this.getTimelineBlocks(events)
+    //     const nestedEvents = this.getNestedEvents(events, timelineBlocks)
+    //
+    //     this.setState({
+    //       eventsSorted: events,
+    //       timelineBlocks,
+    //       nestedEvents,
+    //     })
+    //   })
+    // })
   }
 
   sortEventsFunction(e1, e2) {
@@ -121,7 +111,7 @@ class Timeline extends Component {
           ) {
             event.displayDateTime = getDisplayDateTime(event.startDate, false)
             block.sessions.push(event)
-            this.mergeMaterials(block.materials, event.materials)
+            block.materials = mergeMaterials(block.materials, event.materials)
           } else if (
             ((event.type === 'OralExam' || event.type === 'TestTake') &&
               this.greaterEqual(event.startDate, block.startDate) &&
@@ -136,24 +126,12 @@ class Timeline extends Component {
               event.displayDateTime = getDisplayDateTime(event.endDate, false)
             }
             block.tasks.push(event)
-            this.mergeMaterials(block.materials, event.materials)
+            block.materials = mergeMaterials(block.materials, event.materials)
           }
         }
       }
     }
     return timelineBlocks
-  }
-
-  mergeMaterials(arr1, arr2) {
-    arr2.map(element1 => {
-      if (
-        arr1.find(element => {
-          return element.id === element1.id
-        }) == null
-      ) {
-        arr1.push(element1)
-      }
-    })
   }
 
   greaterEqual(dateTime1, dateTime2) {
@@ -165,17 +143,19 @@ class Timeline extends Component {
   }
 
   render() {
-    const { timelineBlocks, nestedEvents, courseAbbr, courseId } = this.state
+    const { eventsSorted, timelineBlocks, nestedEvents } = this.state
+    const { course } = this.props
+
     return (
       <div>
-        <NavigationCourse courseAbbr={this.state.courseAbbr} />
-        {this.state.eventsSorted.length === 0 ? (
+        <NavigationCourse courseAbbr={course.abbreviation} />
+        {eventsSorted.length === 0 ? (
           <Alert color="secondary" className="empty-message">
             Timeline for this course is empty.
             <br />
             {this.props.isAdmin && (
               <NavLink
-                to={ROUTES.CREATE_TIMELINE + courseId}
+                to={ROUTES.CREATE_TIMELINE + course.id}
                 className="alert-link"
               >
                 Create NEW TIMELINE{' '}
@@ -189,7 +169,7 @@ class Timeline extends Component {
                 <BlockMenu courseEvents={timelineBlocks} />
                 {this.props.isAdmin && ( // || myId===courseInstance.hasInstructor &&
                   <div className="button-container">
-                    <NavLink to={`/createtimeline/${courseAbbr}`}>
+                    <NavLink to={`/createtimeline/${course.abbreviation}`}>
                       <Button className="new-event-button">New Event</Button>
                     </NavLink>
                   </div>
@@ -210,14 +190,17 @@ class Timeline extends Component {
   }
 }
 
-const mapStateToProps = ({ userReducer }) => {
+const mapStateToProps = ({ userReducer, coursesReducer }) => {
   return {
     isSignedIn: userReducer.isSignedIn,
     isAdmin: userReducer.isAdmin,
+    course: coursesReducer.course,
   }
 }
 
-export default connect(mapStateToProps, { setUserAdmin })(Timeline)
+export default connect(mapStateToProps, { setUserAdmin, fetchCourseInstance })(
+  Timeline
+)
 
 // const condition = authUser => !!authUser;
 

@@ -1,34 +1,25 @@
-import React from 'react';
-import Navigation from "../../../components/Navigation";
-import CourseForm from "../CourseForm";
-import {compose} from "recompose";
-import {connect} from "react-redux";
+import React from 'react'
+import Navigation from '../../../components/Navigation'
+import CourseForm from '../CourseForm'
+import { compose } from 'recompose'
+import { connect } from 'react-redux'
 // import {withAuthorization} from "../../../components/Session";
-import {Container, Card, CardHeader, CardBody} from 'reactstrap';
-import './NewCourse.css';
+import { Container, Card, CardHeader, CardBody } from 'reactstrap'
+import './NewCourse.css'
+import { INITIAL_COURSE_STATE } from '../constants'
 
 const NewCourse = () => (
-    <div>
-        <Navigation />
-        <Container>
-            <Card>
-                <CardHeader className="event-card-header">New Course</CardHeader>
-                <CardBody>
-                    <CourseForm typeOfForm='Create'/>
-                </CardBody>
-            </Card>
-        </Container>
-    </div>
-);
+  <div>
+    <Navigation />
+    <Container>
+      <Card>
+        <CardHeader className="event-card-header">New Course</CardHeader>
+        <CardBody>
+          <CourseForm typeOfForm="Create" {...INITIAL_COURSE_STATE} />
+        </CardBody>
+      </Card>
+    </Container>
+  </div>
+)
 
-const mapStateToProps = ( { userReducer } ) => {
-    return {
-        isSignedIn: userReducer.isSignedIn,
-        isAdmin: userReducer.isAdmin
-    };
-};
-
-export default compose(
-    connect(mapStateToProps, {}),
-    // withAuthorization(condition)
-)(NewCourse);
+export default NewCourse
