@@ -7,7 +7,7 @@ import {Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem,
         UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import { NavigationCourse } from "./NavigationCourse";
 
-import './Navigation.css';
+import './assets/Navigation.scss';
 import {connect} from "react-redux";
 import {setUserAdmin} from "../../redux/actions";
 import logo from '../../images/hat.svg';

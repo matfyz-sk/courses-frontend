@@ -1,23 +1,23 @@
-import React from 'react'
-import { BrowserRouter, Route } from 'react-router-dom'
-import { compose } from 'recompose'
+import React from 'react';
+import { BrowserRouter, Route } from 'react-router-dom';
+import { compose } from 'recompose';
 
-import LandingPage from '../../pages/core/Landing'
-import CoursesPage from '../../pages/core/Courses'
-import Event from '../../pages/core/Event'
-import Timeline from '../../pages/core/Timeline'
-import CreateTimeline from '../../pages/core/CreateTimeline'
-import NewCourse from '../../pages/core/NewCourse'
-import Assignments from '../../pages/assignments'
-import Quiz from '../../pages/quiz'
-import UserManagement from '../../pages/core/UserManagement'
-import NewEvent from '../../pages/core/NewEvent'
-import EditEvent from '../../pages/core/EditEvent'
-import EditCourse from '../../pages/core/EditCourse'
+import LandingPage from '../../pages/core/Landing';
+import CoursesPage from '../../pages/core/Courses';
+import Event from '../../pages/core/Event';
+import Timeline from '../../pages/core/Timeline';
+import CreateTimeline from '../../pages/core/CreateTimeline';
+import NewCourse from '../../pages/core/NewCourse';
+import Assignments from '../../pages/assignments';
+import Quiz from '../../pages/quiz';
+import UserManagement from '../../pages/core/UserManagement';
+import NewEvent from '../../pages/core/NewEvent';
+import EditEvent from '../../pages/core/EditEvent';
+import EditCourse from '../../pages/core/EditCourse';
 
-import * as ROUTES from '../../constants/routes'
-import { withAuthentication, withCourse } from '../Session'
-import CourseMigration from '../../pages/core/CourseMigration'
+import * as ROUTES from '../../constants/routes';
+import { withAuthentication, withCourse } from '../Session';
+import CourseMigration from '../../pages/core/CourseMigration';
 
 const AppBase = () => (
   <BrowserRouter>
@@ -37,8 +37,8 @@ const AppBase = () => (
       <Route path={ROUTES.QUIZ} component={Quiz} />
     </div>
   </BrowserRouter>
-)
+);
 
-const App = compose(withCourse, withAuthentication)(AppBase)
+const App = compose(withCourse, withAuthentication)(AppBase);
 
-export default App
+export default App;

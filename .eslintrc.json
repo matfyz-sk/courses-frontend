@@ -32,12 +32,13 @@
       { "extensions": [".tsx", ".ts", ".jsx", ".js"] }
     ],
     "react/state-in-constructor": [1, "never"],
-    "semi": [2, "never"],
+    "semi": [2, "always"],
     "import/export": [0],
     "import/prefer-default-export": [0],
     "react/prop-types": 0,
     "react/jsx-props-no-spreading": 0,
     "spaced-comment": "off",
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "@typescript-eslint/camelcase": "off"
   }
 }
