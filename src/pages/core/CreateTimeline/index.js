@@ -14,11 +14,8 @@ import { NavigationCourse } from '../../../components/Navigation'
 import EventForm from '../EventForm'
 import { BlockMenu, SubEventList } from '../Events'
 import ModalCreateEvent from '../ModalCreateEvent'
-import { Courses } from '../Courses/courses-data'
 import { fetchCourseInstance, setUserAdmin } from '../../../redux/actions'
-
-const TOKEN =
-  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU'
+import { TOKEN } from '../constants'
 
 class CreateTimeline extends React.Component {
   constructor(props) {
@@ -104,11 +101,10 @@ const NewEventTimelineCard = () => (
 )
 
 
-const mapStateToProps = ({ userReducer, eventsReducer, coursesReducer }) => {
+const mapStateToProps = ({ userReducer, coursesReducer }) => {
   return {
     isSignedIn: userReducer.isSignedIn,
     isAdmin: userReducer.isAdmin,
-    events: eventsReducer.events,
     course: coursesReducer.course,
   }
 }

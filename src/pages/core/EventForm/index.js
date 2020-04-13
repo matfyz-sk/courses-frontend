@@ -26,6 +26,7 @@ class EventForm extends Component {
 
   componentDidMount() {
     this.setState({ ...this.props })
+    //TODO get instanceOf course
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -43,6 +44,7 @@ class EventForm extends Component {
       endDate,
       place,
       type,
+      instanceOf,
     } = this.state
     const { typeOfForm } = this.props
 
@@ -61,18 +63,21 @@ class EventForm extends Component {
         startDate,
         endDate,
         location: place,
+        instanceOf,
         //TODO type when implemented
       }),
       url
-    ).then(response => {
-      if (response.status === 200) {
-        // TODO redirect to event/id
-        console.log('Hooray!')
-      } else {
-        // TODO
-        console.log('Ooops!')
-      }
-    })
+    )
+      .then(response => {
+        if (response.status === 200) {
+          // TODO redirect to event/id
+          console.log('Hooray!')
+        } else {
+          // TODO
+          console.log('Ooops!')
+        }
+      })
+      .catch()
     event.preventDefault()
   }
 

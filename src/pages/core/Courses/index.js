@@ -10,7 +10,6 @@ import {
   NavLink as NL,
   TabPane,
   UncontrolledCollapse,
-  Button,
 } from 'reactstrap'
 import { NavLink } from 'react-router-dom'
 import classnames from 'classnames'
@@ -22,23 +21,17 @@ import * as ROUTES from '../../../constants/routes'
 import './Courses.css'
 import Navigation from '../../../components/Navigation'
 import EnrollModal from '../EnrollModal'
-import AddInstructorModal from '../AddInstructorModal'
 import { getIcon } from '../Helper'
 import arrow from '../../../images/arrow.svg'
 
 import { setUserAdmin, fetchUser } from '../../../redux/actions'
 import { axiosRequest, getData } from '../AxiosRequests'
-import { BASE_URL, COURSE_INSTANCE_URL, COURSE_URL, TOKEN } from '../constants'
-// import {Enroll} from "../Enrollments";
+import { BASE_URL, COURSE_INSTANCE_URL, TOKEN } from '../constants'
 
 const THIS_YEAR = '2020'
 class CoursesPageBase extends Component {
   constructor(props) {
     super(props)
-    this.enroll = this.enroll.bind(this)
-    this.toggle = this.toggle.bind(this)
-    this.groupCourses = this.groupCourses.bind(this)
-
     const activeTab = this.props.isSignedIn ? '1' : '2'
 
     this.state = {
@@ -46,6 +39,7 @@ class CoursesPageBase extends Component {
       activeCourses: [], //ActiveCourses, //not (enrolled || teaching || admin) && this semester
       myActiveCourses: [], //MyActiveCourses, //  (enrolled || teaching || admin) && this semester
       myArchivedCourses: [], //MyArchivedCourses, // (enrolled || teaching || admin) && not this semester
+      allCourses: [],
     }
   }
 
@@ -72,35 +66,38 @@ class CoursesPageBase extends Component {
           }
         })
 
-        this.props.fetchUser(TOKEN, 'JzzrB').then(() => {
+        this.props.fetchUser(TOKEN, '5siES').then(() => {
           const { user } = this.props
-          console.log(courses)
-          console.log(user)
 
           for (const course of courses) {
-            for (const j in user.enrolled) {
-              const course2 = user.enrolled[j]
-              course.enrolled = course.fullId === `${course2['@id']}`
-            }
-            for (const j in user.instructorOf) {
-              const course2 = user.instructorOf[j]
-              course.instructor = course.fullId === `${course2['@id']}`
-            }
-            course.admin = user.admin //course.id in user.admin
-            // console.log(course)
+            course.enrolled =
+              user.enrolled.findIndex(userEnrolledCourse => {
+                return userEnrolledCourse['@id'] === course.fullId
+              }) > -1
+
+            course.instructor =
+              user.instructorOf.findIndex(userInstructorCourse => {
+                return userInstructorCourse['@id'] === course.fullId
+              }) > -1
+
+            course.admin = false
+            //TODO uncomment when implemented
+            // course.hasAdmin.findIndex(admin => {
+            //   return admin['@id'] === user.fullId
+            // }) > -1
           }
 
           let activeCourses = []
           let myActiveCourses = []
           let myArchivedCourses = []
 
-          for (const i in courses) {
-            const course = courses[i]
+          for (const course of courses) {
             if (
               course.enrolled === true ||
               course.instructor === true ||
               course.admin === true
             ) {
+              // TODO replace THIS_YEAR
               if (course.year === THIS_YEAR) {
                 myActiveCourses.push(course)
               } else if (course.year < THIS_YEAR) {
@@ -114,7 +111,7 @@ class CoursesPageBase extends Component {
           activeCourses = this.groupCourses(activeCourses)
           myActiveCourses = this.groupCourses(myActiveCourses)
           myArchivedCourses = this.groupCourses(myArchivedCourses)
-          const allCourses = this.groupCourses(this.state.allCourses)
+          const allCourses = this.groupCourses(courses)
 
           this.setState({
             activeCourses,
@@ -127,7 +124,7 @@ class CoursesPageBase extends Component {
     })
   }
 
-  groupCourses(courses) {
+  groupCourses = courses => {
     const groupedCourses = {}
     for (const i in courses) {
       const course = courses[i]
@@ -153,7 +150,7 @@ class CoursesPageBase extends Component {
     })
   }
 
-  toggle(tab) {
+  toggle = tab => {
     if (this.state.activeTab !== tab) {
       this.setState({
         activeTab: tab,
@@ -161,7 +158,7 @@ class CoursesPageBase extends Component {
     }
   }
 
-  enroll(course) {}
+  enroll = course => {}
 
   render() {
     const {
@@ -170,8 +167,6 @@ class CoursesPageBase extends Component {
       activeCourses,
       allCourses,
     } = this.state
-
-    const { courses } = this.props
 
     return (
       <>
@@ -263,7 +258,7 @@ class CoursesPageBase extends Component {
               {this.props.isAdmin && (
                 <TabPane tabId="4">
                   <CoursesList
-                    coursesList={courses}
+                    coursesList={allCourses}
                     enroll={null}
                     isAdmin={this.props.isAdmin}
                   />
@@ -286,7 +281,11 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
     )}
     {coursesList.map(course => (
       <ListGroupItem className="course-container" key={course.id}>
-        {course.courses && course.courses.length === 1 && (
+        {/* teacher and student only one instance */}
+        {course.courses &&
+        course.courses.length === 1 &&
+        !course.admin &&
+        !isAdmin ? (
           <div className="single-course-container">
             <NavLink to={ROUTES.TIMELINE + course.courses[0].id}>
               <span className="name">{course.name}</span>
@@ -295,21 +294,11 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
             </NavLink>
 
             <div className="courses-right-top-corner-container">
-              {course.admin !== false && getIcon('Admin')}
               <RoleIcon course={course.courses[0]} />
-              {(isAdmin || course.admin) && (
-                <>
-                  <AddInstructorModal courseName={course.name} />
-                  <NavLink to={`/editcourse/${course.id}`}>
-                    <Button className="edit-course-button">Edit</Button>
-                  </NavLink>
-                </>
-              )}
               {enroll != null && <EnrollModal course={course} />}
             </div>
           </div>
-        )}
-        {course.courses && course.courses.length > 1 && (
+        ) : (
           <>
             <div className="multiple-course-container">
               <div>
@@ -320,10 +309,21 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
               <div className="courses-right-top-corner-container">
                 {course.admin !== false && getIcon('Admin')}
                 {(isAdmin || course.admin) && (
-                  // <AddInstructorModal courseName={course.name} />
-                  <NavLink to={`/editcourse/${course.id}`}>
-                    <Button className="edit-course-button">Edit</Button>
-                  </NavLink>
+                  <div>
+                    <NavLink
+                      className="edit-delete-buttons"
+                      to={`/editcourse/${course.id}`}
+                    >
+                      <span className="edit-delete-buttons">Edit</span>
+                    </NavLink>
+                    &nbsp;
+                    <NavLink
+                      className="edit-delete-buttons"
+                      to={`/deletecourse/${course.id}`}
+                    >
+                      <span className="edit-delete-buttons">Delete</span>
+                    </NavLink>
+                  </div>
                 )}
               </div>
             </div>
@@ -342,13 +342,15 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
 
 const CollapsableCourse = ({ course, enroll, isAdmin }) => (
   <div>
-    <img
-      src={arrow}
-      alt="arrow"
-      className="collapse-arrow"
-      id={`toggler${course.id}`}
-      width="15px"
-    />
+    <div className='arrow-container'>
+      <img
+        src={arrow}
+        alt="arrow"
+        className="collapse-arrow"
+        id={`toggler${course.id}`}
+        width="15px"
+      />
+    </div>
     <UncontrolledCollapse toggler={`#toggler${course.id}`}>
       <Card className="course-instances-card">
         <CardBody className="course-instances-card-body">
@@ -356,19 +358,31 @@ const CollapsableCourse = ({ course, enroll, isAdmin }) => (
             .sort((a, b) => (a.year > b.year ? 1 : -1))
             .map(courseInstance => (
               <ListGroup key={courseInstance.id}>
-                <ListGroupItem className="single-course-container">
-                  <NavLink to={ROUTES.TIMELINE + courseInstance.id}>
-                    <span className="">{course.name}</span>{' '}
+                <ListGroupItem className="single-course-container instance-container">
+                  <NavLink to={ROUTES.TIMELINE + courseInstance.id} className='instance-container-name'>
+                    <span>{course.name}</span>&nbsp;
                     <b>{courseInstance.year}</b>
                   </NavLink>
                   <div className="courses-right-top-corner-container">
+                    {enroll != null && <EnrollModal course={course} />}
                     <RoleIcon course={courseInstance} />
+                    {/* edit/delete course */}
                     {(isAdmin || course.admin) && (
-                      <>
-                        <AddInstructorModal courseName={course.name} />
-                      </>
+                      <div className='edit-delete-buttons-instance'>
+                        <NavLink
+                          className="edit-delete-buttons"
+                          to={`/editcourse/${course.id}`}
+                        >
+                          <span className="edit-delete-buttons">Edit</span>
+                        </NavLink>
+                        <NavLink
+                          className="edit-delete-buttons"
+                          to={`/deletecourse/${course.id}`}
+                        >
+                          <span className="edit-delete-buttons">Delete</span>
+                        </NavLink>
+                      </div>
                     )}
-                    {enroll != null && <EnrollModal course={courseInstance} />}
                   </div>
                 </ListGroupItem>
               </ListGroup>
@@ -381,8 +395,9 @@ const CollapsableCourse = ({ course, enroll, isAdmin }) => (
 
 const RoleIcon = ({ course }) => (
   <div>
-    {course.enrolled !== false && getIcon('Student')}
-    {course.instructor !== false && getIcon('Teacher')}
+    {course.enrolled && getIcon('Student')}
+    {course.instructor && getIcon('Teacher')}
+    {course.admin && getIcon('Admin')}
   </div>
 )
 

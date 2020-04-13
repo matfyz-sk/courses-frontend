@@ -18,21 +18,28 @@ import { NavLink } from 'react-router-dom'
 
 import { NavigationCourse } from '../../../components/Navigation'
 import './Event.css'
-// import NextCalendar from '../NextCalendar'
-import { setUserAdmin, fetchCourseInstance } from '../../../redux/actions'
+import { setUserAdmin } from '../../../redux/actions'
 import { SubEventList } from '../Events'
-import { getDisplayDateTime, getIcon, mergeMaterials } from '../Helper'
-
-const TOKEN =
-  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU'
+import {
+  getDisplayDateTime,
+  getIcon,
+  getShortId,
+  mergeMaterials,
+} from '../Helper'
+import {
+  BASE_URL,
+  EVENT_URL,
+  INITIAL_EVENT_STATE,
+  TOKEN,
+} from '../constants'
+import { axiosRequest, getData } from '../AxiosRequests'
 
 class Event extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      event: undefined,
-      course: {},
+      event: INITIAL_EVENT_STATE,
     }
   }
 
@@ -41,25 +48,58 @@ class Event extends React.Component {
       match: { params },
     } = this.props
 
-
+    const url = `${BASE_URL + EVENT_URL}/${params.id}?_join=courseInstance,uses,recommends`
+    axiosRequest('get', TOKEN, null, url).then(response => {
+      const data = getData(response)
+      if (data != null) {
+        const event = data.map(eventData => {
+          return {
+            id: getShortId(eventData['@id']),
+            name: eventData.name,
+            description: eventData.description,
+            startDate: new Date(eventData.startDate),
+            endDate: new Date(eventData.endDate),
+            place: eventData.location,
+            type: eventData['@type'].split('#')[1],
+            uses: eventData.uses.map(material => {
+              return {
+                id: getShortId(material['@id']),
+                fullId: material['@id'],
+                name: material.name,
+              }
+            }),
+            recommends: eventData.recommends.map(material => {
+              return {
+                id: getShortId(material['@id']),
+                fullId: material['@id'],
+                name: material.name,
+              }
+            }),
+            courseAbbr: eventData.courseInstance[0]
+              ? eventData.courseInstance[0].abbreviation
+              : '',
+          }
+        })[0]
+        event.materials = mergeMaterials(event.uses, event.recommends)
+        console.log(event)
+        this.setState({
+          event,
+        })
+      } else {
+        // TODO redirect to 404?
+        console.log('Something went wrong!')
+      }
+    })
   }
 
   render() {
-    const { event, course } = this.state
+    const { event } = this.state
     const { isAdmin } = this.props
     return (
       <div>
-        <NavigationCourse courseAbbr={course.abbreviation}/>
+        <NavigationCourse courseAbbr={event.courseAbbr} />
         <Container>
-          {/*// className="core-container">*/}
-          {/*<Row>*/}
-          {/*    <Col xs="3">*/}
-          {/*        <NextCalendar/>*/}
-          {/*    </Col>*/}
-          {/*    <Col>*/}
           {event && <EventCard event={event} isAdmin={isAdmin} />}
-          {/*    </Col>*/}
-          {/*</Row>*/}
         </Container>
       </div>
     )
@@ -88,6 +128,7 @@ const EventCard = ({ event, isAdmin }) => (
             <th>End</th>
             <td>{getDisplayDateTime(event.endDate, true)}</td>
           </tr>
+          {/*TODO uncomment*/}
           {/*{event.location &&*/}
           {/*<tr>*/}
           {/*    <th>Location</th><td colSpan="3">{event.location}</td>*/}
@@ -129,11 +170,10 @@ const EventCard = ({ event, isAdmin }) => (
   </Card>
 )
 
-const mapStateToProps = ({ userReducer, coursesReducer }) => {
+const mapStateToProps = ({ userReducer }) => {
   return {
     isSignedIn: userReducer.isSignedIn,
     isAdmin: userReducer.isAdmin,
-    course: coursesReducer.course,
   }
 }
 

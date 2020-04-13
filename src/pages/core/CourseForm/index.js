@@ -1,13 +1,9 @@
 import React, { Component } from 'react'
 import { Button, Form, FormGroup, Input, Label } from 'reactstrap'
-import { Redirect } from 'react-router-dom'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
-import { Courses } from '../Courses/courses-data'
 // import Chip from "@material-ui/core/Chip";
 import './CourseForm.css'
-import { GRAPH_URI } from '../../../constants/constants'
-import { COURSES } from '../../../constants/routes'
 import { axiosRequest, getData } from '../AxiosRequests'
 import {
   TOKEN,
@@ -33,7 +29,7 @@ class CourseForm extends Component {
         const courses = data.map(course => {
           return {
             fullId: course['@id'],
-            name: course.name,
+            name: course.name ? course.name : '',
           }
         })
         this.setState({
@@ -49,7 +45,7 @@ class CourseForm extends Component {
         const users = data.map(user => {
           return {
             fullId: user['@id'],
-            name: user.name,
+            name: user.name ? user.name : '',
           }
         })
         this.setState({
@@ -134,7 +130,6 @@ class CourseForm extends Component {
   }
 
   render() {
-    console.log(this.state)
     const {
       name,
       description,
@@ -145,6 +140,8 @@ class CourseForm extends Component {
       users,
     } = this.state
     const { typeOfForm } = this.props
+
+    console.log(users)
 
     const isInvalid = name === '' || description === '' || abbreviation === ''
     return (
@@ -195,7 +192,7 @@ class CourseForm extends Component {
             )}
           />
 
-          <Label for="admins">Admin</Label>
+          <Label for="admins">Admins</Label>
           <Autocomplete
             multiple
             name="admins"
@@ -203,7 +200,6 @@ class CourseForm extends Component {
             options={users}
             getOptionLabel={option => option.name}
             onChange={this.onAdminsChange}
-            filterSelectedOptions
             value={admins}
             style={{ maxWidth: 500 }}
             renderInput={params => (

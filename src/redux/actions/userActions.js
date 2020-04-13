@@ -44,6 +44,7 @@ export const fetchUser = (token, userId) => {
           const user = data['@graph'].map(userData => {
             return {
               id: userData['@id'].substring(userData['@id'].length - 5),
+              fullId: userData['@id'],
               name: userData.name,
               enrolled: userData.studentOf,
               requested: userData.requests,

@@ -4,6 +4,7 @@ import { NavigationCourse } from '../../../components/Navigation'
 import EventForm from '../EventForm'
 import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, TOKEN } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
+import {getShortId} from "../Helper";
 
 class EditEvent extends React.Component {
   constructor(props) {
@@ -22,7 +23,7 @@ class EditEvent extends React.Component {
       if (data != null) {
         const event = data.map(eventData => {
           return {
-            id: eventData['@id'].substring(eventData['@id'].length - 5),
+            id: getShortId(eventData['@id']),
             name: eventData.name,
             description: eventData.description,
             startDate: new Date(eventData.startDate),

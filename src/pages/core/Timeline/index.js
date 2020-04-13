@@ -4,12 +4,14 @@ import { NavLink } from 'react-router-dom'
 import { Container, Row, Col, Button, Alert } from 'reactstrap'
 import EventsList, { BlockMenu } from '../Events'
 import { NavigationCourse } from '../../../components/Navigation'
-import { getDisplayDateTime, mergeMaterials } from '../Helper'
+import { getDisplayDateTime, getShortId, mergeMaterials } from '../Helper'
 import NextCalendar from '../NextCalendar'
 import * as ROUTES from '../../../constants/routes'
 import './Timeline.css'
 // import withAuthorization from "../../../components/Session/withAuthorization";
 import { setUserAdmin, fetchCourseInstance } from '../../../redux/actions'
+import { BASE_URL, EVENT_URL, TOKEN } from '../constants'
+import { axiosRequest, getData } from '../AxiosRequests'
 
 class Timeline extends Component {
   constructor(props) {
@@ -21,12 +23,6 @@ class Timeline extends Component {
       timelineBlocks: [], // for timeline purposes even Session can be a block
       nestedEvents: [],
     }
-
-    this.getTimelineBlocks = this.getTimelineBlocks.bind(this)
-    this.getNestedEvents = this.getNestedEvents.bind(this)
-    this.greaterEqual = this.greaterEqual.bind(this)
-    this.greater = this.greater.bind(this)
-    this.sortEventsFunction = this.sortEventsFunction.bind(this)
   }
 
   componentDidMount() {
@@ -34,38 +30,65 @@ class Timeline extends Component {
       match: { params },
     } = this.props
 
-    // this.props.fetchCourseInstance(TOKEN, params.id).then(() => {
-    //   const { course } = this.props
-    //
-    //   this.props.fetchEvents(TOKEN, course.id).then(() => {
-    //     const { events } = this.props
-    //
-    //     events.sort(this.sortEventsFunction)
-    //
-    //     events.map(event => {
-    //       event.materials = mergeMaterials(event.uses, event.covers)
-    //     })
-    //
-    //     const timelineBlocks = this.getTimelineBlocks(events)
-    //     const nestedEvents = this.getNestedEvents(events, timelineBlocks)
-    //
-    //     this.setState({
-    //       eventsSorted: events,
-    //       timelineBlocks,
-    //       nestedEvents,
-    //     })
-    //   })
-    // })
+    const url = `${BASE_URL + EVENT_URL}?instanceOf=${params.id}?_join=courseInstance,uses,recommends`
+    console.log(url)
+    axiosRequest('get', TOKEN, null, url).then(response => {
+      const data = getData(response)
+      if (data != null) {
+        const events = data.map(eventData => {
+          const event = {
+            id: getShortId(eventData['@id']),
+            fullId: eventData['@id'],
+            type: eventData['@type'].split('#')[1],
+            name: eventData.name,
+            description: eventData.description,
+            startDate: new Date(eventData.startDate),
+            endDate: new Date(eventData.endDate),
+            place: eventData.location,
+            uses: eventData.uses.map(material => {
+              return {
+                id: getShortId(material['@id']),
+                fullId: material['@id'],
+                name: material.name,
+              }
+            }),
+            recommends: eventData.recommends.map(material => {
+              return {
+                id: getShortId(material['@id']),
+                fullId: material['@id'],
+                name: material.name,
+              }
+            }),
+            courseAbbr: eventData.courseInstance[0]
+              ? eventData.courseInstance[0].abbreviation
+              : '',
+          }
+          console.log(event.type)
+          event.materials = mergeMaterials(event.uses, event.recommends)
+          return event
+        })
+
+        events.sort(this.sortEventsFunction)
+
+        const timelineBlocks = this.getTimelineBlocks(events)
+        const nestedEvents = this.getNestedEvents(events, timelineBlocks)
+
+        this.setState({
+          eventsSorted: events,
+          timelineBlocks,
+          nestedEvents,
+        })
+      }
+    })
   }
 
-  sortEventsFunction(e1, e2) {
+  sortEventsFunction = (e1, e2) => {
     if (new Date(e1.startDate) > new Date(e2.startDate)) {
       return 1
     }
     if (new Date(e1.startDate) < new Date(e2.startDate)) {
       return -1
     }
-
     if (e1.type > e2.type) {
       return 1
     }
@@ -75,7 +98,7 @@ class Timeline extends Component {
     return 0
   }
 
-  getTimelineBlocks(events) {
+  getTimelineBlocks = events => {
     const timelineBlocks = []
     timelineBlocks.push(events[0])
     for (let i = 1; i < events.length; i++) {
@@ -91,7 +114,7 @@ class Timeline extends Component {
     return timelineBlocks
   }
 
-  getNestedEvents(events, timelineBlocks) {
+  getNestedEvents = (events, timelineBlocks) => {
     if (events.length === 0 || timelineBlocks === 0) {
       return timelineBlocks
     }
@@ -134,11 +157,11 @@ class Timeline extends Component {
     return timelineBlocks
   }
 
-  greaterEqual(dateTime1, dateTime2) {
+  greaterEqual = (dateTime1, dateTime2) => {
     return new Date(dateTime1) >= new Date(dateTime2)
   }
 
-  greater(dateTime1, dateTime2) {
+  greater = (dateTime1, dateTime2) => {
     return new Date(dateTime1) > new Date(dateTime2)
   }
 

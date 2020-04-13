@@ -5,32 +5,23 @@ import { Alert, Button, Table } from 'reactstrap'
 // import { withAuthorization } from '../../../components/Session';
 import { connect } from 'react-redux'
 import { NavigationCourse } from '../../../components/Navigation'
-import {
-  setUserAdmin,
-  fetchCourseInstance,
-} from '../../../redux/actions'
+import { setUserAdmin, fetchCourseInstance } from '../../../redux/actions'
 
 import './UserManagement.css'
-import { Courses } from '../Courses/courses-data'
-import axios from 'axios'
-import apiConfig from '../../../configuration/api'
-
-const TOKEN =
-  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU'
+import { BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL } from '../constants'
+import { axiosRequest, getData } from '../AxiosRequests'
+import { getShortId } from '../Helper'
 
 class UserManagement extends Component {
   constructor(props) {
     super(props)
 
-    // this.state = {
-    //   course: {},
-    //   requestedUsers: [],
-    //   enrolledUsers: [],
-    // }
-
-    this.deleteUserFromCourse = this.deleteUserFromCourse.bind(this)
-    this.confirmRequest = this.confirmRequest.bind(this)
-    this.declineRequest = this.declineRequest.bind(this)
+    this.state = {
+      course: {},
+      courseFullId: '',
+      requestedUsers: [],
+      enrolledUsers: [],
+    }
   }
 
   componentDidMount() {
@@ -38,77 +29,143 @@ class UserManagement extends Component {
       match: { params },
     } = this.props
 
-    // this.props.fetchCourseInstance(TOKEN, params.id).then(() => {
-    //   const { course } = this.props
-    //   //
-    //   this.props.fetchRequestedUsers(TOKEN, course.id).then(() => {
-    //     // const { requestedUsers } = this.props
-    //     // this.setState({
-    //     //   requestedUsers,
-    //     // })
-    //   })
-    //
-    //   this.props.fetchEnrolledUsers(TOKEN, course.id).then(() => {
-    //     // const { enrolledUsers } = this.props
-    //     // this.setState({
-    //     //   enrolledUsers,
-    //     // })
-    //   })
-    //   //
-    //   // this.setState({
-    //   //   course,
-    //   // })
-    // })
+    this.setState({
+      courseFullId: `http://www.courses.matfyz.sk/data${COURSE_INSTANCE_URL}/${params.id}`,
+    })
+
+    const urlRequests = `${BASE_URL + USER_URL}?requests=${params.id}`
+    const urlEnrolled = `${BASE_URL + USER_URL}?studentOf=${params.id}`
+
+    axiosRequest('get', TOKEN, null, urlRequests)
+      .then(response => {
+        const data = getData(response)
+        if (data != null) {
+          const users = data.map(user => {
+            return {
+              id: getShortId(user['@id']),
+              fullId: user['@id'],
+              nickname: user.name,
+              // TODO firstName and lastName when implemented
+              firstName: '',
+              lastName: '',
+              studentOf: user.studentOf.map(course => {
+                return course['@id']
+              }),
+              requests: user.requests.map(course => {
+                return course['@id']
+              }),
+            }
+          })
+          this.setState({
+            requestedUsers: users,
+          })
+        }
+      })
+      .catch(error => console.log(error))
+
+    axiosRequest('get', TOKEN, null, urlEnrolled)
+      .then(response => {
+        const data = getData(response)
+        if (data != null) {
+          const users = data.map(user => {
+            return {
+              id: getShortId(user['@id']),
+              fullId: user['@id'],
+              nickname: user.name,
+              // TODO firstName and lastName when implemented
+              firstName: '',
+              lastName: '',
+              studentOf: user.studentOf.map(course => {
+                return course['@id']
+              }),
+              requests: user.requests.map(course => {
+                return course['@id']
+              }),
+            }
+          })
+          console.log('enrolled', users)
+          this.setState({
+            enrolledUsers: users,
+          })
+        }
+      })
+      .catch(error => console.log(error))
   }
 
-  deleteUserFromCourse(userId) {}
+  changeStudentOfRequests = (userId, action) => {
+    const { courseFullId } = this.state
+    const url = `${BASE_URL + USER_URL}/${userId}`
+    const { requestedUsers, enrolledUsers } = this.state
 
-  confirmRequest(userId) {
-    // return axios
-    //   .get(`${apiConfig.API_URL}/user/${userId}`, {
-    //     headers: {
-    //       Accept: 'application/json',
-    //       'Content-Type': 'application/json',
-    //       Authorization: TOKEN,
-    //     },
-    //   })
-    //   .then(({ data }) => {
-    //     if (
-    //       data &&
-    //       data['@graph'] &&
-    //       data['@graph'].length &&
-    //       data['@graph'].length > 0
-    //     ) {
-    //       const user = data['@graph'].map(userData => {
-    //         return {
-    //           id: userData['@id'].substring(userData['@id'].length - 5),
-    //           firstName: userData.firstName,
-    //           lastName: userData.lastName,
-    //           nickname: userData.nickname,
-    //           requests: user.requests,
-    //           studentOf: user.studentOf,
-    //           instructorOf: user.instructorOf,
-    //         }
-    //       })[0]
-    //       user.requests.remove(this.state.course.id)
-    //       user.enrolled.push(course.fullId)
-    //       this.props.patchUser(TOKEN, user.id, user).then(() => {
-    //         this.state.requestedUsers.remove(user)
-    //         this.state.enrolledUsers.remove(user)
-    //         this.props.setRequestedUsers()
-    //         this.props.setEnrolledUsers()
-    //       })
-    //     }
-    //   })
-    //   .catch(error => console.log(error))
-  }
+    let index
+    let user
+    let userIndex
+    if (action === 'delete' || action === 'request') {
+      user = enrolledUsers.find(element => element.id === userId)
+    } else if (action === 'decline' || action === 'confirm') {
+      user = requestedUsers.find(element => element.id === userId)
+    }
 
-  declineRequest(userId) {
-    this.props.setEnrolledUsers([])
+    switch (action) {
+      case 'delete':
+        index = user.studentOf.indexOf(courseFullId)
+        if (index > -1) {
+          user.studentOf.splice(index, 1)
+        }
+        userIndex = enrolledUsers.findIndex(element => {
+          return element.id === userId
+        })
+        if (userIndex > -1) {
+          enrolledUsers.splice(userIndex, 1)
+        }
+        break
+      case 'request':
+        user.requests.push(courseFullId)
+        requestedUsers.push(user)
+        break
+      case 'confirm':
+        user.studentOf.push(courseFullId)
+        enrolledUsers.push(user)
+      case 'decline':
+        index = user.requests.indexOf(courseFullId)
+        if (index > -1) {
+          user.requests.splice(index, 1)
+        }
+        userIndex = requestedUsers.findIndex(element => {
+          return element.id === userId
+        })
+        if (userIndex > -1) {
+          requestedUsers.splice(userIndex, 1)
+        }
+        break
+      default:
+        break
+    }
+    axiosRequest(
+      'patch',
+      TOKEN,
+      JSON.stringify({
+        studentOf: user.studentOf,
+        requests: user.requests,
+      }),
+      url
+    )
+      .then(response => {
+        if (response.status === 200) {
+          this.setState({
+            requestedUsers,
+            enrolledUsers,
+          })
+        } else {
+          // TODO alert?
+          console.log('Ooops!')
+        }
+      })
+      .catch(error => console.log(error))
   }
 
   render() {
-    const { enrolledUsers, requestedUsers, course } = this.props
+    const { enrolledUsers, requestedUsers, course } = this.state
 
     return (
       <div>
@@ -120,7 +177,8 @@ class UserManagement extends Component {
                 <h2>Requests (Confirmation required)</h2>
                 <RequestedUserList
                   users={requestedUsers}
-                  delete={this.deleteUserFromCourse}
+                  confirmRequest={this.changeStudentOfRequests}
+                  declineRequest={this.changeStudentOfRequests}
                 />
               </div>
             )
@@ -132,7 +190,10 @@ class UserManagement extends Component {
           <div className="enrolled-container">
             <h2>Enrolled users</h2>
             {enrolledUsers.length > 0 ? (
-              <EnrolledUserList users={enrolledUsers} />
+              <EnrolledUserList
+                users={enrolledUsers}
+                deleteUser={this.changeStudentOfRequests}
+              />
             ) : (
               <Alert color="secondary" className="empty-message">
                 There are not any enrolled users in this course.
@@ -170,7 +231,7 @@ const RequestedUserList = ({ users, confirmRequest, declineRequest }) => (
             <Button
               id={user.id}
               className="table-button table-button-confirm"
-              onClick={confirmRequest(this.id)}
+              onClick={e => confirmRequest(e.target.id, 'confirm')}
             >
               Confirm
             </Button>
@@ -179,7 +240,7 @@ const RequestedUserList = ({ users, confirmRequest, declineRequest }) => (
             <Button
               id={user.id}
               className="table-button"
-              onClick={declineRequest(this.id)}
+              onClick={e => declineRequest(e.target.id, 'decline')}
             >
               Decline
             </Button>
@@ -214,7 +275,7 @@ const EnrolledUserList = ({ users, deleteUser }) => (
             <Button
               id={user.id}
               className="table-button"
-              onClick={deleteUser(this.id)}
+              onClick={e => deleteUser(e.target.id, 'delete')}
             >
               Delete
             </Button>

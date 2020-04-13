@@ -1,8 +1,6 @@
 import React from 'react'
 import Navigation from '../../../components/Navigation'
 import CourseForm from '../CourseForm'
-import { compose } from 'recompose'
-import { connect } from 'react-redux'
 // import {withAuthorization} from "../../../components/Session";
 import { Container, Card, CardHeader, CardBody } from 'reactstrap'
 import './NewCourse.css'
