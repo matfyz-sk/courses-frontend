@@ -1,17 +1,7 @@
-/* eslint-disable react/prefer-stateless-function */
-import React, { Component } from 'react'
-import axios from 'axios'
-import {
-  //   Button,
-  Form,
-  Card,
-  CardBody,
-  Label,
-  FormGroup,
-  Input,
-} from 'reactstrap'
+import React from 'react'
+import { Form, Card, CardBody, Label, FormGroup, Input } from 'reactstrap'
 
-import apiConfig from '../../../../configuration/api'
+import { QuestionTypesEnums } from './question-new-data'
 import QuestionAnswers from './question-answers'
 
 const enText = {
@@ -21,244 +11,123 @@ const enText = {
   'question-placeholder': 'What is your question',
   topic: 'Topic',
   'topic-placeholder': 'Topic',
+  'question-type': 'Question type',
+  create: 'Create',
 }
 
-class QuestionNew extends Component {
-  state = {
-    title: '',
-    answers: [],
-    topicOptions: [],
-    question: '',
-    topic: '',
-    questionType: '',
-    questionTypeOptions: [],
-    answerId: -2,
-  }
-
-  componentDidMount() {
-    const { userId, courseInstanceId, isTeacher, token } = this.props
-    this.setState({
-      answers: this.mapAnswers([{ id: -1, text: '', correct: false }]),
-    })
-    if (courseInstanceId && isTeacher !== null && userId && token) {
-      this.getTopics(
-        courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-        isTeacher ? null : userId.substring(userId.lastIndexOf('/') + 1),
-        token
-      )
-    }
-    // this.getQuestionTypes()
-    // if (this.props.questionId) this.addExistingAnswers(this.props.answers)
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { userId, courseInstanceId, isTeacher, token } = this.props
-    if (
-      userId !== prevProps.userId ||
-      courseInstanceId !== prevProps.courseInstanceId ||
-      isTeacher !== prevProps.isTeacher ||
-      token !== prevProps.token
-    ) {
-      if (courseInstanceId && isTeacher !== null && userId && token) {
-        this.getTopics(
-          courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-          isTeacher ? null : userId.substring(userId.lastIndexOf('/') + 1),
-          token
-        )
-      }
-    }
-    // this.getQuestionTypes()
-    // if (this.props.questionId) this.addExistingAnswers(this.props.answers)
-  }
-
-  getTopics = (courseInstanceId, userId, token) => {
-    return axios
-      .get(
-        `${
-          apiConfig.API_URL
-        }/questionAssignment?courseInstance=${courseInstanceId}${
-          userId ? `&assignedTo=${userId}` : ''
-        }&_join=covers`,
-        {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-        }
-      )
-      .then(({ data }) => {
-        console.log(data)
-        if (
-          data &&
-          data['@graph'] &&
-          data['@graph'].length &&
-          data['@graph'].length > 0
-        ) {
-          const topicsMapped = data['@graph'].map(questionAssignment => {
-            let topicMapped = {}
-            if (questionAssignment) {
-              const { covers } = questionAssignment[0]
-              console.log(covers)
-              if (covers && covers.length && covers.length > 0) {
-                const id = covers[0]['@id']
-                const { name } = covers[0]
-                topicMapped = {
-                  id,
-                  name,
-                }
-              }
-            }
-            return topicMapped
-          })
-          this.setState({
-            topicOptions: topicsMapped,
-          })
-        }
-      })
-      .catch(error => console.log(error))
-  }
-
-  mapAnswers = answers => {
-    const mappedAnswers = answers.map(answer => {
-      const { id, text, correct } = answer
-      const mappedAnswer = {
-        id,
-        text,
-        correct,
-        changeAnswerText: changedText => this.changeAnswerText(id, changedText),
-      }
-      return mappedAnswer
-    })
-    return mappedAnswers
-  }
-
-  changeAnswerText = (id, text) => {
-    this.setState(prevState => {
-      return {
-        answers: prevState.answers.map(el => {
-          return el.id === id ? { ...el, text } : el
-        }),
-      }
-    })
-  }
-
-  changeInput = event => {
-    const { name } = event.target
-    const { value } = event.target
-    this.setState({
-      [name]: value,
-    })
-  }
-
-  addNewAnswer = () => {
-    this.setState(prevState => {
-      const { answerId, answers } = prevState
-      return {
-        answers: answers.concat({
-          id: answerId,
-          text: '',
-          correct: false,
-          changeAnswerText: changedText =>
-            this.changeAnswerText(answerId, changedText),
-        }),
-        answerId: answerId - 1,
-      }
-    })
-  }
-
-  render() {
-    const {
-      title,
-      question,
-      topic,
-      topicOptions,
-      questionType,
-      questionTypeOptions,
-      answers,
-    } = this.state
-    return (
-      <Form>
-        <Card>
-          <CardBody>
-            <FormGroup>
-              <Label for="title">{enText.title}</Label>
-              <Input
-                type="text"
-                name="title"
-                placeholder={enText['title-placeholder']}
-                value={title}
-                onChange={this.changeInput}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label for="question">{enText.question}</Label>
-              <Input
-                id="question"
-                type="text"
-                name="question"
-                placeholder={enText['title-placeholder']}
-                value={question}
-                onChange={this.changeInput}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label for="topic">{enText.topic}</Label>
-              <Input
-                type="select"
-                name="topic"
-                id="topic"
-                value={topic}
-                onChange={this.changeInput}
-              >
-                {topicOptions.map(topicOption => {
-                  return (
-                    <option key={topicOption.id} value={topicOption.id}>
-                      {topicOption.name}
-                    </option>
-                  )
-                })}
-              </Input>
-            </FormGroup>
-            <FormGroup>
-              <Label for="questionType">{enText['question-type']}</Label>
-              <Input
-                type="select"
-                name="questionType"
-                id="questionType"
-                value={questionType}
-                onChange={this.changeInput}
-              >
-                {questionTypeOptions.map(questionTypeOption => {
-                  return (
-                    <option
-                      key={questionTypeOption.id}
-                      value={questionTypeOption.id}
-                      // TODO disabled if out of startDate-endDate
-                    >
-                      {questionTypeOption.name}
-                    </option>
-                  )
-                })}
-              </Input>
-            </FormGroup>
-            {/* <Button onClick={this.addNewAnswer}>Add new answer</Button> */}
-            <QuestionAnswers
-              answers={answers}
-              addNewAnswer={this.addNewAnswer}
-            />
-
-            {/* <Button
-              onClick={this.formSubmitHandler}
-              disabled={!this.state.formIsValid}
-            >
-              {this.props.questionId ? 'Edit' : 'Create'}
-            </Button> */}
-          </CardBody>
-        </Card>
-      </Form>
-    )
-  }
+function QuestionNew({
+  title,
+  setTitle,
+  question,
+  setQuestion,
+  topic,
+  setTopic,
+  topicOptions,
+  questionType,
+  questionTypeOptions,
+  setQuestionType,
+  answers,
+  addNewAnswer,
+  disabled,
+  children,
+}) {
+  return (
+    <Card>
+      <CardBody>
+        {title !== null && (setTitle || disabled) && (
+          <FormGroup>
+            {setTitle && (
+              <>
+                <Label for="title">{enText.title}</Label>
+                <Input
+                  type="text"
+                  name="title"
+                  placeholder={enText['title-placeholder']}
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                />
+              </>
+            )}
+            {disabled && <h3>{title}</h3>}
+          </FormGroup>
+        )}
+        {question !== null && (setQuestion || disabled) && (
+          <FormGroup>
+            {setQuestion && (
+              <>
+                <Label for="question">{enText.question}</Label>
+                <Input
+                  id="question"
+                  type="text"
+                  name="question"
+                  placeholder={enText['title-placeholder']}
+                  value={question}
+                  onChange={e => setQuestion(e.target.value)}
+                />
+              </>
+            )}
+            {disabled && <div>{question}</div>}
+          </FormGroup>
+        )}
+        {topic !== null && (setTopic || disabled) && (
+          <FormGroup>
+            {setTopic && (
+              <>
+                <Label for="topic">{enText.topic}</Label>
+                <Input
+                  type="select"
+                  name="topic"
+                  id="topic"
+                  value={topic}
+                  onChange={e => setTopic(e.target.value)}
+                >
+                  {topicOptions.map(topicOption => {
+                    return (
+                      <option key={topicOption.id} value={topicOption.id}>
+                        {topicOption.name}
+                      </option>
+                    )
+                  })}
+                </Input>
+              </>
+            )}
+          </FormGroup>
+        )}
+        {questionType !== null && setQuestionType && (
+          <>
+            {setTopic && (
+              <FormGroup>
+                <Label for="questionType">{enText['question-type']}</Label>
+                <Input
+                  type="select"
+                  name="questionType"
+                  id="questionType"
+                  value={questionType}
+                  onChange={e => setQuestionType(e.target.value)}
+                >
+                  {questionTypeOptions.map(questionTypeOption => {
+                    return (
+                      <option
+                        key={questionTypeOption.id}
+                        value={questionTypeOption.id}
+                        // TODO disabled if out of startDate-endDate
+                      >
+                        {questionTypeOption.name}
+                      </option>
+                    )
+                  })}
+                </Input>
+              </FormGroup>
+            )}
+          </>
+        )}
+        {questionType === QuestionTypesEnums.multiple.id && (
+          <QuestionAnswers answers={answers} addNewAnswer={addNewAnswer} />
+        )}
+        {children}
+      </CardBody>
+    </Card>
+  )
 }
 
 export default QuestionNew

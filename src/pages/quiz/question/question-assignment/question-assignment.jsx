@@ -39,7 +39,7 @@ export class QuestionAssignment extends Component {
         token
       )
       if (this.isEdit() && token) {
-        this.getQuestionAssignment(match.params.id, token)
+        this.getQuestionAssignment(match.params.questionAssignmentId, token)
       }
     }
   }
@@ -68,10 +68,12 @@ export class QuestionAssignment extends Component {
         )
       }
       if (
-        (this.isEdit() && match.params.id !== prevProps.match.params.id) ||
+        (this.isEdit() &&
+          match.params.questionAssignmentId !==
+            prevProps.match.params.questionAssignmentId) ||
         token !== prevProps.token
       ) {
-        this.getQuestionAssignment(match.params.id, token)
+        this.getQuestionAssignment(match.params.questionAssignmentId, token)
       }
       if (
         topicOldValue !== prevState.topicOldValue ||
@@ -113,12 +115,10 @@ export class QuestionAssignment extends Component {
           data['@graph'].length &&
           data['@graph'].length > 0
         ) {
-          const allAgents = data['@graph'].map(user => {
-            return {
-              name: user.name,
-              id: user['@id'],
-            }
-          })
+          const allAgents = data['@graph'].map(user => ({
+            name: user.name,
+            id: user['@id'],
+          }))
           this.setState({
             allAgents,
           })
@@ -260,7 +260,7 @@ export class QuestionAssignment extends Component {
 
   isEdit = () => {
     const { match } = this.props
-    return !!match.params.id
+    return !!match.params.questionAssignmentId
   }
 
   populateSelect = (data, selectElement, elementStateName, selected) => {
@@ -312,7 +312,7 @@ export class QuestionAssignment extends Component {
       if (this.isEdit()) {
         axios
           .patch(
-            `${apiConfig.API_URL}/questionAssignment/${match.params.id}`,
+            `${apiConfig.API_URL}/questionAssignment/${match.params.questionAssignmentId}`,
             JSON.stringify({
               description,
               covers: topic ? [topic] : [],
