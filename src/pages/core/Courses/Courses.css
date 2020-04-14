@@ -64,6 +64,10 @@ a.active.nav-link .tab {
   justify-content: space-between;
 }
 
+.requested {
+  color: #999999;
+}
+
 .instance-container {
   padding: 5px 15px;
   align-items: center;

@@ -192,7 +192,7 @@ class Timeline extends Component {
                 <BlockMenu courseEvents={timelineBlocks} />
                 {this.props.isAdmin && ( // || myId===courseInstance.hasInstructor &&
                   <div className="button-container">
-                    <NavLink to={`/createtimeline/${course.abbreviation}`}>
+                    <NavLink to={`/createtimeline/${course.id}`}>
                       <Button className="new-event-button">New Event</Button>
                     </NavLink>
                   </div>

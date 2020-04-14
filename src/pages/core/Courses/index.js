@@ -27,6 +27,7 @@ import arrow from '../../../images/arrow.svg'
 import { setUserAdmin, fetchUser } from '../../../redux/actions'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { BASE_URL, COURSE_INSTANCE_URL, TOKEN } from '../constants'
+import DeleteCourseModal from "../DeleteCourseModal";
 
 const THIS_YEAR = '2020'
 class CoursesPageBase extends Component {
@@ -66,6 +67,7 @@ class CoursesPageBase extends Component {
           }
         })
 
+        // TODO change to real user
         this.props.fetchUser(TOKEN, '5siES').then(() => {
           const { user } = this.props
 
@@ -73,6 +75,11 @@ class CoursesPageBase extends Component {
             course.enrolled =
               user.enrolled.findIndex(userEnrolledCourse => {
                 return userEnrolledCourse['@id'] === course.fullId
+              }) > -1
+
+            course.requests =
+              user.requested.findIndex(userRequestedCourse => {
+                return userRequestedCourse['@id'] === course.fullId
               }) > -1
 
             course.instructor =
@@ -126,11 +133,11 @@ class CoursesPageBase extends Component {
 
   groupCourses = courses => {
     const groupedCourses = {}
-    for (const i in courses) {
-      const course = courses[i]
+    for (const course of courses) {
       if (!(course.courseId in groupedCourses)) {
         groupedCourses[course.courseId] = {
           id: course.courseId,
+          fullId: course.fullId,
           name: course.name,
           desc: course.description,
           abbr: course.abbreviation,
@@ -140,9 +147,11 @@ class CoursesPageBase extends Component {
       }
       groupedCourses[course.courseId].courses.push({
         id: course.id,
+        fullId: course.fullId,
         year: course.year,
         enrolled: course.enrolled,
         instructor: course.instructor,
+        requests: course.requests,
       })
     }
     return Object.keys(groupedCourses).map(function (key) {
@@ -157,8 +166,6 @@ class CoursesPageBase extends Component {
       })
     }
   }
-
-  enroll = course => {}
 
   render() {
     const {
@@ -242,7 +249,7 @@ class CoursesPageBase extends Component {
               <TabPane tabId="2">
                 <CoursesList
                   coursesList={activeCourses}
-                  enroll={this.props.isSignedIn ? this.enroll : null}
+                  enroll={this.props.isSignedIn ? true : null}
                   isAdmin={this.props.isAdmin}
                 />
               </TabPane>
@@ -295,7 +302,15 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
 
             <div className="courses-right-top-corner-container">
               <RoleIcon course={course.courses[0]} />
-              {enroll != null && <EnrollModal course={course} />}
+              {enroll != null &&
+                (!course.courses[0].requests ? (
+                  <EnrollModal
+                    course={course}
+                    courseInstance={course.courses[0]}
+                  />
+                ) : (
+                  <span className='requested'>Requested</span>
+                ))}
             </div>
           </div>
         ) : (
@@ -317,12 +332,13 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
                       <span className="edit-delete-buttons">Edit</span>
                     </NavLink>
                     &nbsp;
-                    <NavLink
-                      className="edit-delete-buttons"
-                      to={`/deletecourse/${course.id}`}
-                    >
-                      <span className="edit-delete-buttons">Delete</span>
-                    </NavLink>
+                    {/*<NavLink*/}
+                    {/*  className="edit-delete-buttons"*/}
+                    {/*  to={`/deletecourse/${course.id}`}*/}
+                    {/*>*/}
+                    {/*  <span className="edit-delete-buttons">Delete</span>*/}
+                    {/*</NavLink>*/}
+                    <DeleteCourseModal course={course} courseInstance={null} type='course' />
                   </div>
                 )}
               </div>
@@ -342,7 +358,7 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
 
 const CollapsableCourse = ({ course, enroll, isAdmin }) => (
   <div>
-    <div className='arrow-container'>
+    <div className="arrow-container">
       <img
         src={arrow}
         alt="arrow"
@@ -359,28 +375,40 @@ const CollapsableCourse = ({ course, enroll, isAdmin }) => (
             .map(courseInstance => (
               <ListGroup key={courseInstance.id}>
                 <ListGroupItem className="single-course-container instance-container">
-                  <NavLink to={ROUTES.TIMELINE + courseInstance.id} className='instance-container-name'>
+                  <NavLink
+                    to={ROUTES.TIMELINE + courseInstance.id}
+                    className="instance-container-name"
+                  >
                     <span>{course.name}</span>&nbsp;
                     <b>{courseInstance.year}</b>
                   </NavLink>
                   <div className="courses-right-top-corner-container">
-                    {enroll != null && <EnrollModal course={course} />}
+                    {enroll != null &&
+                      (!courseInstance.requests ? (
+                        <EnrollModal
+                          course={course}
+                          courseInstance={course.courses[0]}
+                        />
+                      ) : (
+                        <span className='requested'>Requested</span>
+                      ))}
                     <RoleIcon course={courseInstance} />
                     {/* edit/delete course */}
                     {(isAdmin || course.admin) && (
-                      <div className='edit-delete-buttons-instance'>
+                      <div className="edit-delete-buttons-instance">
                         <NavLink
                           className="edit-delete-buttons"
-                          to={`/editcourse/${course.id}`}
+                          to={`/editevent/${courseInstance.id}`}
                         >
                           <span className="edit-delete-buttons">Edit</span>
                         </NavLink>
-                        <NavLink
-                          className="edit-delete-buttons"
-                          to={`/deletecourse/${course.id}`}
-                        >
-                          <span className="edit-delete-buttons">Delete</span>
-                        </NavLink>
+                        <DeleteCourseModal course={course} courseInstance={courseInstance} type='courseInstance' />
+                        {/*<NavLink*/}
+                        {/*  className="edit-delete-buttons"*/}
+                        {/*  to={`/deleteevent/${courseInstance.id}`}*/}
+                        {/*>*/}
+                        {/*  <span className="edit-delete-buttons">Delete</span>*/}
+                        {/*</NavLink>*/}
                       </div>
                     )}
                   </div>
