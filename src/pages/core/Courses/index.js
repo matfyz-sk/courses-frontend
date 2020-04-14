@@ -26,8 +26,8 @@ import arrow from '../../../images/arrow.svg'
 
 import { setUserAdmin, fetchUser } from '../../../redux/actions'
 import { axiosRequest, getData } from '../AxiosRequests'
-import { BASE_URL, COURSE_INSTANCE_URL, TOKEN } from '../constants'
-import DeleteCourseModal from "../DeleteCourseModal";
+import {BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL} from '../constants'
+import DeleteCourseModal from '../DeleteCourseModal'
 
 const THIS_YEAR = '2020'
 class CoursesPageBase extends Component {
@@ -68,64 +68,81 @@ class CoursesPageBase extends Component {
         })
 
         // TODO change to real user
-        this.props.fetchUser(TOKEN, '5siES').then(() => {
-          const { user } = this.props
-
-          for (const course of courses) {
-            course.enrolled =
-              user.enrolled.findIndex(userEnrolledCourse => {
-                return userEnrolledCourse['@id'] === course.fullId
-              }) > -1
-
-            course.requests =
-              user.requested.findIndex(userRequestedCourse => {
-                return userRequestedCourse['@id'] === course.fullId
-              }) > -1
-
-            course.instructor =
-              user.instructorOf.findIndex(userInstructorCourse => {
-                return userInstructorCourse['@id'] === course.fullId
-              }) > -1
-
-            course.admin = false
-            //TODO uncomment when implemented
-            // course.hasAdmin.findIndex(admin => {
-            //   return admin['@id'] === user.fullId
-            // }) > -1
-          }
-
-          let activeCourses = []
-          let myActiveCourses = []
-          let myArchivedCourses = []
-
-          for (const course of courses) {
-            if (
-              course.enrolled === true ||
-              course.instructor === true ||
-              course.admin === true
-            ) {
-              // TODO replace THIS_YEAR
-              if (course.year === THIS_YEAR) {
-                myActiveCourses.push(course)
-              } else if (course.year < THIS_YEAR) {
-                myArchivedCourses.push(course)
+        const userurl = `${BASE_URL + USER_URL}/5siES`
+        axiosRequest('get', TOKEN, null, userurl).then(response1 => {
+          const data1 = getData(response1)
+          if (data1 != null) {
+            const user = data1.map(userData => {
+              return {
+                id: userData['@id'].substring(userData['@id'].length - 5),
+                fullId: userData['@id'],
+                name: userData.name,
+                enrolled: userData.studentOf,
+                requested: userData.requests,
+                instructorOf: userData.instructorOf,
+                admin: false,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                nickname: userData.nickname,
               }
-            } else if (course.year === THIS_YEAR) {
-              activeCourses.push(course)
+            })[0]
+
+            for (const course of courses) {
+              course.enrolled =
+                user.enrolled.findIndex(userEnrolledCourse => {
+                  return userEnrolledCourse['@id'] === course.fullId
+                }) > -1
+
+              course.requests =
+                user.requested.findIndex(userRequestedCourse => {
+                  return userRequestedCourse['@id'] === course.fullId
+                }) > -1
+
+              course.instructor =
+                user.instructorOf.findIndex(userInstructorCourse => {
+                  return userInstructorCourse['@id'] === course.fullId
+                }) > -1
+
+              course.admin = false
+              //TODO uncomment when implemented
+              // course.hasAdmin.findIndex(admin => {
+              //   return admin['@id'] === user.fullId
+              // }) > -1
             }
+
+            let activeCourses = []
+            let myActiveCourses = []
+            let myArchivedCourses = []
+
+            for (const course of courses) {
+              if (
+                course.enrolled === true ||
+                course.instructor === true ||
+                course.admin === true
+              ) {
+                // TODO replace THIS_YEAR
+                if (course.year === THIS_YEAR) {
+                  myActiveCourses.push(course)
+                } else if (course.year < THIS_YEAR) {
+                  myArchivedCourses.push(course)
+                }
+              } else if (course.year === THIS_YEAR) {
+                activeCourses.push(course)
+              }
+            }
+
+            activeCourses = this.groupCourses(activeCourses)
+            myActiveCourses = this.groupCourses(myActiveCourses)
+            myArchivedCourses = this.groupCourses(myArchivedCourses)
+            const allCourses = this.groupCourses(courses)
+
+            this.setState({
+              activeCourses,
+              myActiveCourses,
+              myArchivedCourses,
+              allCourses,
+            })
           }
-
-          activeCourses = this.groupCourses(activeCourses)
-          myActiveCourses = this.groupCourses(myActiveCourses)
-          myArchivedCourses = this.groupCourses(myArchivedCourses)
-          const allCourses = this.groupCourses(courses)
-
-          this.setState({
-            activeCourses,
-            myActiveCourses,
-            myArchivedCourses,
-            allCourses,
-          })
         })
       }
     })
@@ -433,7 +450,7 @@ const mapStateToProps = ({ userReducer }) => {
   return {
     isSignedIn: userReducer.isSignedIn,
     isAdmin: userReducer.isAdmin,
-    user: userReducer.user,
+    user2: userReducer.user2,
   }
 }
 
