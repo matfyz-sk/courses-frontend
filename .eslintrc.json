@@ -32,7 +32,7 @@
       { "extensions": [".tsx", ".ts", ".jsx", ".js"] }
     ],
     "react/state-in-constructor": [1, "never"],
-    "semi": [2, "always"],
+    "semi": [2, "never"],
     "import/export": [0],
     "import/prefer-default-export": [0],
     "react/prop-types": 0,
