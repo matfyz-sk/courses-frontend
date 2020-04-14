@@ -31,7 +31,7 @@ export default class RegisterPage extends Component {
         last_name: '', // required
         email: '', // required
         password: '', // required
-        about: '',
+        description: '',
       },
       privacy: {
         nickname: '', // required if use_nickname is true
@@ -257,16 +257,16 @@ export default class RegisterPage extends Component {
                 </Col>
               </Row>
               <FormGroup>
-                <Label for="about">About me</Label>
+                <Label for="description">About me</Label>
                 <Input
                   type="textarea"
-                  name="about"
-                  id="about"
+                  name="description"
+                  id="description"
                   placeholder="I am ..."
                   rows={3}
-                  value={user.about}
+                  value={user.description}
                   onChange={this.handleInputChange}
-                  valid={textValidator(user.about, 0, 254).result}
+                  valid={textValidator(user.description, 0, 254).result}
                 />
               </FormGroup>
               <FormGroup check>

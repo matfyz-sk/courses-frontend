@@ -26,7 +26,8 @@ import arrow from '../../../images/arrow.svg'
 
 import { setUserAdmin, fetchUser } from '../../../redux/actions'
 import { axiosRequest, getData } from '../AxiosRequests'
-import { BASE_URL, COURSE_INSTANCE_URL, TOKEN } from '../constants'
+import {BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL} from '../constants'
+import DeleteCourseModal from '../DeleteCourseModal'
 
 const THIS_YEAR = '2020'
 class CoursesPageBase extends Component {
@@ -66,59 +67,82 @@ class CoursesPageBase extends Component {
           }
         })
 
-        this.props.fetchUser(TOKEN, '5siES').then(() => {
-          const { user } = this.props
-
-          for (const course of courses) {
-            course.enrolled =
-              user.enrolled.findIndex(userEnrolledCourse => {
-                return userEnrolledCourse['@id'] === course.fullId
-              }) > -1
-
-            course.instructor =
-              user.instructorOf.findIndex(userInstructorCourse => {
-                return userInstructorCourse['@id'] === course.fullId
-              }) > -1
-
-            course.admin = false
-            //TODO uncomment when implemented
-            // course.hasAdmin.findIndex(admin => {
-            //   return admin['@id'] === user.fullId
-            // }) > -1
-          }
-
-          let activeCourses = []
-          let myActiveCourses = []
-          let myArchivedCourses = []
-
-          for (const course of courses) {
-            if (
-              course.enrolled === true ||
-              course.instructor === true ||
-              course.admin === true
-            ) {
-              // TODO replace THIS_YEAR
-              if (course.year === THIS_YEAR) {
-                myActiveCourses.push(course)
-              } else if (course.year < THIS_YEAR) {
-                myArchivedCourses.push(course)
+        // TODO change to real user
+        const userurl = `${BASE_URL + USER_URL}/5siES`
+        axiosRequest('get', TOKEN, null, userurl).then(response1 => {
+          const data1 = getData(response1)
+          if (data1 != null) {
+            const user = data1.map(userData => {
+              return {
+                id: userData['@id'].substring(userData['@id'].length - 5),
+                fullId: userData['@id'],
+                name: userData.name,
+                enrolled: userData.studentOf,
+                requested: userData.requests,
+                instructorOf: userData.instructorOf,
+                admin: false,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                nickname: userData.nickname,
               }
-            } else if (course.year === THIS_YEAR) {
-              activeCourses.push(course)
+            })[0]
+
+            for (const course of courses) {
+              course.enrolled =
+                user.enrolled.findIndex(userEnrolledCourse => {
+                  return userEnrolledCourse['@id'] === course.fullId
+                }) > -1
+
+              course.requests =
+                user.requested.findIndex(userRequestedCourse => {
+                  return userRequestedCourse['@id'] === course.fullId
+                }) > -1
+
+              course.instructor =
+                user.instructorOf.findIndex(userInstructorCourse => {
+                  return userInstructorCourse['@id'] === course.fullId
+                }) > -1
+
+              course.admin = false
+              //TODO uncomment when implemented
+              // course.hasAdmin.findIndex(admin => {
+              //   return admin['@id'] === user.fullId
+              // }) > -1
             }
+
+            let activeCourses = []
+            let myActiveCourses = []
+            let myArchivedCourses = []
+
+            for (const course of courses) {
+              if (
+                course.enrolled === true ||
+                course.instructor === true ||
+                course.admin === true
+              ) {
+                // TODO replace THIS_YEAR
+                if (course.year === THIS_YEAR) {
+                  myActiveCourses.push(course)
+                } else if (course.year < THIS_YEAR) {
+                  myArchivedCourses.push(course)
+                }
+              } else if (course.year === THIS_YEAR) {
+                activeCourses.push(course)
+              }
+            }
+
+            activeCourses = this.groupCourses(activeCourses)
+            myActiveCourses = this.groupCourses(myActiveCourses)
+            myArchivedCourses = this.groupCourses(myArchivedCourses)
+            const allCourses = this.groupCourses(courses)
+
+            this.setState({
+              activeCourses,
+              myActiveCourses,
+              myArchivedCourses,
+              allCourses,
+            })
           }
-
-          activeCourses = this.groupCourses(activeCourses)
-          myActiveCourses = this.groupCourses(myActiveCourses)
-          myArchivedCourses = this.groupCourses(myArchivedCourses)
-          const allCourses = this.groupCourses(courses)
-
-          this.setState({
-            activeCourses,
-            myActiveCourses,
-            myArchivedCourses,
-            allCourses,
-          })
         })
       }
     })
@@ -126,11 +150,11 @@ class CoursesPageBase extends Component {
 
   groupCourses = courses => {
     const groupedCourses = {}
-    for (const i in courses) {
-      const course = courses[i]
+    for (const course of courses) {
       if (!(course.courseId in groupedCourses)) {
         groupedCourses[course.courseId] = {
           id: course.courseId,
+          fullId: course.fullId,
           name: course.name,
           desc: course.description,
           abbr: course.abbreviation,
@@ -140,9 +164,11 @@ class CoursesPageBase extends Component {
       }
       groupedCourses[course.courseId].courses.push({
         id: course.id,
+        fullId: course.fullId,
         year: course.year,
         enrolled: course.enrolled,
         instructor: course.instructor,
+        requests: course.requests,
       })
     }
     return Object.keys(groupedCourses).map(function (key) {
@@ -157,8 +183,6 @@ class CoursesPageBase extends Component {
       })
     }
   }
-
-  enroll = course => {}
 
   render() {
     const {
@@ -242,7 +266,7 @@ class CoursesPageBase extends Component {
               <TabPane tabId="2">
                 <CoursesList
                   coursesList={activeCourses}
-                  enroll={this.props.isSignedIn ? this.enroll : null}
+                  enroll={this.props.isSignedIn ? true : null}
                   isAdmin={this.props.isAdmin}
                 />
               </TabPane>
@@ -295,7 +319,15 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
 
             <div className="courses-right-top-corner-container">
               <RoleIcon course={course.courses[0]} />
-              {enroll != null && <EnrollModal course={course} />}
+              {enroll != null &&
+                (!course.courses[0].requests ? (
+                  <EnrollModal
+                    course={course}
+                    courseInstance={course.courses[0]}
+                  />
+                ) : (
+                  <span className='requested'>Requested</span>
+                ))}
             </div>
           </div>
         ) : (
@@ -317,12 +349,13 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
                       <span className="edit-delete-buttons">Edit</span>
                     </NavLink>
                     &nbsp;
-                    <NavLink
-                      className="edit-delete-buttons"
-                      to={`/deletecourse/${course.id}`}
-                    >
-                      <span className="edit-delete-buttons">Delete</span>
-                    </NavLink>
+                    {/*<NavLink*/}
+                    {/*  className="edit-delete-buttons"*/}
+                    {/*  to={`/deletecourse/${course.id}`}*/}
+                    {/*>*/}
+                    {/*  <span className="edit-delete-buttons">Delete</span>*/}
+                    {/*</NavLink>*/}
+                    <DeleteCourseModal course={course} courseInstance={null} type='course' />
                   </div>
                 )}
               </div>
@@ -342,7 +375,7 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
 
 const CollapsableCourse = ({ course, enroll, isAdmin }) => (
   <div>
-    <div className='arrow-container'>
+    <div className="arrow-container">
       <img
         src={arrow}
         alt="arrow"
@@ -359,28 +392,40 @@ const CollapsableCourse = ({ course, enroll, isAdmin }) => (
             .map(courseInstance => (
               <ListGroup key={courseInstance.id}>
                 <ListGroupItem className="single-course-container instance-container">
-                  <NavLink to={ROUTES.TIMELINE + courseInstance.id} className='instance-container-name'>
+                  <NavLink
+                    to={ROUTES.TIMELINE + courseInstance.id}
+                    className="instance-container-name"
+                  >
                     <span>{course.name}</span>&nbsp;
                     <b>{courseInstance.year}</b>
                   </NavLink>
                   <div className="courses-right-top-corner-container">
-                    {enroll != null && <EnrollModal course={course} />}
+                    {enroll != null &&
+                      (!courseInstance.requests ? (
+                        <EnrollModal
+                          course={course}
+                          courseInstance={course.courses[0]}
+                        />
+                      ) : (
+                        <span className='requested'>Requested</span>
+                      ))}
                     <RoleIcon course={courseInstance} />
                     {/* edit/delete course */}
                     {(isAdmin || course.admin) && (
-                      <div className='edit-delete-buttons-instance'>
+                      <div className="edit-delete-buttons-instance">
                         <NavLink
                           className="edit-delete-buttons"
-                          to={`/editcourse/${course.id}`}
+                          to={`/editevent/${courseInstance.id}`}
                         >
                           <span className="edit-delete-buttons">Edit</span>
                         </NavLink>
-                        <NavLink
-                          className="edit-delete-buttons"
-                          to={`/deletecourse/${course.id}`}
-                        >
-                          <span className="edit-delete-buttons">Delete</span>
-                        </NavLink>
+                        <DeleteCourseModal course={course} courseInstance={courseInstance} type='courseInstance' />
+                        {/*<NavLink*/}
+                        {/*  className="edit-delete-buttons"*/}
+                        {/*  to={`/deleteevent/${courseInstance.id}`}*/}
+                        {/*>*/}
+                        {/*  <span className="edit-delete-buttons">Delete</span>*/}
+                        {/*</NavLink>*/}
                       </div>
                     )}
                   </div>
@@ -405,7 +450,7 @@ const mapStateToProps = ({ userReducer }) => {
   return {
     isSignedIn: userReducer.isSignedIn,
     isAdmin: userReducer.isAdmin,
-    user: userReducer.user,
+    user2: userReducer.user2,
   }
 }
 
