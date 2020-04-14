@@ -1,16 +1,22 @@
-import React from 'react'
-import './Landing.css'
-import Navigation from '../../../components/Navigation'
+import React, { Component } from 'react';
+import './Landing.css';
+import { store } from '../../../index';
+import { setSubNav } from '../../../redux/actions/navigationActions';
 
-const Landing = () => (
-  <div>
-    <Navigation />
-    <main>
-      <div>
-        <h1>About Courses</h1>
-      </div>
-    </main>
-  </div>
-)
+class LandingPage extends Component {
+  componentDidMount() {
+    store.dispatch(setSubNav('dashboard'));
+  }
 
-export default Landing
+  render() {
+    return (
+      <main>
+        <div>
+          <h1>Dashboard</h1>
+        </div>
+      </main>
+    );
+  }
+}
+
+export default LandingPage;

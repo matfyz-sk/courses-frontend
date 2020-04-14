@@ -17,6 +17,8 @@ import QuizAssignmentsOverview from './quiz/quiz-assignment-overview/quiz-assign
 import QuizAssignment from './quiz/quiz-assignment/quiz-assignment'
 import TopicsOverviewData from './question/topics-overview/topics-overview-data'
 import QuestionNew from './question/question/question-new'
+import {store} from "../../index";
+import {setSubNav} from "../../redux/actions/navigationActions";
 // import QuizTake from './quiz/quiz-take/quiz-take';
 
 const users = {
@@ -40,6 +42,8 @@ class Quiz extends Component {
   }
 
   componentDidMount() {
+    store.dispatch(setSubNav('quiz'));
+
     const { activeUser } = this.state
     if (activeUser) {
       const { userId, token } = activeUser

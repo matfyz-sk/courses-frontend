@@ -38,6 +38,7 @@
     "react/prop-types": 0,
     "react/jsx-props-no-spreading": 0,
     "spaced-comment": "off",
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "@typescript-eslint/camelcase": "off"
   }
 }

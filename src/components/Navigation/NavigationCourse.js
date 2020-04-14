@@ -8,6 +8,8 @@ import profilePicture from "../../images/profile.jpg";
 import {setUserAdmin} from "../../redux/actions";
 import {connect} from "react-redux";
 import logo from "../../images/hat.svg";
+import RightArrow from './assets/next.svg';
+import {redirect} from "../../constants/redirect";
 
 class NavigationCourseClass extends React.Component {
     constructor(props) {
@@ -36,10 +38,12 @@ class NavigationCourseClass extends React.Component {
     }
 
     render() {
+      const current = this.props.navReducer.current.sub;
+
+
         return (
-            <Navbar className="navbar" expand="md">
+            <Navbar className="sub-nav" expand="md">
                 <div className="navbar-left">
-                    <NavbarBrand className="nav-logo" href="/"><img src={logo} alt="logo" width="70" height="40"/></NavbarBrand>
                     {this.props.isAdmin ?
                         <UncontrolledDropdown className="dropdown-course">
                             <DropdownToggle tag="a" className="nav-link nav-toggle" >
@@ -55,7 +59,7 @@ class NavigationCourseClass extends React.Component {
                             </DropdownMenu>
                         </UncontrolledDropdown>
                         :
-                        <NavbarBrand className="nav-course" href="/courses">{this.props.courseAbbr}</NavbarBrand>
+                        <NavbarBrand href="/courses">{this.props.name} <img src={RightArrow} alt='right' className="arrow-right" /></NavbarBrand>
                     }
                 </div>
 
@@ -63,16 +67,31 @@ class NavigationCourseClass extends React.Component {
 
                 <Collapse isOpen={this.state.isOpen} navbar>
                     <Nav>
+                      <NavItem>
+                        <NavLink activeClassName='is-active'
+                                 to={
+                                   redirect(ROUTES.DASHBOARD, [
+                                     {key: 'course_id', value: this.state.courseId}, {key: 'timeline_id', value: 1}
+                                   ])
+                                 }
+                                 className={`nav-link nav-button ${  current === 'dashboard' ? 'active' : ''}`}>Dashboard</NavLink>
+                      </NavItem>
                         <NavItem>
-                            <NavLink activeClassName='is-active' to={ROUTES.TIMELINE + this.state.courseId} className="nav-link nav-button">Timeline</NavLink>
+                            <NavLink activeClassName='is-active'
+                                     to={
+                                       redirect(ROUTES.TIMELINE_ID, [
+                                         {key: 'course_id', value: this.state.courseId}, {key: 'timeline_id', value: 1}
+                                       ])
+                                     }
+                                     className={`nav-link nav-button ${  current === 'timeline' ? 'active' : ''}`}>Timeline</NavLink>
                         </NavItem>
                         <NavItem>
-                            <NavLink activeClassName='is-active' to={ROUTES.RESULTS}  className="nav-link nav-button">
+                            <NavLink activeClassName='is-active' to={ROUTES.RESULTS} className={`nav-link nav-button ${  current === 'results' ? 'active' : ''}`}>
                                 Results
                             </NavLink>
                         </NavItem>
                         <NavItem>
-                            <NavLink activeClassName='is-active' to={ROUTES.ASSIGNMENTS} className="nav-link nav-button">Assignments</NavLink>
+                            <NavLink activeClassName='is-active' to={ROUTES.ASSIGNMENTS} className={`nav-link nav-button ${  current === 'assignments' ? 'active' : ''}`}>Assignments</NavLink>
                         </NavItem>
                         <NavItem>
                             <NavLink activeClassName='is-active' to={ROUTES.DOCUMENTS} className="nav-link nav-button">
@@ -80,7 +99,9 @@ class NavigationCourseClass extends React.Component {
                             </NavLink>
                         </NavItem>
                         <NavItem>
-                            <NavLink activeClassName='is-active' to={ROUTES.QUIZ}  className="nav-link nav-button">
+                            <NavLink activeClassName='is-active' to={
+                              redirect(ROUTES.QUIZ, [{key: 'course_id', value: this.state.courseId}])
+                            } className={`nav-link nav-button ${  current === 'quiz' ? 'active' : ''}`}>
                                 Quiz
                             </NavLink>
                         </NavItem>
@@ -89,17 +110,21 @@ class NavigationCourseClass extends React.Component {
                                 Info
                             </NavLink>
                         </NavItem>
+                      <NavItem>
+                        <NavLink activeClassName='is-active' to={ROUTES.INFO}  className="nav-link nav-button">
+                          Settings
+                        </NavLink>
+                      </NavItem>
                     </Nav>
                 </Collapse>
-
-                <ProfileTab isAdmin={this.props.isAdmin} setUserAdmin={this.props.setUserAdmin}/>
             </Navbar>
         )
     }
 }
 
-const mapStateToProps = ( { userReducer } ) => {
+const mapStateToProps = ( { userReducer, navReducer } ) => {
     return {
+      navReducer,
         isSignedIn: userReducer.isSignedIn,
         isAdmin: userReducer.isAdmin
     };
@@ -107,4 +132,4 @@ const mapStateToProps = ( { userReducer } ) => {
 
 const NavigationCourse = connect(mapStateToProps, { setUserAdmin })(NavigationCourseClass)
 
-export  { NavigationCourse };
+export { NavigationCourse };
