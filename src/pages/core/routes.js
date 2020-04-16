@@ -14,14 +14,15 @@ import EditCourse from './EditCourse';
 import RouteWrapper from '../../router/routes/RouteWrapper';
 import * as ROUTES from '../../constants/routes';
 import CourseMigration from './CourseMigration';
-import { coursePrefix } from '../../constants/prefix';
-import MainPage from '../mainPage';
 import CourseLayout from '../../layouts/CourseLayout';
 import PrivateOnlyRoute from "../../router/routes/PrivateOnlyRoute";
+import Teams from './Teams';
 
 const CoreRoutes = [
   <RouteWrapper path={ROUTES.DASHBOARD} component={LandingPage} layout={CourseLayout} auth />,
-  <RouteWrapper path={ROUTES.TIMELINE_ID} component={Timeline} layout={CourseLayout} auth />,
+  <RouteWrapper path={ROUTES.TIMELINE} component={Timeline} layout={CourseLayout} auth />,
+  <RouteWrapper path={ROUTES.COURSE_TEAMS} component={Teams} layout={CourseLayout} auth />,
+
   <PrivateOnlyRoute path="/dashboard" component={LandingPage} />,
 
   <Route path={ROUTES.COURSES} component={CoursesPage} />,

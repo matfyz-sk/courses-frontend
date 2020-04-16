@@ -171,7 +171,6 @@ class Timeline extends Component {
 
     return (
       <div>
-        <NavigationCourse courseAbbr={course.abbreviation} />
         {eventsSorted.length === 0 ? (
           <Alert color="secondary" className="empty-message">
             Timeline for this course is empty.
