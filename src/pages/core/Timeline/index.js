@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 import { Container, Row, Col, Button, Alert } from 'reactstrap'
 import EventsList, { BlockMenu } from '../Events'
-import { NavigationCourse } from '../../../components/Navigation'
 import { getDisplayDateTime, getShortId, mergeMaterials } from '../Helper'
 import NextCalendar from '../NextCalendar'
 import * as ROUTES from '../../../constants/routes'
@@ -170,14 +169,14 @@ class Timeline extends Component {
     const { course } = this.props
 
     return (
-      <div>
+      <>
         {eventsSorted.length === 0 ? (
           <Alert color="secondary" className="empty-message">
             Timeline for this course is empty.
             <br />
             {this.props.isAdmin && (
               <NavLink
-                to={ROUTES.CREATE_TIMELINE + course.id}
+                to={ROUTES.CREATE_TIMELINE}
                 className="alert-link"
               >
                 Create NEW TIMELINE{' '}
@@ -207,23 +206,17 @@ class Timeline extends Component {
             </Row>
           </Container>
         )}
-      </div>
+      </>
     )
   }
 }
 
-const mapStateToProps = ({ userReducer, coursesReducer }) => {
+const mapStateToProps = ({ courseInstanceReducer }) => {
   return {
-    isSignedIn: userReducer.isSignedIn,
-    isAdmin: userReducer.isAdmin,
-    course: coursesReducer.course,
+    course: courseInstanceReducer.courseInstance,
   }
 }
 
-export default connect(mapStateToProps, { setUserAdmin, fetchCourseInstance })(
-  Timeline
-)
-
-// const condition = authUser => !!authUser;
+export default connect(mapStateToProps)(Timeline)
 
 // export default withAuthorization(condition)(Timeline);

@@ -10,7 +10,6 @@ import {
   CardSubtitle,
 } from 'reactstrap'
 import { connect } from 'react-redux'
-import { NavigationCourse } from '../../../components/Navigation'
 import EventForm from '../EventForm'
 import { BlockMenu, SubEventList } from '../Events'
 import ModalCreateEvent from '../ModalCreateEvent'
@@ -43,7 +42,6 @@ class CreateTimeline extends React.Component {
     const { course } = this.state
     return (
       <div>
-        <NavigationCourse courseAbbr={course.abbreviation} />
         <Container className="core-container">
           <Row>
             <Col xs="3">

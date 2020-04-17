@@ -6,14 +6,11 @@ import { NavigationCourse } from '../components/Navigation'
 import { store } from '../index'
 import { setMainNav } from '../redux/actions/navigationActions'
 // eslint-disable-next-line import/no-cycle
-import { authHeader } from '../components/Auth'
-import { BASE_URL, COURSE_INSTANCE_URL } from '../pages/core/constants'
-import { setCourseInstance } from '../redux/actions'
+import { fetchCourseInstance } from '../redux/actions'
 
 class CourseLayout extends Component {
   constructor(props) {
     super(props)
-    this.fetchCourses = this.fetchCourses.bind(this)
     this.state = {
       course_id: this.props.match.params.course_id ?? null,
       course: null,
@@ -26,38 +23,20 @@ class CourseLayout extends Component {
     const { course_id } = this.state
     if (course_id) {
       this.setState({ course_id })
-      this.fetchCourses(course_id)
+      this.props.fetchCourseInstance(course_id)
+    } else {
+      // redirect wrong id
     }
   }
 
-  fetchCourses(course_id) {
-    const header = authHeader()
-    fetch(`${BASE_URL}${COURSE_INSTANCE_URL}/${course_id}`, {
-      method: 'GET',
-      headers: header,
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if (!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
-        if (data['@graph'].length > 0) {
-          const course = data['@graph'][0]
-          this.setState({ course }, () => {
-            store.dispatch(setCourseInstance(course))
-          })
-        }
-      })
-  }
-
   render() {
+    const { course } = this.props
+    const { course_id } = this.state
     return (
       <>
         <NavigationCourse
-          name={this.state.course ? this.state.course.name : '...'}
-          courseId={this.state.course_id}
+          abbr={course ? course.instanceOf[0].abbreviation : '...'}
+          courseId={course_id}
         />
         {this.props.children}
       </>
@@ -65,8 +44,12 @@ class CourseLayout extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  return state
+const mapStateToProps = ({ courseInstanceReducer }) => {
+  return {
+    course: courseInstanceReducer.courseInstance,
+  }
 }
 
-export default withRouter(connect(mapStateToProps)(CourseLayout))
+export default withRouter(
+  connect(mapStateToProps, { fetchCourseInstance })(CourseLayout)
+)

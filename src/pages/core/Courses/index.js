@@ -19,22 +19,21 @@ import { withAuthorization } from '../../../components/Session'
 import * as ROUTES from '../../../constants/routes'
 
 import './Courses.css'
-import Navigation from '../../../components/Navigation'
 import EnrollModal from '../EnrollModal'
 import { getIcon } from '../Helper'
 import arrow from '../../../images/arrow.svg'
 
 import { setUserAdmin, fetchUser } from '../../../redux/actions'
 import { axiosRequest, getData } from '../AxiosRequests'
-import {BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL} from '../constants'
+import { BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL } from '../constants'
 import DeleteCourseModal from '../DeleteCourseModal'
-import {redirect} from "../../../constants/redirect";
+import { redirect } from '../../../constants/redirect'
 
 const THIS_YEAR = '2020'
 class CoursesPageBase extends Component {
   constructor(props) {
     super(props)
-    const activeTab = this.props.isSignedIn ? '1' : '2'
+    const activeTab = this.props.user ? '1' : '2'
 
     this.state = {
       activeTab,
@@ -46,6 +45,8 @@ class CoursesPageBase extends Component {
   }
 
   componentDidMount() {
+    const { user } = this.props
+
     const url = `${BASE_URL + COURSE_INSTANCE_URL}?_join=instanceOf`
     axiosRequest('get', TOKEN, null, url).then(response => {
       const data = getData(response)
@@ -68,83 +69,83 @@ class CoursesPageBase extends Component {
           }
         })
 
-        // TODO change to real user
-        const userurl = `${BASE_URL + USER_URL}/5siES`
-        axiosRequest('get', TOKEN, null, userurl).then(response1 => {
-          const data1 = getData(response1)
-          if (data1 != null) {
-            const user = data1.map(userData => {
-              return {
-                id: userData['@id'].substring(userData['@id'].length - 5),
-                fullId: userData['@id'],
-                name: userData.name,
-                enrolled: userData.studentOf,
-                requested: userData.requests,
-                instructorOf: userData.instructorOf,
-                admin: false,
-                firstName: userData.firstName,
-                lastName: userData.lastName,
-                nickname: userData.nickname,
-              }
-            })[0]
+        if (user != null) {
+          for (const course of courses) {
+            course.enrolled =
+              user.studentOf.findIndex(userEnrolledCourse => {
+                return userEnrolledCourse['@id'] === course.fullId
+              }) > -1
 
-            for (const course of courses) {
-              course.enrolled =
-                user.enrolled.findIndex(userEnrolledCourse => {
-                  return userEnrolledCourse['@id'] === course.fullId
-                }) > -1
+            course.requests =
+              user.requests.findIndex(userRequestedCourse => {
+                return userRequestedCourse['@id'] === course.fullId
+              }) > -1
 
-              course.requests =
-                user.requested.findIndex(userRequestedCourse => {
-                  return userRequestedCourse['@id'] === course.fullId
-                }) > -1
+            course.instructor =
+              user.instructorOf.findIndex(userInstructorCourse => {
+                return userInstructorCourse['@id'] === course.fullId
+              }) > -1
 
-              course.instructor =
-                user.instructorOf.findIndex(userInstructorCourse => {
-                  return userInstructorCourse['@id'] === course.fullId
-                }) > -1
-
-              course.admin = false
-              //TODO uncomment when implemented
-              // course.hasAdmin.findIndex(admin => {
-              //   return admin['@id'] === user.fullId
-              // }) > -1
-            }
-
-            let activeCourses = []
-            let myActiveCourses = []
-            let myArchivedCourses = []
-
-            for (const course of courses) {
-              if (
-                course.enrolled === true ||
-                course.instructor === true ||
-                course.admin === true
-              ) {
-                // TODO replace THIS_YEAR
-                if (course.year === THIS_YEAR) {
-                  myActiveCourses.push(course)
-                } else if (course.year < THIS_YEAR) {
-                  myArchivedCourses.push(course)
-                }
-              } else if (course.year === THIS_YEAR) {
-                activeCourses.push(course)
-              }
-            }
-
-            activeCourses = this.groupCourses(activeCourses)
-            myActiveCourses = this.groupCourses(myActiveCourses)
-            myArchivedCourses = this.groupCourses(myArchivedCourses)
-            const allCourses = this.groupCourses(courses)
-
-            this.setState({
-              activeCourses,
-              myActiveCourses,
-              myArchivedCourses,
-              allCourses,
-            })
+            // course.admin = false
+            //TODO uncomment when implemented
+            course.admin =
+              course.hasAdmin.findIndex(admin => {
+                return admin['@id'] === user.fullId
+              }) > -1
           }
-        })
+
+          let activeCourses = []
+          let myActiveCourses = []
+          let myArchivedCourses = []
+
+          for (const course of courses) {
+            if (
+              course.enrolled === true ||
+              course.instructor === true ||
+              course.admin === true
+            ) {
+              if (
+                new Date(course.startDate) <= new Date() &&
+                new Date(course.endDate) > new Date()
+              ) {
+                myActiveCourses.push(course)
+              } else if (new Date(course.endDate) < new Date()) {
+                myArchivedCourses.push(course)
+              }
+            } else if (
+              new Date(course.startDate) <= new Date() &&
+              new Date(course.endDate) > new Date()
+            ) {
+              activeCourses.push(course)
+            }
+          }
+
+          activeCourses = this.groupCourses(activeCourses)
+          myActiveCourses = this.groupCourses(myActiveCourses)
+          myArchivedCourses = this.groupCourses(myArchivedCourses)
+          const allCourses = this.groupCourses(courses)
+
+          this.setState({
+            activeCourses,
+            myActiveCourses,
+            myArchivedCourses,
+            allCourses,
+          })
+        } else {
+          let activeCourses = []
+          for (const course of courses) {
+            if (
+              new Date(course.startDate) <= new Date() &&
+              new Date(course.endDate) > new Date()
+            ) {
+              activeCourses.push(course)
+            }
+          }
+          activeCourses = this.groupCourses(activeCourses)
+          this.setState({
+            activeCourses,
+          })
+        }
       }
     })
   }
@@ -193,106 +194,105 @@ class CoursesPageBase extends Component {
       allCourses,
     } = this.state
 
+    const { user } = this.props
+
     return (
-      <>
-        <Navigation />
-        <main className="courses_main">
-          <div className="courses">
-            <Nav tabs>
-              {this.props.isSignedIn && (
-                <NavItem>
-                  <NL
-                    className={classnames({
-                      active: this.state.activeTab === '1',
-                    })}
-                    onClick={() => {
-                      this.toggle('1')
-                    }}
-                  >
-                    <span className="tab">My Courses</span>
-                  </NL>
-                </NavItem>
-              )}
+      <main className="courses_main">
+        <div className="courses">
+          <Nav tabs>
+            {user && (
               <NavItem>
                 <NL
                   className={classnames({
-                    active: this.state.activeTab === '2',
+                    active: this.state.activeTab === '1',
                   })}
                   onClick={() => {
-                    this.toggle('2')
+                    this.toggle('1')
                   }}
                 >
-                  <span className="tab">Active Courses</span>
+                  <span className="tab">My Courses</span>
                 </NL>
               </NavItem>
-              {this.props.isSignedIn && (
-                <NavItem>
-                  <NL
-                    className={classnames({
-                      active: this.state.activeTab === '3',
-                    })}
-                    onClick={() => {
-                      this.toggle('3')
-                    }}
-                  >
-                    <span className="tab">Archived Courses</span>
-                  </NL>
-                </NavItem>
-              )}
-              {this.props.isSignedIn && this.props.isAdmin && (
-                <NavItem>
-                  <NL
-                    className={classnames({
-                      active: this.state.activeTab === '4',
-                    })}
-                    onClick={() => {
-                      this.toggle('4')
-                    }}
-                  >
-                    <span className="tab">ALL Courses</span>
-                  </NL>
-                </NavItem>
-              )}
-            </Nav>
-            <TabContent activeTab={this.state.activeTab}>
-              {this.props.isSignedIn && (
-                <TabPane tabId="1">
-                  <CoursesList
-                    coursesList={myActiveCourses}
-                    enroll={null}
-                    isAdmin={this.props.isAdmin}
-                  />
-                </TabPane>
-              )}
-              <TabPane tabId="2">
+            )}
+            <NavItem>
+              <NL
+                className={classnames({
+                  active: this.state.activeTab === '2',
+                })}
+                onClick={() => {
+                  this.toggle('2')
+                }}
+              >
+                <span className="tab">Active Courses</span>
+              </NL>
+            </NavItem>
+            {user && (
+              <NavItem>
+                <NL
+                  className={classnames({
+                    active: this.state.activeTab === '3',
+                  })}
+                  onClick={() => {
+                    this.toggle('3')
+                  }}
+                >
+                  <span className="tab">Archived Courses</span>
+                </NL>
+              </NavItem>
+            )}
+            {user && user.isSuperadmin && (
+              <NavItem>
+                <NL
+                  className={classnames({
+                    active: this.state.activeTab === '4',
+                  })}
+                  onClick={() => {
+                    this.toggle('4')
+                  }}
+                >
+                  <span className="tab">ALL Courses</span>
+                </NL>
+              </NavItem>
+            )}
+          </Nav>
+          <TabContent activeTab={this.state.activeTab}>
+            {this.props.isSignedIn && (
+              <TabPane tabId="1">
                 <CoursesList
-                  coursesList={activeCourses}
-                  enroll={this.props.isSignedIn ? true : null}
+                  coursesList={myActiveCourses}
+                  enroll={null}
                   isAdmin={this.props.isAdmin}
                 />
               </TabPane>
-              {this.props.isSignedIn && (
-                <TabPane tabId="3">
-                  <CoursesList
-                    coursesList={myArchivedCourses}
-                    enroll={null}
-                    isAdmin={this.props.isAdmin}
-                  />
-                </TabPane>
-              )}
-              {this.props.isAdmin && (
-                <TabPane tabId="4">
-                  <CoursesList
-                    coursesList={allCourses}
-                    enroll={null}
-                    isAdmin={this.props.isAdmin}
-                  />
-                </TabPane>
-              )}
-            </TabContent>
-          </div>
-        </main>
-      </>
+            )}
+            <TabPane tabId="2">
+              <CoursesList
+                coursesList={activeCourses}
+                enroll={this.props.isSignedIn ? true : null}
+                isAdmin={this.props.isAdmin}
+              />
+            </TabPane>
+            {this.props.isSignedIn && (
+              <TabPane tabId="3">
+                <CoursesList
+                  coursesList={myArchivedCourses}
+                  enroll={null}
+                  isAdmin={this.props.isAdmin}
+                />
+              </TabPane>
+            )}
+            {this.props.isAdmin && (
+              <TabPane tabId="4">
+                <CoursesList
+                  coursesList={allCourses}
+                  enroll={null}
+                  isAdmin={this.props.isAdmin}
+                />
+              </TabPane>
+            )}
+          </TabContent>
+        </div>
+      </main>
     )
   }
 }
@@ -331,7 +331,7 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
                     courseInstance={course.courses[0]}
                   />
                 ) : (
-                  <span className='requested'>Requested</span>
+                  <span className="requested">Requested</span>
                 ))}
             </div>
           </div>
@@ -360,7 +360,11 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
                     {/*>*/}
                     {/*  <span className="edit-delete-buttons">Delete</span>*/}
                     {/*</NavLink>*/}
-                    <DeleteCourseModal course={course} courseInstance={null} type='course' />
+                    <DeleteCourseModal
+                      course={course}
+                      courseInstance={null}
+                      type="course"
+                    />
                   </div>
                 )}
               </div>
@@ -412,7 +416,7 @@ const CollapsableCourse = ({ course, enroll, isAdmin }) => (
                           courseInstance={course.courses[0]}
                         />
                       ) : (
-                        <span className='requested'>Requested</span>
+                        <span className="requested">Requested</span>
                       ))}
                     <RoleIcon course={courseInstance} />
                     {/* edit/delete course */}
@@ -424,7 +428,11 @@ const CollapsableCourse = ({ course, enroll, isAdmin }) => (
                         >
                           <span className="edit-delete-buttons">Edit</span>
                         </NavLink>
-                        <DeleteCourseModal course={course} courseInstance={courseInstance} type='courseInstance' />
+                        <DeleteCourseModal
+                          course={course}
+                          courseInstance={courseInstance}
+                          type="courseInstance"
+                        />
                         {/*<NavLink*/}
                         {/*  className="edit-delete-buttons"*/}
                         {/*  to={`/deleteevent/${courseInstance.id}`}*/}
@@ -453,17 +461,10 @@ const RoleIcon = ({ course }) => (
 
 const mapStateToProps = ({ userReducer }) => {
   return {
-    isSignedIn: userReducer.isSignedIn,
-    isAdmin: userReducer.isAdmin,
-    user2: userReducer.user2,
+    user: userReducer.user,
   }
 }
 
-const condition = () => true
-
-const CoursesPage = compose(
-  connect(mapStateToProps, { setUserAdmin, fetchUser }),
-  withAuthorization(condition)
-)(CoursesPageBase)
+const CoursesPage = connect(mapStateToProps)(CoursesPageBase)
 
 export default CoursesPage

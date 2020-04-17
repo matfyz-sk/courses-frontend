@@ -8,7 +8,6 @@ import { INITIAL_COURSE_STATE } from '../constants'
 
 const NewCourse = () => (
   <div>
-    <Navigation />
     <Container>
       <Card>
         <CardHeader className="event-card-header">New Course</CardHeader>

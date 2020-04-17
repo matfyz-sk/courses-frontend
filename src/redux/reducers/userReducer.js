@@ -3,7 +3,7 @@ import { SET_USER, SET_USER_ADMIN, SET_SIGNED_IN } from '../types'
 const initialState = {
   isAdmin: false,
   isSignedIn: true,
-  user2: {},
+  user: null,
 }
 
 export default function userReducer(state = initialState, action) {
@@ -11,7 +11,7 @@ export default function userReducer(state = initialState, action) {
     case SET_USER:
       return {
         ...state,
-        user2: action.user,
+        user: action.user,
       }
     case SET_USER_ADMIN:
       return {

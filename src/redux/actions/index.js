@@ -2,6 +2,5 @@
 export * from './userActions'
 export * from './quizActions'
 export * from './assignmentsActions'
-export * from './coursesActions'
 export * from './authActions'
 export * from './courseInstanceActions'
