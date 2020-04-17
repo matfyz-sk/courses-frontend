@@ -35,7 +35,7 @@
   }
   &.sub-nav {
     background-color: $green;
-    height: $header-sub-height;
+    min-height: $header-sub-height;
     a {
       color: $white;
       height: $header-sub-height;

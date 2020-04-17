@@ -18,7 +18,7 @@ class NavigationCourseClass extends React.Component {
         this.toggle = this.toggle.bind(this);
         this.state = {
             isOpen: false,
-            courseId: '2',
+            courseId: props.courseId,
         };
 
     }
@@ -111,8 +111,10 @@ class NavigationCourseClass extends React.Component {
                             </NavLink>
                         </NavItem>
                       <NavItem>
-                        <NavLink activeClassName='is-active' to={ROUTES.INFO}  className="nav-link nav-button">
-                          Settings
+                        <NavLink activeClassName='is-active' to={
+                          redirect(ROUTES.COURSE_TEAMS, [{key: 'course_id', value: this.state.courseId}])
+                        } className={`nav-link nav-button ${  current === 'teams' ? 'active' : ''}`}>
+                          Teams
                         </NavLink>
                       </NavItem>
                     </Nav>
