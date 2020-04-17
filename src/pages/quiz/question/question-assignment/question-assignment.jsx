@@ -27,7 +27,7 @@ export class QuestionAssignment extends Component {
 
   componentDidMount() {
     const { courseInstanceId, match, token } = this.props
-    if (courseInstanceId) {
+    if (courseInstanceId && token) {
       this.getTopics(courseInstanceId, token)
 
       this.getAgents(
@@ -38,8 +38,8 @@ export class QuestionAssignment extends Component {
         courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
         token
       )
-      if (this.isEdit() && token) {
-        this.getQuestionAssignment(match.params.id, token)
+      if (this.isEdit() && token && match.params.questionAssignmentId) {
+        this.getQuestionAssignment(match.params.questionAssignmentId, token)
       }
     }
   }
@@ -52,7 +52,7 @@ export class QuestionAssignment extends Component {
       allTopics,
       disabledTopicsRaw,
     } = this.state
-    if (courseInstanceId) {
+    if (courseInstanceId && token) {
       if (
         courseInstanceId !== prevProps.courseInstanceId ||
         token !== prevProps.token
@@ -68,10 +68,14 @@ export class QuestionAssignment extends Component {
         )
       }
       if (
-        (this.isEdit() && match.params.id !== prevProps.match.params.id) ||
-        token !== prevProps.token
+        this.isEdit() &&
+        match.params.questionAssignmentId &&
+        token &&
+        (match.params.questionAssignmentId !==
+          prevProps.match.params.questionAssignmentId ||
+          token !== prevProps.token)
       ) {
-        this.getQuestionAssignment(match.params.id, token)
+        this.getQuestionAssignment(match.params.questionAssignmentId, token)
       }
       if (
         topicOldValue !== prevState.topicOldValue ||
@@ -113,12 +117,10 @@ export class QuestionAssignment extends Component {
           data['@graph'].length &&
           data['@graph'].length > 0
         ) {
-          const allAgents = data['@graph'].map(user => {
-            return {
-              name: user.name,
-              id: user['@id'],
-            }
-          })
+          const allAgents = data['@graph'].map(user => ({
+            name: `${user.firstName} ${user.lastName}`,
+            id: user['@id'],
+          }))
           this.setState({
             allAgents,
           })
@@ -156,7 +158,10 @@ export class QuestionAssignment extends Component {
           } = questionAssignment
           let selectedAgents = []
           selectedAgents = assignedTo.map(student => {
-            return { id: student['@id'], name: student.name }
+            return {
+              id: student['@id'],
+              name: `${student.firstName} ${student.lastName}`,
+            }
           })
           this.setState({
             startDate: startDate ? new Date(startDate) : new Date(),
@@ -260,7 +265,7 @@ export class QuestionAssignment extends Component {
 
   isEdit = () => {
     const { match } = this.props
-    return !!match.params.id
+    return !!match.params.questionAssignmentId
   }
 
   populateSelect = (data, selectElement, elementStateName, selected) => {
@@ -293,7 +298,9 @@ export class QuestionAssignment extends Component {
 
   formSubmitWithToken = () => {
     const { token } = this.props
-    this.formSubmit(token)
+    if (token) {
+      this.formSubmit(token)
+    }
   }
 
   formSubmit = token => {
@@ -312,7 +319,7 @@ export class QuestionAssignment extends Component {
       if (this.isEdit()) {
         axios
           .patch(
-            `${apiConfig.API_URL}/questionAssignment/${match.params.id}`,
+            `${apiConfig.API_URL}/questionAssignment/${match.params.questionAssignmentId}`,
             JSON.stringify({
               description,
               covers: topic ? [topic] : [],
@@ -330,7 +337,9 @@ export class QuestionAssignment extends Component {
           )
           .then(({ status: statusQuestionAssignment }) => {
             if (statusQuestionAssignment === 200) {
-              history.push('/quiz/questionGroups')
+              history.push(
+                `/courses/${match.params.courseId}/quiz/questionGroups`
+              )
             }
           })
           .catch(error => console.log(error))

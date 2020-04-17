@@ -1,4 +1,3 @@
-/* eslint-disable react/prefer-stateless-function */
 import React, { Component } from 'react'
 import {
   InputGroup,
@@ -6,12 +5,18 @@ import {
   InputGroupText,
   Input,
   Badge,
+  Label,
 } from 'reactstrap'
 
 export class AnswerComponentNew extends Component {
   onChangeAnswerText = event => {
     const { onChangeAnswerText } = this.props
     onChangeAnswerText(event.target.value)
+  }
+
+  onChangeAnswerChecked = event => {
+    const { onChangeAnswerChecked } = this.props
+    onChangeAnswerChecked(event.target.checked)
   }
 
   render() {
@@ -27,24 +32,35 @@ export class AnswerComponentNew extends Component {
       <div className="inline">
         <Badge color={color}>
           <InputGroup>
-            <InputGroupAddon addonType="prepend">
-              <InputGroupText>
+            {onChangeAnswerText ? (
+              <>
+                <InputGroupAddon addonType="prepend">
+                  <InputGroupText>
+                    <Input
+                      addon
+                      type="checkbox"
+                      checked={correct}
+                      onChange={
+                        onChangeAnswerChecked && this.onChangeAnswerChecked
+                      }
+                      // readOnly={!this.props.isCheckboxEnabled}
+                    />
+                  </InputGroupText>
+                </InputGroupAddon>
                 <Input
-                  addon
-                  type="checkbox"
-                  checked={correct}
-                  onChange={onChangeAnswerChecked}
-                  // readOnly={!this.props.isCheckboxEnabled}
+                  type="text"
+                  placeholder={placeholder}
+                  value={text}
+                  onChange={onChangeAnswerText && this.onChangeAnswerText}
+                  // disabled={!this.props.isTextEnabled}
                 />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input
-              type="text"
-              placeholder={placeholder}
-              value={text}
-              onChange={onChangeAnswerText && this.onChangeAnswerText}
-              // disabled={!this.props.isTextEnabled}
-            />
+              </>
+            ) : (
+              <Label check>
+                <Input addon type="checkbox" checked={correct} readOnly />
+                {text}
+              </Label>
+            )}
           </InputGroup>
         </Badge>
       </div>

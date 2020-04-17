@@ -11,6 +11,7 @@ export default function AssignmentPreview({
   endTime,
   isTeacher,
   deleteAssignment,
+  match,
 }) {
   return (
     <>
@@ -43,7 +44,9 @@ export default function AssignmentPreview({
         <Button
           color="success"
           tag={Link}
-          to={`/quiz/questionAssignment/${encodeURIComponent(id)}`}
+          to={`/courses/${
+            match.params.courseId
+          }/quiz/questionAssignment/${encodeURIComponent(id)}`}
         >
           Edit assignment
         </Button>

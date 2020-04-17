@@ -41,6 +41,7 @@ class TopicsOverviewData extends Component {
       token,
       courseInstanceId,
       userId,
+      match,
     } = this.props
     return (
       <>
@@ -50,6 +51,7 @@ class TopicsOverviewData extends Component {
           isTeacher={isTeacher}
           topics={courseInstance && courseInstance.covers}
           userId={userId}
+          match={match}
         />
       </>
     )

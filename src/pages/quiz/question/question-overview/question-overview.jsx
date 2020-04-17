@@ -1,114 +1,130 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import Question from "../question/question";
-import SavedQuestion from "../../common/saved-question";
-import { Button } from "reactstrap";
-import api from "../../../../api";
-class QuestionOverview extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      questionVersions: [],
-      isEdit: false,
-      allQuestionTypes: {},
-      title: "",
-      approvedAsPublicId: "",
-      approvedAsPrivateId: "",
-      lastSeenByStudent: "",
-      lastSeenByTeacher: "",
-      lastChange: ""
-    };
-  }
+/* eslint-disable react/prefer-stateless-function */
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import { connect } from 'react-redux'
+import apiConfig from '../../../../configuration/api'
+import QuestionNewData, {
+  QuestionTypesEnums,
+} from '../question/question-new-data'
+import QuestionNew from '../question/question-new'
+import Comments from './comments/comments'
 
-  getAllQuestionTypes = () => {
-    fetch(api.quiz.fetchQuestionTypes()).then(response => {
-      if (response.ok) {
-        response
-          .json()
-          .then(data => {
-            if (data && data.length && data.length > 0) {
-              let questionTypeMap = new Map();
-              data.forEach(questionType => {
-                questionTypeMap.set(questionType.id, questionType.name);
-              });
-              this.setState({
-                allQuestionTypes: questionTypeMap
-              });
+function QuestionOverview({
+  match,
+  courseInstanceId,
+  isTeacher,
+  token,
+  userId,
+  history,
+}) {
+  const [questions, setQuestions] = useState([])
+  // state = {
+  //   questionVersions: [],
+  //   isEdit: false,
+  //   allQuestionTypes: {},
+  //   title: '',
+  //   approvedAsPublicId: '',
+  //   approvedAsPrivateId: '',
+  //   lastSeenByStudent: '',
+  //   lastSeenByTeacher: '',
+  //   lastChange: '',
+  // }
+
+  const fetchQuestionChain = () => {
+    const questionTypeOld = match.params.questionType
+    const questionIdOld = match.params.questionId
+    if (questionTypeOld && questionIdOld) {
+      const fetchData = async () => {
+        return axios
+          .get(`${apiConfig.API_URL}/question?_join=hasAnswer,comment`, {
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: token,
+            },
+          })
+          .then(({ data }) => {
+            if (
+              data &&
+              data['@graph'] &&
+              data['@graph'].length &&
+              data['@graph'].length > 0
+            ) {
+              const questionsMapped = data['@graph'].reduce(
+                (accumulator, questionData) => {
+                  if (questionData) {
+                    const {
+                      name: titleData,
+                      text: questionTextData,
+                      ofTopic,
+                    } = questionData
+                    let topicData = ''
+                    if (ofTopic.length) {
+                      topicData = ofTopic[0]['@id']
+                    }
+                    const question = {
+                      id: questionData['@id'],
+                      title: titleData,
+                      questionText: questionTextData,
+                      topic: topicData,
+                      questionType: questionData['@type'],
+                    }
+                    switch (question.questionType) {
+                      case QuestionTypesEnums.multiple.id:
+                        question.answers = questionData.hasAnswer.map(
+                          answer => {
+                            const { correct, text } = answer
+                            return { id: answer['@id'], correct, text }
+                          }
+                        )
+                        question.comments = questionData.comment
+                          .map(comment => {
+                            const {
+                              commentText,
+                              createdAt,
+                              createdBy,
+                            } = comment
+                            return {
+                              id: comment['@id'],
+                              createdAt,
+                              createdBy,
+                              commentText,
+                            }
+                          })
+                          .sort(
+                            (a, b) =>
+                              new Date(a.createdAt) - new Date(b.createdAt)
+                          )
+                        break
+                      case QuestionTypesEnums.open.id:
+                        question.answers = [questionData.regexp]
+                        break
+                      case QuestionTypesEnums.essay.id:
+                        break
+                      default:
+                        break
+                    }
+                    accumulator.push(question)
+                  }
+                  return accumulator
+                },
+                []
+              )
+              setQuestions(questionsMapped)
             }
           })
-          .catch(error => {
-            console.log(error);
-          });
+          .catch(error => console.log(error))
       }
-    });
-  };
-
-  getQuestionVersions = () => {
-    fetch(
-      api.quiz.fetchGetQuestionVersions() + this.props.match.params.id
-    ).then(response => {
-      if (response.ok) {
-        response
-          .json()
-          .then(data => {
-            if (data) {
-              this.setState({
-                title: data.title,
-                selectedTopic: data.topic,
-                lastSeenByStudent: data.lastSeenByStudent,
-                lastSeenByTeacher: data.lastSeenByTeacher,
-                lastChange: data.lastChange,
-                approvedAsPublicId: data.approvedAsPublicId,
-                approvedAsPrivateId: data.approvedAsPrivateId,
-                questionVersions: data.questionVersions
-              });
-            }
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      }
-    });
-  };
-
-  componentDidMount() {
-    this.getAllQuestionTypes();
-    this.getQuestionVersions();
+      fetchData()
+    }
   }
 
-  onSendComment = (questionVersionId, newComment) => {
-    const data = {
-      questionId: this.props.match.params.id,
-      questionVersionId: questionVersionId,
-      newComment: newComment,
-      token: this.props.isAdmin
-        ? "http://www.semanticweb.org/semanticweb#Teacher"
-        : "http://www.semanticweb.org/semanticweb#Adam"
-      //TODO add user "http://www.semanticweb.org/semanticweb#Course_student_2"
-    };
-    fetch(api.quiz.fetchAddComment(), {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    }).then(response => {
-      if (response.ok) {
-        this.getQuestionVersions();
-      }
-    });
-  };
-  render() {
-    const { isAdmin } = this.props;
-    let lastKnownQuestionVersion =
-      this.state.questionVersions && this.state.questionVersions.length
-        ? this.state.questionVersions[0]
-        : null;
-    return (
-      <React.Fragment>
-        <h1>{this.state.title}</h1>
-        {/* TODO show edit question only if author === user */}
+  useEffect(() => {
+    fetchQuestionChain()
+  }, [token, match.params.questionType, match.params.questionId])
+  return (
+    <>
+      {/* <h1>{this.state.title}</h1>
         <Button onClick={() => this.setState({ isEdit: !this.state.isEdit })}>
           Edit question
         </Button>
@@ -143,22 +159,65 @@ class QuestionOverview extends Component {
               isApprovedAsPrivate={
                 this.state.approvedAsPrivateId === questionVersion.id
               }
-              isTeacher={isAdmin ? true : false}
+              isTeacher={!!isAdmin}
               history={this.props.history}
-              isPreview={true}
+              isPreview
             />
-          );
-        })}
-      </React.Fragment>
-    );
-  }
+          )
+        })} */}
+      {questions && questions.length > 0 && (
+        <>
+          <QuestionNewData
+            courseInstanceId={courseInstanceId}
+            isTeacher={isTeacher}
+            token={token}
+            userId={userId}
+            history={history}
+            question={questions[0]}
+          />
+          {questions.map(question => {
+            const {
+              id,
+              title,
+              questionText,
+              topic,
+              questionType,
+              answers,
+              comments,
+            } = question
+            return (
+              <>
+                <QuestionNew
+                  key={id}
+                  title={title}
+                  question={questionText}
+                  topic={topic}
+                  questionType={questionType}
+                  answers={answers}
+                  disabled
+                />
+                <Comments
+                  comments={comments}
+                  token={token}
+                  questionAddress={id.substring(
+                    id.lastIndexOf('/', id.lastIndexOf('/') - 1)
+                  )}
+                  refetch={fetchQuestionChain}
+                />
+              </>
+            )
+          })}
+        </>
+      )}
+    </>
+  )
 }
 
 const mapStateToProps = ({ userReducer }) => {
-  const { isAdmin } = userReducer;
+  const { isAdmin } = userReducer
   return {
-    isAdmin
-  };
-};
+    isAdmin,
+  }
+}
 
-export default connect(mapStateToProps, {})(QuestionOverview);
+export default connect(mapStateToProps, {})(QuestionOverview)

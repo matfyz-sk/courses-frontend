@@ -12,10 +12,11 @@ class TopicsOverview extends Component {
   state = {
     topicCollapse: [],
     questionAssignments: [],
+    questionsByTopic: new Map(),
   }
 
   componentDidMount() {
-    const { courseInstanceId, token, isTeacher, userId } = this.props
+    const { courseInstanceId, token, isTeacher, userId, topics } = this.props
     if (courseInstanceId && isTeacher !== null && userId && token) {
       this.getAssignments(
         courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
@@ -23,26 +24,47 @@ class TopicsOverview extends Component {
         token
       )
     }
+    if (topics && topics.length && token) {
+      this.getQuestionsData(topics, token)
+    }
   }
 
   componentDidUpdate(prevProps) {
-    const { courseInstanceId, token, isTeacher, userId } = this.props
-    if (
-      courseInstanceId &&
-      token &&
-      isTeacher !== null &&
-      userId &&
-      (courseInstanceId !== prevProps.courseInstanceId ||
-        token !== prevProps.token ||
-        isTeacher !== prevProps.isTeacher ||
-        userId !== prevProps.userId)
-    ) {
-      this.getAssignments(
-        courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-        isTeacher ? null : userId.substring(userId.lastIndexOf('/') + 1),
-        token
-      )
+    const { courseInstanceId, token, isTeacher, userId, topics } = this.props
+    if (token) {
+      if (
+        courseInstanceId &&
+        isTeacher !== null &&
+        userId &&
+        (courseInstanceId !== prevProps.courseInstanceId ||
+          token !== prevProps.token ||
+          isTeacher !== prevProps.isTeacher ||
+          userId !== prevProps.userId)
+      ) {
+        this.getAssignments(
+          courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
+          isTeacher ? null : userId.substring(userId.lastIndexOf('/') + 1),
+          token
+        )
+      }
+      if (
+        topics &&
+        (topics !== prevProps.topics || token !== prevProps.token)
+      ) {
+        this.getQuestionsData(topics, token)
+      }
     }
+  }
+
+  getQuestionsData = async (topics, token) => {
+    const topicsIds = topics.reduce((accumulator, topic) => {
+      if (topic && topic['@id']) {
+        accumulator.push(topic['@id'])
+      }
+      return accumulator
+    }, [])
+    const questionsByTopic = await this.getQuestions(topicsIds, token)
+    this.setState({ questionsByTopic })
   }
 
   fetchDeleteAssignment = assignmentId => {
@@ -88,6 +110,66 @@ class TopicsOverview extends Component {
     )
   }
 
+  getQuestions = async (topics, token) => {
+    const promises = []
+    const questionsByTopicsRawEmpty = new Map()
+    topics.forEach(topic => {
+      questionsByTopicsRawEmpty.set(topic, [])
+      promises.push(
+        axios.get(
+          `${apiConfig.API_URL}/question${`?ofTopic=${topic.substring(
+            topic.lastIndexOf('/') + 1
+          )}`}`,
+          {
+            // TODO student should get only public/those which privantness isn't set
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: token,
+            },
+          }
+        )
+      )
+    })
+    return axios.all(promises).then(resultsQuestionsForTopic => {
+      const questionsByTopicsRaw = resultsQuestionsForTopic.reduce(
+        (accumulatorQuestionsByTopics, questionsGetData) => {
+          const { data, status } = questionsGetData
+          if (status === 200) {
+            if (
+              data &&
+              data['@graph'] &&
+              data['@graph'].length &&
+              data['@graph'].length > 0
+            ) {
+              const questionsByTopicRaw = data['@graph'].reduce(
+                (accumulatorQuestions, question) => {
+                  if (question) {
+                    const { name } = question
+                    const questionMapped = {
+                      id: question['@id'],
+                      title: name,
+                    }
+                    accumulatorQuestions.push(questionMapped)
+                  }
+                  return accumulatorQuestions
+                },
+                []
+              )
+              accumulatorQuestionsByTopics.set(
+                data['@graph'][0].ofTopic[0]['@id'],
+                questionsByTopicRaw
+              )
+            }
+          }
+          return accumulatorQuestionsByTopics
+        },
+        new Map(questionsByTopicsRawEmpty)
+      )
+      return questionsByTopicsRaw
+    })
+  }
+
   getAssignments = (courseInstanceId, userId, token) => {
     return axios
       .get(
@@ -131,7 +213,6 @@ class TopicsOverview extends Component {
             }
             return questionAssignmentMapped
           })
-          console.log(questionAssignments)
           this.setState({
             questionAssignments,
           })
@@ -149,19 +230,17 @@ class TopicsOverview extends Component {
   }
 
   render() {
-    const { topicCollapse, questionAssignments } = this.state
-    const { topics, isTeacher } = this.props
+    const { topicCollapse, questionAssignments, questionsByTopic } = this.state
+    const { topics, isTeacher, match } = this.props
     return (
       <>
         <h1>Questions by topic</h1>
         <div>
           {topics &&
             topics.map((topic, index) => {
-              const {
-                name,
-                // questions
-              } = topic
+              const { name } = topic
               const id = topic['@id']
+
               const assignment = questionAssignments.find(
                 questionAssignment => {
                   if (
@@ -179,11 +258,12 @@ class TopicsOverview extends Component {
                     id={id}
                     name={name}
                     assignment={assignment}
-                    // questions={questions}
+                    questions={questionsByTopic.get(id)}
                     isTeacher={isTeacher}
                     toggle={this.toggle(index)}
                     collapse={topicCollapse[index]}
                     fetchDeleteAssignment={this.fetchDeleteAssignment}
+                    match={match}
                   />
                 </Card>
               )

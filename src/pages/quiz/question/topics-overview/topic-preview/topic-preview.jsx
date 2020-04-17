@@ -10,13 +10,13 @@ import {
   CardSubtitle,
   Collapse,
   Button,
-  // Row,
-  // Col,
+  Row,
+  Col,
   CardTitle,
 } from 'reactstrap'
 
 // import apiConfig from '../../../../../configuration/api'
-// import InfoTable from './info-table/info-table'
+import InfoTable from './info-table/info-table'
 
 import AssignmentPreview from './assignment-preview/assignment-preview'
 
@@ -29,6 +29,8 @@ function TopicPreview(props) {
     collapse,
     isTeacher,
     fetchDeleteAssignment,
+    questions,
+    match,
   } = props
   let assignmentId
   let description
@@ -48,16 +50,17 @@ function TopicPreview(props) {
         }
       : null
 
-  // const questionsApproved = []
-  // const questionsNotApproved = []
-  // if (questions) {
-  //   questions.forEach(question => {
-  //     // question.approvedAsPublicId !== 'undefined' ||
-  //     // question.approvedAsPrivateId !== 'undefined'
-  //     //   ? questionsApproved.push(question)
-  //     //   : questionsNotApproved.push(question);
-  //   })
-  // }
+  const questionsApproved = []
+  let questionsNotApproved = []
+  if (questions) {
+    // questions.forEach(question => {
+    //   question.approvedAsPublicId !== 'undefined' ||
+    //   question.approvedAsPrivateId !== 'undefined'
+    //     ? questionsApproved.push(question)
+    //     : questionsNotApproved.push(question);
+    // })
+    questionsNotApproved = questions
+  }
   return (
     <>
       <CardBody>
@@ -73,7 +76,7 @@ function TopicPreview(props) {
               color="success"
               tag={Link}
               to={{
-                pathname: '/quiz/questionAssignment',
+                pathname: `/courses/${match.params.courseId}/quiz/questionAssignment`,
                 state: { topic: id },
               }}
             >
@@ -90,6 +93,7 @@ function TopicPreview(props) {
                 isTeacher={isTeacher}
                 topic={id}
                 deleteAssignment={deleteAssignment}
+                match={match}
               />
             </>
           )}
@@ -98,14 +102,14 @@ function TopicPreview(props) {
           <CardSubtitle tag="h3" className="h4">
             Questions
           </CardSubtitle>
-          {/* <Row>
+          <Row>
             {questionsNotApproved ? (
               <Col xs="12" md="6">
                 <InfoTable
                   headerText="In progress"
                   questions={questionsNotApproved}
                   isTeacher={isTeacher}
-                  link="/quiz/question/"
+                  link={`/courses/${match.params.courseId}/quiz/questionEdit`}
                 />
               </Col>
             ) : null}
@@ -115,11 +119,11 @@ function TopicPreview(props) {
                   headerText="Approved"
                   questions={questionsApproved}
                   isTeacher={isTeacher}
-                  link="/quiz/question/"
+                  link={`/courses/${match.params.courseId}/quiz/questionEdit`}
                 />
               </Col>
             ) : null}
-          </Row> */}
+          </Row>
           {(assignment &&
             new Date(startTime) < new Date() &&
             new Date(endTime) > new Date()) ||
@@ -128,7 +132,7 @@ function TopicPreview(props) {
               color="success"
               tag={Link}
               to={{
-                pathname: '/quiz/question',
+                pathname: `/courses/${match.params.courseId}/quiz/question`,
                 topic: id,
               }}
             >
