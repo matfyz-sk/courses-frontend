@@ -1,6 +1,5 @@
 import React from 'react'
 import { Container, Card, CardHeader, CardBody } from 'reactstrap'
-import { NavigationCourse } from '../../../components/Navigation'
 import EventForm from '../EventForm'
 import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, TOKEN } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
@@ -48,7 +47,6 @@ class EditEvent extends React.Component {
     console.log(this.state.event)
     return (
       <div>
-        <NavigationCourse />
         <Container>
           <Card>
             <CardHeader className="event-card-header">Edit Event</CardHeader>

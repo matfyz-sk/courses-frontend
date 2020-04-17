@@ -4,7 +4,6 @@ import { Alert, Button, Table } from 'reactstrap'
 
 // import { withAuthorization } from '../../../components/Session';
 import { connect } from 'react-redux'
-import { NavigationCourse } from '../../../components/Navigation'
 import { setUserAdmin, fetchCourseInstance } from '../../../redux/actions'
 
 import './UserManagement.css'
@@ -169,7 +168,6 @@ class UserManagement extends Component {
 
     return (
       <div>
-        <NavigationCourse courseAbbr={course.abbreviation} />
         <main className="main-user-management-container">
           {
             requestedUsers.length > 0 && (

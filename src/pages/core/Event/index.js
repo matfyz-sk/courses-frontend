@@ -16,7 +16,6 @@ import {
 import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 
-import { NavigationCourse } from '../../../components/Navigation'
 import './Event.css'
 import { setUserAdmin } from '../../../redux/actions'
 import { SubEventList } from '../Events'
@@ -97,7 +96,6 @@ class Event extends React.Component {
     const { isAdmin } = this.props
     return (
       <div>
-        <NavigationCourse courseAbbr={event.courseAbbr} />
         <Container>
           {event && <EventCard event={event} isAdmin={isAdmin} />}
         </Container>

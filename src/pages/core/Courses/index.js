@@ -19,16 +19,15 @@ import { withAuthorization } from '../../../components/Session'
 import * as ROUTES from '../../../constants/routes'
 
 import './Courses.css'
-import Navigation from '../../../components/Navigation'
 import EnrollModal from '../EnrollModal'
 import { getIcon } from '../Helper'
 import arrow from '../../../images/arrow.svg'
 
 import { setUserAdmin, fetchUser } from '../../../redux/actions'
 import { axiosRequest, getData } from '../AxiosRequests'
-import {BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL} from '../constants'
+import { BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL } from '../constants'
 import DeleteCourseModal from '../DeleteCourseModal'
-import {redirect} from "../../../constants/redirect";
+import { redirect } from '../../../constants/redirect'
 
 const THIS_YEAR = '2020'
 class CoursesPageBase extends Component {
@@ -194,105 +193,102 @@ class CoursesPageBase extends Component {
     } = this.state
 
     return (
-      <>
-        <Navigation />
-        <main className="courses_main">
-          <div className="courses">
-            <Nav tabs>
-              {this.props.isSignedIn && (
-                <NavItem>
-                  <NL
-                    className={classnames({
-                      active: this.state.activeTab === '1',
-                    })}
-                    onClick={() => {
-                      this.toggle('1')
-                    }}
-                  >
-                    <span className="tab">My Courses</span>
-                  </NL>
-                </NavItem>
-              )}
+      <main className="courses_main">
+        <div className="courses">
+          <Nav tabs>
+            {this.props.isSignedIn && (
               <NavItem>
                 <NL
                   className={classnames({
-                    active: this.state.activeTab === '2',
+                    active: this.state.activeTab === '1',
                   })}
                   onClick={() => {
-                    this.toggle('2')
+                    this.toggle('1')
                   }}
                 >
-                  <span className="tab">Active Courses</span>
+                  <span className="tab">My Courses</span>
                 </NL>
               </NavItem>
-              {this.props.isSignedIn && (
-                <NavItem>
-                  <NL
-                    className={classnames({
-                      active: this.state.activeTab === '3',
-                    })}
-                    onClick={() => {
-                      this.toggle('3')
-                    }}
-                  >
-                    <span className="tab">Archived Courses</span>
-                  </NL>
-                </NavItem>
-              )}
-              {this.props.isSignedIn && this.props.isAdmin && (
-                <NavItem>
-                  <NL
-                    className={classnames({
-                      active: this.state.activeTab === '4',
-                    })}
-                    onClick={() => {
-                      this.toggle('4')
-                    }}
-                  >
-                    <span className="tab">ALL Courses</span>
-                  </NL>
-                </NavItem>
-              )}
-            </Nav>
-            <TabContent activeTab={this.state.activeTab}>
-              {this.props.isSignedIn && (
-                <TabPane tabId="1">
-                  <CoursesList
-                    coursesList={myActiveCourses}
-                    enroll={null}
-                    isAdmin={this.props.isAdmin}
-                  />
-                </TabPane>
-              )}
-              <TabPane tabId="2">
+            )}
+            <NavItem>
+              <NL
+                className={classnames({
+                  active: this.state.activeTab === '2',
+                })}
+                onClick={() => {
+                  this.toggle('2')
+                }}
+              >
+                <span className="tab">Active Courses</span>
+              </NL>
+            </NavItem>
+            {this.props.isSignedIn && (
+              <NavItem>
+                <NL
+                  className={classnames({
+                    active: this.state.activeTab === '3',
+                  })}
+                  onClick={() => {
+                    this.toggle('3')
+                  }}
+                >
+                  <span className="tab">Archived Courses</span>
+                </NL>
+              </NavItem>
+            )}
+            {this.props.isSignedIn && this.props.isAdmin && (
+              <NavItem>
+                <NL
+                  className={classnames({
+                    active: this.state.activeTab === '4',
+                  })}
+                  onClick={() => {
+                    this.toggle('4')
+                  }}
+                >
+                  <span className="tab">ALL Courses</span>
+                </NL>
+              </NavItem>
+            )}
+          </Nav>
+          <TabContent activeTab={this.state.activeTab}>
+            {this.props.isSignedIn && (
+              <TabPane tabId="1">
                 <CoursesList
-                  coursesList={activeCourses}
-                  enroll={this.props.isSignedIn ? true : null}
+                  coursesList={myActiveCourses}
+                  enroll={null}
                   isAdmin={this.props.isAdmin}
                 />
               </TabPane>
-              {this.props.isSignedIn && (
-                <TabPane tabId="3">
-                  <CoursesList
-                    coursesList={myArchivedCourses}
-                    enroll={null}
-                    isAdmin={this.props.isAdmin}
-                  />
-                </TabPane>
-              )}
-              {this.props.isAdmin && (
-                <TabPane tabId="4">
-                  <CoursesList
-                    coursesList={allCourses}
-                    enroll={null}
-                    isAdmin={this.props.isAdmin}
-                  />
-                </TabPane>
-              )}
-            </TabContent>
-          </div>
-        </main>
-      </>
+            )}
+            <TabPane tabId="2">
+              <CoursesList
+                coursesList={activeCourses}
+                enroll={this.props.isSignedIn ? true : null}
+                isAdmin={this.props.isAdmin}
+              />
+            </TabPane>
+            {this.props.isSignedIn && (
+              <TabPane tabId="3">
+                <CoursesList
+                  coursesList={myArchivedCourses}
+                  enroll={null}
+                  isAdmin={this.props.isAdmin}
+                />
+              </TabPane>
+            )}
+            {this.props.isAdmin && (
+              <TabPane tabId="4">
+                <CoursesList
+                  coursesList={allCourses}
+                  enroll={null}
+                  isAdmin={this.props.isAdmin}
+                />
+              </TabPane>
+            )}
+          </TabContent>
+        </div>
+      </main>
     )
   }
 }
@@ -331,7 +327,7 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
                     courseInstance={course.courses[0]}
                   />
                 ) : (
-                  <span className='requested'>Requested</span>
+                  <span className="requested">Requested</span>
                 ))}
             </div>
           </div>
@@ -360,7 +356,11 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
                     {/*>*/}
                     {/*  <span className="edit-delete-buttons">Delete</span>*/}
                     {/*</NavLink>*/}
-                    <DeleteCourseModal course={course} courseInstance={null} type='course' />
+                    <DeleteCourseModal
+                      course={course}
+                      courseInstance={null}
+                      type="course"
+                    />
                   </div>
                 )}
               </div>
@@ -412,7 +412,7 @@ const CollapsableCourse = ({ course, enroll, isAdmin }) => (
                           courseInstance={course.courses[0]}
                         />
                       ) : (
-                        <span className='requested'>Requested</span>
+                        <span className="requested">Requested</span>
                       ))}
                     <RoleIcon course={courseInstance} />
                     {/* edit/delete course */}
@@ -424,7 +424,11 @@ const CollapsableCourse = ({ course, enroll, isAdmin }) => (
                         >
                           <span className="edit-delete-buttons">Edit</span>
                         </NavLink>
-                        <DeleteCourseModal course={course} courseInstance={courseInstance} type='courseInstance' />
+                        <DeleteCourseModal
+                          course={course}
+                          courseInstance={courseInstance}
+                          type="courseInstance"
+                        />
                         {/*<NavLink*/}
                         {/*  className="edit-delete-buttons"*/}
                         {/*  to={`/deleteevent/${courseInstance.id}`}*/}
