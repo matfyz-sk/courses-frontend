@@ -28,6 +28,7 @@ import { setUserAdmin, fetchUser } from '../../../redux/actions'
 import { axiosRequest, getData } from '../AxiosRequests'
 import {BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL} from '../constants'
 import DeleteCourseModal from '../DeleteCourseModal'
+import {redirect} from "../../../constants/redirect";
 
 const THIS_YEAR = '2020'
 class CoursesPageBase extends Component {
@@ -311,7 +312,11 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
         !course.admin &&
         !isAdmin ? (
           <div className="single-course-container">
-            <NavLink to={ROUTES.TIMELINE + course.courses[0].id}>
+            <NavLink
+              to={redirect(ROUTES.TIMELINE, [
+                { key: 'course_id', value: course.courses[0].id },
+              ])}
+            >
               <span className="name">{course.name}</span>
               <br />
               <span className="about">{course.desc}</span>
