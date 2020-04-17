@@ -7,6 +7,7 @@ import QuestionNewData, {
   QuestionTypesEnums,
 } from '../question/question-new-data'
 import QuestionNew from '../question/question-new'
+import Comments from './comments/comments'
 
 function QuestionOverview({
   match,
@@ -29,81 +30,98 @@ function QuestionOverview({
   //   lastChange: '',
   // }
 
-  useEffect(() => {
+  const fetchQuestionChain = () => {
     const questionTypeOld = match.params.questionType
     const questionIdOld = match.params.questionId
     if (questionTypeOld && questionIdOld) {
       const fetchData = async () => {
-        return (
-          axios
-            // .get(`${apiConfig.API_URL}/${questionTypeOld}/${questionIdOld}?_join=hasAnswer`, {
-            .get(`${apiConfig.API_URL}/question?_join=hasAnswer`, {
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                Authorization: token,
-              },
-            })
-            .then(({ data }) => {
-              console.log(data)
-              if (
-                data &&
-                data['@graph'] &&
-                data['@graph'].length &&
-                data['@graph'].length > 0
-              ) {
-                const questionsMapped = data['@graph'].reduce(
-                  (accumulator, questionData) => {
-                    if (questionData) {
-                      const {
-                        name: titleData,
-                        text: questionTextData,
-                        ofTopic,
-                      } = questionData
-                      let topicData = ''
-                      if (ofTopic.length) {
-                        topicData = ofTopic[0]['@id']
-                      }
-                      const question = {
-                        id: questionData['@id'],
-                        title: titleData,
-                        questionText: questionTextData,
-                        topic: topicData,
-                        questionType: questionData['@type'],
-                      }
-                      switch (question.questionType) {
-                        case QuestionTypesEnums.multiple.id:
-                          question.answers = questionData.hasAnswer.map(
-                            answer => {
-                              const { correct, text } = answer
-                              return { id: answer['@id'], correct, text }
-                            }
-                          )
-                          break
-                        case QuestionTypesEnums.open.id:
-                          question.answers = [questionData.regexp]
-                          break
-                        case QuestionTypesEnums.essay.id:
-                          break
-                        default:
-                          break
-                      }
-                      accumulator.push(question)
+        return axios
+          .get(`${apiConfig.API_URL}/question?_join=hasAnswer,comment`, {
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: token,
+            },
+          })
+          .then(({ data }) => {
+            if (
+              data &&
+              data['@graph'] &&
+              data['@graph'].length &&
+              data['@graph'].length > 0
+            ) {
+              const questionsMapped = data['@graph'].reduce(
+                (accumulator, questionData) => {
+                  if (questionData) {
+                    const {
+                      name: titleData,
+                      text: questionTextData,
+                      ofTopic,
+                    } = questionData
+                    let topicData = ''
+                    if (ofTopic.length) {
+                      topicData = ofTopic[0]['@id']
                     }
-                    return accumulator
-                  },
-                  []
-                )
-                setQuestions(questionsMapped)
-              }
-            })
-            .catch(error => console.log(error))
-        )
+                    const question = {
+                      id: questionData['@id'],
+                      title: titleData,
+                      questionText: questionTextData,
+                      topic: topicData,
+                      questionType: questionData['@type'],
+                    }
+                    switch (question.questionType) {
+                      case QuestionTypesEnums.multiple.id:
+                        question.answers = questionData.hasAnswer.map(
+                          answer => {
+                            const { correct, text } = answer
+                            return { id: answer['@id'], correct, text }
+                          }
+                        )
+                        question.comments = questionData.comment
+                          .map(comment => {
+                            const {
+                              commentText,
+                              createdAt,
+                              createdBy,
+                            } = comment
+                            return {
+                              id: comment['@id'],
+                              createdAt,
+                              createdBy,
+                              commentText,
+                            }
+                          })
+                          .sort(
+                            (a, b) =>
+                              new Date(a.createdAt) - new Date(b.createdAt)
+                          )
+                        break
+                      case QuestionTypesEnums.open.id:
+                        question.answers = [questionData.regexp]
+                        break
+                      case QuestionTypesEnums.essay.id:
+                        break
+                      default:
+                        break
+                    }
+                    accumulator.push(question)
+                  }
+                  return accumulator
+                },
+                []
+              )
+              setQuestions(questionsMapped)
+            }
+          })
+          .catch(error => console.log(error))
       }
       fetchData()
     }
-  }, [token, match.params.questionType, match.params.questionId])
+  }
 
+  useEffect(() => {
+    fetchQuestionChain()
+  }, [token, match.params.questionType, match.params.questionId])
   return (
     <>
       {/* <h1>{this.state.title}</h1>
@@ -165,18 +183,28 @@ function QuestionOverview({
               topic,
               questionType,
               answers,
-              // TODO get comments
+              comments,
             } = question
             return (
-              <QuestionNew
-                key={id}
-                title={title}
-                question={questionText}
-                topic={topic}
-                questionType={questionType}
-                answers={answers}
-                disabled
-              />
+              <>
+                <QuestionNew
+                  key={id}
+                  title={title}
+                  question={questionText}
+                  topic={topic}
+                  questionType={questionType}
+                  answers={answers}
+                  disabled
+                />
+                <Comments
+                  comments={comments}
+                  token={token}
+                  questionAddress={id.substring(
+                    id.lastIndexOf('/', id.lastIndexOf('/') - 1)
+                  )}
+                  refetch={fetchQuestionChain}
+                />
+              </>
             )
           })}
         </>

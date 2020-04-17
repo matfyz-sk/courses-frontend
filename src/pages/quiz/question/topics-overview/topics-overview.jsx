@@ -231,7 +231,7 @@ class TopicsOverview extends Component {
 
   render() {
     const { topicCollapse, questionAssignments, questionsByTopic } = this.state
-    const { topics, isTeacher } = this.props
+    const { topics, isTeacher, match } = this.props
     return (
       <>
         <h1>Questions by topic</h1>
@@ -240,7 +240,6 @@ class TopicsOverview extends Component {
             topics.map((topic, index) => {
               const { name } = topic
               const id = topic['@id']
-              // console.log(id)
 
               const assignment = questionAssignments.find(
                 questionAssignment => {
@@ -264,6 +263,7 @@ class TopicsOverview extends Component {
                     toggle={this.toggle(index)}
                     collapse={topicCollapse[index]}
                     fetchDeleteAssignment={this.fetchDeleteAssignment}
+                    match={match}
                   />
                 </Card>
               )

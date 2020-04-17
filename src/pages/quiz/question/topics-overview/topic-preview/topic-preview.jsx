@@ -30,8 +30,8 @@ function TopicPreview(props) {
     isTeacher,
     fetchDeleteAssignment,
     questions,
+    match,
   } = props
-  // console.log(questions)
   let assignmentId
   let description
   let startTime
@@ -76,7 +76,7 @@ function TopicPreview(props) {
               color="success"
               tag={Link}
               to={{
-                pathname: '/quiz/questionAssignment',
+                pathname: `/courses/${match.params.courseId}/quiz/questionAssignment`,
                 state: { topic: id },
               }}
             >
@@ -93,6 +93,7 @@ function TopicPreview(props) {
                 isTeacher={isTeacher}
                 topic={id}
                 deleteAssignment={deleteAssignment}
+                match={match}
               />
             </>
           )}
@@ -108,7 +109,7 @@ function TopicPreview(props) {
                   headerText="In progress"
                   questions={questionsNotApproved}
                   isTeacher={isTeacher}
-                  link="/quiz/questionEdit"
+                  link={`/courses/${match.params.courseId}/quiz/questionEdit`}
                 />
               </Col>
             ) : null}
@@ -118,7 +119,7 @@ function TopicPreview(props) {
                   headerText="Approved"
                   questions={questionsApproved}
                   isTeacher={isTeacher}
-                  link="/quiz/questionEdit"
+                  link={`/courses/${match.params.courseId}/quiz/questionEdit`}
                 />
               </Col>
             ) : null}
@@ -131,7 +132,7 @@ function TopicPreview(props) {
               color="success"
               tag={Link}
               to={{
-                pathname: '/quiz/question',
+                pathname: `/courses/${match.params.courseId}/quiz/question`,
                 topic: id,
               }}
             >

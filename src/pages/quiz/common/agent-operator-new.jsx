@@ -15,6 +15,16 @@ class AgentOperatorNew extends Component {
     agent: '',
   }
 
+  componentDidMount() {
+    const { agentOptions } = this.props
+    this.setState({
+      agent:
+        agentOptions && agentOptions.length && agentOptions.length > 0
+          ? agentOptions[0].id
+          : '',
+    })
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const { agentOptions } = this.props
     if (agentOptions !== prevProps.agentOptions) {
@@ -46,6 +56,7 @@ class AgentOperatorNew extends Component {
     const { agentOptions } = this.props
     e.preventDefault()
     const { agent } = this.state
+
     const selectedAgent = agentOptions.find(
       agentOption => agentOption.id === agent
     )

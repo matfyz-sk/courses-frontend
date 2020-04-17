@@ -151,7 +151,7 @@ function QuestionNewData({
   useEffect(() => {
     const fetchData = async () => {
       return axios
-        .get(`${apiConfig.API_URL}/question?subclasses=true`, {
+        .get(`${apiConfig.API_URL}/question?_subclasses=true`, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -194,7 +194,9 @@ function QuestionNewData({
         })
         .catch(error => console.log(error))
     }
-    fetchData()
+    if (token) {
+      fetchData()
+    }
   }, [token])
 
   const changeAnswerText = (id, text) =>
@@ -278,7 +280,9 @@ function QuestionNewData({
         text: questionText,
         ofTopic: topic ? [topic] : [],
         hasAnswer,
-        next: question.id, // TODO add link to previous
+      }
+      if (question && question.id) {
+        questionWithPredefinedAnswer.next = question.id // TODO add link to previous
       }
       axios
         .post(
@@ -294,7 +298,11 @@ function QuestionNewData({
         )
         .then(({ status: statusQuestionAssignment }) => {
           if (statusQuestionAssignment === 200) {
-            history.push('/quiz/questionGroups')
+            history.push(
+              `/courses/:${courseInstanceId.substring(
+                courseInstanceId.lastIndexOf('/') + 1
+              )}/quiz/questionGroups}`
+            )
           }
         })
         .catch(error => console.log(error))
