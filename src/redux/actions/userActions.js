@@ -55,7 +55,6 @@ export const fetchUser = (token, userId) => {
               nickname: userData.nickname,
             }
           })[0]
-          console.log(user)
 
           dispatch({ type: SET_USER, user })
         }
