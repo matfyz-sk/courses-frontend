@@ -167,8 +167,7 @@ class Quiz extends Component {
               path="/courses/:courseId/quiz"
               render={({ match }) => (
                 <TopicsOverviewData
-                  courseInstanceId={courseInstanceId}
-                  // courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
                   isTeacher={isTeacher}
                   token={token}
                   userId={userId}
@@ -181,8 +180,7 @@ class Quiz extends Component {
               path="/courses/:courseId/quiz/createTopic"
               render={({ match }) => (
                 <NewTopic
-                  courseInstanceId={courseInstanceId}
-                  // courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
                   isTeacher={isTeacher}
                   token={token}
                   userId={userId}
@@ -194,8 +192,7 @@ class Quiz extends Component {
               path="/courses/:courseId/quiz/questionGroups"
               render={({ match }) => (
                 <TopicsOverviewData
-                  courseInstanceId={courseInstanceId}
-                  // courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
                   isTeacher={isTeacher}
                   token={token}
                   userId={userId}
@@ -208,8 +205,7 @@ class Quiz extends Component {
               path="/courses/:courseId/quiz/question"
               render={({ history, match }) => (
                 <QuestionNewData
-                  courseInstanceId={courseInstanceId}
-                  // courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
                   isTeacher={isTeacher}
                   token={token}
                   userId={userId}
@@ -222,8 +218,7 @@ class Quiz extends Component {
               path="/courses/:courseId/quiz/questionEdit/:questionType/:questionId"
               render={({ match, history }) => (
                 <QuestionOverview
-                  courseInstanceId={courseInstanceId}
-                  // courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
                   userId={userId}
                   isTeacher={isTeacher}
                   token={token}
@@ -237,8 +232,7 @@ class Quiz extends Component {
               path="/courses/:courseId/quiz/questionAssignment"
               render={({ match, history }) => (
                 <QuestionAssignment
-                  courseInstanceId={courseInstanceId}
-                  // courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
                   userId={userId}
                   isTeacher={isTeacher}
                   token={token}
@@ -252,8 +246,7 @@ class Quiz extends Component {
               path="/courses/:courseId/quiz/questionAssignment/:questionAssignmentId"
               render={({ match, history }) => (
                 <QuestionAssignment
-                  courseInstanceId={courseInstanceId}
-                  // courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
                   userId={userId}
                   isTeacher={isTeacher}
                   token={token}
