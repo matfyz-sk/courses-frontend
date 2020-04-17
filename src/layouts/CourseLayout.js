@@ -6,14 +6,11 @@ import { NavigationCourse } from '../components/Navigation'
 import { store } from '../index'
 import { setMainNav } from '../redux/actions/navigationActions'
 // eslint-disable-next-line import/no-cycle
-import { authHeader } from '../components/Auth'
-import { BASE_URL, COURSE_INSTANCE_URL } from '../pages/core/constants'
-import { fetchCourseInstance, setCourseInstance } from '../redux/actions'
+import { fetchCourseInstance } from '../redux/actions'
 
 class CourseLayout extends Component {
   constructor(props) {
     super(props)
-    this.fetchCourses = this.fetchCourses.bind(this)
     this.state = {
       course_id: this.props.match.params.course_id ?? null,
       course: null,
@@ -37,11 +34,11 @@ class CourseLayout extends Component {
       <>
         <NavigationCourse
           abbr={
-            this.state.course
-              ? this.state.course.instanceOf[0].abbreviation
+            this.props.course
+              ? this.props.course.instanceOf[0].abbreviation
               : '...'
           }
-          courseId={this.state.course_id}
+          courseId={this.props.course_id}
         />
         {this.props.children}
       </>
@@ -49,8 +46,10 @@ class CourseLayout extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  return state
+const mapStateToProps = ({ courseInstanceReducer }) => {
+  return {
+    course: courseInstanceReducer.courseInstance,
+  }
 }
 
 export default withRouter(

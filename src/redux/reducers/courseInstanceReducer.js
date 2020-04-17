@@ -1,7 +1,7 @@
 import { SET_COURSE_INSTANCE } from '../types'
 
 const initialState = {
-  courseInstance: {},
+  courseInstance: null,
 }
 
 export default function courseInstanceReducer(state = initialState, action) {

@@ -10,25 +10,25 @@ export const setCourseInstance = item => ({
 
 export const fetchCourseInstance = course_id => {
   const header = authHeader()
-  fetch(
-    `${BASE_URL}${COURSE_INSTANCE_URL}/${course_id}?_join=instanceOf,covers`,
-    {
-      method: 'GET',
-      headers: header,
-      mode: 'cors',
-      credentials: 'omit',
-    }
-  )
-    .then(response => {
-      if (!response.ok) throw new Error(response)
-      else return response.json()
-    })
-    .then(data => {
-      if (data['@graph'].length > 0) {
-        const course = data['@graph'][0]
-        this.setState({ course }, () => {
-          store.dispatch(setCourseInstance(course))
-        })
+  return dispatch => {
+    fetch(
+      `${BASE_URL}${COURSE_INSTANCE_URL}/${course_id}?_join=instanceOf,covers`,
+      {
+        method: 'GET',
+        headers: header,
+        mode: 'cors',
+        credentials: 'omit',
       }
-    })
+    )
+      .then(response => {
+        if (!response.ok) throw new Error(response)
+        else return response.json()
+      })
+      .then(data => {
+        if (data['@graph'].length > 0) {
+          const course = data['@graph'][0]
+          dispatch(setCourseInstance(course))
+        }
+      })
+  }
 }

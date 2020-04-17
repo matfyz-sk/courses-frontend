@@ -211,18 +211,12 @@ class Timeline extends Component {
   }
 }
 
-const mapStateToProps = ({ userReducer, coursesReducer }) => {
+const mapStateToProps = ({ courseInstanceReducer }) => {
   return {
-    isSignedIn: userReducer.isSignedIn,
-    isAdmin: userReducer.isAdmin,
-    course: coursesReducer.course,
+    course: courseInstanceReducer.courseInstance,
   }
 }
 
-export default connect(mapStateToProps, { setUserAdmin, fetchCourseInstance })(
-  Timeline
-)
-
-// const condition = authUser => !!authUser;
+export default connect(mapStateToProps)(Timeline)
 
 // export default withAuthorization(condition)(Timeline);
