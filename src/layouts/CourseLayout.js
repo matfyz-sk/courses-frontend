@@ -30,15 +30,13 @@ class CourseLayout extends Component {
   }
 
   render() {
+    const { course } = this.props
+    const { course_id } = this.state
     return (
       <>
         <NavigationCourse
-          abbr={
-            this.props.course
-              ? this.props.course.instanceOf[0].abbreviation
-              : '...'
-          }
-          courseId={this.props.course_id}
+          abbr={course ? course.instanceOf[0].abbreviation : '...'}
+          courseId={course_id}
         />
         {this.props.children}
       </>
