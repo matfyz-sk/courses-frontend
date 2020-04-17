@@ -15,6 +15,7 @@ import { withRouter } from 'react-router-dom';
 import { emailValidator, passwordValidator } from '../../functions/validators';
 import GithubAuth from '../../components/Auth/GithubAuth';
 import { registerData } from '../../components/Auth';
+import { BACKEND_URL } from '../../configuration/api';
 
 class LoginPage extends Component {
   constructor(props) {
@@ -26,7 +27,7 @@ class LoginPage extends Component {
     this.state = {
       email: '',
       password: '',
-      loginURL: 'http://matfyz.sk:3010/auth/login',
+      loginURL: `${BACKEND_URL}/auth/login`,
       errors: {
         email: null,
         password: null,

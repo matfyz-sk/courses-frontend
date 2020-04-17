@@ -17,6 +17,7 @@ import {
   passwordValidator,
 } from '../../functions/validators';
 import { registerData } from '../../components/Auth';
+import { BACKEND_URL } from '../../configuration/api';
 
 export default class RegisterPage extends Component {
   constructor(props) {
@@ -51,7 +52,7 @@ export default class RegisterPage extends Component {
       },
       be_error: null,
       confirmed_conditions: false,
-      register_url: 'http://matfyz.sk:3010/auth/register',
+      register_url: `${BACKEND_URL}/auth/register`,
     };
   }
 
