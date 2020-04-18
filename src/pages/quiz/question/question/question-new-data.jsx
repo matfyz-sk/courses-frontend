@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 
 import { Button } from 'reactstrap'
@@ -48,7 +48,7 @@ function QuestionNewData({
   const [answers, setAnswers] = useState((question && question.answers) || [])
   const [answerId, setAnswerId] = useState(-2)
 
-  const saveTopics = topicsMapped => {
+  const saveTopics = useCallback(topicsMapped => {
     setTopicOptions(topicsMapped)
     if (
       topic === '' &&
@@ -60,7 +60,7 @@ function QuestionNewData({
         setTopic(topicsMapped[0].id)
       }
     }
-  }
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,7 +103,8 @@ function QuestionNewData({
                     }
                   }
                   return accumulator
-                }
+                },
+                []
               )
               saveTopics(topicsMapped)
             }
@@ -146,7 +147,7 @@ function QuestionNewData({
     if (courseInstanceId && isTeacher !== null && userId && token) {
       fetchData()
     }
-  }, [courseInstanceId, isTeacher, userId, token])
+  }, [courseInstanceId, isTeacher, userId, token, saveTopics])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -226,16 +227,18 @@ function QuestionNewData({
       setAnswers([answer])
     } else {
       const answersMapped = answers.map((answer, index) => {
+        const id = -Math.abs(index) - 1
         const answerMapped = {
           ...answer,
-          id: -Math.abs(index) - 1,
-          changeAnswerText: text => changeAnswerText(-1, text),
+          id,
+          changeAnswerText: text => changeAnswerText(id, text),
           changeAnswerChecked: changedChecked =>
-            changeAnswerChecked(-1, changedChecked),
+            changeAnswerChecked(id, changedChecked),
         }
         return answerMapped
       })
       setAnswers(answersMapped)
+      setAnswerId(-Math.abs(answersMapped.length) - 1)
     }
   }, [])
 
@@ -282,7 +285,7 @@ function QuestionNewData({
         hasAnswer,
       }
       if (question && question.id) {
-        questionWithPredefinedAnswer.next = question.id // TODO add link to previous
+        questionWithPredefinedAnswer.previous = question.id
       }
       axios
         .post(
@@ -299,9 +302,9 @@ function QuestionNewData({
         .then(({ status: statusQuestionAssignment }) => {
           if (statusQuestionAssignment === 200) {
             history.push(
-              `/courses/:${courseInstanceId.substring(
+              `/courses/${courseInstanceId.substring(
                 courseInstanceId.lastIndexOf('/') + 1
-              )}/quiz/questionGroups}`
+              )}/quiz/questionGroups`
             )
           }
         })

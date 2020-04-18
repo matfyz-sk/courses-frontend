@@ -11,7 +11,7 @@ import { connect } from 'react-redux'
 import apiConfig from '../../configuration/api'
 import NewTopic from './topics/new-topic'
 import { QuestionAssignment } from './question/question-assignment/question-assignment'
-import SideNav from '../../side-nav.tsx'
+// import SideNav from '../../side-nav.tsx'
 import QuestionOverview from './question/question-overview/question-overview'
 
 import QuizAssignmentsOverview from './quiz/quiz-assignment-overview/quiz-assignments-overview'
@@ -22,43 +22,9 @@ import { store } from '../../index'
 import { setSubNav } from '../../redux/actions/navigationActions'
 // import QuizTake from './quiz/quiz-take/quiz-take';
 
-//PROD
-const users = {
-  teacherHumbert: {
-    token: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU`,
-    userId: `http://www.courses.matfyz.sk/data/user/DhMok`, // Humbert
-  },
-  studentAlojz: {
-    token: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU`,
-    userId: `http://www.courses.matfyz.sk/data/user/K8kDX`, // Alojz
-  },
-  studentLujza: {
-    token: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU`,
-    userId: `http://www.courses.matfyz.sk/data/user/WksXq`, // Lujza
-  },
-}
-
-//DEV
-// const users = {
-//   teacherHumbert: {
-//     token: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU`,
-//     userId: `http://www.courses.matfyz.sk/data/user/cscNJ`, // Humbert
-//   },
-//   studentAlojz: {
-//     token: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU`,
-//     userId: `http://www.courses.matfyz.sk/data/user/n07Ph`, // Alojz
-//   },
-//   studentLujza: {
-//     token: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyVVJJIjoiaHR0cDovL3d3dy5jb3Vyc2VzLm1hdGZ5ei5zay9kYXRhL3VzZXIvcHQxb0siLCJlbWFpbCI6ImhhcnJ5LnBvdHRlckBnbWFpbC5jb20iLCJpYXQiOjE1ODQyMDA1ODN9.-V3OAviWMMQ_KaBvhDmETq38z1wCXnX9rkf1XbDDPwU`,
-//     userId: `http://www.courses.matfyz.sk/data/user/KH3N7`, // Lujza
-//   },
-// }
-
 class Quiz extends Component {
   state = {
     activeUser: null,
-    courseInstanceId: 'http://www.courses.matfyz.sk/data/courseInstance/aJpGT', //PROD
-    // courseInstanceId: 'http://www.courses.matfyz.sk/data/courseInstance/nUcWD', //DEV
   }
 
   componentDidMount() {
@@ -135,8 +101,8 @@ class Quiz extends Component {
   }
 
   render() {
-    const { activeUser, courseInstanceId } = this.state
-    const { user } = this.props
+    const { activeUser } = this.state
+    const { user, match } = this.props
     // eslint-disable-next-line no-underscore-dangle
     const token = user._token ? `Bearer ${user._token}` : null
     let userId = null
@@ -147,9 +113,13 @@ class Quiz extends Component {
       studentOf = activeUser.studentOf
       instructorOf = activeUser.instructorOf
     }
+
+    const courseInstanceId = match?.params?.course_id
+      ? `http://www.courses.matfyz.sk/data/courseInstance/${match.params.course_id}`
+      : null
     let isTeacher = null
     // let isStudent = null
-    if (instructorOf) {
+    if (instructorOf && courseInstanceId) {
       isTeacher = instructorOf.includes(courseInstanceId)
     }
     // if (studentOf) {
@@ -165,47 +135,42 @@ class Quiz extends Component {
             <Route
               exact
               path="/courses/:courseId/quiz"
-              render={({ match }) => (
+              render={({ match: matchChild }) => (
                 <TopicsOverviewData
-                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={courseInstanceId}
                   isTeacher={isTeacher}
                   token={token}
                   userId={userId}
-                  match={match}
+                  match={matchChild}
                 />
               )}
             />
             <Route
               exact
               path="/courses/:courseId/quiz/createTopic"
-              render={({ match }) => (
-                <NewTopic
-                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
-                  isTeacher={isTeacher}
-                  token={token}
-                  userId={userId}
-                />
+              render={() => (
+                <NewTopic isTeacher={isTeacher} token={token} userId={userId} />
               )}
             />
             <Route
               exact
               path="/courses/:courseId/quiz/questionGroups"
-              render={({ match }) => (
+              render={({ match: matchChild }) => (
                 <TopicsOverviewData
-                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={courseInstanceId}
                   isTeacher={isTeacher}
                   token={token}
                   userId={userId}
-                  match={match}
+                  match={matchChild}
                 />
               )}
             />
             <Route
               exact
               path="/courses/:courseId/quiz/question"
-              render={({ history, match }) => (
+              render={({ history }) => (
                 <QuestionNewData
-                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={courseInstanceId}
                   isTeacher={isTeacher}
                   token={token}
                   userId={userId}
@@ -216,13 +181,13 @@ class Quiz extends Component {
             <Route
               exact
               path="/courses/:courseId/quiz/questionEdit/:questionType/:questionId"
-              render={({ match, history }) => (
+              render={({ match: matchChild, history }) => (
                 <QuestionOverview
-                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={courseInstanceId}
                   userId={userId}
                   isTeacher={isTeacher}
                   token={token}
-                  match={match}
+                  match={matchChild}
                   history={history}
                 />
               )}
@@ -230,13 +195,13 @@ class Quiz extends Component {
             <Route
               exact
               path="/courses/:courseId/quiz/questionAssignment"
-              render={({ match, history }) => (
+              render={({ match: matchChild, history }) => (
                 <QuestionAssignment
-                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={courseInstanceId}
                   userId={userId}
                   isTeacher={isTeacher}
                   token={token}
-                  match={match}
+                  match={matchChild}
                   history={history}
                 />
               )}
@@ -244,13 +209,13 @@ class Quiz extends Component {
             <Route
               exact
               path="/courses/:courseId/quiz/questionAssignment/:questionAssignmentId"
-              render={({ match, history }) => (
+              render={({ match: matchChild, history }) => (
                 <QuestionAssignment
-                  courseInstanceId={`http://www.courses.matfyz.sk/data/courseInstance/${match?.params?.courseId}`}
+                  courseInstanceId={courseInstanceId}
                   userId={userId}
                   isTeacher={isTeacher}
                   token={token}
-                  match={match}
+                  match={matchChild}
                   history={history}
                 />
               )}
@@ -278,11 +243,15 @@ class Quiz extends Component {
   }
 }
 
-const mapStateToProps = ({ userReducer, coursesReducer, authReducer }) => {
+const mapStateToProps = ({
+  userReducer,
+  courseInstanceReducer,
+  authReducer,
+}) => {
   return {
     isSignedIn: userReducer.isSignedIn,
     isAdmin: userReducer.isAdmin,
-    course: coursesReducer.course,
+    courseInstance: courseInstanceReducer.courseInstance,
     user: authReducer,
   }
 }

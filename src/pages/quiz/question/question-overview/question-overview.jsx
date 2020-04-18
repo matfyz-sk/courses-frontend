@@ -1,13 +1,18 @@
 /* eslint-disable react/prefer-stateless-function */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
+import { Button } from 'reactstrap'
 import apiConfig from '../../../../configuration/api'
 import QuestionNewData, {
   QuestionTypesEnums,
 } from '../question/question-new-data'
 import QuestionNew from '../question/question-new'
 import Comments from './comments/comments'
+
+const enText = {
+  'edit-question': 'Edit question',
+}
 
 function QuestionOverview({
   match,
@@ -18,6 +23,7 @@ function QuestionOverview({
   history,
 }) {
   const [questions, setQuestions] = useState([])
+  const [showEditQuestion, setShowEditQuestion] = useState(false)
   // state = {
   //   questionVersions: [],
   //   isEdit: false,
@@ -30,19 +36,22 @@ function QuestionOverview({
   //   lastChange: '',
   // }
 
-  const fetchQuestionChain = () => {
+  const fetchQuestionChain = useCallback(() => {
     const questionTypeOld = match.params.questionType
     const questionIdOld = match.params.questionId
-    if (questionTypeOld && questionIdOld) {
+    if (questionTypeOld && questionIdOld && token) {
       const fetchData = async () => {
         return axios
-          .get(`${apiConfig.API_URL}/question?_join=hasAnswer,comment`, {
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-              Authorization: token,
-            },
-          })
+          .get(
+            `${apiConfig.API_URL}/${questionTypeOld}/${questionIdOld}?_join=hasAnswer,comment&_chain=previous`,
+            {
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                Authorization: token,
+              },
+            }
+          )
           .then(({ data }) => {
             if (
               data &&
@@ -57,6 +66,7 @@ function QuestionOverview({
                       name: titleData,
                       text: questionTextData,
                       ofTopic,
+                      createdBy: questionCreatedBy,
                     } = questionData
                     let topicData = ''
                     if (ofTopic.length) {
@@ -68,6 +78,7 @@ function QuestionOverview({
                       questionText: questionTextData,
                       topic: topicData,
                       questionType: questionData['@type'],
+                      createdBy: questionCreatedBy,
                     }
                     switch (question.questionType) {
                       case QuestionTypesEnums.multiple.id:
@@ -82,12 +93,12 @@ function QuestionOverview({
                             const {
                               commentText,
                               createdAt,
-                              createdBy,
+                              commentCreatedBy,
                             } = comment
                             return {
                               id: comment['@id'],
                               createdAt,
-                              createdBy,
+                              createdBy: commentCreatedBy,
                               commentText,
                             }
                           })
@@ -117,64 +128,29 @@ function QuestionOverview({
       }
       fetchData()
     }
-  }
+  }, [token, match.params.questionType, match.params.questionId, userId])
 
   useEffect(() => {
     fetchQuestionChain()
-  }, [token, match.params.questionType, match.params.questionId])
+  }, [fetchQuestionChain])
+
+  const changeShowEditQuestion = () => {
+    setShowEditQuestion(true)
+  }
   return (
     <>
-      {/* <h1>{this.state.title}</h1>
-        <Button onClick={() => this.setState({ isEdit: !this.state.isEdit })}>
-          Edit question
-        </Button>
-        {this.state.isEdit && lastKnownQuestionVersion ? (
-          <Question
-            questionId={decodeURIComponent(this.props.match.params.id)}
-            title={this.state.title}
-            text={lastKnownQuestionVersion.text.value}
-            answers={lastKnownQuestionVersion.answers}
-            topic={this.state.selectedTopic.id}
-            questionType={lastKnownQuestionVersion.questionType}
-            history={this.props.history}
-          />
-        ) : null}
-        {this.state.questionVersions.map(questionVersion => {
-          return (
-            <SavedQuestion
-              key={questionVersion.id}
-              id={questionVersion.id}
-              title={this.state.title}
-              text={questionVersion.text}
-              answers={questionVersion.answers}
-              topic={this.state.selectedTopic.name}
-              questionType={this.state.allQuestionTypes.get(
-                questionVersion.questionType
-              )}
-              comments={questionVersion.comments}
-              onSendComment={this.onSendComment}
-              isApprovedAsPublic={
-                this.state.approvedAsPublicId === questionVersion.id
-              }
-              isApprovedAsPrivate={
-                this.state.approvedAsPrivateId === questionVersion.id
-              }
-              isTeacher={!!isAdmin}
-              history={this.props.history}
-              isPreview
-            />
-          )
-        })} */}
       {questions && questions.length > 0 && (
         <>
-          <QuestionNewData
-            courseInstanceId={courseInstanceId}
-            isTeacher={isTeacher}
-            token={token}
-            userId={userId}
-            history={history}
-            question={questions[0]}
-          />
+          {showEditQuestion && (
+            <QuestionNewData
+              courseInstanceId={courseInstanceId}
+              isTeacher={isTeacher}
+              token={token}
+              userId={userId}
+              history={history}
+              question={questions[0]}
+            />
+          )}
           {questions.map(question => {
             const {
               id,
@@ -184,9 +160,10 @@ function QuestionOverview({
               questionType,
               answers,
               comments,
+              createdBy,
             } = question
             return (
-              <>
+              <React.Fragment key={id}>
                 <QuestionNew
                   key={id}
                   title={title}
@@ -194,8 +171,15 @@ function QuestionOverview({
                   topic={topic}
                   questionType={questionType}
                   answers={answers}
+                  edit={changeShowEditQuestion}
                   disabled
-                />
+                >
+                  {createdBy === userId && (
+                    <Button color="success" onClick={changeShowEditQuestion}>
+                      {enText['edit-question']}
+                    </Button>
+                  )}
+                </QuestionNew>
                 <Comments
                   comments={comments}
                   token={token}
@@ -204,7 +188,7 @@ function QuestionOverview({
                   )}
                   refetch={fetchQuestionChain}
                 />
-              </>
+              </React.Fragment>
             )
           })}
         </>

@@ -366,7 +366,9 @@ export class QuestionAssignment extends Component {
           )
           .then(({ status: statusQuestionAssignment }) => {
             if (statusQuestionAssignment === 200) {
-              history.push('/quiz/questionGroups')
+              history.push(
+                `/courses/${match.params.courseId}/quiz/questionGroups`
+              )
             }
           })
           .catch(error => console.log(error))
