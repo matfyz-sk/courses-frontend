@@ -17,6 +17,7 @@ import CourseMigration from './CourseMigration'
 import CourseLayout from '../../layouts/CourseLayout'
 import PrivateOnlyRoute from '../../router/routes/PrivateOnlyRoute'
 import Teams from './Teams'
+import Profile from './Profile'
 
 const CoreRoutes = [
   <RouteWrapper
@@ -36,6 +37,10 @@ const CoreRoutes = [
     component={Teams}
     layout={CourseLayout}
     auth
+  />,
+  <PrivateOnlyRoute
+    path={ROUTES.PROFILE_SETTINGS}
+    component={Profile}
   />,
 
   <PrivateOnlyRoute path="/dashboard" component={LandingPage} />,

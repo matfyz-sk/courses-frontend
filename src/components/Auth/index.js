@@ -106,11 +106,20 @@ export function setUserToken(_token) {
 
 export function setUserProfile(user) {
   if (user !== null) {
-    store.dispatch(setUser({ name: 'user', value: user }))
-    localStorage.setItem('user', JSON.stringify(user))
+    const new_user = { ...getUser(), ...user }
+    store.dispatch(setUser({ name: 'user', value: new_user }))
+    localStorage.setItem('user', JSON.stringify(new_user))
     return true
   }
   return false
+}
+
+export function getUserID() {
+  const user = getUser()
+  if(user) {
+    return user.id
+  }
+  return null
 }
 
 export function authHeader() {
