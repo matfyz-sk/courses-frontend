@@ -20,7 +20,7 @@ export const INITIAL_EVENT_STATE = {
   endDate: new Date(),
   place: '',
   type: '',
-  instanceOf: '',
+  courseInstance: '',
 }
 
 export const BASE_URL = apiConfig.API_URL

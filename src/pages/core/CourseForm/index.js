@@ -12,6 +12,8 @@ import {
   COURSE_URL,
   USER_URL,
 } from '../constants'
+import {redirect} from "../../../constants/redirect";
+import * as ROUTES from "../../../constants/routes";
 
 class CourseForm extends Component {
   constructor(props) {
@@ -45,7 +47,10 @@ class CourseForm extends Component {
         const users = data.map(user => {
           return {
             fullId: user['@id'],
-            name: user.name ? user.name : '',
+            name:
+              user.firstName !== '' && user.lastName !== ''
+                ? `${user.firstName} ${user.lastName}`
+                : 'Noname',
           }
         })
         this.setState({
@@ -96,18 +101,21 @@ class CourseForm extends Component {
         description,
         abbreviation,
         hasPrerequisite,
-        // TODO uncomment when implemented
-        // hasAdmin
+        hasAdmin
       }),
       url
     ).then(response => {
-      if (response.status === 200) {
-        // TODO
+      if (response && response === 200) {
+        console.lof(response)
         console.log('Hurray!')
         if (typeOfForm === 'Create') {
-          // redirect to new Instance
+          //TODO redirect to new instance
+          // redirect(ROUTES.NEW_COURSE_INSTANCE, [
+          //   { key: 'course_id', value: this.state.courseId },
+          //   // { key: 'timeline_id', value: 1 },
+          // ])
         } else {
-          // redirect to courses
+          redirect(ROUTES.COURSES, [])
         }
       } else {
         // TODO
@@ -140,8 +148,6 @@ class CourseForm extends Component {
       users,
     } = this.state
     const { typeOfForm } = this.props
-
-    console.log(users)
 
     const isInvalid = name === '' || description === '' || abbreviation === ''
     return (

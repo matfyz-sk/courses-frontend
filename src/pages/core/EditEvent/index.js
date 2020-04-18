@@ -38,7 +38,6 @@ class EditEvent extends React.Component {
         })
       } else {
         // TODO zle id
-        console.log(response.status)
       }
     })
   }

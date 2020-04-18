@@ -59,12 +59,6 @@ const CoreRoutes = [
     auth
   />,
   <RouteWrapper
-    path={ROUTES.EDIT_COURSE}
-    component={EditCourse}
-    layout={CourseLayout}
-    auth
-  />,
-  <RouteWrapper
     path={ROUTES.NEW_EVENT}
     component={NewEvent}
     layout={CourseLayout}
@@ -84,15 +78,7 @@ const CoreRoutes = [
   />,
   <Route path={ROUTES.COURSES} component={CoursesPage} />,
   <Route path={ROUTES.NEW_COURSE} component={NewCourse} auth />,
-
-  // <Route path={ROUTES.CREATE_TIMELINE} component={CreateTimeline} auth />,
-  // <Route path={ROUTES.EVENT_ID} component={Event} auth />,
-  // <Route path={ROUTES.EDIT_EVENT_ID} component={EditEvent} auth />,
-  // <Route path={ROUTES.EDIT_COURSE} component={EditCourse} auth />,
-  // <Route path={ROUTES.NEW_EVENT} component={NewEvent} auth />,
-  // <Route path={ROUTES.NEW_COURSE} component={NewCourse} auth />,
-  // <Route path={ROUTES.USER_MANAGEMENT} component={UserManagement} auth />,
-  // <Route path={ROUTES.COURSE_MIGRATION} component={CourseMigration} auth />,
+  <Route path={ROUTES.EDIT_COURSE_ID} component={EditCourse} auth />,
 ]
 
 export default CoreRoutes

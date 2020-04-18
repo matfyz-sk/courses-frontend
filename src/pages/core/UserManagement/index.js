@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
 import { compose } from 'recompose'
 import { Alert, Button, Table } from 'reactstrap'
-
 // import { withAuthorization } from '../../../components/Session';
 import { connect } from 'react-redux'
-import { setUserAdmin, fetchCourseInstance } from '../../../redux/actions'
 
 import './UserManagement.css'
 import { BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL } from '../constants'
@@ -16,7 +14,6 @@ class UserManagement extends Component {
     super(props)
 
     this.state = {
-      course: {},
       courseFullId: '',
       requestedUsers: [],
       enrolledUsers: [],
@@ -24,74 +21,89 @@ class UserManagement extends Component {
   }
 
   componentDidMount() {
-    const {
-      match: { params },
-    } = this.props
-
-    this.setState({
-      courseFullId: `http://www.courses.matfyz.sk/data${COURSE_INSTANCE_URL}/${params.id}`,
-    })
-
-    const urlRequests = `${BASE_URL + USER_URL}?requests=${params.id}`
-    const urlEnrolled = `${BASE_URL + USER_URL}?studentOf=${params.id}`
-
-    axiosRequest('get', TOKEN, null, urlRequests)
-      .then(response => {
-        const data = getData(response)
-        if (data != null) {
-          const users = data.map(user => {
-            return {
-              id: getShortId(user['@id']),
-              fullId: user['@id'],
-              nickname: user.name,
-              // TODO firstName and lastName when implemented
-              firstName: '',
-              lastName: '',
-              studentOf: user.studentOf.map(course => {
-                return course['@id']
-              }),
-              requests: user.requests.map(course => {
-                return course['@id']
-              }),
-            }
-          })
-          this.setState({
-            requestedUsers: users,
-          })
-        }
+    this.setUsers()
+    if (this.props.course != null) {
+      this.setState({
+        courseFullId: this.props.course['@id'],
       })
-      .catch(error => console.log(error))
-
-    axiosRequest('get', TOKEN, null, urlEnrolled)
-      .then(response => {
-        const data = getData(response)
-        if (data != null) {
-          const users = data.map(user => {
-            return {
-              id: getShortId(user['@id']),
-              fullId: user['@id'],
-              nickname: user.name,
-              // TODO firstName and lastName when implemented
-              firstName: '',
-              lastName: '',
-              studentOf: user.studentOf.map(course => {
-                return course['@id']
-              }),
-              requests: user.requests.map(course => {
-                return course['@id']
-              }),
-            }
-          })
-          console.log('enrolled', users)
-          this.setState({
-            enrolledUsers: users,
-          })
-        }
-      })
-      .catch(error => console.log(error))
+    }
   }
 
-  changeStudentOfRequests = (userId, action) => {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.course !== this.props.course) {
+      this.setUsers()
+      if (this.props.course != null) {
+        this.setState({
+          courseFullId: this.props.course['@id'],
+        })
+      }
+    }
+  }
+
+  setUsers = () => {
+    const { course } = this.props
+
+    if (course != null) {
+      const courseId = getShortId(course['@id'])
+
+      const urlRequests = `${BASE_URL + USER_URL}?requests=${courseId}`
+      const urlEnrolled = `${BASE_URL + USER_URL}?studentOf=${courseId}`
+
+      axiosRequest('get', TOKEN, null, urlRequests)
+        .then(response => {
+          const data = getData(response)
+          if (data != null) {
+            const users = data.map(user => {
+              return {
+                id: getShortId(user['@id']),
+                fullId: user['@id'],
+                nickname: user.nickname,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                studentOf: user.studentOf.map(courseElement => {
+                  return courseElement['@id']
+                }),
+                requests: user.requests.map(courseElement => {
+                  return courseElement['@id']
+                }),
+              }
+            })
+            this.setState({
+              requestedUsers: users,
+            })
+          }
+        })
+        .catch(error => console.log(error))
+
+      axiosRequest('get', TOKEN, null, urlEnrolled)
+        .then(response => {
+          const data = getData(response)
+          if (data != null) {
+            const users = data.map(user => {
+              return {
+                id: getShortId(user['@id']),
+                fullId: user['@id'],
+                nickname: user.nickname,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                studentOf: user.studentOf.map(courseElement => {
+                  return courseElement['@id']
+                }),
+                requests: user.requests.map(courseElement => {
+                  return courseElement['@id']
+                }),
+              }
+            })
+            this.setState({
+              enrolledUsers: users,
+            })
+          }
+        })
+        .catch(error => console.log(error))
+    }
+  }
+
+  changeStatusOfStudent = (userId, action) => {
     const { courseFullId } = this.state
     const url = `${BASE_URL + USER_URL}/${userId}`
     const { requestedUsers, enrolledUsers } = this.state
@@ -164,7 +176,7 @@ class UserManagement extends Component {
   }
 
   render() {
-    const { enrolledUsers, requestedUsers, course } = this.state
+    const { enrolledUsers, requestedUsers } = this.state
 
     return (
       <div>
@@ -175,8 +187,8 @@ class UserManagement extends Component {
                 <h2>Requests (Confirmation required)</h2>
                 <RequestedUserList
                   users={requestedUsers}
-                  confirmRequest={this.changeStudentOfRequests}
-                  declineRequest={this.changeStudentOfRequests}
+                  confirmRequest={this.changeStatusOfStudent}
+                  declineRequest={this.changeStatusOfStudent}
                 />
               </div>
             )
@@ -190,7 +202,7 @@ class UserManagement extends Component {
             {enrolledUsers.length > 0 ? (
               <EnrolledUserList
                 users={enrolledUsers}
-                deleteUser={this.changeStudentOfRequests}
+                deleteUser={this.changeStatusOfStudent}
               />
             ) : (
               <Alert color="secondary" className="empty-message">
@@ -284,22 +296,15 @@ const EnrolledUserList = ({ users, deleteUser }) => (
   </Table>
 )
 
-const mapStateToProps = ({ userReducer, coursesReducer }) => {
+const mapStateToProps = ({ courseInstanceReducer }) => {
   return {
-    isSignedIn: userReducer.isSignedIn,
-    isAdmin: userReducer.isAdmin,
-    enrolledUsers: userReducer.enrolledUsers,
-    requestedUsers: userReducer.requestedUsers,
-    course: coursesReducer.course,
+    course: courseInstanceReducer.courseInstance,
   }
 }
 
 // const condition = () => true;
 
 export default compose(
-  connect(mapStateToProps, {
-    setUserAdmin,
-    fetchCourseInstance,
-  })
+  connect(mapStateToProps)
   // withAuthorization(condition),
 )(UserManagement)

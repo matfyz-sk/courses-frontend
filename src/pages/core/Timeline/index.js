@@ -8,16 +8,25 @@ import NextCalendar from '../NextCalendar'
 import * as ROUTES from '../../../constants/routes'
 import './Timeline.css'
 // import withAuthorization from "../../../components/Session/withAuthorization";
-import { setUserAdmin, fetchCourseInstance } from '../../../redux/actions'
 import { BASE_URL, EVENT_URL, TOKEN } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
+import { redirect } from '../../../constants/redirect'
+
+const TASKS = [
+  'OralExam',
+  'TestTake',
+  'Assignment Period',
+  'QuestionAssignment',
+  'GeneratedQuizAssignment',
+  'ManualQuizAssignment',
+]
+const SESSIONS = ['Lab', 'Lecture']
 
 class Timeline extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      course: {},
       eventsSorted: [],
       timelineBlocks: [], // for timeline purposes even Session can be a block
       nestedEvents: [],
@@ -29,11 +38,14 @@ class Timeline extends Component {
       match: { params },
     } = this.props
 
-    const url = `${BASE_URL + EVENT_URL}?instanceOf=${params.id}?_join=courseInstance,uses,recommends`
-    console.log(url)
+    const url = `${BASE_URL + EVENT_URL}?courseInstance=${
+      params.course_id
+    }&_join=courseInstance,uses,recommends`
+
     axiosRequest('get', TOKEN, null, url).then(response => {
       const data = getData(response)
-      if (data != null) {
+
+      if (data != null && data !== []) {
         const events = data.map(eventData => {
           const event = {
             id: getShortId(eventData['@id']),
@@ -61,8 +73,8 @@ class Timeline extends Component {
             courseAbbr: eventData.courseInstance[0]
               ? eventData.courseInstance[0].abbreviation
               : '',
+            courseInstance: eventData.courseInstance[0]['@id'],
           }
-          console.log(event.type)
           event.materials = mergeMaterials(event.uses, event.recommends)
           return event
         })
@@ -121,34 +133,38 @@ class Timeline extends Component {
       if (block.type === 'Block') {
         block.sessions = []
         block.tasks = []
-      }
-      for (const event of events) {
-        if (block.id !== event.id && event.type !== 'Block') {
-          if (
-            (event.type === 'Lecture' || event.type === 'Lab') &&
-            ((this.greaterEqual(event.startDate, block.startDate) &&
-              !this.greaterEqual(event.startDate, block.startDate)) ||
-              (this.greater(event.endDate, block.startDate) &&
-                !this.greater(event.endDate, block.endDate)))
-          ) {
-            event.displayDateTime = getDisplayDateTime(event.startDate, false)
-            block.sessions.push(event)
-            block.materials = mergeMaterials(block.materials, event.materials)
-          } else if (
-            ((event.type === 'OralExam' || event.type === 'TestTake') &&
-              this.greaterEqual(event.startDate, block.startDate) &&
-              !this.greaterEqual(event.startDate, block.endDate)) ||
-            (event.type === 'Task' &&
-              this.greater(event.endDate, block.startDate) &&
-              !this.greater(event.endDate, block.endDate))
-          ) {
-            if (event.type === 'OralExam' || event.type === 'TestTake') {
+
+        for (const event of events) {
+          if (block.id !== event.id && event.type !== 'Block') {
+            if (
+              SESSIONS.includes(event.type) &&
+              ((this.greaterEqual(event.startDate, block.startDate) &&
+                !this.greaterEqual(event.startDate, block.startDate)) ||
+                (this.greater(event.endDate, block.startDate) &&
+                  !this.greater(event.endDate, block.endDate)))
+            ) {
               event.displayDateTime = getDisplayDateTime(event.startDate, false)
-            } else if (event.type === 'Task') {
-              event.displayDateTime = getDisplayDateTime(event.endDate, false)
+              block.sessions.push(event)
+              block.materials = mergeMaterials(block.materials, event.materials)
+            } else if (
+              (TASKS.includes(event.type) &&
+                this.greaterEqual(event.startDate, block.startDate) &&
+                !this.greaterEqual(event.startDate, block.endDate)) ||
+              (event.type === 'Task' &&
+                this.greater(event.endDate, block.startDate) &&
+                !this.greater(event.endDate, block.endDate))
+            ) {
+              if (event.type === 'OralExam' || event.type === 'TestTake') {
+                event.displayDateTime = getDisplayDateTime(
+                  event.startDate,
+                  false
+                )
+              } else {
+                event.displayDateTime = getDisplayDateTime(event.endDate, false)
+              }
+              block.tasks.push(event)
+              block.materials = mergeMaterials(block.materials, event.materials)
             }
-            block.tasks.push(event)
-            block.materials = mergeMaterials(block.materials, event.materials)
           }
         }
       }
@@ -166,7 +182,8 @@ class Timeline extends Component {
 
   render() {
     const { eventsSorted, timelineBlocks, nestedEvents } = this.state
-    const { course } = this.props
+    const { course, user } = this.props
+    const courseId = course ? getShortId(course['@id']) : ''
 
     return (
       <>
@@ -174,9 +191,11 @@ class Timeline extends Component {
           <Alert color="secondary" className="empty-message">
             Timeline for this course is empty.
             <br />
-            {this.props.isAdmin && (
+            {user && user.isSuperadmin && (
               <NavLink
-                to={ROUTES.CREATE_TIMELINE}
+                to={redirect(ROUTES.CREATE_TIMELINE, [
+                  { key: 'course_id', value: courseId },
+                ])}
                 className="alert-link"
               >
                 Create NEW TIMELINE{' '}
@@ -188,19 +207,20 @@ class Timeline extends Component {
             <Row className="timeline-row">
               <Col xs="3" className="timeline-left-col">
                 <BlockMenu courseEvents={timelineBlocks} />
-                {this.props.isAdmin && ( // || myId===courseInstance.hasInstructor &&
-                  <div className="button-container">
-                    <NavLink to={`/createtimeline/${course.id}`}>
-                      <Button className="new-event-button">New Event</Button>
-                    </NavLink>
-                  </div>
-                )}
+                {user &&
+                user.isSuperadmin && ( // TODO || myId===courseInstance.hasInstructor &&
+                    <div className="button-container">
+                  <NavLink to={`/createtimeline/${course.id}`}>
+                        <Button className="new-event-button">New Event</Button>
+                      </NavLink>
+                </div>
+                  )}
                 <NextCalendar />
               </Col>
               <Col className="event-list-col">
                 <EventsList
                   courseEvents={nestedEvents}
-                  isAdmin={this.props.isAdmin}
+                  isAdmin={user ? user.isSuperadmin : false}
                 />
               </Col>
             </Row>
@@ -211,9 +231,10 @@ class Timeline extends Component {
   }
 }
 
-const mapStateToProps = ({ courseInstanceReducer }) => {
+const mapStateToProps = ({ userReducer, courseInstanceReducer }) => {
   return {
     course: courseInstanceReducer.courseInstance,
+    user: userReducer.user,
   }
 }
 

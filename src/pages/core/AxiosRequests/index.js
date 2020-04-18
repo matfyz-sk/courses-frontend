@@ -19,7 +19,7 @@ export const axiosRequest = (method, token, data, url) => {
 }
 
 export const getData = response => {
-  if (response.status === 200) {
+  if (response && response.status === 200) {
     const { data } = response
     if (
       data &&

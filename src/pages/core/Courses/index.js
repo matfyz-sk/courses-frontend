@@ -14,8 +14,7 @@ import {
 import { NavLink } from 'react-router-dom'
 import classnames from 'classnames'
 import { connect } from 'react-redux'
-import { compose } from 'recompose'
-import { withAuthorization } from '../../../components/Session'
+// import { withAuthorization } from '../../../components/Session'
 import * as ROUTES from '../../../constants/routes'
 
 import './Courses.css'
@@ -23,13 +22,11 @@ import EnrollModal from '../EnrollModal'
 import { getIcon } from '../Helper'
 import arrow from '../../../images/arrow.svg'
 
-import { setUserAdmin, fetchUser } from '../../../redux/actions'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL } from '../constants'
 import DeleteCourseModal from '../DeleteCourseModal'
 import { redirect } from '../../../constants/redirect'
 
-const THIS_YEAR = '2020'
 class CoursesPageBase extends Component {
   constructor(props) {
     super(props)
@@ -45,6 +42,24 @@ class CoursesPageBase extends Component {
   }
 
   componentDidMount() {
+    const activeTab = this.props.user ? '1' : '2'
+    this.setState({
+      activeTab,
+    })
+    this.setCourses()
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.user !== this.props.user) {
+      const activeTab = this.props.user ? '1' : '2'
+      this.setState({
+        activeTab,
+      })
+      this.setCourses()
+    }
+  }
+
+  setCourses = () => {
     const { user } = this.props
 
     const url = `${BASE_URL + COURSE_INSTANCE_URL}?_join=instanceOf`
@@ -73,25 +88,24 @@ class CoursesPageBase extends Component {
           for (const course of courses) {
             course.enrolled =
               user.studentOf.findIndex(userEnrolledCourse => {
-                return userEnrolledCourse['@id'] === course.fullId
+                return userEnrolledCourse['@id'] === course.fullURI
               }) > -1
 
             course.requests =
               user.requests.findIndex(userRequestedCourse => {
-                return userRequestedCourse['@id'] === course.fullId
+                return userRequestedCourse['@id'] === course.fullURI
               }) > -1
 
             course.instructor =
               user.instructorOf.findIndex(userInstructorCourse => {
-                return userInstructorCourse['@id'] === course.fullId
+                return userInstructorCourse['@id'] === course.fullURI
               }) > -1
 
-            // course.admin = false
-            //TODO uncomment when implemented
-            course.admin =
-              course.hasAdmin.findIndex(admin => {
-                return admin['@id'] === user.fullId
-              }) > -1
+            course.admin = course.hasAdmin
+              ? course.hasAdmin.findIndex(admin => {
+                  return admin['@id'] === user.fullURI
+                }) > -1
+              : false
           }
 
           let activeCourses = []
@@ -119,7 +133,6 @@ class CoursesPageBase extends Component {
               activeCourses.push(course)
             }
           }
-
           activeCourses = this.groupCourses(activeCourses)
           myActiveCourses = this.groupCourses(myActiveCourses)
           myArchivedCourses = this.groupCourses(myArchivedCourses)
@@ -192,6 +205,7 @@ class CoursesPageBase extends Component {
       myArchivedCourses,
       activeCourses,
       allCourses,
+      activeTab,
     } = this.state
 
     const { user } = this.props
@@ -204,7 +218,7 @@ class CoursesPageBase extends Component {
               <NavItem>
                 <NL
                   className={classnames({
-                    active: this.state.activeTab === '1',
+                    active: activeTab === '1',
                   })}
                   onClick={() => {
                     this.toggle('1')
@@ -217,7 +231,7 @@ class CoursesPageBase extends Component {
             <NavItem>
               <NL
                 className={classnames({
-                  active: this.state.activeTab === '2',
+                  active: activeTab === '2',
                 })}
                 onClick={() => {
                   this.toggle('2')
@@ -230,7 +244,7 @@ class CoursesPageBase extends Component {
               <NavItem>
                 <NL
                   className={classnames({
-                    active: this.state.activeTab === '3',
+                    active: activeTab === '3',
                   })}
                   onClick={() => {
                     this.toggle('3')
@@ -244,7 +258,7 @@ class CoursesPageBase extends Component {
               <NavItem>
                 <NL
                   className={classnames({
-                    active: this.state.activeTab === '4',
+                    active: activeTab === '4',
                   })}
                   onClick={() => {
                     this.toggle('4')
@@ -255,38 +269,43 @@ class CoursesPageBase extends Component {
               </NavItem>
             )}
           </Nav>
-          <TabContent activeTab={this.state.activeTab}>
-            {this.props.isSignedIn && (
+
+          <TabContent activeTab={activeTab}>
+            {user && (
               <TabPane tabId="1">
                 <CoursesList
                   coursesList={myActiveCourses}
                   enroll={null}
-                  isAdmin={this.props.isAdmin}
+                  myCourses
+                  isAdmin={user ? user.isSuperadmin : false}
                 />
               </TabPane>
             )}
             <TabPane tabId="2">
               <CoursesList
                 coursesList={activeCourses}
-                enroll={this.props.isSignedIn ? true : null}
-                isAdmin={this.props.isAdmin}
+                enroll={user ? true : null}
+                myCourses={false}
+                isAdmin={user ? user.isSuperadmin : false}
               />
             </TabPane>
-            {this.props.isSignedIn && (
+            {user && (
               <TabPane tabId="3">
                 <CoursesList
                   coursesList={myArchivedCourses}
                   enroll={null}
-                  isAdmin={this.props.isAdmin}
+                  myCourses={false}
+                  isAdmin={user ? user.isSuperadmin : false}
                 />
               </TabPane>
             )}
-            {this.props.isAdmin && (
+            {user && user.isSuperadmin && (
               <TabPane tabId="4">
                 <CoursesList
                   coursesList={allCourses}
                   enroll={null}
-                  isAdmin={this.props.isAdmin}
+                  myCourses={false}
+                  isAdmin={user ? user.isSuperadmin : false}
                 />
               </TabPane>
             )}
@@ -297,7 +316,7 @@ class CoursesPageBase extends Component {
   }
 }
 
-const CoursesList = ({ coursesList, enroll, isAdmin }) => (
+const CoursesList = ({ coursesList, enroll, myCourses, isAdmin }) => (
   <ListGroup>
     {coursesList.length === 0 && (
       <ListGroupItem className="course-container">
@@ -312,15 +331,11 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
         !course.admin &&
         !isAdmin ? (
           <div className="single-course-container">
-            <NavLink
-              to={redirect(ROUTES.TIMELINE, [
-                { key: 'course_id', value: course.courses[0].id },
-              ])}
-            >
-              <span className="name">{course.name}</span>
-              <br />
-              <span className="about">{course.desc}</span>
-            </NavLink>
+            {myCourses ? (
+              <NavLinkCourse course={course} to={ROUTES.TIMELINE} />
+            ) : (
+              <NavLinkCourse course={course} to={''} />
+            )}
 
             <div className="courses-right-top-corner-container">
               <RoleIcon course={course.courses[0]} />
@@ -372,6 +387,7 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
             <CollapsableCourse
               course={course}
               enroll={enroll}
+              myCourses={myCourses}
               isAdmin={isAdmin}
               className="collapsable-container"
             />
@@ -382,7 +398,28 @@ const CoursesList = ({ coursesList, enroll, isAdmin }) => (
   </ListGroup>
 )
 
-const CollapsableCourse = ({ course, enroll, isAdmin }) => (
+const NavLinkCourse = ({ course, to }) => (
+  <>
+    <NavLink
+      to={redirect(to, [{ key: 'course_id', value: course.courses[0].id }])}
+    >
+      <span className="name">{course.name}</span>
+      <br />
+      <span className="about">{course.desc}</span>
+    </NavLink>
+  </>
+)
+
+const NavLinkCourseInstance = ({ course, courseInstance, to }) => (
+  <>
+    <NavLink to={to} className="instance-container-name">
+      <span>{course.name}</span>&nbsp;
+      <b>{new Date(courseInstance.startDate).getFullYear()}</b>
+    </NavLink>
+  </>
+)
+
+const CollapsableCourse = ({ course, enroll, myCourses, isAdmin }) => (
   <div>
     <div className="arrow-container">
       <img
@@ -401,13 +438,20 @@ const CollapsableCourse = ({ course, enroll, isAdmin }) => (
             .map(courseInstance => (
               <ListGroup key={courseInstance.id}>
                 <ListGroupItem className="single-course-container instance-container">
-                  <NavLink
-                    to={ROUTES.TIMELINE + courseInstance.id}
-                    className="instance-container-name"
-                  >
-                    <span>{course.name}</span>&nbsp;
-                    <b>{courseInstance.year}</b>
-                  </NavLink>
+                  {myCourses ? (
+                    <NavLinkCourseInstance
+                      course={course}
+                      courseInstance={courseInstance}
+                      to={ROUTES.TIMELINE + courseInstance.id}
+                    />
+                  ) : (
+                    <NavLinkCourseInstance
+                      course={course}
+                      courseInstance={courseInstance}
+                      to={''}
+                    />
+                  )}
+
                   <div className="courses-right-top-corner-container">
                     {enroll != null &&
                       (!courseInstance.requests ? (
