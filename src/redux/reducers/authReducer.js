@@ -1,12 +1,7 @@
 import { AUTH_ACTIONS } from '../types/authTypes';
 
 const initialState = {
-  user: {
-    name: '',
-    avatar: null,
-    type: 'student',
-    email: '',
-  },
+  user: null,
   _token: null,
 };
 
