@@ -43,7 +43,9 @@ class EditEvent extends React.Component {
                 name: material.name,
               }
             }),
-            courseInstance: eventData.courseInstance[0]['@id'],
+            courseInstance: eventData.courseInstance
+              ? eventData.courseInstance[0]['@id']
+              : '',
           }
         })[0]
 
@@ -68,7 +70,11 @@ class EditEvent extends React.Component {
           <Card>
             <CardHeader className="event-card-header">Edit Event</CardHeader>
             <CardBody>
-              <EventForm typeOfForm="Edit" {...event} />
+              <EventForm
+                typeOfForm="Edit"
+                {...event}
+                options={[event.type]}
+              />
             </CardBody>
           </Card>
         </Container>

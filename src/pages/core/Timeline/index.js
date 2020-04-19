@@ -12,7 +12,6 @@ import { BASE_URL, EVENT_URL, TOKEN, TASKS, SESSIONS } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 
-
 class Timeline extends Component {
   constructor(props) {
     super(props)
@@ -199,9 +198,13 @@ class Timeline extends Component {
               <Col xs="3" className="timeline-left-col">
                 <BlockMenu courseEvents={timelineBlocks} />
                 {user &&
-                user.isSuperadmin && ( // TODO || myId===courseInstance.hasInstructor &&
+                user.isSuperAdmin && ( // TODO || myId===courseInstance.hasInstructor &&
                     <div className="button-container">
-                      <NavLink to={`/createtimeline/${course.id}`}>
+                      <NavLink
+                        to={redirect(ROUTES.CREATE_TIMELINE, [
+                          { key: 'course_id', value: courseId },
+                        ])}
+                      >
                         <Button className="new-event-button">New Event</Button>
                       </NavLink>
                     </div>

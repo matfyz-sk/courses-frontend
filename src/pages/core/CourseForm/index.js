@@ -12,13 +12,19 @@ import {
   COURSE_URL,
   USER_URL,
 } from '../constants'
-import {redirect} from "../../../constants/redirect";
-import * as ROUTES from "../../../constants/routes";
+import * as ROUTES from '../../../constants/routes'
+import { getShortId } from '../Helper'
+import { Redirect } from 'react-router-dom'
 
 class CourseForm extends Component {
   constructor(props) {
     super(props)
-    this.state = { ...INITIAL_COURSE_STATE, courses: [], users: [] }
+    this.state = {
+      ...INITIAL_COURSE_STATE,
+      courses: [],
+      users: [],
+      redirect: null,
+    }
   }
 
   componentDidMount() {
@@ -90,7 +96,7 @@ class CourseForm extends Component {
 
     if (typeOfForm === 'Edit') {
       url += `/${id}`
-      method = 'put'
+      method = 'patch'
     }
 
     axiosRequest(
@@ -101,20 +107,21 @@ class CourseForm extends Component {
         description,
         abbreviation,
         hasPrerequisite,
-        hasAdmin
+        hasAdmin,
       }),
       url
     ).then(response => {
       if (response && response.status === 200) {
-        console.log('Hurray!')
+        let newUrl
         if (typeOfForm === 'Create') {
-          //TODO redirect to new instance
-          // redirect(ROUTES.NEW_COURSE_INSTANCE, [
-          //   { key: 'course_id', value: this.state.courseId },
-          //   // { key: 'timeline_id', value: 1 },
-          // ])
+          const newCourseId = getShortId(response.data.resource.iri)
+          newUrl = `newcourseinstance/${newCourseId}`
+          this.setState({
+            redirect: newUrl,
+          })
         } else {
-          redirect(ROUTES.COURSES, [])
+          newUrl = `courses/${id}`
+          console.log(newUrl)
         }
       } else {
         // TODO
@@ -145,8 +152,13 @@ class CourseForm extends Component {
       admins,
       courses,
       users,
+      redirect,
     } = this.state
     const { typeOfForm } = this.props
+
+    if (redirect) {
+      return <Redirect to={redirect} />
+    }
 
     const isInvalid = name === '' || description === '' || abbreviation === ''
     return (

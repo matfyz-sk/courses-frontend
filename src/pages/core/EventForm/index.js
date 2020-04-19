@@ -16,7 +16,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import './NewEventFormStyle.css'
 import {
   BASE_URL,
-  COURSE_INSTANCE_URL,
+  COURSE_INSTANCE_URL, COURSE_URL,
   EVENT_URL,
   INITIAL_EVENT_STATE,
   TOKEN,
@@ -63,10 +63,15 @@ class EventForm extends Component {
     const courseInstanceFullId = [
       `http://www.courses.matfyz.sk/data${COURSE_INSTANCE_URL}/${courseId}`,
     ]
+    const courseFullId = [
+      `http://www.courses.matfyz.sk/data${COURSE_URL}/${courseId}`,
+    ]
 
-    const typeLowerCase = type.toLowerCase()
 
+    const typeLowerCase = this.lowerFirstLetter(type)
     let url = `${BASE_URL}/${typeLowerCase}/${id}`
+    console.log(url)
+
     let method = 'patch'
     let data = {
       name,
@@ -82,27 +87,36 @@ class EventForm extends Component {
       // eslint-disable-next-line no-underscore-dangle
       data._type = type
       data.courseInstance = courseInstanceFullId
+    } else if (typeOfForm === 'New Course Instance') {
+      url = BASE_URL + COURSE_INSTANCE_URL
+      method = 'post'
+      data.instanceOf = courseFullId
     }
 
-    console.log(type)
-    // axiosRequest(
-    //   method,
-    //   TOKEN,
-    //   JSON.stringify(data),
-    //   url
-    // )
-    //   .then(response => {
-    //     if (response && response.status === 200) {
-    //       // TODO redirect to event/id
-    //       console.log('Hooray!')
-    //     } else {
-    //       // TODO
-    //       console.log('Ooops!')
-    //     }
-    //   })
-    //   .catch()
+    console.log(data)
+    axiosRequest(
+      method,
+      TOKEN,
+      JSON.stringify(data),
+      url
+    )
+      .then(response => {
+        if (response && response.status === 200) {
+          // TODO redirect to event/id
+          console.log('Hooray!')
+        } else {
+          // TODO
+          console.log('Ooops!')
+        }
+      })
+      .catch()
     event.preventDefault()
   }
+
+  lowerFirstLetter = (s) => {
+    return s.charAt(0).toLowerCase() + s.slice(1)
+  }
+
 
   onChange = event => {
     this.setState({ [event.target.name]: event.target.value })
@@ -118,7 +132,7 @@ class EventForm extends Component {
 
   render() {
     const { name, description, startDate, endDate, place, type } = this.state
-    const { typeOfForm } = this.props
+    const { typeOfForm, options } = this.props
 
     const isInvalid =
       name === '' ||
@@ -153,9 +167,9 @@ class EventForm extends Component {
             value={type}
             onChange={this.onChange}
           >
-            <option value="Lecture">Lecture</option>
-            <option value="Lab">Lab</option>
-            <option value="Block">Block</option>
+            {options.map(option => (
+              <option value={option}>{option}</option>
+            ))}
           </Input>
         </FormGroup>
 

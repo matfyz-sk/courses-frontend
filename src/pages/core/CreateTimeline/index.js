@@ -13,33 +13,23 @@ import { connect } from 'react-redux'
 import EventForm from '../EventForm'
 import { BlockMenu, SubEventList } from '../Events'
 import ModalCreateEvent from '../ModalCreateEvent'
-import { fetchCourseInstance, setUserAdmin } from '../../../redux/actions'
-import { TOKEN } from '../constants'
 
 class CreateTimeline extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {
-      course: {},
-    }
   }
 
   componentDidMount() {
-    const {
-      match: { params },
-    } = this.props
-
-    this.props.fetchCourseInstance(TOKEN, params.id).then(() => {
-      const { course } = this.props
-
-      this.setState({
-        course,
-      })
-    })
+    // const {
+    //   match: { params },
+    // } = this.props
+    //
+    // const { course } = this.props
+    //
   }
 
   render() {
-    const { course } = this.state
+    const { course } = this.props
     return (
       <div>
         <Container className="core-container">
@@ -61,7 +51,11 @@ const NewEventTimelineCard = () => (
   <Card>
     <CardHeader className="event-card-header">New Event</CardHeader>
     <CardBody>
-      <EventForm typeOfForm="Create" type="Block" />
+      <EventForm
+        typeOfForm="Create"
+        type="Block"
+        options={['Lab', 'Lecture', 'Block']}
+      />
       <Container className="sessions-tasks-container">
         <Row>
           <Col className="subevents-col-left">
@@ -98,13 +92,11 @@ const NewEventTimelineCard = () => (
   </Card>
 )
 
-
-const mapStateToProps = ({ userReducer, coursesReducer }) => {
+const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
   return {
-    isSignedIn: userReducer.isSignedIn,
-    isAdmin: userReducer.isAdmin,
-    course: coursesReducer.course,
+    user: authReducer.user,
+    course: courseInstanceReducer.courseInstance,
   }
 }
 
-export default connect(mapStateToProps, { setUserAdmin, fetchCourseInstance })(CreateTimeline)
+export default connect(mapStateToProps)(CreateTimeline)
