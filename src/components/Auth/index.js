@@ -106,11 +106,20 @@ export function setUserToken(_token) {
 
 export function setUserProfile(user) {
   if (user !== null) {
-    store.dispatch(setUser({ name: 'user', value: user }))
-    localStorage.setItem('user', JSON.stringify(user))
+    const new_user = { ...getUser(), ...user }
+    store.dispatch(setUser({ name: 'user', value: new_user }))
+    localStorage.setItem('user', JSON.stringify(new_user))
     return true
   }
   return false
+}
+
+export function getUserID() {
+  const user = getUser()
+  if(user) {
+    return user.id
+  }
+  return null
 }
 
 export function authHeader() {
@@ -127,5 +136,25 @@ export function authHeader() {
     'Content-Type': 'application/json',
     Accept: 'application/json',
     'Cache-Control': 'no-cache',
+  }
+}
+
+export function getUserInCourseType(course_id) {
+  const user = getUser()
+  if (!user) {
+    return 'visitor'
+  }
+  else {
+    for (let i = 0; i < user.studentOf.length; i++) {
+      if (user.studentOf[i].indexOf(course_id) !== -1) {
+        return 'student'
+      }
+    }
+    for (let i = 0; i < user.instructorOf.length; i++) {
+      if (user.instructorOf[i].indexOf(course_id) !== -1) {
+        return 'instructor'
+      }
+    }
+    return 'visitor'
   }
 }

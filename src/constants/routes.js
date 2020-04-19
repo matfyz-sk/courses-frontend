@@ -3,6 +3,8 @@ import { coursePrefix } from './prefix'
 export const DASHBOARD = coursePrefix('/dashboard')
 export const SIGN_UP = '/signup'
 export const SIGN_IN = '/signin'
+export const PROFILE_SETTINGS = '/profile-settings'
+export const PRIVACY_SETTINGS = '/privacy-settings'
 export const COURSES = '/courses'
 export const NEW_EVENT = coursePrefix('/newevent')
 export const EVENT_ID = coursePrefix('/event/:event_id')
@@ -22,3 +24,4 @@ export const DOCUMENTS = '/documents'
 export const INFO = '/info'
 
 export const COURSE_TEAMS = coursePrefix('/teams')
+export const COURSE_TEAMS_DETAIL = coursePrefix('/teams/:team_id')

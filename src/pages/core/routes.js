@@ -1,5 +1,6 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
+import { Switch } from 'react-router'
 import LandingPage from './Landing'
 import CoursesPage from './Courses'
 import Course from './Course'
@@ -17,6 +18,8 @@ import CourseMigration from './CourseMigration'
 import CourseLayout from '../../layouts/CourseLayout'
 import PrivateOnlyRoute from '../../router/routes/PrivateOnlyRoute'
 import Teams from './Teams'
+import Profile from './Profile'
+import TeamDetail from './Teams/TeamDetail'
 import NewCourseInstance from "./NewCourseInstance";
 
 const CoreRoutes = [
@@ -33,11 +36,18 @@ const CoreRoutes = [
     auth
   />,
   <RouteWrapper
+    path={ROUTES.COURSE_TEAMS_DETAIL}
+    component={TeamDetail}
+    layout={CourseLayout}
+    auth
+  />,
+  <RouteWrapper
     path={ROUTES.COURSE_TEAMS}
     component={Teams}
     layout={CourseLayout}
     auth
   />,
+  <PrivateOnlyRoute path={ROUTES.PROFILE_SETTINGS} component={Profile} />,
 
   <PrivateOnlyRoute path="/dashboard" component={LandingPage} />,
 
