@@ -18,6 +18,7 @@ import CourseLayout from '../../layouts/CourseLayout'
 import PrivateOnlyRoute from '../../router/routes/PrivateOnlyRoute'
 import Teams from './Teams'
 import Profile from './Profile'
+import TeamDetail from './Teams/TeamDetail'
 
 const CoreRoutes = [
   <RouteWrapper
@@ -33,15 +34,18 @@ const CoreRoutes = [
     auth
   />,
   <RouteWrapper
+    path={ROUTES.COURSE_TEAMS_DETAIL}
+    component={TeamDetail}
+    layout={CourseLayout}
+    auth
+  />,
+  <RouteWrapper
     path={ROUTES.COURSE_TEAMS}
     component={Teams}
     layout={CourseLayout}
     auth
   />,
-  <PrivateOnlyRoute
-    path={ROUTES.PROFILE_SETTINGS}
-    component={Profile}
-  />,
+  <PrivateOnlyRoute path={ROUTES.PROFILE_SETTINGS} component={Profile} />,
 
   <PrivateOnlyRoute path="/dashboard" component={LandingPage} />,
 

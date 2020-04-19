@@ -22,3 +22,4 @@ export const DOCUMENTS = '/documents'
 export const INFO = '/info'
 
 export const COURSE_TEAMS = coursePrefix('/teams')
+export const COURSE_TEAMS_DETAIL = coursePrefix('/teams/:team_id')

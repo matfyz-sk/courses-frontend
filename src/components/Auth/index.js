@@ -138,3 +138,23 @@ export function authHeader() {
     'Cache-Control': 'no-cache',
   }
 }
+
+export function getUserInCourseType(course_id) {
+  const user = getUser()
+  if (!user) {
+    return 'visitor'
+  }
+  else {
+    for (let i = 0; i < user.studentOf.length; i++) {
+      if (user.studentOf[i].indexOf(course_id) !== -1) {
+        return 'student'
+      }
+    }
+    for (let i = 0; i < user.instructorOf.length; i++) {
+      if (user.instructorOf[i].indexOf(course_id) !== -1) {
+        return 'instructor'
+      }
+    }
+    return 'visitor'
+  }
+}
