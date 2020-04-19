@@ -3,7 +3,7 @@ export const BACKEND_URL =
     ? 'https://courses.matfyz.sk:4440' // TESTING
     : 'https://courses.matfyz.sk:4440'
 // 'https://courses.matfyz.sk:4441' // PRODUCTION PLS DON'T use this server, only when deploying
-// 'localhost:3010' // Local
+// 'http://localhost:3010' // Local
 
 const API_URL = `${BACKEND_URL}/data`
 
