@@ -30,9 +30,10 @@ function QuestionNew({
   addNewAnswer,
   disabled,
   children,
+  color,
 }) {
   return (
-    <Card>
+    <Card style={color && { backgroundColor: color }}>
       <CardBody>
         {title !== null && (setTitle || disabled) && (
           <FormGroup>

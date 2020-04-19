@@ -6,7 +6,7 @@ import {
   ListGroupItemHeading,
   ListGroupItemText,
 } from 'reactstrap'
-import apiConfig from '../../../../../../configuration/api'
+import apiConfig from '../../../../../../../configuration/api'
 
 function Comments({ id, commentText, createdAt, createdBy, token }) {
   const [author, setAuthor] = useState('')

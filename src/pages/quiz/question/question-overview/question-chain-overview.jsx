@@ -2,17 +2,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
-import { Button } from 'reactstrap'
-import apiConfig from '../../../../configuration/api'
+import { API_URL } from '../../../../configuration/api'
 import QuestionNewData, {
   QuestionTypesEnums,
 } from '../question/question-new-data'
-import QuestionNew from '../question/question-new'
-import Comments from './comments/comments'
-
-const enText = {
-  'edit-question': 'Edit question',
-}
+import SavedQuestion from './saved-question/saved-question'
 
 function QuestionOverview({
   match,
@@ -24,17 +18,6 @@ function QuestionOverview({
 }) {
   const [questions, setQuestions] = useState([])
   const [showEditQuestion, setShowEditQuestion] = useState(false)
-  // state = {
-  //   questionVersions: [],
-  //   isEdit: false,
-  //   allQuestionTypes: {},
-  //   title: '',
-  //   approvedAsPublicId: '',
-  //   approvedAsPrivateId: '',
-  //   lastSeenByStudent: '',
-  //   lastSeenByTeacher: '',
-  //   lastChange: '',
-  // }
 
   const fetchQuestionChain = useCallback(() => {
     const questionTypeOld = match.params.questionType
@@ -43,7 +26,7 @@ function QuestionOverview({
       const fetchData = async () => {
         return axios
           .get(
-            `${apiConfig.API_URL}/${questionTypeOld}/${questionIdOld}?_join=hasAnswer,comment&_chain=previous`,
+            `${API_URL}/${questionTypeOld}/${questionIdOld}?_join=hasAnswer,comment&_chain=previous`,
             {
               headers: {
                 Accept: 'application/json',
@@ -67,6 +50,7 @@ function QuestionOverview({
                       text: questionTextData,
                       ofTopic,
                       createdBy: questionCreatedBy,
+                      approver,
                     } = questionData
                     let topicData = ''
                     if (ofTopic.length) {
@@ -79,6 +63,7 @@ function QuestionOverview({
                       topic: topicData,
                       questionType: questionData['@type'],
                       createdBy: questionCreatedBy,
+                      approver,
                     }
                     switch (question.questionType) {
                       case QuestionTypesEnums.multiple.id:
@@ -161,34 +146,30 @@ function QuestionOverview({
               answers,
               comments,
               createdBy,
+              approver,
             } = question
+            const isApproved = Array.isArray(approver) && approver.length > 0
             return (
-              <React.Fragment key={id}>
-                <QuestionNew
-                  key={id}
-                  title={title}
-                  question={questionText}
-                  topic={topic}
-                  questionType={questionType}
-                  answers={answers}
-                  edit={changeShowEditQuestion}
-                  disabled
-                >
-                  {createdBy === userId && (
-                    <Button color="success" onClick={changeShowEditQuestion}>
-                      {enText['edit-question']}
-                    </Button>
-                  )}
-                </QuestionNew>
-                <Comments
-                  comments={comments}
-                  token={token}
-                  questionAddress={id.substring(
-                    id.lastIndexOf('/', id.lastIndexOf('/') - 1)
-                  )}
-                  refetch={fetchQuestionChain}
-                />
-              </React.Fragment>
+              <SavedQuestion
+                key={id}
+                id={id}
+                title={title}
+                questionText={questionText}
+                topic={topic}
+                questionType={questionType}
+                answers={answers}
+                comments={comments}
+                changeShowEditQuestion={changeShowEditQuestion}
+                canEdit={!isApproved && createdBy === userId}
+                canApprove={!isApproved && isTeacher}
+                isApproved={isApproved}
+                canApproveAsPrivate={
+                  !isApproved && isTeacher && createdBy === userId
+                }
+                token={token}
+                callback={fetchQuestionChain}
+                userId={userId}
+              />
             )
           })}
         </>

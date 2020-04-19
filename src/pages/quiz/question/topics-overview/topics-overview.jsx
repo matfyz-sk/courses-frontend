@@ -145,10 +145,18 @@ class TopicsOverview extends Component {
               const questionsByTopicRaw = data['@graph'].reduce(
                 (accumulatorQuestions, question) => {
                   if (question) {
-                    const { name } = question
+                    const {
+                      name,
+                      visibilityIsRestricted,
+                      approver,
+                      createdBy,
+                    } = question
                     const questionMapped = {
                       id: question['@id'],
                       title: name,
+                      visibilityIsRestricted,
+                      approver,
+                      createdBy,
                     }
                     accumulatorQuestions.push(questionMapped)
                   }
@@ -156,6 +164,7 @@ class TopicsOverview extends Component {
                 },
                 []
               )
+              // const sortedQuestions = questionsByTopicRaw.sort((a, b) => {this.props.userId === a.createdBy})
               accumulatorQuestionsByTopics.set(
                 data['@graph'][0].ofTopic[0]['@id'],
                 questionsByTopicRaw

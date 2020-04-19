@@ -8,10 +8,10 @@ import {
   Button,
 } from 'reactstrap'
 import axios from 'axios'
-import apiConfig from '../../../../../configuration/api'
+import apiConfig from '../../../../../../configuration/api'
 import Comment from './comment/comment'
 
-function Comments({ comments, questionAddress, token, refetch }) {
+function Comments({ comments, questionAddress, token, callback }) {
   const [newComment, setNewComment] = useState('')
 
   const onChangeNewComment = event => {
@@ -41,7 +41,7 @@ function Comments({ comments, questionAddress, token, refetch }) {
       .then(({ status: statusQuestionAssignment }) => {
         if (statusQuestionAssignment === 200) {
           setNewComment('')
-          refetch()
+          callback()
         }
       })
       .catch(error => console.log(error))
