@@ -14,19 +14,30 @@ import {
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import './NewEventFormStyle.css'
-import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, TOKEN } from '../constants'
+import {
+  BASE_URL,
+  COURSE_INSTANCE_URL,
+  EVENT_URL,
+  INITIAL_EVENT_STATE,
+  TOKEN,
+} from '../constants'
 import { axiosRequest } from '../AxiosRequests'
 
 class EventForm extends Component {
   constructor(props) {
     super(props)
 
-    this.state = { ...INITIAL_EVENT_STATE }
+    this.state = { ...INITIAL_EVENT_STATE, courseId: '' }
   }
 
   componentDidMount() {
-    this.setState({ ...this.props })
+    const {
+      match: { params },
+    } = this.props
+
+    this.setState({ ...this.props, courseId: params.course_id })
     //TODO get instanceOf course
+    //TODO redirect if type != session
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -44,40 +55,52 @@ class EventForm extends Component {
       endDate,
       place,
       type,
-      instanceOf,
+      courseInstance,
+      courseId,
     } = this.state
     const { typeOfForm } = this.props
 
-    let url = BASE_URL + EVENT_URL
-    let method = 'post'
-    if (typeOfForm === 'Edit') {
-      url += `/${id}`
-      method = 'patch'
+    const courseInstanceFullId = [
+      `http://www.courses.matfyz.sk/data${COURSE_INSTANCE_URL}/${courseId}`,
+    ]
+
+    const typeLowerCase = type.toLowerCase()
+
+    let url = `${BASE_URL}/${typeLowerCase}/${id}`
+    let method = 'patch'
+    let data = {
+      name,
+      description,
+      startDate,
+      endDate,
+      location: place,
     }
-    axiosRequest(
-      method,
-      TOKEN,
-      JSON.stringify({
-        name,
-        description,
-        startDate,
-        endDate,
-        location: place,
-        instanceOf,
-        //TODO type when implemented
-      }),
-      url
-    )
-      .then(response => {
-        if (response.status === 200) {
-          // TODO redirect to event/id
-          console.log('Hooray!')
-        } else {
-          // TODO
-          console.log('Ooops!')
-        }
-      })
-      .catch()
+
+    if (typeOfForm === 'Create') {
+      url = BASE_URL + EVENT_URL
+      method = 'post'
+      // eslint-disable-next-line no-underscore-dangle
+      data._type = type
+      data.courseInstance = courseInstanceFullId
+    }
+
+    console.log(type)
+    // axiosRequest(
+    //   method,
+    //   TOKEN,
+    //   JSON.stringify(data),
+    //   url
+    // )
+    //   .then(response => {
+    //     if (response && response.status === 200) {
+    //       // TODO redirect to event/id
+    //       console.log('Hooray!')
+    //     } else {
+    //       // TODO
+    //       console.log('Ooops!')
+    //     }
+    //   })
+    //   .catch()
     event.preventDefault()
   }
 

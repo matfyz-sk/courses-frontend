@@ -16,7 +16,7 @@ class EditEvent extends React.Component {
       match: { params },
     } = this.props
 
-    const url = `${BASE_URL + EVENT_URL}/${params.id}`
+    const url = `${BASE_URL + EVENT_URL}/${params.event_id}`
     axiosRequest('get', TOKEN, null, url).then(response => {
       const data = getData(response)
       if (data != null) {
@@ -50,6 +50,10 @@ class EditEvent extends React.Component {
         this.setState({
           event,
         })
+
+        if (params.course_id !== getShortId(event.courseInstance)) {
+          //TODO redirect different ids
+        }
       } else {
         // TODO zle id
       }

@@ -206,7 +206,7 @@ class Timeline extends Component {
                       </NavLink>
                     </div>
                   )}
-                <NextCalendar />
+                {/*<NextCalendar />*/}
               </Col>
               <Col className="event-list-col">
                 <EventsList

@@ -57,8 +57,8 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.events-list:last-child {
-  min-height: 100vh;
+.events-list .event-card:last-child {
+  margin-bottom: 66vh;
 }
 
 .subevent-name {

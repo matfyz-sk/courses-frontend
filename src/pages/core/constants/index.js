@@ -19,7 +19,7 @@ export const INITIAL_EVENT_STATE = {
   startDate: new Date(),
   endDate: new Date(),
   place: '',
-  type: '',
+  type: 'Lecture',
   courseInstance: '',
 }
 

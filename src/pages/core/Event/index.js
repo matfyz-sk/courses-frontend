@@ -105,6 +105,7 @@ class Event extends React.Component {
             <EventCard
               event={event}
               isAdmin={user ? user.isSuperAdmin : false}
+              detail
             />
           )}
         </Container>
@@ -113,7 +114,7 @@ class Event extends React.Component {
   }
 }
 
-const EventCard = ({ event, isAdmin }) => (
+const EventCard = ({ event, isAdmin, detail }) => (
   <Card id={`${event.id}`} name={`${event.id}`} className="event-card">
     <CardHeader className="event-card-header">
       <NavLink
@@ -123,9 +124,9 @@ const EventCard = ({ event, isAdmin }) => (
         ])}
         className="subevent-name"
       >
-        {event.name}
+        {event.name} ({event.type})
       </NavLink>
-      {isAdmin && SESSIONS.includes(event.type) && (
+      {isAdmin && (SESSIONS.includes(event.type) || event.type === 'Block') && (
         <NavLink
           to={redirect(ROUTES.EDIT_EVENT_ID, [
             { key: 'course_id', value: getShortId(event.courseInstance) },
@@ -138,9 +139,6 @@ const EventCard = ({ event, isAdmin }) => (
       )}
     </CardHeader>
     <CardBody>
-      <strong>Type:</strong> {event.type}
-      <br />
-      <br />
       <CardText className="event-card-text">{event.description}</CardText>
       <Table borderless className="event-table">
         <tbody>
@@ -150,15 +148,15 @@ const EventCard = ({ event, isAdmin }) => (
             <th>End</th>
             <td>{getDisplayDateTime(event.endDate, true)}</td>
           </tr>
-          {event.location && (
+          {event.place && (
             <tr>
               <th>Location</th>
-              <td colSpan="3">{event.location}</td>
+              <td colSpan="3">{event.place}</td>
             </tr>
           )}
         </tbody>
       </Table>
-      {event.type === 'Block' && (
+      {event.type === 'Block' && !detail && (
         <Container className="sessions-tasks-container core-container">
           <Row>
             <Col className="subevents-col-left">

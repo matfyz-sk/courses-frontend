@@ -70,10 +70,13 @@ class EnrollForm extends Component {
     const { user, courseInstance } = this.props
 
     if (user) {
+      console.log(user)
       const newRequests = user.requests.map(userRequestedCourse => {
         return userRequestedCourse['@id']
       })
       newRequests.push(courseInstance.fullId)
+      console.log(courseInstance.fullId)
+      console.log(newRequests)
 
       const url = `${BASE_URL + USER_URL}/${user.id}`
 
