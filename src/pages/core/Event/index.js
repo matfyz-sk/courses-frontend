@@ -10,7 +10,6 @@ import {
   CardText,
   ListGroup,
   ListGroupItem,
-  Button,
   Table,
 } from 'reactstrap'
 import { connect } from 'react-redux'
@@ -24,7 +23,13 @@ import {
   getShortId,
   mergeMaterials,
 } from '../Helper'
-import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, TOKEN } from '../constants'
+import {
+  BASE_URL,
+  EVENT_URL,
+  INITIAL_EVENT_STATE,
+  SESSIONS,
+  TOKEN,
+} from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
@@ -75,6 +80,7 @@ class Event extends React.Component {
             courseInstance: eventData.courseInstance[0]['@id'],
           }
         })[0]
+        console.log(event.type)
         if (getShortId(event.courseInstance) !== params.course_id) {
           //TODO redirect wrong event for courseInstance
         }
@@ -98,7 +104,7 @@ class Event extends React.Component {
           {event && (
             <EventCard
               event={event}
-              isAdmin={user ? user.isSuperadmin : false}
+              isAdmin={user ? user.isSuperAdmin : false}
             />
           )}
         </Container>
@@ -119,18 +125,22 @@ const EventCard = ({ event, isAdmin }) => (
       >
         {event.name}
       </NavLink>
-      {isAdmin && (
+      {isAdmin && SESSIONS.includes(event.type) && (
         <NavLink
           to={redirect(ROUTES.EDIT_EVENT_ID, [
-            { key: 'course_id', value: getShortId(event.courseInstance)},
+            { key: 'course_id', value: getShortId(event.courseInstance) },
             { key: 'event_id', value: event.id },
           ])}
+          className="edit-delete-buttons"
         >
-          <Button className="edit-button"> Edit</Button>
+          Edit
         </NavLink>
       )}
     </CardHeader>
     <CardBody>
+      <strong>Type:</strong> {event.type}
+      <br />
+      <br />
       <CardText className="event-card-text">{event.description}</CardText>
       <Table borderless className="event-table">
         <tbody>
@@ -140,12 +150,12 @@ const EventCard = ({ event, isAdmin }) => (
             <th>End</th>
             <td>{getDisplayDateTime(event.endDate, true)}</td>
           </tr>
-          {/*TODO uncomment*/}
-          {/*{event.location &&*/}
-          {/*<tr>*/}
-          {/*    <th>Location</th><td colSpan="3">{event.location}</td>*/}
-          {/*</tr>*/}
-          {/*}*/}
+          {event.location && (
+            <tr>
+              <th>Location</th>
+              <td colSpan="3">{event.location}</td>
+            </tr>
+          )}
         </tbody>
       </Table>
       {event.type === 'Block' && (
@@ -182,9 +192,9 @@ const EventCard = ({ event, isAdmin }) => (
   </Card>
 )
 
-const mapStateToProps = ({ userReducer }) => {
+const mapStateToProps = ({ authReducer }) => {
   return {
-    user: userReducer.user,
+    user: authReducer.user,
   }
 }
 

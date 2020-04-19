@@ -28,3 +28,14 @@ export const COURSE_URL = '/course'
 export const COURSE_INSTANCE_URL = '/courseInstance'
 export const EVENT_URL = '/event'
 export const USER_URL = '/user'
+
+export const TASKS = [
+  'OralExam',
+  'TestTake',
+  'Assignment Period',
+  'QuestionAssignment',
+  'GeneratedQuizAssignment',
+  'ManualQuizAssignment',
+]
+
+export const SESSIONS = ['Lab', 'Lecture']

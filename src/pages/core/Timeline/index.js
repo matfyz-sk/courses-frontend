@@ -8,19 +8,10 @@ import NextCalendar from '../NextCalendar'
 import * as ROUTES from '../../../constants/routes'
 import './Timeline.css'
 // import withAuthorization from "../../../components/Session/withAuthorization";
-import { BASE_URL, EVENT_URL, TOKEN } from '../constants'
+import { BASE_URL, EVENT_URL, TOKEN, TASKS, SESSIONS } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 
-const TASKS = [
-  'OralExam',
-  'TestTake',
-  'Assignment Period',
-  'QuestionAssignment',
-  'GeneratedQuizAssignment',
-  'ManualQuizAssignment',
-]
-const SESSIONS = ['Lab', 'Lecture']
 
 class Timeline extends Component {
   constructor(props) {
@@ -210,10 +201,10 @@ class Timeline extends Component {
                 {user &&
                 user.isSuperadmin && ( // TODO || myId===courseInstance.hasInstructor &&
                     <div className="button-container">
-                  <NavLink to={`/createtimeline/${course.id}`}>
+                      <NavLink to={`/createtimeline/${course.id}`}>
                         <Button className="new-event-button">New Event</Button>
                       </NavLink>
-                </div>
+                    </div>
                   )}
                 <NextCalendar />
               </Col>
@@ -231,10 +222,10 @@ class Timeline extends Component {
   }
 }
 
-const mapStateToProps = ({ userReducer, courseInstanceReducer }) => {
+const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
   return {
     course: courseInstanceReducer.courseInstance,
-    user: userReducer.user,
+    user: authReducer.user,
   }
 }
 

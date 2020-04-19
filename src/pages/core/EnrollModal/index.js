@@ -11,12 +11,9 @@ import {
   Input,
 } from 'reactstrap'
 import './EnrollModal.css'
-import {fetchUser, setUserAdmin} from '../../../redux/actions'
-import { BASE_URL, TOKEN, USER_URL } from '../constants'
+import { setUserProfile } from '../../../components/Auth'
 import { axiosRequest } from '../AxiosRequests'
-import {compose} from "recompose";
-import {connect} from "react-redux";
-import {withAuthorization} from "../../../components/Session";
+import { BASE_URL, TOKEN, USER_URL } from '../constants'
 
 class EnrollModal extends Component {
   constructor(props) {
@@ -35,7 +32,7 @@ class EnrollModal extends Component {
   }
 
   render() {
-    const { course, courseInstance, className } = this.props
+    const { course, courseInstance, className, user } = this.props
     return (
       <div>
         <Button onClick={this.toggle} className="enroll-button">
@@ -48,7 +45,7 @@ class EnrollModal extends Component {
         >
           <ModalHeader toggle={this.toggle}>{course.name}</ModalHeader>
           <ModalBody>
-            <EnrollFormMapped courseInstance={courseInstance} />
+            <EnrollForm courseInstance={courseInstance} user={user} />
           </ModalBody>
           <ModalFooter>
             <Button color="secondary" onClick={this.toggle}>
@@ -70,33 +67,38 @@ class EnrollForm extends Component {
   }
 
   requestEnrollment = () => {
-    const { courseInstance } = this.props
+    const { user, courseInstance } = this.props
 
-    //TODO change to real user
-    this.props
-      .fetchUser(TOKEN, '5siES')
-      .then(() => {
-        const { user } = this.props
-
-        user.requested.push(courseInstance.fullId)
-
-        const url = `${BASE_URL + USER_URL}/${user.id}`
-        axiosRequest(
-          'patch',
-          TOKEN,
-          JSON.stringify({
-            requests: user.requested,
-          }),
-          url
-        )
-          .then(response => {
-            if (response.status === 200) {
-              console.log('Hooray!')
-            }
-          })
-          .catch(error => console.log(error))
+    if (user) {
+      const newRequests = user.requests.map(userRequestedCourse => {
+        return userRequestedCourse['@id']
       })
-      .catch(error => console.log(error))
+      newRequests.push(courseInstance.fullId)
+
+      const url = `${BASE_URL + USER_URL}/${user.id}`
+
+      axiosRequest(
+        'patch',
+        TOKEN,
+        JSON.stringify({
+          requests: newRequests,
+        }),
+        url
+      )
+        .then(response => {
+          if (response && response.status === 200) {
+            console.log('Horray!')
+            const newRequest = { '@id': courseInstance.fullId }
+            user.requests.push(newRequest)
+            setUserProfile(user)
+            // TODO redirect to courses
+          } else {
+            // TODO alert?
+            console.log('Ooops!')
+          }
+        })
+        .catch(error => console.log(error))
+    }
   }
 
   onSubmit = event => {
@@ -149,16 +151,5 @@ class EnrollForm extends Component {
     )
   }
 }
-const mapStateToProps = ({ userReducer }) => {
-  return {
-    isSignedIn: userReducer.isSignedIn,
-    isAdmin: userReducer.isAdmin,
-    user: userReducer.user,
-  }
-}
-
-const EnrollFormMapped = compose(
-  connect(mapStateToProps, { setUserAdmin, fetchUser }),
-)(EnrollForm)
 
 export default EnrollModal

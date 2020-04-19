@@ -3,7 +3,7 @@ import { Container, Card, CardHeader, CardBody } from 'reactstrap'
 import EventForm from '../EventForm'
 import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, TOKEN } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
-import {getShortId} from "../Helper";
+import { getShortId } from '../Helper'
 
 class EditEvent extends React.Component {
   constructor(props) {
@@ -28,8 +28,22 @@ class EditEvent extends React.Component {
             startDate: new Date(eventData.startDate),
             endDate: new Date(eventData.endDate),
             place: eventData.location,
-            type: eventData.type,
-            // courseId: eventData.courseInstance[0]['@id'],
+            type: eventData['@type'].split('#')[1],
+            uses: eventData.uses.map(material => {
+              return {
+                id: getShortId(material['@id']),
+                fullId: material['@id'],
+                name: material.name,
+              }
+            }),
+            recommends: eventData.recommends.map(material => {
+              return {
+                id: getShortId(material['@id']),
+                fullId: material['@id'],
+                name: material.name,
+              }
+            }),
+            courseInstance: eventData.courseInstance[0]['@id'],
           }
         })[0]
 
@@ -43,14 +57,14 @@ class EditEvent extends React.Component {
   }
 
   render() {
-    console.log(this.state.event)
+    const { event } = this.state
     return (
       <div>
         <Container>
           <Card>
             <CardHeader className="event-card-header">Edit Event</CardHeader>
             <CardBody>
-              <EventForm typeOfForm="Edit" {...this.state.event} />
+              <EventForm typeOfForm="Edit" {...event} />
             </CardBody>
           </Card>
         </Container>

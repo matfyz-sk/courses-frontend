@@ -5,7 +5,9 @@ import { EventCard } from '../Event'
 import './Events.css'
 import { NavLink } from 'react-router-dom'
 import Scroll from 'react-scroll'
-import { getIcon } from '../Helper'
+import { getIcon, getShortId } from '../Helper'
+import { redirect } from '../../../constants/redirect'
+import * as ROUTES from '../../../constants/routes'
 
 const ScrollLink = Scroll.Link
 
@@ -24,7 +26,15 @@ const SubEventList = ({ events }) => (
         <div className="subevents-row-container" key={subEvent.id}>
           <div className="subevents-left-container">
             {getIcon(subEvent.type)}
-            <NavLink to={`/event/${subEvent.id}`}>
+            <NavLink
+              to={redirect(ROUTES.EVENT_ID, [
+                {
+                  key: 'course_id',
+                  value: getShortId(subEvent.courseInstance),
+                },
+                { key: 'event_id', value: subEvent.id },
+              ])}
+            >
               <span className="subevent-name">{subEvent.name}</span>
             </NavLink>
           </div>

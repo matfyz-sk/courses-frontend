@@ -12,6 +12,7 @@ import {
 } from 'reactstrap'
 import { BASE_URL, COURSE_INSTANCE_URL, COURSE_URL, TOKEN } from '../constants'
 import { axiosRequest } from '../AxiosRequests'
+import './DeleteCourseModal.css'
 
 class DeleteCourseModal extends Component {
   constructor(props) {
@@ -30,10 +31,10 @@ class DeleteCourseModal extends Component {
   }
 
   render() {
-    const { course, courseInstance, type, className } = this.props
+    const { course, courseInstance, type, className, small } = this.props
     return (
       <div>
-        <Button onClick={this.toggle} className="delete-button">
+        <Button onClick={this.toggle} className={`delete-button ${small}`} >
           Delete
         </Button>
         {/*<span onClick={this.toggle} className="edit-delete-buttons">*/}

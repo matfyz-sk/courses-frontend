@@ -3,6 +3,7 @@ import { Route } from 'react-router-dom'
 import { Switch } from 'react-router'
 import LandingPage from './Landing'
 import CoursesPage from './Courses'
+import Course from './Course'
 import Event from './Event'
 import Timeline from './Timeline'
 import CreateTimeline from './CreateTimeline'
@@ -77,6 +78,7 @@ const CoreRoutes = [
     auth
   />,
   <Route path={ROUTES.COURSES} component={CoursesPage} />,
+  <Route path={ROUTES.COURSE_ID} component={Course} auth />,
   <Route path={ROUTES.NEW_COURSE} component={NewCourse} auth />,
   <Route path={ROUTES.EDIT_COURSE_ID} component={EditCourse} auth />,
 ]

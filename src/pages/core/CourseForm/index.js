@@ -105,8 +105,7 @@ class CourseForm extends Component {
       }),
       url
     ).then(response => {
-      if (response && response === 200) {
-        console.lof(response)
+      if (response && response.status === 200) {
         console.log('Hurray!')
         if (typeOfForm === 'Create') {
           //TODO redirect to new instance

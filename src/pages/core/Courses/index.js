@@ -13,24 +13,23 @@ import {
 } from 'reactstrap'
 import { NavLink } from 'react-router-dom'
 import classnames from 'classnames'
-import { connect } from 'react-redux'
 // import { withAuthorization } from '../../../components/Session'
+import { connect } from 'react-redux'
 import * as ROUTES from '../../../constants/routes'
-
 import './Courses.css'
 import EnrollModal from '../EnrollModal'
 import { getIcon } from '../Helper'
 import arrow from '../../../images/arrow.svg'
 
 import { axiosRequest, getData } from '../AxiosRequests'
-import { BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL } from '../constants'
+import { BASE_URL, COURSE_INSTANCE_URL, TOKEN } from '../constants'
 import DeleteCourseModal from '../DeleteCourseModal'
 import { redirect } from '../../../constants/redirect'
 
 class CoursesPageBase extends Component {
   constructor(props) {
     super(props)
-    const activeTab = this.props.user ? '1' : '2'
+    const activeTab = '2'
 
     this.state = {
       activeTab,
@@ -42,25 +41,22 @@ class CoursesPageBase extends Component {
   }
 
   componentDidMount() {
-    const activeTab = this.props.user ? '1' : '2'
-    this.setState({
-      activeTab,
-    })
     this.setCourses()
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.user !== this.props.user) {
-      const activeTab = this.props.user ? '1' : '2'
-      this.setState({
-        activeTab,
-      })
+    if (this.props.user !== prevProps.user) {
       this.setCourses()
     }
   }
 
   setCourses = () => {
     const { user } = this.props
+    const activeTab = user != null ? '1' : '2'
+
+    this.setState({
+      activeTab,
+    })
 
     const url = `${BASE_URL + COURSE_INSTANCE_URL}?_join=instanceOf`
     axiosRequest('get', TOKEN, null, url).then(response => {
@@ -81,30 +77,36 @@ class CoursesPageBase extends Component {
             ),
             startDate: courseInstance.startDate,
             endDate: courseInstance.endDate,
+            hasAdmin: courseInstance.instanceOf[0].hasAdmin,
           }
         })
 
         if (user != null) {
+          this.setState({
+            activeCourses: [],
+          })
           for (const course of courses) {
             course.enrolled =
               user.studentOf.findIndex(userEnrolledCourse => {
-                return userEnrolledCourse['@id'] === course.fullURI
+                return userEnrolledCourse['@id'] === course.fullId
               }) > -1
 
             course.requests =
               user.requests.findIndex(userRequestedCourse => {
-                return userRequestedCourse['@id'] === course.fullURI
+                return userRequestedCourse['@id'] === course.fullId
               }) > -1
 
             course.instructor =
               user.instructorOf.findIndex(userInstructorCourse => {
-                return userInstructorCourse['@id'] === course.fullURI
+                return userInstructorCourse['@id'] === course.fullId
               }) > -1
 
             course.admin = course.hasAdmin
-              ? course.hasAdmin.findIndex(admin => {
-                  return admin['@id'] === user.fullURI
-                }) > -1
+              ? Array.isArray(course.hasAdmin)
+                ? course.hasAdmin.findIndex(admin => {
+                    return admin === user.fullURI
+                  }) > -1
+                : course.hasAdmin === user.fullURI
               : false
           }
 
@@ -151,6 +153,10 @@ class CoursesPageBase extends Component {
               new Date(course.startDate) <= new Date() &&
               new Date(course.endDate) > new Date()
             ) {
+              course.admin = false
+              course.enrolled = false
+              course.instructor = false
+              course.requests = false
               activeCourses.push(course)
             }
           }
@@ -180,7 +186,7 @@ class CoursesPageBase extends Component {
       groupedCourses[course.courseId].courses.push({
         id: course.id,
         fullId: course.fullId,
-        year: course.year,
+        startDate: course.startDate,
         enrolled: course.enrolled,
         instructor: course.instructor,
         requests: course.requests,
@@ -254,7 +260,7 @@ class CoursesPageBase extends Component {
                 </NL>
               </NavItem>
             )}
-            {user && user.isSuperadmin && (
+            {user && user.isSuperAdmin && (
               <NavItem>
                 <NL
                   className={classnames({
@@ -277,7 +283,9 @@ class CoursesPageBase extends Component {
                   coursesList={myActiveCourses}
                   enroll={null}
                   myCourses
-                  isAdmin={user ? user.isSuperadmin : false}
+                  isAdmin={user ? user.isSuperAdmin : false}
+                  user={user}
+                  tab="1"
                 />
               </TabPane>
             )}
@@ -286,7 +294,9 @@ class CoursesPageBase extends Component {
                 coursesList={activeCourses}
                 enroll={user ? true : null}
                 myCourses={false}
-                isAdmin={user ? user.isSuperadmin : false}
+                isAdmin={user ? user.isSuperAdmin : false}
+                user={user}
+                tab="2"
               />
             </TabPane>
             {user && (
@@ -295,17 +305,21 @@ class CoursesPageBase extends Component {
                   coursesList={myArchivedCourses}
                   enroll={null}
                   myCourses={false}
-                  isAdmin={user ? user.isSuperadmin : false}
+                  isAdmin={user ? user.isSuperAdmin : false}
+                  user={user}
+                  tab="3"
                 />
               </TabPane>
             )}
-            {user && user.isSuperadmin && (
+            {user && user.isSuperAdmin && (
               <TabPane tabId="4">
                 <CoursesList
                   coursesList={allCourses}
                   enroll={null}
                   myCourses={false}
-                  isAdmin={user ? user.isSuperadmin : false}
+                  isAdmin={user ? user.isSuperAdmin : false}
+                  user={user}
+                  tab="4"
                 />
               </TabPane>
             )}
@@ -316,7 +330,14 @@ class CoursesPageBase extends Component {
   }
 }
 
-const CoursesList = ({ coursesList, enroll, myCourses, isAdmin }) => (
+const CoursesList = ({
+  coursesList,
+  enroll,
+  myCourses,
+  isAdmin,
+  user,
+  tab,
+}) => (
   <ListGroup>
     {coursesList.length === 0 && (
       <ListGroupItem className="course-container">
@@ -331,8 +352,12 @@ const CoursesList = ({ coursesList, enroll, myCourses, isAdmin }) => (
         !course.admin &&
         !isAdmin ? (
           <div className="single-course-container">
-            {myCourses ? (
-              <NavLinkCourse course={course} to={ROUTES.TIMELINE} />
+            {myCourses || isAdmin ? (
+              <NavLinkCourse
+                course={course}
+                to={ROUTES.TIMELINE}
+                id={course.courses[0].id}
+              />
             ) : (
               <NavLinkCourse course={course} to={''} />
             )}
@@ -342,6 +367,7 @@ const CoursesList = ({ coursesList, enroll, myCourses, isAdmin }) => (
               {enroll != null &&
                 (!course.courses[0].requests ? (
                   <EnrollModal
+                    user={user}
                     course={course}
                     courseInstance={course.courses[0]}
                   />
@@ -354,32 +380,41 @@ const CoursesList = ({ coursesList, enroll, myCourses, isAdmin }) => (
           <>
             <div className="multiple-course-container">
               <div>
-                <span className="name">{course.name}</span>
-                <br />
-                <span className="about">{course.desc}</span>
+                {user && (course.admin || user.isSuperAdmin) ? (
+                  <NavLinkCourse
+                    course={course}
+                    to={ROUTES.COURSE_ID}
+                    id={course.id}
+                  />
+                ) : (
+                  <>
+                    <span className="name">{course.name}</span>
+                    <br />
+                    <span className="about">{course.desc}</span>
+                  </>
+                )}
+                {/*<span className="name">{course.name}</span>*/}
+                {/*<br />*/}
+                {/*<span className="about">{course.desc}</span>*/}
               </div>
               <div className="courses-right-top-corner-container">
-                {course.admin !== false && getIcon('Admin')}
+                {course.admin === true && getIcon('Admin')}
                 {(isAdmin || course.admin) && (
-                  <div>
+                  <div className="edit-delete-buttons-container">
                     <NavLink
                       className="edit-delete-buttons"
-                      to={`/editcourse/${course.id}`}
+                      to={redirect(ROUTES.EDIT_COURSE_ID, [
+                        { key: 'course_id', value: course.id },
+                      ])}
                     >
                       <span className="edit-delete-buttons">Edit</span>
                     </NavLink>
-                    &nbsp;
-                    {/*<NavLink*/}
-                    {/*  className="edit-delete-buttons"*/}
-                    {/*  to={`/deletecourse/${course.id}`}*/}
-                    {/*>*/}
-                    {/*  <span className="edit-delete-buttons">Delete</span>*/}
-                    {/*</NavLink>*/}
-                    <DeleteCourseModal
-                      course={course}
-                      courseInstance={null}
-                      type="course"
-                    />
+                    {/*<DeleteCourseModal*/}
+                    {/*  course={course}*/}
+                    {/*  courseInstance={null}*/}
+                    {/*  type="course"*/}
+                    {/*  small=""*/}
+                    {/*/>*/}
                   </div>
                 )}
               </div>
@@ -389,7 +424,9 @@ const CoursesList = ({ coursesList, enroll, myCourses, isAdmin }) => (
               enroll={enroll}
               myCourses={myCourses}
               isAdmin={isAdmin}
+              user={user}
               className="collapsable-container"
+              tab={tab}
             />
           </>
         )}
@@ -398,11 +435,9 @@ const CoursesList = ({ coursesList, enroll, myCourses, isAdmin }) => (
   </ListGroup>
 )
 
-const NavLinkCourse = ({ course, to }) => (
+const NavLinkCourse = ({ course, to, id }) => (
   <>
-    <NavLink
-      to={redirect(to, [{ key: 'course_id', value: course.courses[0].id }])}
-    >
+    <NavLink to={redirect(to, [{ key: 'course_id', value: id }])}>
       <span className="name">{course.name}</span>
       <br />
       <span className="about">{course.desc}</span>
@@ -412,25 +447,35 @@ const NavLinkCourse = ({ course, to }) => (
 
 const NavLinkCourseInstance = ({ course, courseInstance, to }) => (
   <>
-    <NavLink to={to} className="instance-container-name">
+    <NavLink
+      to={redirect(to, [{ key: 'course_id', value: course.courses[0].id }])}
+      className="instance-container-name"
+    >
       <span>{course.name}</span>&nbsp;
       <b>{new Date(courseInstance.startDate).getFullYear()}</b>
     </NavLink>
   </>
 )
 
-const CollapsableCourse = ({ course, enroll, myCourses, isAdmin }) => (
+const CollapsableCourse = ({
+  course,
+  enroll,
+  myCourses,
+  isAdmin,
+  user,
+  tab,
+}) => (
   <div>
     <div className="arrow-container">
       <img
         src={arrow}
         alt="arrow"
         className="collapse-arrow"
-        id={`toggler${course.id}`}
+        id={`toggler${course.id}${tab}`}
         width="15px"
       />
     </div>
-    <UncontrolledCollapse toggler={`#toggler${course.id}`}>
+    <UncontrolledCollapse toggler={`#toggler${course.id}${tab}`}>
       <Card className="course-instances-card">
         <CardBody className="course-instances-card-body">
           {course.courses
@@ -438,11 +483,11 @@ const CollapsableCourse = ({ course, enroll, myCourses, isAdmin }) => (
             .map(courseInstance => (
               <ListGroup key={courseInstance.id}>
                 <ListGroupItem className="single-course-container instance-container">
-                  {myCourses ? (
+                  {myCourses || isAdmin ? (
                     <NavLinkCourseInstance
                       course={course}
                       courseInstance={courseInstance}
-                      to={ROUTES.TIMELINE + courseInstance.id}
+                      to={ROUTES.TIMELINE}
                     />
                   ) : (
                     <NavLinkCourseInstance
@@ -456,6 +501,7 @@ const CollapsableCourse = ({ course, enroll, myCourses, isAdmin }) => (
                     {enroll != null &&
                       (!courseInstance.requests ? (
                         <EnrollModal
+                          user={user}
                           course={course}
                           courseInstance={course.courses[0]}
                         />
@@ -468,7 +514,11 @@ const CollapsableCourse = ({ course, enroll, myCourses, isAdmin }) => (
                       <div className="edit-delete-buttons-instance">
                         <NavLink
                           className="edit-delete-buttons"
-                          to={`/editevent/${courseInstance.id}`}
+                          //TODO edit courseInstance
+                          to={redirect(ROUTES.EDIT_EVENT_ID, [
+                            { key: 'event_id', value: courseInstance.id },
+                            { key: 'course_id', value: course.courses[0].id },
+                          ])}
                         >
                           <span className="edit-delete-buttons">Edit</span>
                         </NavLink>
@@ -476,6 +526,7 @@ const CollapsableCourse = ({ course, enroll, myCourses, isAdmin }) => (
                           course={course}
                           courseInstance={courseInstance}
                           type="courseInstance"
+                          small="small-delete-button"
                         />
                         {/*<NavLink*/}
                         {/*  className="edit-delete-buttons"*/}
@@ -503,9 +554,9 @@ const RoleIcon = ({ course }) => (
   </div>
 )
 
-const mapStateToProps = ({ userReducer }) => {
+const mapStateToProps = ({ authReducer }) => {
   return {
-    user: userReducer.user,
+    user: authReducer.user,
   }
 }
 

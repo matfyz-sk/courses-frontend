@@ -1,5 +1,6 @@
 .courses_main {
   justify-content: center;
+  margin-bottom: 50px;
 }
 
 .courses {
@@ -35,6 +36,11 @@ a.active.nav-link .tab {
   border: none;
   padding: 5px 15px;
   margin-left: 10px;
+}
+
+.instance-container-name {
+  display: flex;
+  flex-direction: row;
 }
 
 .collapse-arrow {
@@ -94,6 +100,14 @@ a.active.nav-link .tab {
   font-size: small;
   color: #999999;
   margin-left: 20px;
+}
+
+.edit-delete-buttons-container {
+  margin-left: 20px;
+}
+
+.small-delete-button {
+  font-size: small;
 }
 
 .course-container {
