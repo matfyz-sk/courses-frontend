@@ -134,9 +134,10 @@ function QuestionOverview({
               userId={userId}
               history={history}
               question={questions[0]}
+              creatingNewQuestionInChain
             />
           )}
-          {questions.map(question => {
+          {questions.map((question, index) => {
             const {
               id,
               title,
@@ -160,8 +161,9 @@ function QuestionOverview({
                 answers={answers}
                 comments={comments}
                 changeShowEditQuestion={changeShowEditQuestion}
-                canEdit={!isApproved && createdBy === userId}
+                canEdit={index === 0 && !isApproved && createdBy === userId}
                 canApprove={!isApproved && isTeacher}
+                canDisapprove={isApproved && isTeacher}
                 isApproved={isApproved}
                 canApproveAsPrivate={
                   !isApproved && isTeacher && createdBy === userId

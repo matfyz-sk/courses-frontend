@@ -8,7 +8,7 @@ import {
   Button,
 } from 'reactstrap'
 import axios from 'axios'
-import apiConfig from '../../../../../../configuration/api'
+import { API_URL } from '../../../../../../configuration/api'
 import Comment from './comment/comment'
 
 function Comments({ comments, questionAddress, token, callback }) {
@@ -21,11 +21,11 @@ function Comments({ comments, questionAddress, token, callback }) {
   const onSendNewComment = () => {
     axios
       .put(
-        `${apiConfig.API_URL}/${questionAddress}`,
+        `${API_URL}${questionAddress}`,
         JSON.stringify({
           comment: [
             {
-              type: 'comment',
+              _type: 'comment',
               commentText: newComment,
             },
           ],

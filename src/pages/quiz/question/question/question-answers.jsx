@@ -8,48 +8,46 @@ import AnswerComponentNew from '../common/answer-component/answer-component-new'
 
 const enText = {
   'answer-placeholder': 'Place text of your answer',
-  'add-answer': 'Add new answer',
+  'add-answer': 'Add answer',
 }
 
 class QuestionAnswers extends Component {
-  changeInput = event => {
-    const { name } = event.target
-    const { value } = event.target
-    this.setState({
-      [name]: value,
-    })
-  }
-
   render() {
     const { answers, addNewAnswer } = this.props
     return (
       <>
-        {answers &&
-          answers.map(answer => {
-            const {
-              id,
-              correct,
-              text,
-              changeAnswerText,
-              changeAnswerChecked,
-            } = answer
-            return (
-              <AnswerComponentNew
-                key={id}
-                placeholder={enText['answer-placeholder']}
-                correct={correct}
-                text={text}
-                onChangeAnswerText={changeAnswerText}
-                onChangeAnswerChecked={changeAnswerChecked}
-                // color={id > -1 ? }
-              />
-            )
-          })}
-        {addNewAnswer && (
-          <Button color="success" onClick={addNewAnswer}>
-            {enText['add-answer']}
-          </Button>
-        )}
+        <fieldset className="mb-4">
+          <legend>Answers</legend>
+          {answers &&
+            answers.map(answer => {
+              const {
+                id,
+                correct,
+                text,
+                changeAnswerText,
+                changeAnswerChecked,
+                deleteAnswer,
+              } = answer
+              return (
+                <AnswerComponentNew
+                  key={id}
+                  id={id}
+                  placeholder={enText['answer-placeholder']}
+                  correct={correct}
+                  text={text}
+                  onChangeAnswerText={changeAnswerText}
+                  onChangeAnswerChecked={changeAnswerChecked}
+                  deleteAnswer={deleteAnswer}
+                  // color={id > -1 ? }
+                />
+              )
+            })}
+          {addNewAnswer && (
+            <Button outline color="success" onClick={addNewAnswer}>
+              {enText['add-answer']}
+            </Button>
+          )}
+        </fieldset>
       </>
     )
   }

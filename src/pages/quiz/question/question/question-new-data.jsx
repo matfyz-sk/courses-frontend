@@ -9,7 +9,10 @@ const enText = {
   'open-question': 'Open question',
   'essay-question': 'Essay question',
   'question-with-predefined-answer': 'Multiple answers question',
-  create: 'Create',
+  'create-question': 'Create question',
+  'create-new-question-version': 'Create new version',
+  'new-question': 'New question',
+  'new-question-version': 'New question version',
 }
 
 export const QuestionTypesEnums = Object.freeze({
@@ -34,6 +37,7 @@ function QuestionNewData({
   token,
   history,
   question,
+  creatingNewQuestionInChain,
 }) {
   const [title, setTitle] = useState((question && question.title) || '')
   const [questionText, setQuestion] = useState(
@@ -214,6 +218,9 @@ function QuestionNewData({
       })
     )
 
+  const deleteAnswer = id =>
+    setAnswers(prevState => prevState.filter(el => el.id !== id))
+
   useEffect(() => {
     if (answers === []) {
       const answer = {
@@ -223,6 +230,7 @@ function QuestionNewData({
         changeAnswerText: text => changeAnswerText(-1, text),
         changeAnswerChecked: changedChecked =>
           changeAnswerChecked(-1, changedChecked),
+        deleteAnswer: () => deleteAnswer(-1),
       }
       setAnswers([answer])
     } else {
@@ -234,6 +242,7 @@ function QuestionNewData({
           changeAnswerText: text => changeAnswerText(id, text),
           changeAnswerChecked: changedChecked =>
             changeAnswerChecked(id, changedChecked),
+          deleteAnswer: () => deleteAnswer(id),
         }
         return answerMapped
       })
@@ -254,6 +263,7 @@ function QuestionNewData({
             return el.id === answerId ? { ...el, correct: changedChecked } : el
           })
         ),
+      deleteAnswer: () => deleteAnswer(answerId),
     }
     setAnswers(prevAnswers => prevAnswers.concat(answer))
     setAnswerId(prevAnswerId => prevAnswerId - 1)
@@ -314,6 +324,9 @@ function QuestionNewData({
 
   return (
     <QuestionNew
+      header={
+        question ? enText['new-question-version'] : enText['new-question']
+      }
       title={title}
       setTitle={setTitle}
       question={questionText}
@@ -329,7 +342,11 @@ function QuestionNewData({
       formSubmitHandler={formSubmitHandler}
     >
       <div>
-        <Button onClick={formSubmitHandler}>{enText.create}</Button>
+        <Button color="success" onClick={formSubmitHandler}>
+          {creatingNewQuestionInChain
+            ? enText['create-new-question-version']
+            : enText['create-question']}
+        </Button>
       </div>
     </QuestionNew>
   )

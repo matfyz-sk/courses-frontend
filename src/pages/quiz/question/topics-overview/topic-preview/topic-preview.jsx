@@ -84,24 +84,19 @@ function TopicPreview(props) {
             </Button>
           )}
           {assignment && (
-            <>
-              <AssignmentPreview
-                id={assignmentId.substring(assignmentId.lastIndexOf('/') + 1)}
-                description={description}
-                startTime={startTime}
-                endTime={endTime}
-                isTeacher={isTeacher}
-                topic={id}
-                deleteAssignment={deleteAssignment}
-                match={match}
-              />
-            </>
+            <AssignmentPreview
+              id={assignmentId.substring(assignmentId.lastIndexOf('/') + 1)}
+              description={description}
+              startTime={startTime}
+              endTime={endTime}
+              isTeacher={isTeacher}
+              topic={id}
+              deleteAssignment={deleteAssignment}
+              match={match}
+            />
           )}
-        </CardBody>
-        <CardBody>
-          <CardSubtitle tag="h3" className="h4">
-            Questions
-          </CardSubtitle>
+          <hr />
+          <h3 className="h4">Questions</h3>
           <Row>
             {questionsNotApproved ? (
               <Col xs="12" md="6">

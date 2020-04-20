@@ -130,7 +130,7 @@ class Quiz extends Component {
         <Col xs="12" md="3">
           {/* <SideNav /> */}
         </Col>
-        <Col xs="12" md="9">
+        <Col xs="12" md="12">
           <Switch>
             <Route
               exact

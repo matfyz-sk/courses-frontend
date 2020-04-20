@@ -5,12 +5,12 @@ import axios from 'axios'
 import PropTypes from 'prop-types'
 import { Card, Button } from 'reactstrap'
 
-import apiConfig from '../../../../configuration/api'
+import { API_URL } from '../../../../configuration/api'
 import TopicPreview from './topic-preview/topic-preview'
 
 class TopicsOverview extends Component {
   state = {
-    topicCollapse: [],
+    topicCollapse: [true, false],
     questionAssignments: [],
     questionsByTopic: new Map(),
   }
@@ -24,8 +24,8 @@ class TopicsOverview extends Component {
         token
       )
     }
-    if (topics && topics.length && token) {
-      this.getQuestionsData(topics, token)
+    if (topics && topics.length && token && userId) {
+      this.getQuestionsData(topics, token, userId)
     }
   }
 
@@ -49,21 +49,25 @@ class TopicsOverview extends Component {
       }
       if (
         topics &&
-        (topics !== prevProps.topics || token !== prevProps.token)
+        token &&
+        userId &&
+        (topics !== prevProps.topics ||
+          token !== prevProps.token ||
+          userId !== prevProps.userId)
       ) {
-        this.getQuestionsData(topics, token)
+        this.getQuestionsData(topics, token, userId)
       }
     }
   }
 
-  getQuestionsData = async (topics, token) => {
+  getQuestionsData = async (topics, token, userId) => {
     const topicsIds = topics.reduce((accumulator, topic) => {
       if (topic && topic['@id']) {
         accumulator.push(topic['@id'])
       }
       return accumulator
     }, [])
-    const questionsByTopic = await this.getQuestions(topicsIds, token)
+    const questionsByTopic = await this.getQuestions(topicsIds, token, userId)
     this.setState({ questionsByTopic })
   }
 
@@ -84,7 +88,7 @@ class TopicsOverview extends Component {
   deleteAssignment = (assignmentId, token) => {
     return axios
       .delete(
-        `${apiConfig.API_URL}/questionAssignment/${assignmentId.substring(
+        `${API_URL}/questionAssignment/${assignmentId.substring(
           assignmentId.lastIndexOf('/') + 1
         )}`,
         {
@@ -110,14 +114,14 @@ class TopicsOverview extends Component {
     )
   }
 
-  getQuestions = async (topics, token) => {
+  getQuestions = async (topics, token, userId) => {
     const promises = []
     const questionsByTopicsRawEmpty = new Map()
     topics.forEach(topic => {
       questionsByTopicsRawEmpty.set(topic, [])
       promises.push(
         axios.get(
-          `${apiConfig.API_URL}/question${`?ofTopic=${topic.substring(
+          `${API_URL}/question${`?ofTopic=${topic.substring(
             topic.lastIndexOf('/') + 1
           )}`}`,
           {
@@ -142,6 +146,7 @@ class TopicsOverview extends Component {
               data['@graph'].length &&
               data['@graph'].length > 0
             ) {
+              const childOfAnother = []
               const questionsByTopicRaw = data['@graph'].reduce(
                 (accumulatorQuestions, question) => {
                   if (question) {
@@ -150,6 +155,7 @@ class TopicsOverview extends Component {
                       visibilityIsRestricted,
                       approver,
                       createdBy,
+                      previous,
                     } = question
                     const questionMapped = {
                       id: question['@id'],
@@ -157,6 +163,16 @@ class TopicsOverview extends Component {
                       visibilityIsRestricted,
                       approver,
                       createdBy,
+                      isMine: createdBy === userId,
+                    }
+                    if (
+                      previous &&
+                      Array.isArray(previous) &&
+                      previous.length > 0 &&
+                      previous[0] &&
+                      previous[0]['@id']
+                    ) {
+                      childOfAnother.push(previous[0]['@id'])
                     }
                     accumulatorQuestions.push(questionMapped)
                   }
@@ -164,10 +180,24 @@ class TopicsOverview extends Component {
                 },
                 []
               )
-              // const sortedQuestions = questionsByTopicRaw.sort((a, b) => {this.props.userId === a.createdBy})
+              const filtered = questionsByTopicRaw.filter(
+                question => !childOfAnother.includes(question.id)
+              )
+              const sortedQuestions = filtered.sort((a, b) => {
+                if (userId === a.createdBy && userId === b.createdBy) {
+                  return 0
+                }
+                if (userId !== a.createdBy && userId === b.createdBy) {
+                  return 1
+                }
+                if (userId === a.createdBy && userId !== b.createdBy) {
+                  return -1
+                }
+                return 0
+              })
               accumulatorQuestionsByTopics.set(
                 data['@graph'][0].ofTopic[0]['@id'],
-                questionsByTopicRaw
+                sortedQuestions
               )
             }
           }
@@ -182,9 +212,7 @@ class TopicsOverview extends Component {
   getAssignments = (courseInstanceId, userId, token) => {
     return axios
       .get(
-        `${
-          apiConfig.API_URL
-        }/questionAssignment?courseInstance=${courseInstanceId}${
+        `${API_URL}/questionAssignment?courseInstance=${courseInstanceId}${
           userId ? `&assignedTo=${userId}` : ''
         }`,
         {
@@ -246,37 +274,40 @@ class TopicsOverview extends Component {
         <h1>Questions by topic</h1>
         <div>
           {topics &&
-            topics.map((topic, index) => {
-              const { name } = topic
-              const id = topic['@id']
+            topics.reduce((accumulator, topic, index) => {
+              if (index < 2) {
+                const { name } = topic
+                const id = topic['@id']
 
-              const assignment = questionAssignments.find(
-                questionAssignment => {
-                  if (
-                    questionAssignment.covers &&
-                    questionAssignment.covers[0]['@id']
-                  ) {
-                    return questionAssignment.covers[0]['@id'] === id
+                const assignment = questionAssignments.find(
+                  questionAssignment => {
+                    if (
+                      questionAssignment.covers &&
+                      questionAssignment.covers[0]['@id']
+                    ) {
+                      return questionAssignment.covers[0]['@id'] === id
+                    }
+                    return false
                   }
-                  return false
-                }
-              )
-              return (
-                <Card tag="article" key={id}>
-                  <TopicPreview
-                    id={id}
-                    name={name}
-                    assignment={assignment}
-                    questions={questionsByTopic.get(id)}
-                    isTeacher={isTeacher}
-                    toggle={this.toggle(index)}
-                    collapse={topicCollapse[index]}
-                    fetchDeleteAssignment={this.fetchDeleteAssignment}
-                    match={match}
-                  />
-                </Card>
-              )
-            })}
+                )
+                accumulator.push(
+                  <Card tag="article" key={id} className="mb-3">
+                    <TopicPreview
+                      id={id}
+                      name={name}
+                      assignment={assignment}
+                      questions={questionsByTopic.get(id)}
+                      isTeacher={isTeacher}
+                      toggle={this.toggle(index)}
+                      collapse={topicCollapse[index]}
+                      fetchDeleteAssignment={this.fetchDeleteAssignment}
+                      match={match}
+                    />
+                  </Card>
+                )
+              }
+              return accumulator
+            }, [])}
           {isTeacher ? (
             <Button color="success" tag={Link} to="/quiz/createTopic">
               <h2 className="h5">+ Create topic</h2>

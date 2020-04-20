@@ -1,5 +1,5 @@
 /* eslint-disable react/prefer-stateless-function */
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
 import {
@@ -19,6 +19,8 @@ const enText = {
   approveAs: 'Approve as',
   approveAsPublic: 'Approve as public',
   approveAsPrivate: 'Approve as private',
+  approved: 'Approved',
+  disapprove: 'Cancel approve',
 }
 
 function SavedQuestion({
@@ -37,9 +39,9 @@ function SavedQuestion({
   token,
   callback,
   userId,
+  canDisapprove,
 }) {
   const [toggleOpen, setToggleOpen] = useState(false)
-
   const changeToggleOpen = () => {
     setToggleOpen(x => !x)
   }
@@ -47,10 +49,29 @@ function SavedQuestion({
   const sendApprove = visibilityIsRestricted => {
     axios
       .patch(
-        `${API_URL}${id.substring(
-          id.lastIndexOf('/', id.lastIndexOf('/') - 1)
-        )}`,
+        `${API_URL}${id.substr(id.lastIndexOf('/', id.lastIndexOf('/') - 1))}`,
         JSON.stringify({ approver: [userId], visibilityIsRestricted }),
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        }
+      )
+      .then(({ status: statusQuestionAssignment }) => {
+        if (statusQuestionAssignment === 200) {
+          callback()
+        }
+      })
+      .catch(error => console.log(error))
+  }
+
+  const sendDisapprove = () => {
+    axios
+      .patch(
+        `${API_URL}${id.substr(id.lastIndexOf('/', id.lastIndexOf('/') - 1))}`,
+        JSON.stringify({ approver: [] }),
         {
           headers: {
             Accept: 'application/json',
@@ -74,9 +95,10 @@ function SavedQuestion({
     sendApprove(true)
   }
   return (
-    <>
+    <div className="mb-3">
       <QuestionNew
         key={id}
+        header={isApproved && enText.approved}
         title={title}
         question={questionText}
         topic={topic}
@@ -86,7 +108,7 @@ function SavedQuestion({
         disabled
         color={isApproved ? '#ADFF2F' : null}
       >
-        {canEdit && (
+        {canEdit && changeShowEditQuestion && (
           <Button color="success" onClick={changeShowEditQuestion}>
             {enText['edit-question']}
           </Button>
@@ -111,16 +133,21 @@ function SavedQuestion({
             {enText.approveAsPublic}
           </Button>
         )}
+        {canDisapprove && (
+          <Button color="danger" onClick={sendDisapprove}>
+            {enText.disapprove}
+          </Button>
+        )}
       </QuestionNew>
       <Comments
         comments={comments}
         token={token}
-        questionAddress={id.substring(
+        questionAddress={id.substr(
           id.lastIndexOf('/', id.lastIndexOf('/') - 1)
         )}
-        refetch={callback}
+        callback={callback}
       />
-    </>
+    </div>
   )
 }
 

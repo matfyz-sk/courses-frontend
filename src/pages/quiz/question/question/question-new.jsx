@@ -8,14 +8,16 @@ const enText = {
   title: 'Title',
   'title-placeholder': 'Add title',
   question: 'Question',
-  'question-placeholder': 'What is your question',
+  'question-placeholder': 'Add question text',
   topic: 'Topic',
   'topic-placeholder': 'Topic',
   'question-type': 'Question type',
   create: 'Create',
+  'new-question': 'New question',
 }
 
 function QuestionNew({
+  header,
   title,
   setTitle,
   question,
@@ -34,6 +36,7 @@ function QuestionNew({
 }) {
   return (
     <Card style={color && { backgroundColor: color }}>
+      {header && <h1>{header}</h1>}
       <CardBody>
         {title !== null && (setTitle || disabled) && (
           <FormGroup>
@@ -59,9 +62,9 @@ function QuestionNew({
                 <Label for="question">{enText.question}</Label>
                 <Input
                   id="question"
-                  type="text"
+                  type="textarea"
                   name="question"
-                  placeholder={enText['title-placeholder']}
+                  placeholder={enText['question-placeholder']}
                   value={question}
                   onChange={e => setQuestion(e.target.value)}
                 />
