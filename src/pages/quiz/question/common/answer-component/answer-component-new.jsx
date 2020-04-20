@@ -54,7 +54,7 @@ export class AnswerComponentNew extends Component {
               </InputGroupText>
             </InputGroupAddon>
             <Input
-              type="textarea"
+              type="text"
               placeholder={placeholder}
               value={text}
               onChange={onChangeAnswerText && this.onChangeAnswerText}
@@ -67,10 +67,24 @@ export class AnswerComponentNew extends Component {
             </InputGroupAddon>
           </>
         ) : (
-          <Label check>
-            <Input addon type="checkbox" checked={correct} readOnly />
-            {text}
-          </Label>
+          <>
+            <InputGroupAddon addonType="prepend">
+              <InputGroupText>
+                <CustomInput
+                  type="checkbox"
+                  id={id}
+                  label={enText['is-correct']}
+                  checked={correct}
+                />
+              </InputGroupText>
+            </InputGroupAddon>
+            <Input
+              type="text"
+              placeholder={placeholder}
+              value={text}
+              // disabled={!this.props.isTextEnabled}
+            />
+          </>
         )}
       </InputGroup>
     )
