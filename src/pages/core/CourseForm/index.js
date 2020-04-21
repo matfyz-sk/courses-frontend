@@ -115,14 +115,17 @@ class CourseForm extends Component {
         let newUrl
         if (typeOfForm === 'Create') {
           const newCourseId = getShortId(response.data.resource.iri)
-          newUrl = `newcourseinstance/${newCourseId}`
-          this.setState({
-            redirect: newUrl,
-          })
+          newUrl = {
+            pathname: `/newcourseinstance/${newCourseId}`,
+            state: { courseName: name },
+          }
         } else {
-          newUrl = `courses/${id}`
+          newUrl = `/courses/${id}`
           console.log(newUrl)
         }
+        this.setState({
+          redirect: newUrl,
+        })
       } else {
         // TODO
         console.log('Ooops!')
