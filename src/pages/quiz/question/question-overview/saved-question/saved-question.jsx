@@ -1,5 +1,5 @@
 /* eslint-disable react/prefer-stateless-function */
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
 import {
@@ -8,6 +8,7 @@ import {
   DropdownItem,
   DropdownToggle,
   ButtonDropdown,
+  FormText,
 } from 'reactstrap'
 
 import { API_URL } from '../../../../../configuration/api'
@@ -21,6 +22,8 @@ const enText = {
   approveAsPrivate: 'Approve as private',
   approved: 'Approved',
   disapprove: 'Cancel approve',
+  by: 'By',
+  at: 'At',
 }
 
 function SavedQuestion({
@@ -31,6 +34,9 @@ function SavedQuestion({
   questionType,
   answers,
   comments,
+  createdBy,
+  createdAt,
+  isTeacher,
   changeShowEditQuestion,
   canEdit,
   canApprove,
@@ -42,6 +48,7 @@ function SavedQuestion({
   canDisapprove,
 }) {
   const [toggleOpen, setToggleOpen] = useState(false)
+  const [author, setAuthor] = useState('')
   const changeToggleOpen = () => {
     setToggleOpen(x => !x)
   }
@@ -94,11 +101,61 @@ function SavedQuestion({
   const approveAsPrivate = () => {
     sendApprove(true)
   }
+
+  useEffect(() => {
+    if (createdBy && isTeacher) {
+      const fetchData = async () => {
+        return axios
+          .get(
+            `${API_URL}/user/${createdBy.substring(
+              createdBy.lastIndexOf('/') + 1
+            )}`,
+            {
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                Authorization: token,
+              },
+            }
+          )
+          .then(({ data }) => {
+            if (
+              data &&
+              data['@graph'] &&
+              data['@graph'].length &&
+              data['@graph'].length > 0
+            ) {
+              data['@graph'].forEach(authorData => {
+                if (authorData) {
+                  const { firstName, lastName } = authorData
+                  setAuthor(`${firstName} ${lastName}`)
+                }
+              })
+            }
+          })
+          .catch(error => console.log(error))
+      }
+      fetchData()
+    }
+  }, [token, createdBy, isTeacher])
+
   return (
     <div className="mb-3">
       <QuestionNew
         key={id}
-        header={isApproved && enText.approved}
+        metadata={() => (
+          <>
+            {isApproved && <h2>{enText.approved}</h2>}
+            {isTeacher && (
+              <>
+                <FormText color="muted">{`${enText.by} ${author}`}</FormText>
+                <FormText color="muted">
+                  {`${enText.at} ${createdAt.toLocaleDateString()}`}
+                </FormText>
+              </>
+            )}
+          </>
+        )}
         title={title}
         question={questionText}
         topic={topic}

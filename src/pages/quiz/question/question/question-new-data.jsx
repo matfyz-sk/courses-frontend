@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 
-import { Button } from 'reactstrap'
-import apiConfig from '../../../../configuration/api'
+import { Button, CardTitle } from 'reactstrap'
+import { API_URL } from '../../../../configuration/api'
 import QuestionNew from './question-new'
 
 const enText = {
@@ -71,9 +71,7 @@ function QuestionNewData({
       if (!isTeacher) {
         return axios
           .get(
-            `${
-              apiConfig.API_URL
-            }/questionAssignment?courseInstance=${courseInstanceId.substring(
+            `${API_URL}/questionAssignment?courseInstance=${courseInstanceId.substring(
               courseInstanceId.lastIndexOf('/') + 1
             )}${
               userId
@@ -117,7 +115,7 @@ function QuestionNewData({
       }
 
       return axios
-        .get(`${apiConfig.API_URL}/topic?covers=${courseInstanceId}`, {
+        .get(`${API_URL}/topic?covers=${courseInstanceId}`, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -156,7 +154,7 @@ function QuestionNewData({
   useEffect(() => {
     const fetchData = async () => {
       return axios
-        .get(`${apiConfig.API_URL}/question?_subclasses=true`, {
+        .get(`${API_URL}/question?_subclasses=true`, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -178,10 +176,10 @@ function QuestionNewData({
                       accumulator.push(QuestionTypesEnums.multiple)
                       break
                     case QuestionTypesEnums.open.id:
-                      accumulator.push(QuestionTypesEnums.open)
+                      // accumulator.push(QuestionTypesEnums.open)
                       break
                     case QuestionTypesEnums.essay.id:
-                      accumulator.push(QuestionTypesEnums.essay)
+                      // accumulator.push(QuestionTypesEnums.essay)
                       break
                     default:
                       break
@@ -193,7 +191,7 @@ function QuestionNewData({
             )
             setQuestionTypeOptions(questionTypesMapped)
             if (questionType === '') {
-              setQuestionType(questionTypesMapped[2].id)
+              setQuestionType(questionTypesMapped[0].id)
             }
           }
         })
@@ -299,7 +297,7 @@ function QuestionNewData({
       }
       axios
         .post(
-          `${apiConfig.API_URL}/questionWithPredefinedAnswer`,
+          `${API_URL}/questionWithPredefinedAnswer`,
           JSON.stringify(questionWithPredefinedAnswer),
           {
             headers: {
@@ -324,9 +322,15 @@ function QuestionNewData({
 
   return (
     <QuestionNew
-      header={
-        question ? enText['new-question-version'] : enText['new-question']
-      }
+      header={() => (
+        <>
+          {question ? (
+            <h2>{enText['new-question-version']}</h2>
+          ) : (
+            <h2>{enText['new-question']}</h2>
+          )}
+        </>
+      )}
       title={title}
       setTitle={setTitle}
       question={questionText}

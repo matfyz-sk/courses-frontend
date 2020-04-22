@@ -50,6 +50,7 @@ function QuestionOverview({
                       text: questionTextData,
                       ofTopic,
                       createdBy: questionCreatedBy,
+                      createdAt: questionCreatedAt,
                       approver,
                     } = questionData
                     let topicData = ''
@@ -63,8 +64,26 @@ function QuestionOverview({
                       topic: topicData,
                       questionType: questionData['@type'],
                       createdBy: questionCreatedBy,
+                      createdAt: new Date(questionCreatedAt),
                       approver,
                     }
+                    question.comments = questionData.comment
+                      .map(comment => {
+                        const {
+                          commentText,
+                          createdAt: commentCreatedAt,
+                          createdBy: commentCreatedBy,
+                        } = comment
+                        return {
+                          id: comment['@id'],
+                          createdAt: commentCreatedAt,
+                          createdBy: commentCreatedBy,
+                          commentText,
+                        }
+                      })
+                      .sort(
+                        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+                      )
                     switch (question.questionType) {
                       case QuestionTypesEnums.multiple.id:
                         question.answers = questionData.hasAnswer.map(
@@ -73,24 +92,6 @@ function QuestionOverview({
                             return { id: answer['@id'], correct, text }
                           }
                         )
-                        question.comments = questionData.comment
-                          .map(comment => {
-                            const {
-                              commentText,
-                              createdAt,
-                              commentCreatedBy,
-                            } = comment
-                            return {
-                              id: comment['@id'],
-                              createdAt,
-                              createdBy: commentCreatedBy,
-                              commentText,
-                            }
-                          })
-                          .sort(
-                            (a, b) =>
-                              new Date(a.createdAt) - new Date(b.createdAt)
-                          )
                         break
                       case QuestionTypesEnums.open.id:
                         question.answers = [questionData.regexp]
@@ -147,6 +148,7 @@ function QuestionOverview({
               answers,
               comments,
               createdBy,
+              createdAt,
               approver,
             } = question
             const isApproved = Array.isArray(approver) && approver.length > 0
@@ -160,6 +162,8 @@ function QuestionOverview({
                 questionType={questionType}
                 answers={answers}
                 comments={comments}
+                createdBy={createdBy}
+                createdAt={createdAt}
                 changeShowEditQuestion={changeShowEditQuestion}
                 canEdit={index === 0 && !isApproved && createdBy === userId}
                 canApprove={!isApproved && isTeacher}
@@ -168,6 +172,7 @@ function QuestionOverview({
                 canApproveAsPrivate={
                   !isApproved && isTeacher && createdBy === userId
                 }
+                isTeacher={isTeacher}
                 token={token}
                 callback={fetchQuestionChain}
                 userId={userId}

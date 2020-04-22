@@ -75,6 +75,7 @@ export class AnswerComponentNew extends Component {
                   id={id}
                   label={enText['is-correct']}
                   checked={correct}
+                  readOnly
                 />
               </InputGroupText>
             </InputGroupAddon>
@@ -82,6 +83,7 @@ export class AnswerComponentNew extends Component {
               type="text"
               placeholder={placeholder}
               value={text}
+              readOnly
               // disabled={!this.props.isTextEnabled}
             />
           </>

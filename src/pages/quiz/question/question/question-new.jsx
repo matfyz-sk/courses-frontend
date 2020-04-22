@@ -18,6 +18,7 @@ const enText = {
 
 function QuestionNew({
   header,
+  metadata,
   title,
   setTitle,
   question,
@@ -36,8 +37,8 @@ function QuestionNew({
 }) {
   return (
     <Card style={color && { backgroundColor: color }}>
-      {header && <h1>{header}</h1>}
       <CardBody>
+        {header && header()}
         {title !== null && (setTitle || disabled) && (
           <FormGroup>
             {setTitle && (
@@ -55,6 +56,7 @@ function QuestionNew({
             {disabled && <h3>{title}</h3>}
           </FormGroup>
         )}
+        {metadata && metadata()}
         {question !== null && (setQuestion || disabled) && (
           <FormGroup>
             {setQuestion && (
