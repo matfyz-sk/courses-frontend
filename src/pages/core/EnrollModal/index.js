@@ -14,6 +14,8 @@ import './EnrollModal.css'
 import { setUserProfile } from '../../../components/Auth'
 import { axiosRequest } from '../AxiosRequests'
 import { BASE_URL, TOKEN, USER_URL } from '../constants'
+import { getShortId } from '../Helper'
+import { Redirect } from 'react-router-dom'
 
 class EnrollModal extends Component {
   constructor(props) {
@@ -63,6 +65,7 @@ class EnrollForm extends Component {
     super(props)
     this.state = {
       termsAndConditions: false,
+      redirect: null,
     }
   }
 
@@ -90,11 +93,12 @@ class EnrollForm extends Component {
       )
         .then(response => {
           if (response && response.status === 200) {
-            console.log('Horray!')
             const newRequest = { '@id': courseInstance.fullId }
             user.requests.push(newRequest)
             setUserProfile(user)
-            // TODO redirect to courses
+            this.setState({
+              redirect: `/courses`,
+            })
           } else {
             // TODO alert?
             console.log('Ooops!')
@@ -114,9 +118,13 @@ class EnrollForm extends Component {
   }
 
   render() {
-    const { termsAndConditions } = this.state
+    const { termsAndConditions, redirect } = this.state
 
     const isInvalid = termsAndConditions === false
+
+    if (redirect) {
+      return <Redirect to={redirect} />
+    }
 
     return (
       <Form onSubmit={this.onSubmit} className="enroll-form-modal">

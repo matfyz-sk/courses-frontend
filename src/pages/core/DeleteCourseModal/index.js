@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Redirect } from 'react-router-dom'
 import {
   Button,
   Modal,
@@ -34,7 +35,7 @@ class DeleteCourseModal extends Component {
     const { course, courseInstance, type, className, small } = this.props
     return (
       <div>
-        <Button onClick={this.toggle} className={`delete-button ${small}`} >
+        <Button onClick={this.toggle} className={`delete-button ${small}`}>
           Delete
         </Button>
         {/*<span onClick={this.toggle} className="edit-delete-buttons">*/}
@@ -69,6 +70,7 @@ class DeleteForm extends Component {
     super(props)
     this.state = {
       agreeWithDelete: false,
+      redirect: null,
     }
   }
 
@@ -80,8 +82,10 @@ class DeleteForm extends Component {
     }/${type === 'course' ? course.id : courseInstance.id}`
     axiosRequest('delete', TOKEN, null, url)
       .then(response => {
-        if (response.status === 200) {
-          console.log('Hooray!')
+        if (response && response.status === 200) {
+          this.setState({
+            redirect: `/courses`,
+          })
         }
       })
       .catch(error => console.log(error))
@@ -97,10 +101,14 @@ class DeleteForm extends Component {
   }
 
   render() {
-    const { agreeWithDelete } = this.state
+    const { agreeWithDelete, redirect } = this.state
     const { course } = this.props
 
     const isInvalid = agreeWithDelete === false
+
+    if (redirect) {
+      return <Redirect to={redirect} />
+    }
 
     return (
       <Form onSubmit={this.onSubmit} className="enroll-form-modal">

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withRouter } from 'react-router-dom'
+import { Redirect, withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import {
   Button,
@@ -16,18 +16,25 @@ import 'react-datepicker/dist/react-datepicker.css'
 import './NewEventFormStyle.css'
 import {
   BASE_URL,
-  COURSE_INSTANCE_URL, COURSE_URL,
+  COURSE_INSTANCE_URL,
+  COURSE_URL,
   EVENT_URL,
   INITIAL_EVENT_STATE,
   TOKEN,
 } from '../constants'
 import { axiosRequest } from '../AxiosRequests'
+import { getShortId } from '../Helper'
 
 class EventForm extends Component {
   constructor(props) {
     super(props)
 
-    this.state = { ...INITIAL_EVENT_STATE, courseId: '' }
+    this.state = {
+      ...INITIAL_EVENT_STATE,
+      courseId: '',
+      redirect: null,
+      errors: [],
+    }
   }
 
   componentDidMount() {
@@ -67,7 +74,6 @@ class EventForm extends Component {
       `http://www.courses.matfyz.sk/data${COURSE_URL}/${courseId}`,
     ]
 
-
     const typeLowerCase = this.lowerFirstLetter(type)
     let url = `${BASE_URL}/${typeLowerCase}/${id}`
     console.log(url)
@@ -94,16 +100,19 @@ class EventForm extends Component {
     }
 
     console.log(data)
-    axiosRequest(
-      method,
-      TOKEN,
-      JSON.stringify(data),
-      url
-    )
+    axiosRequest(method, TOKEN, JSON.stringify(data), url)
       .then(response => {
         if (response && response.status === 200) {
-          // TODO redirect to event/id
-          console.log('Hooray!')
+          let newUrl
+          if (typeOfForm === 'Create') {
+            const newEventId = getShortId(response.data.resource.iri)
+            newUrl = `/event/${newEventId}`
+          } else {
+            newUrl = `/event/${id}`
+          }
+          this.setState({
+            redirect: newUrl,
+          })
         } else {
           // TODO
           console.log('Ooops!')
@@ -113,10 +122,9 @@ class EventForm extends Component {
     event.preventDefault()
   }
 
-  lowerFirstLetter = (s) => {
+  lowerFirstLetter = s => {
     return s.charAt(0).toLowerCase() + s.slice(1)
   }
-
 
   onChange = event => {
     this.setState({ [event.target.name]: event.target.value })
@@ -131,8 +139,21 @@ class EventForm extends Component {
   }
 
   render() {
-    const { name, description, startDate, endDate, place, type } = this.state
+    const {
+      name,
+      description,
+      startDate,
+      endDate,
+      place,
+      type,
+      redirect,
+      errors,
+    } = this.state
     const { typeOfForm, options } = this.props
+
+    if (redirect) {
+      return <Redirect to={redirect} />
+    }
 
     const isInvalid =
       name === '' ||
@@ -143,108 +164,113 @@ class EventForm extends Component {
     // endDate<startDate
 
     return (
-      <Form onSubmit={this.onSubmit}>
-        <FormGroup className="new-event-formGroup">
-          <Label for="name" className="new-event-label">
-            Name
-          </Label>
-          <Input
-            name="name"
-            id="name"
-            value={name}
-            onChange={this.onChange}
-            type="text"
-          />
-        </FormGroup>
-        <FormGroup className="new-event-formGroup">
-          <Label for="type" className="new-event-label">
-            Type
-          </Label>
-          <Input
-            id="type"
-            type="select"
-            name="type"
-            value={type}
-            onChange={this.onChange}
-          >
-            {options.map(option => (
-              <option value={option}>{option}</option>
-            ))}
-          </Input>
-        </FormGroup>
+      <>
+        {errors.map(error => (
+          <p key={error}>Error: {error}</p>
+        ))}
+        <Form onSubmit={this.onSubmit}>
+          <FormGroup className="new-event-formGroup">
+            <Label for="name" className="new-event-label">
+              Name
+            </Label>
+            <Input
+              name="name"
+              id="name"
+              value={name}
+              onChange={this.onChange}
+              type="text"
+            />
+          </FormGroup>
+          <FormGroup className="new-event-formGroup">
+            <Label for="type" className="new-event-label">
+              Type
+            </Label>
+            <Input
+              id="type"
+              type="select"
+              name="type"
+              value={type}
+              onChange={this.onChange}
+            >
+              {options.map(option => (
+                <option value={option}>{option}</option>
+              ))}
+            </Input>
+          </FormGroup>
 
-        <FormGroup>
-          <Container className="event-form-dateTime-container">
-            <Row>
-              <Col className="event-form-dateTime-col">
-                <Label id="from-label" for="from" className="label-dateTime">
-                  From
-                </Label>
-                <DatePicker
-                  name="from"
-                  id="from"
-                  selected={startDate}
-                  onChange={this.handleChangeFrom}
-                  showTimeSelect
-                  timeFormat="HH:mm"
-                  timeIntervals={15}
-                  dateFormat="dd/MM/yyyy HH:mm"
-                  timeCaption="time"
-                />
-              </Col>
-              <Col className="event-form-dateTime-col">
-                <Label for="to" className="label-dateTime">
-                  To
-                </Label>
-                <DatePicker
-                  name="to"
-                  id="to"
-                  selected={endDate}
-                  onChange={this.handleChangeTo}
-                  showTimeSelect
-                  timeFormat="HH:mm"
-                  timeIntervals={15}
-                  dateFormat="dd/MM/yyyy HH:mm"
-                  timeCaption="time"
-                />
-              </Col>
-            </Row>
-          </Container>
-        </FormGroup>
-        <FormGroup className="new-event-formGroup">
-          <Label for="description" className="new-event-label">
-            Description
-          </Label>
-          <Input
-            name="description"
-            id="description"
-            value={description}
-            onChange={this.onChange}
-            type="textarea"
-          />
-        </FormGroup>
-        <FormGroup className="new-event-formGroup">
-          <Label for="place" className="new-event-label">
-            Location
-          </Label>
-          <Input
-            name="place"
-            id="place"
-            value={place}
-            onChange={this.onChange}
-            type="text"
-          />
-        </FormGroup>
-        <div className="button-container">
-          <Button
-            className="new-event-button"
-            disabled={isInvalid}
-            type="submit"
-          >
-            {typeOfForm}
-          </Button>
-        </div>
-      </Form>
+          <FormGroup>
+            <Container className="event-form-dateTime-container">
+              <Row>
+                <Col className="event-form-dateTime-col">
+                  <Label id="from-label" for="from" className="label-dateTime">
+                    From
+                  </Label>
+                  <DatePicker
+                    name="from"
+                    id="from"
+                    selected={startDate}
+                    onChange={this.handleChangeFrom}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={15}
+                    dateFormat="dd/MM/yyyy HH:mm"
+                    timeCaption="time"
+                  />
+                </Col>
+                <Col className="event-form-dateTime-col">
+                  <Label for="to" className="label-dateTime">
+                    To
+                  </Label>
+                  <DatePicker
+                    name="to"
+                    id="to"
+                    selected={endDate}
+                    onChange={this.handleChangeTo}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={15}
+                    dateFormat="dd/MM/yyyy HH:mm"
+                    timeCaption="time"
+                  />
+                </Col>
+              </Row>
+            </Container>
+          </FormGroup>
+          <FormGroup className="new-event-formGroup">
+            <Label for="description" className="new-event-label">
+              Description
+            </Label>
+            <Input
+              name="description"
+              id="description"
+              value={description}
+              onChange={this.onChange}
+              type="textarea"
+            />
+          </FormGroup>
+          <FormGroup className="new-event-formGroup">
+            <Label for="place" className="new-event-label">
+              Location
+            </Label>
+            <Input
+              name="place"
+              id="place"
+              value={place}
+              onChange={this.onChange}
+              type="text"
+            />
+          </FormGroup>
+          <div className="button-container">
+            <Button
+              className="new-event-button"
+              disabled={isInvalid}
+              type="submit"
+            >
+              {typeOfForm}
+            </Button>
+          </div>
+        </Form>
+      </>
     )
   }
 }
