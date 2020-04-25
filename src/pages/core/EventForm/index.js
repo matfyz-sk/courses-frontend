@@ -231,6 +231,9 @@ class EventForm extends Component {
     } = this.state
     const { typeOfForm, options } = this.props
 
+    console.log(typeOfForm)
+
+
     if (redirect) {
       return <Redirect to={redirect} />
     }
