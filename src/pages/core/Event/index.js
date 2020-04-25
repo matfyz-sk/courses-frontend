@@ -28,7 +28,6 @@ import {
   EVENT_URL,
   INITIAL_EVENT_STATE,
   SESSIONS,
-  TOKEN,
 } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
@@ -51,7 +50,7 @@ class Event extends React.Component {
     const url = `${BASE_URL + EVENT_URL}/${
       params.event_id
     }?_join=courseInstance,uses,recommends`
-    axiosRequest('get', TOKEN, null, url).then(response => {
+    axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       if (data != null && data !== []) {
         const event = data.map(eventData => {
@@ -77,10 +76,9 @@ class Event extends React.Component {
                 name: material.name,
               }
             }),
-            courseInstance: eventData.courseInstance[0]['@id'],
+            courseInstance: eventData.courseInstance ? eventData.courseInstance[0]['@id'] : '',
           }
         })[0]
-        console.log(event.type)
         if (getShortId(event.courseInstance) !== params.course_id) {
           //TODO redirect wrong event for courseInstance
         }

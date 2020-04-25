@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { withRouter } from 'react-router-dom'
+import { Redirect, withRouter } from 'react-router-dom'
 import { NavigationCourse } from '../components/Navigation'
 // eslint-disable-next-line import/no-cycle
 import { store } from '../index'
 import { setMainNav } from '../redux/actions/navigationActions'
 // eslint-disable-next-line import/no-cycle
 import { fetchCourseInstance } from '../redux/actions'
-import {getUserInCourseType} from "../components/Auth";
+import { getUserInCourseType } from '../components/Auth'
 
 class CourseLayout extends Component {
   constructor(props) {
@@ -25,21 +25,20 @@ class CourseLayout extends Component {
     if (course_id) {
       this.setState({ course_id })
       this.props.fetchCourseInstance(course_id)
-    } else {
-      // redirect wrong id
     }
   }
 
   render() {
     const { course } = this.props
     const { course_id } = this.state
-    const userInCourseType = getUserInCourseType(course_id);
+    // const userInCourseType = getUserInCourseType(course_id);
+
     return (
       <>
         <NavigationCourse
           abbr={course ? course.instanceOf[0].abbreviation : '...'}
           courseId={course_id}
-          userInCourseType={userInCourseType}
+          // userInCourseType={userInCourseType}
         />
         {this.props.children}
       </>

@@ -1,0 +1,9 @@
+.add-instructors {
+  display: flex;
+  flex-direction: row;
+}
+
+#instructors-label {
+  font-weight: bold;
+  padding-right: 20px;
+}

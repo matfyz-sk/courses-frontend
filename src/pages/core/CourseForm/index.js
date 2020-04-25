@@ -2,17 +2,14 @@ import React, { Component } from 'react'
 import { Button, Form, FormGroup, Input, Label } from 'reactstrap'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
-// import Chip from "@material-ui/core/Chip";
 import './CourseForm.css'
 import { axiosRequest, getData } from '../AxiosRequests'
 import {
-  TOKEN,
   INITIAL_COURSE_STATE,
   BASE_URL,
   COURSE_URL,
   USER_URL,
 } from '../constants'
-import * as ROUTES from '../../../constants/routes'
 import { getShortId } from '../Helper'
 import { Redirect } from 'react-router-dom'
 
@@ -24,6 +21,7 @@ class CourseForm extends Component {
       courses: [],
       users: [],
       redirect: null,
+      errors: [],
     }
   }
 
@@ -31,7 +29,7 @@ class CourseForm extends Component {
     this.setState({ ...this.props })
 
     let url = BASE_URL + COURSE_URL
-    axiosRequest('get', TOKEN, null, url).then(response => {
+    axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       if (data != null) {
         const courses = data.map(course => {
@@ -47,7 +45,7 @@ class CourseForm extends Component {
     })
 
     url = BASE_URL + USER_URL
-    axiosRequest('get', TOKEN, null, url).then(response => {
+    axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       if (data != null) {
         const users = data.map(user => {
@@ -83,6 +81,13 @@ class CourseForm extends Component {
     } = this.state
     const { typeOfForm } = this.props
 
+    const errors = this.validate(name, description, abbreviation)
+    if (errors.length > 0) {
+      this.setState({ errors })
+      event.preventDefault()
+      return
+    }
+
     const hasPrerequisite = prerequisites.map(prerequisite => {
       return prerequisite.fullId
     })
@@ -101,7 +106,6 @@ class CourseForm extends Component {
 
     axiosRequest(
       method,
-      TOKEN,
       JSON.stringify({
         name,
         description,
@@ -120,18 +124,35 @@ class CourseForm extends Component {
             state: { courseName: name },
           }
         } else {
-          newUrl = `/courses/${id}`
-          console.log(newUrl)
+          newUrl = `/course/${id}`
         }
         this.setState({
           redirect: newUrl,
         })
       } else {
-        // TODO
-        console.log('Ooops!')
+        errors.push(
+          'There was a problem with server while sending your form. Try again later.'
+        )
+        this.setState({
+          errors,
+        })
       }
     })
     event.preventDefault()
+  }
+
+  validate = (name, description, abbreviation) => {
+    const errors = []
+    if (name.length === 0) {
+      errors.push("Name can't be empty.")
+    }
+    if (description.length === 0) {
+      errors.push("Description can't be empty.")
+    }
+    if (abbreviation.length === 0) {
+      errors.push("Abbreviation can't be empty.")
+    }
+    return errors
   }
 
   onChange = event => {
@@ -156,6 +177,7 @@ class CourseForm extends Component {
       courses,
       users,
       redirect,
+      errors,
     } = this.state
     const { typeOfForm } = this.props
 
@@ -165,78 +187,87 @@ class CourseForm extends Component {
 
     const isInvalid = name === '' || description === '' || abbreviation === ''
     return (
-      <Form className="new-course-form" onSubmit={this.onSubmit}>
-        <FormGroup>
-          <Label for="name">Name</Label>
-          <Input
-            name="name"
-            id="name"
-            value={name}
-            onChange={this.onChange}
-            type="text"
-          />
-          <Label for="abbreviation">Abbreviation</Label>
-          <Input
-            name="abbreviation"
-            id="abbreviation"
-            value={abbreviation}
-            onChange={this.onChange}
-            type="text"
-          />
-          <Label for="description">Description</Label>
-          <Input
-            name="description"
-            id="description"
-            value={description}
-            onChange={this.onChange}
-            type="textarea"
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label for="prerequisites">Prerequisites</Label>
-          <Autocomplete
-            multiple
-            name="prerequisites"
-            id="prerequisites"
-            options={courses}
-            getOptionLabel={option => option.name}
-            value={prerequisites}
-            onChange={this.onPrerequisitesChange}
-            style={{ maxWidth: 500 }}
-            renderInput={params => (
-              <TextField
-                {...params}
-                placeholder=""
-                InputProps={{ ...params.InputProps, disableUnderline: true }}
-              />
-            )}
-          />
+      <>
+        {errors.map(error => (
+          <p key={error}>Error: {error}</p>
+        ))}
+        <Form className="new-course-form" onSubmit={this.onSubmit}>
+          <FormGroup>
+            <Label for="name">Name</Label>
+            <Input
+              name="name"
+              id="name"
+              value={name}
+              onChange={this.onChange}
+              type="text"
+            />
+            <Label for="abbreviation">Abbreviation</Label>
+            <Input
+              name="abbreviation"
+              id="abbreviation"
+              value={abbreviation}
+              onChange={this.onChange}
+              type="text"
+            />
+            <Label for="description">Description</Label>
+            <Input
+              name="description"
+              id="description"
+              value={description}
+              onChange={this.onChange}
+              type="textarea"
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="prerequisites">Prerequisites</Label>
+            <Autocomplete
+              multiple
+              name="prerequisites"
+              id="prerequisites"
+              options={courses}
+              getOptionLabel={option => option.name}
+              value={prerequisites}
+              onChange={this.onPrerequisitesChange}
+              style={{ maxWidth: 500 }}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  placeholder=""
+                  InputProps={{ ...params.InputProps, disableUnderline: true }}
+                />
+              )}
+            />
 
-          <Label for="admins">Admins</Label>
-          <Autocomplete
-            multiple
-            name="admins"
-            id="admins"
-            options={users}
-            getOptionLabel={option => option.name}
-            onChange={this.onAdminsChange}
-            value={admins}
-            style={{ maxWidth: 500 }}
-            renderInput={params => (
-              <TextField
-                {...params}
-                placeholder=""
-                InputProps={{ ...params.InputProps, disableUnderline: true }}
-              />
-            )}
-          />
-        </FormGroup>
-        <div className="button-container">
-          <Button disabled={isInvalid} type="submit" className="create-button">
-            {typeOfForm}
-          </Button>
-        </div>
-      </Form>
+            <Label for="admins">Admins</Label>
+            <Autocomplete
+              multiple
+              name="admins"
+              id="admins"
+              options={users}
+              getOptionLabel={option => option.name}
+              onChange={this.onAdminsChange}
+              value={admins}
+              style={{ maxWidth: 500 }}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  placeholder=""
+                  InputProps={{ ...params.InputProps, disableUnderline: true }}
+                />
+              )}
+            />
+          </FormGroup>
+          <div className="button-container">
+            <Button
+              disabled={isInvalid}
+              type="submit"
+              className="create-button"
+            >
+              {typeOfForm}
+            </Button>
+          </div>
+        </Form>
+      </>
     )
   }
 }

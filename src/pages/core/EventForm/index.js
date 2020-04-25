@@ -14,15 +14,17 @@ import {
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import './NewEventFormStyle.css'
+import TextField from '@material-ui/core/TextField'
+import Autocomplete from '@material-ui/lab/Autocomplete'
 import {
   BASE_URL,
   COURSE_INSTANCE_URL,
   COURSE_URL,
   EVENT_URL,
   INITIAL_EVENT_STATE,
-  TOKEN,
+  USER_URL,
 } from '../constants'
-import { axiosRequest } from '../AxiosRequests'
+import { axiosRequest, getData } from '../AxiosRequests'
 import { getShortId } from '../Helper'
 
 class EventForm extends Component {
@@ -34,6 +36,7 @@ class EventForm extends Component {
       courseId: '',
       redirect: null,
       errors: [],
+      users: [],
     }
   }
 
@@ -43,8 +46,28 @@ class EventForm extends Component {
     } = this.props
 
     this.setState({ ...this.props, courseId: params.course_id })
-    //TODO get instanceOf course
-    //TODO redirect if type != session
+
+    const { options } = this.props
+    this.setState({ type: options[0] })
+
+    let url = BASE_URL + USER_URL
+    axiosRequest('get', null, url).then(response => {
+      const data = getData(response)
+      if (data != null) {
+        const users = data.map(user => {
+          return {
+            fullId: user['@id'],
+            name:
+              user.firstName !== '' && user.lastName !== ''
+                ? `${user.firstName} ${user.lastName}`
+                : 'Noname',
+          }
+        })
+        this.setState({
+          users,
+        })
+      }
+    })
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -62,10 +85,17 @@ class EventForm extends Component {
       endDate,
       place,
       type,
-      courseInstance,
       courseId,
+      instructors,
     } = this.state
     const { typeOfForm } = this.props
+
+    const errors = this.validate(name, description, startDate, endDate)
+    if (errors.length > 0) {
+      this.setState({ errors })
+      event.preventDefault()
+      return
+    }
 
     const courseInstanceFullId = [
       `http://www.courses.matfyz.sk/data${COURSE_INSTANCE_URL}/${courseId}`,
@@ -74,9 +104,12 @@ class EventForm extends Component {
       `http://www.courses.matfyz.sk/data${COURSE_URL}/${courseId}`,
     ]
 
+    const hasInstructor = instructors.map(instructor => {
+      return instructor.fullId
+    })
+
     const typeLowerCase = this.lowerFirstLetter(type)
     let url = `${BASE_URL}/${typeLowerCase}/${id}`
-    console.log(url)
 
     let method = 'patch'
     let data = {
@@ -97,25 +130,29 @@ class EventForm extends Component {
       url = BASE_URL + COURSE_INSTANCE_URL
       method = 'post'
       data.instanceOf = courseFullId
+      data.hasInstructor = hasInstructor
     }
 
-    console.log(data)
-    axiosRequest(method, TOKEN, JSON.stringify(data), url)
+    axiosRequest(method, JSON.stringify(data), url)
       .then(response => {
         if (response && response.status === 200) {
           let newUrl
           if (typeOfForm === 'Create') {
             const newEventId = getShortId(response.data.resource.iri)
-            newUrl = `/event/${newEventId}`
+            newUrl = `/courses/${courseId}/event/${newEventId}`
           } else {
-            newUrl = `/event/${id}`
+            newUrl = `/courses/${courseId}/event/${id}`
           }
           this.setState({
             redirect: newUrl,
           })
         } else {
-          // TODO
-          console.log('Ooops!')
+          errors.push(
+            'There was a problem with server while sending your form. Try again later.'
+          )
+          this.setState({
+            errors,
+          })
         }
       })
       .catch()
@@ -124,6 +161,46 @@ class EventForm extends Component {
 
   lowerFirstLetter = s => {
     return s.charAt(0).toLowerCase() + s.slice(1)
+  }
+
+  validate = (name, description, startDate, endDate) => {
+    console.log(name, description)
+    const errors = []
+    if (name.length === 0) {
+      errors.push("Name can't be empty.")
+    }
+    if (description.length === 0) {
+      errors.push("Description can't be empty.")
+    }
+    if (new Date(startDate) > new Date(endDate)) {
+      errors.push('The End date must be greater than the Start date.')
+    }
+    return errors
+  }
+
+  deleteEvent = () => {
+    const { type, id, courseId } = this.state
+
+    const typeLowerCase = this.lowerFirstLetter(type)
+    const url = `${BASE_URL}/${typeLowerCase}/${id}`
+
+    axiosRequest('delete', null, url).then(response => {
+      if (response && response.status === 200) {
+        this.setState({
+          redirect: `/courses/${courseId}/timeline`,
+        })
+      } else {
+        const errors = []
+        errors.push('There was a problem with server. Try again later.')
+        this.setState({
+          errors,
+        })
+      }
+    })
+  }
+
+  onInstructorChange = (event, values) => {
+    this.setState({ instructors: values })
   }
 
   onChange = event => {
@@ -140,6 +217,7 @@ class EventForm extends Component {
 
   render() {
     const {
+      id,
       name,
       description,
       startDate,
@@ -148,6 +226,8 @@ class EventForm extends Component {
       type,
       redirect,
       errors,
+      users,
+      instructors,
     } = this.state
     const { typeOfForm, options } = this.props
 
@@ -160,8 +240,6 @@ class EventForm extends Component {
       description === '' ||
       startDate === null ||
       endDate === null
-    // ||
-    // endDate<startDate
 
     return (
       <>
@@ -189,7 +267,7 @@ class EventForm extends Component {
               id="type"
               type="select"
               name="type"
-              value={type}
+              value={options[0]}
               onChange={this.onChange}
             >
               {options.map(option => (
@@ -260,6 +338,35 @@ class EventForm extends Component {
               type="text"
             />
           </FormGroup>
+
+          {type === 'CourseInstance' && (
+            <FormGroup className="add-instructors">
+              <Label id="instructors-label" for="instructors">
+                Instructors
+              </Label>
+              <Autocomplete
+                multiple
+                name="instructors"
+                id="instructors"
+                options={users}
+                getOptionLabel={option => option.name}
+                onChange={this.onInstructorChange}
+                value={instructors}
+                style={{ minWidth: 200, maxWidth: 500 }}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    placeholder=""
+                    InputProps={{
+                      ...params.InputProps,
+                      disableUnderline: true,
+                    }}
+                  />
+                )}
+              />
+            </FormGroup>
+          )}
+
           <div className="button-container">
             <Button
               className="new-event-button"
@@ -268,6 +375,14 @@ class EventForm extends Component {
             >
               {typeOfForm}
             </Button>
+            {typeOfForm === 'Edit' && (
+              <Button
+                className="new-event-button"
+                onClick={e => this.deleteEvent()}
+              >
+                Delete
+              </Button>
+            )}
           </div>
         </Form>
       </>

@@ -1,6 +1,7 @@
 import axios from 'axios'
+import { getToken } from '../../../components/Auth'
 
-export const axiosRequest = (method, token, data, url) => {
+export const axiosRequest = (method, data, url) => {
   return axios
     .request({
       url,
@@ -8,7 +9,7 @@ export const axiosRequest = (method, token, data, url) => {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: token,
+        Authorization: `Bearer ${getToken()}`,
       },
       data,
     })

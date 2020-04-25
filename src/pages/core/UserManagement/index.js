@@ -5,7 +5,7 @@ import { Alert, Button, Table } from 'reactstrap'
 import { connect } from 'react-redux'
 
 import './UserManagement.css'
-import { BASE_URL, COURSE_INSTANCE_URL, TOKEN, USER_URL } from '../constants'
+import { BASE_URL, USER_URL } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { getShortId } from '../Helper'
 
@@ -49,7 +49,7 @@ class UserManagement extends Component {
       const urlRequests = `${BASE_URL + USER_URL}?requests=${courseId}`
       const urlEnrolled = `${BASE_URL + USER_URL}?studentOf=${courseId}`
 
-      axiosRequest('get', TOKEN, null, urlRequests)
+      axiosRequest('get', null, urlRequests)
         .then(response => {
           const data = getData(response)
           if (data != null) {
@@ -75,7 +75,7 @@ class UserManagement extends Component {
         })
         .catch(error => console.log(error))
 
-      axiosRequest('get', TOKEN, null, urlEnrolled)
+      axiosRequest('get', null, urlEnrolled)
         .then(response => {
           const data = getData(response)
           if (data != null) {
@@ -154,7 +154,6 @@ class UserManagement extends Component {
     }
     axiosRequest(
       'patch',
-      TOKEN,
       JSON.stringify({
         studentOf: user.studentOf,
         requests: user.requests,

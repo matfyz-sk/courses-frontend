@@ -8,7 +8,7 @@ import NextCalendar from '../NextCalendar'
 import * as ROUTES from '../../../constants/routes'
 import './Timeline.css'
 // import withAuthorization from "../../../components/Session/withAuthorization";
-import { BASE_URL, EVENT_URL, TOKEN, TASKS, SESSIONS } from '../constants'
+import { BASE_URL, EVENT_URL, TASKS, SESSIONS } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 
@@ -32,7 +32,7 @@ class Timeline extends Component {
       params.course_id
     }&_join=courseInstance,uses,recommends`
 
-    axiosRequest('get', TOKEN, null, url).then(response => {
+    axiosRequest('get', null, url).then(response => {
       const data = getData(response)
 
       if (data != null && data !== []) {
@@ -181,7 +181,7 @@ class Timeline extends Component {
           <Alert color="secondary" className="empty-message">
             Timeline for this course is empty.
             <br />
-            {user && user.isSuperadmin && (
+            {user && user.isSuperAdmin && (
               <NavLink
                 to={redirect(ROUTES.CREATE_TIMELINE, [
                   { key: 'course_id', value: courseId },
@@ -214,7 +214,7 @@ class Timeline extends Component {
               <Col className="event-list-col">
                 <EventsList
                   courseEvents={nestedEvents}
-                  isAdmin={user ? user.isSuperadmin : false}
+                  isAdmin={user ? user.isSuperAdmin : false}
                 />
               </Col>
             </Row>

@@ -11,7 +11,7 @@ import {
 } from 'reactstrap'
 import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
-import { BASE_URL, COURSE_URL, INITIAL_COURSE_STATE, TOKEN } from '../constants'
+import { BASE_URL, COURSE_URL, INITIAL_COURSE_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
@@ -34,7 +34,7 @@ class Course extends React.Component {
     const url = `${BASE_URL + COURSE_URL}/${
       params.course_id
     }?_join=hasPrerequisite,hasAdmin`
-    axiosRequest('get', TOKEN, null, url).then(response => {
+    axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       if (data != null && data !== []) {
         const course = data.map(courseData => {

@@ -11,7 +11,7 @@ import {
   Label,
   Input,
 } from 'reactstrap'
-import { BASE_URL, COURSE_INSTANCE_URL, COURSE_URL, TOKEN } from '../constants'
+import { BASE_URL, COURSE_INSTANCE_URL, COURSE_URL } from '../constants'
 import { axiosRequest } from '../AxiosRequests'
 import './DeleteCourseModal.css'
 
@@ -71,6 +71,7 @@ class DeleteForm extends Component {
     this.state = {
       agreeWithDelete: false,
       redirect: null,
+      errors: [],
     }
   }
 
@@ -80,20 +81,41 @@ class DeleteForm extends Component {
     const url = `${
       BASE_URL + (type === 'course' ? COURSE_URL : COURSE_INSTANCE_URL)
     }/${type === 'course' ? course.id : courseInstance.id}`
-    axiosRequest('delete', TOKEN, null, url)
-      .then(response => {
-        if (response && response.status === 200) {
-          this.setState({
-            redirect: `/courses`,
-          })
-        }
-      })
-      .catch(error => console.log(error))
+    axiosRequest('delete', null, url).then(response => {
+      if (response && response.status === 200) {
+        this.setState({
+          redirect: `/courses`,
+        })
+      } else {
+        const errors = []
+        errors.push('There was a problem with server. Try again later.')
+        this.setState({
+          errors,
+        })
+      }
+    })
   }
 
   onSubmit = event => {
+    const { agreeWithDelete } = this.state
+
+    const errors = this.validate(agreeWithDelete)
+    if (errors.length > 0) {
+      this.setState({ errors })
+      event.preventDefault()
+      return
+    }
+
     this.deleteCourse()
     event.preventDefault()
+  }
+
+  validate = agreeWithDelete => {
+    const errors = []
+    if (!agreeWithDelete) {
+      errors.push('You must be sure to delete course.')
+    }
+    return errors
   }
 
   onChange = event => {
@@ -101,7 +123,7 @@ class DeleteForm extends Component {
   }
 
   render() {
-    const { agreeWithDelete, redirect } = this.state
+    const { agreeWithDelete, redirect, errors } = this.state
     const { course } = this.props
 
     const isInvalid = agreeWithDelete === false
@@ -111,26 +133,31 @@ class DeleteForm extends Component {
     }
 
     return (
-      <Form onSubmit={this.onSubmit} className="enroll-form-modal">
-        <FormGroup check>
-          <Label for="agreeWithDelete">
-            <Input
-              name="agreeWithDelete"
-              id="agreeWithDelete"
-              onChange={this.onChange}
-              type="checkbox"
-            />{' '}
-            I am sure I want to delete {course.name}.
-          </Label>
-        </FormGroup>
-        <Button
-          disabled={isInvalid}
-          type="submit"
-          className="enroll-button-modal"
-        >
-          Delete
-        </Button>
-      </Form>
+      <>
+        {errors.map(error => (
+          <p key={error}>Error: {error}</p>
+        ))}
+        <Form onSubmit={this.onSubmit} className="enroll-form-modal">
+          <FormGroup check>
+            <Label for="agreeWithDelete">
+              <Input
+                name="agreeWithDelete"
+                id="agreeWithDelete"
+                onChange={this.onChange}
+                type="checkbox"
+              />{' '}
+              I am sure I want to delete {course.name}.
+            </Label>
+          </FormGroup>
+          <Button
+            disabled={isInvalid}
+            type="submit"
+            className="enroll-button-modal"
+          >
+            Delete
+          </Button>
+        </Form>
+      </>
     )
   }
 }

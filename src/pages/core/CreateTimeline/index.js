@@ -13,10 +13,21 @@ import { connect } from 'react-redux'
 import EventForm from '../EventForm'
 import { BlockMenu, SubEventList } from '../Events'
 import ModalCreateEvent from '../ModalCreateEvent'
+import {
+  BASE_URL,
+  BLOCK_URL,
+  COURSE_INSTANCE_URL,
+  EVENT_URL,
+} from '../constants'
+import { axiosRequest } from '../AxiosRequests'
 
 class CreateTimeline extends React.Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      // courseId: '',
+    }
   }
 
   componentDidMount() {
@@ -24,8 +35,87 @@ class CreateTimeline extends React.Component {
     //   match: { params },
     // } = this.props
     //
-    // const { course } = this.props
-    //
+    // this.setState({ courseId: params.course_id })
+  }
+
+  generateWeeklyBlocks = () => {
+    const { course } = this.props
+    const blocks = []
+
+    const courseStartDate = new Date(course.startDate)
+    const courseEndDate = new Date(course.endDate)
+
+    let startDate = this.nextDay(courseStartDate, 1)
+    let endDate = startDate + 7
+
+    let i = 1
+    if (startDate > courseStartDate) {
+      const block = {
+        name: `Week ${i}`,
+        desc: '...',
+        startDate: courseStartDate,
+        endDate: startDate,
+      }
+      blocks.push(block)
+      i++
+    }
+
+    while (endDate < courseEndDate) {
+      const block = {
+        name: `Week ${i}`,
+        desc: '...',
+        startDate,
+        endDate,
+      }
+      blocks.push(block)
+      startDate = endDate
+      endDate += 7
+      i++
+    }
+
+    if (endDate > courseEndDate) {
+      const block = {
+        name: `Week ${i}`,
+        desc: '...',
+        startDate,
+        endDate: courseEndDate,
+      }
+      blocks.push(block)
+    }
+
+    return blocks
+  }
+
+  postWeeklyBlocks = () => {
+    const { course } = this.props
+    let errors = []
+
+    if (course) {
+      const blocks = this.generateWeeklyBlocks()
+      for (const block of blocks) {
+        block.courseInstance = course.id
+
+        // const url = BASE_URL + BLOCK_URL
+        // axiosRequest('post', JSON.stringify(block), url)
+        //   .then(response => {
+        //     if (response && response.status === 200) {
+        //     } else {
+        //       errors.push(
+        //         `There was a problem with server while posting ${block.name}`
+        //       )
+        //     }
+        //   })
+        //   .catch()
+      }
+      if (errors.length > 0) {
+        //TODO nepodarilo sa vygenerovat vsetky bloky
+      }
+    }
+  }
+
+  nextDay = (d, dow) => {
+    d.setDate(d.getDate() + ((dow + (7 - d.getDay())) % 7))
+    return d
   }
 
   render() {
@@ -70,7 +160,7 @@ const NewEventTimelineCard = () => (
         <Row>
           <Col>
             <div className="button-container">
-              <ModalCreateEvent from={''} to={''} />
+              <ModalCreateEvent from="" to="" />
             </div>
           </Col>
           <Col>

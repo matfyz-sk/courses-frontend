@@ -22,7 +22,7 @@ import { getIcon } from '../Helper'
 import arrow from '../../../images/arrow.svg'
 
 import { axiosRequest, getData } from '../AxiosRequests'
-import { BASE_URL, COURSE_INSTANCE_URL, TOKEN } from '../constants'
+import { BASE_URL, COURSE_INSTANCE_URL } from '../constants'
 import DeleteCourseModal from '../DeleteCourseModal'
 import { redirect } from '../../../constants/redirect'
 
@@ -59,7 +59,7 @@ class CoursesPageBase extends Component {
     })
 
     const url = `${BASE_URL + COURSE_INSTANCE_URL}?_join=instanceOf`
-    axiosRequest('get', TOKEN, null, url).then(response => {
+    axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       if (data != null) {
         const courses = data.map(courseInstance => {
@@ -96,11 +96,21 @@ class CoursesPageBase extends Component {
                 return userRequestedCourse['@id'] === course.fullId
               }) > -1
 
-            course.instructor =
-              user.instructorOf.findIndex(userInstructorCourse => {
-                return userInstructorCourse['@id'] === course.fullId
-              }) > -1
+            // course.instructor =
+            //   user.instructorOf.findIndex(userInstructorCourse => {
+            //     return userInstructorCourse['@id'] === course.fullId
+            //   }) > -1
 
+            // eslint-disable-next-line no-nested-ternary
+            course.instructor = course.hasInstructor
+              ? Array.isArray(course.hasInstructor)
+                ? course.hasInstructor.findIndex(instructor => {
+                    return instructor === user.fullURI
+                  }) > -1
+                : course.hasInstructor === user.fullURI
+              : false
+
+            // eslint-disable-next-line no-nested-ternary
             course.admin = course.hasAdmin
               ? Array.isArray(course.hasAdmin)
                 ? course.hasAdmin.findIndex(admin => {

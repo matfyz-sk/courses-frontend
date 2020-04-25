@@ -13,7 +13,7 @@ import {
 import './EnrollModal.css'
 import { setUserProfile } from '../../../components/Auth'
 import { axiosRequest } from '../AxiosRequests'
-import { BASE_URL, TOKEN, USER_URL } from '../constants'
+import { BASE_URL, USER_URL } from '../constants'
 import { getShortId } from '../Helper'
 import { Redirect } from 'react-router-dom'
 
@@ -66,6 +66,7 @@ class EnrollForm extends Component {
     this.state = {
       termsAndConditions: false,
       redirect: null,
+      errors: [],
     }
   }
 
@@ -73,44 +74,62 @@ class EnrollForm extends Component {
     const { user, courseInstance } = this.props
 
     if (user) {
-      console.log(user)
       const newRequests = user.requests.map(userRequestedCourse => {
         return userRequestedCourse['@id']
       })
       newRequests.push(courseInstance.fullId)
-      console.log(courseInstance.fullId)
-      console.log(newRequests)
 
       const url = `${BASE_URL + USER_URL}/${user.id}`
 
       axiosRequest(
         'patch',
-        TOKEN,
         JSON.stringify({
           requests: newRequests,
         }),
         url
-      )
-        .then(response => {
-          if (response && response.status === 200) {
-            const newRequest = { '@id': courseInstance.fullId }
-            user.requests.push(newRequest)
-            setUserProfile(user)
-            this.setState({
-              redirect: `/courses`,
-            })
-          } else {
-            // TODO alert?
-            console.log('Ooops!')
-          }
-        })
-        .catch(error => console.log(error))
+      ).then(response => {
+        if (response && response.status === 200) {
+          const newRequest = { '@id': courseInstance.fullId }
+          user.requests.push(newRequest)
+          setUserProfile(user)
+          this.setState({
+            redirect: `/courses`,
+          })
+        } else {
+          const errors = []
+          errors.push(
+            'There was a problem with server while sending your request. Try again later.'
+          )
+          this.setState({
+            errors,
+          })
+        }
+      })
     }
   }
 
   onSubmit = event => {
+    const { termsAndConditions } = this.state
+
+    const errors = this.validate(termsAndConditions)
+    if (errors.length > 0) {
+      this.setState({ errors })
+      event.preventDefault()
+      return
+    }
+
     this.requestEnrollment()
     event.preventDefault()
+  }
+
+  validate = termsAndConditions => {
+    const errors = []
+    if (!termsAndConditions) {
+      errors.push(
+        'You must accept the terms and conditions to enroll in course.'
+      )
+    }
+    return errors
   }
 
   onChange = event => {
@@ -118,7 +137,7 @@ class EnrollForm extends Component {
   }
 
   render() {
-    const { termsAndConditions, redirect } = this.state
+    const { termsAndConditions, redirect, errors } = this.state
 
     const isInvalid = termsAndConditions === false
 
@@ -127,38 +146,43 @@ class EnrollForm extends Component {
     }
 
     return (
-      <Form onSubmit={this.onSubmit} className="enroll-form-modal">
-        <FormGroup check>
-          <Label for="privacy">
-            <Input
-              name="privacy"
-              id="privacy"
-              onChange={this.onChange}
-              type="checkbox"
-            />{' '}
-            I wish to use my nickname in this course.
-          </Label>
-        </FormGroup>
-        <FormGroup check>
-          <Label for="termsAndConditions">
-            <Input
-              name="termsAndConditions"
-              id="termsAndConditions"
-              onChange={this.onChange}
-              type="checkbox"
-            />{' '}
-            I acknowledge that I have read, and do hereby accept the terms and
-            conditions.
-          </Label>
-        </FormGroup>
-        <Button
-          disabled={isInvalid}
-          type="submit"
-          className="enroll-button-modal"
-        >
-          Enroll
-        </Button>
-      </Form>
+      <>
+        {errors.map(error => (
+          <p key={error}>Error: {error}</p>
+        ))}
+        <Form onSubmit={this.onSubmit} className="enroll-form-modal">
+          <FormGroup check>
+            <Label for="privacy">
+              <Input
+                name="privacy"
+                id="privacy"
+                onChange={this.onChange}
+                type="checkbox"
+              />{' '}
+              I wish to use my nickname in this course.
+            </Label>
+          </FormGroup>
+          <FormGroup check>
+            <Label for="termsAndConditions">
+              <Input
+                name="termsAndConditions"
+                id="termsAndConditions"
+                onChange={this.onChange}
+                type="checkbox"
+              />{' '}
+              I acknowledge that I have read, and do hereby accept the terms and
+              conditions.
+            </Label>
+          </FormGroup>
+          <Button
+            disabled={isInvalid}
+            type="submit"
+            className="enroll-button-modal"
+          >
+            Enroll
+          </Button>
+        </Form>
+      </>
     )
   }
 }

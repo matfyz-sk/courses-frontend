@@ -2,7 +2,7 @@ import React from 'react'
 // import {withAuthorization} from "../../../components/Session";
 import { Container, Card, CardHeader, CardBody } from 'reactstrap'
 import CourseForm from '../CourseForm'
-import { BASE_URL, COURSE_URL, INITIAL_COURSE_STATE, TOKEN } from '../constants'
+import { BASE_URL, COURSE_URL, INITIAL_COURSE_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 
 class EditCourse extends React.Component {
@@ -22,7 +22,7 @@ class EditCourse extends React.Component {
     const url = `${BASE_URL + COURSE_URL}/${
       params.course_id
     }?_join=hasPrerequisite,hasAdmin`
-    axiosRequest('get', TOKEN, null, url).then(response => {
+    axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       if (data != null && data !== []) {
         const course = data.map(courseData => {

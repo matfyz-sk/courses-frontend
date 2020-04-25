@@ -1,6 +1,4 @@
-import { AuthUserContext, CourseContext } from './context';
-import withAuthentication from './withAuthentication';
+import { AuthUserContext,  } from './context';
 import withAuthorization from './withAuthorization';
-import withCourse from './withCourse';
 
-export { AuthUserContext, CourseContext, withAuthentication, withAuthorization, withCourse };
+export { AuthUserContext, withAuthorization };
