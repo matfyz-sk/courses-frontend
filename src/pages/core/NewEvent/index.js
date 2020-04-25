@@ -2,18 +2,57 @@ import React from 'react'
 import { Container, Card, CardHeader, CardBody } from 'reactstrap'
 import EventForm from '../EventForm'
 import { INITIAL_EVENT_STATE } from '../constants'
+import { Redirect } from 'react-router-dom'
 
-const NewEvent = () => (
-  <div>
-    <Container>
-      <Card>
-        <CardHeader className="event-card-header">New Event</CardHeader>
-        <CardBody>
-          <EventForm typeOfForm="Create" {...INITIAL_EVENT_STATE} options={["Block", "Lab", "Lecture"]} />
-        </CardBody>
-      </Card>
-    </Container>
-  </div>
-)
+class NewEvent extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { redirect: null, courseId: '' }
+  }
+
+  componentDidMount() {
+    const {
+      match: { params },
+    } = this.props
+
+    this.setState({
+      courseId: params.course_id,
+    })
+  }
+
+  setRedirect = id => {
+    const { courseId } = this.state
+
+    this.setState({
+      redirect: `/courses/${courseId}/event/${id}`,
+    })
+  }
+
+  render() {
+    const { redirect } = this.state
+
+    if (redirect) {
+      return <Redirect to={redirect} />
+    }
+
+    return (
+      <div>
+        <Container>
+          <Card>
+            <CardHeader className="event-card-header">New Event</CardHeader>
+            <CardBody>
+              <EventForm
+                typeOfForm="Create"
+                {...INITIAL_EVENT_STATE}
+                options={['Block', 'Lab', 'Lecture']}
+                callBack={this.setRedirect}
+              />
+            </CardBody>
+          </Card>
+        </Container>
+      </div>
+    )
+  }
+}
 
 export default NewEvent

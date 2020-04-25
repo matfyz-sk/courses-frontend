@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import './Landing.css';
-import { store } from '../../../index';
-import { setSubNav } from '../../../redux/actions/navigationActions';
+import React, { Component } from 'react'
+import './Landing.css'
+import { store } from '../../../index'
+import { setSubNav } from '../../../redux/actions/navigationActions'
 
 class LandingPage extends Component {
   componentDidMount() {
-    store.dispatch(setSubNav('dashboard'));
+    store.dispatch(setSubNav('dashboard'))
   }
 
   render() {
@@ -15,8 +15,8 @@ class LandingPage extends Component {
           <h1>Dashboard</h1>
         </div>
       </main>
-    );
+    )
   }
 }
 
-export default LandingPage;
+export default LandingPage

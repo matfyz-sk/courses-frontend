@@ -1,18 +1,17 @@
 import React from 'react'
 import { Container, Card, CardHeader, CardBody } from 'reactstrap'
 import EventForm from '../EventForm'
-import {
-  BASE_URL,
-  COURSE_URL,
-  INITIAL_EVENT_STATE,
-} from '../constants'
+import { BASE_URL, COURSE_URL, INITIAL_EVENT_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
+import { Redirect } from 'react-router-dom'
 
 class NewCourseInstance extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      courseId: '',
       course: null,
+      redirect: null,
     }
   }
 
@@ -20,6 +19,10 @@ class NewCourseInstance extends React.Component {
     const {
       match: { params },
     } = this.props
+
+    this.setState({
+      courseId: params.course_id,
+    })
 
     const url = `${BASE_URL + COURSE_URL}/${params.course_id}`
 
@@ -41,8 +44,20 @@ class NewCourseInstance extends React.Component {
     })
   }
 
+  setRedirect = id => {
+    const { courseId } = this.state
+
+    this.setState({
+      redirect: `/courses/${courseId}/event/${id}`,
+    })
+  }
+
   render() {
-    const { course } = this.state
+    const { course, redirect } = this.state
+
+    if (redirect) {
+      return <Redirect to={redirect} />
+    }
 
     return (
       <div>
@@ -57,6 +72,7 @@ class NewCourseInstance extends React.Component {
                 typeOfForm="New Course Instance"
                 {...INITIAL_EVENT_STATE}
                 options={['CourseInstance']}
+                callBack={this.setRedirect}
               />
             </CardBody>
           </Card>

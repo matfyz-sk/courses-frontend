@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Redirect, withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import {
   Button,
@@ -34,7 +34,6 @@ class EventForm extends Component {
     this.state = {
       ...INITIAL_EVENT_STATE,
       courseId: '',
-      redirect: null,
       errors: [],
       users: [],
     }
@@ -88,7 +87,7 @@ class EventForm extends Component {
       courseId,
       instructors,
     } = this.state
-    const { typeOfForm } = this.props
+    const { typeOfForm, callBack } = this.props
 
     const errors = this.validate(name, description, startDate, endDate)
     if (errors.length > 0) {
@@ -136,16 +135,12 @@ class EventForm extends Component {
     axiosRequest(method, JSON.stringify(data), url)
       .then(response => {
         if (response && response.status === 200) {
-          let newUrl
-          if (typeOfForm === 'Create') {
-            const newEventId = getShortId(response.data.resource.iri)
-            newUrl = `/courses/${courseId}/event/${newEventId}`
+          if (typeOfForm === 'Edit') {
+            callBack(id)
           } else {
-            newUrl = `/courses/${courseId}/event/${id}`
+            const newEventId = getShortId(response.data.resource.iri)
+            callBack(newEventId)
           }
-          this.setState({
-            redirect: newUrl,
-          })
         } else {
           errors.push(
             'There was a problem with server while sending your form. Try again later.'
@@ -164,7 +159,6 @@ class EventForm extends Component {
   }
 
   validate = (name, description, startDate, endDate) => {
-    console.log(name, description)
     const errors = []
     if (name.length === 0) {
       errors.push("Name can't be empty.")
@@ -180,15 +174,14 @@ class EventForm extends Component {
 
   deleteEvent = () => {
     const { type, id, courseId } = this.state
+    const { callBack } = this.props
 
     const typeLowerCase = this.lowerFirstLetter(type)
     const url = `${BASE_URL}/${typeLowerCase}/${id}`
 
     axiosRequest('delete', null, url).then(response => {
       if (response && response.status === 200) {
-        this.setState({
-          redirect: `/courses/${courseId}/timeline`,
-        })
+        callBack(null)
       } else {
         const errors = []
         errors.push('There was a problem with server. Try again later.')
@@ -224,19 +217,11 @@ class EventForm extends Component {
       endDate,
       place,
       type,
-      redirect,
       errors,
       users,
       instructors,
     } = this.state
     const { typeOfForm, options } = this.props
-
-    console.log(typeOfForm)
-
-
-    if (redirect) {
-      return <Redirect to={redirect} />
-    }
 
     const isInvalid =
       name === '' ||

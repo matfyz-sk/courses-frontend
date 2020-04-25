@@ -32,10 +32,10 @@ export const getCourseInstances = data => {
       fullId: eventData['@id'],
       type: eventData['@type'].split('#')[1],
       name: eventData.name,
-      description: eventData.description,
+      description: eventData.description ? eventData.description : '',
       startDate: new Date(eventData.startDate),
       endDate: new Date(eventData.endDate),
-      place: eventData.location,
+      place: eventData.location ? eventData.location : '',
       uses: eventData.uses.map(material => {
         return {
           id: getShortId(material['@id']),

@@ -4,17 +4,22 @@ import EventForm from '../EventForm'
 import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { getShortId } from '../Helper'
+import { Redirect } from 'react-router-dom'
 
 class EditEvent extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { event: INITIAL_EVENT_STATE }
+    this.state = { event: INITIAL_EVENT_STATE, redirect: null, courseId: '' }
   }
 
   componentDidMount() {
     const {
       match: { params },
     } = this.props
+
+    this.setState({
+      courseId: params.course_id,
+    })
 
     const url = `${BASE_URL + EVENT_URL}/${params.event_id}?_join=hasInstructor`
     axiosRequest('get', null, url).then(response => {
@@ -70,15 +75,38 @@ class EditEvent extends React.Component {
     })
   }
 
+  setRedirect = id => {
+    const { courseId } = this.state
+    if (id === null) {
+      this.setState({
+        redirect: `/courses/${courseId}/timeline`,
+      })
+    } else {
+      this.setState({
+        redirect: `/courses/${courseId}/event/${id}`,
+      })
+    }
+  }
+
   render() {
-    const { event } = this.state
+    const { event, redirect } = this.state
+
+    if (redirect) {
+      return <Redirect to={redirect} />
+    }
+
     return (
       <div>
         <Container>
           <Card>
             <CardHeader className="event-card-header">Edit Event</CardHeader>
             <CardBody>
-              <EventForm typeOfForm="Edit" {...event} options={[event.type]} />
+              <EventForm
+                typeOfForm="Edit"
+                {...event}
+                options={[event.type]}
+                callBack={this.setRedirect}
+              />
             </CardBody>
           </Card>
         </Container>

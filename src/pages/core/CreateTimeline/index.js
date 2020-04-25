@@ -10,6 +10,7 @@ import {
   CardSubtitle,
   ListGroup,
   ListGroupItem,
+  Alert,
 } from 'reactstrap'
 import { connect } from 'react-redux'
 import EventForm from '../EventForm'
@@ -19,6 +20,7 @@ import {
   BASE_URL,
   EVENT_URL,
   INITIAL_EVENT_STATE,
+  BLOCK_URL,
 } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import {
@@ -34,8 +36,11 @@ class CreateTimeline extends React.Component {
 
     this.state = {
       event: null,
+      courseId: '',
       timelineBlocks: [],
       nestedEvents: [],
+      saved: false,
+      disabled: false,
     }
   }
 
@@ -44,99 +49,133 @@ class CreateTimeline extends React.Component {
       match: { params },
     } = this.props
 
-    const url = `${BASE_URL + EVENT_URL}?courseInstance=${
-      params.course_id
-    }&_join=courseInstance,uses,recommends`
-
-    axiosRequest('get', null, url).then(response => {
-      const data = getData(response)
-      if (data != null && data !== []) {
-        const events = getCourseInstances(data).sort(sortEventsFunction)
-
-        const timelineBlocks = getTimelineBlocks(events)
-        const nestedEvents = getNestedEvents(events, timelineBlocks)
-
-        this.setState({
-          timelineBlocks,
-          nestedEvents,
-        })
-      }
+    this.setState({
+      courseId: params.course_id,
     })
+
+    this.getBlockMenu()
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevState.courseId !== this.state.courseId) {
+      this.getBlockMenu()
+    }
+  }
+
+  getBlockMenu = () => {
+    const { courseId } = this.state
+
+    if (courseId !== '') {
+      const url = `${
+        BASE_URL + EVENT_URL
+      }?courseInstance=${courseId}&_join=courseInstance,uses,recommends`
+
+      axiosRequest('get', null, url).then(response => {
+        const data = getData(response)
+        if (data != null && data !== []) {
+          const events = getCourseInstances(data).sort(sortEventsFunction)
+
+          const timelineBlocks = getTimelineBlocks(events)
+          const nestedEvents = getNestedEvents(events, timelineBlocks)
+
+          this.setState({
+            timelineBlocks,
+            nestedEvents,
+          })
+        }
+      })
+    }
   }
 
   generateWeeklyBlocks = () => {
     const { course } = this.props
     const blocks = []
 
-    const courseStartDate = new Date(course.startDate)
-    const courseEndDate = new Date(course.endDate)
+    if (course) {
+      const courseStartDate = new Date(course.startDate)
+      const courseEndDate = new Date(course.endDate)
 
-    let startDate = this.nextDay(courseStartDate, 1)
-    let endDate = startDate + 7
+      let startDate = this.nextDay(courseStartDate, 1)
+      let endDate = this.addDays(startDate, 7)
 
-    let i = 1
-    if (startDate > courseStartDate) {
-      const block = {
-        name: `Week ${i}`,
-        desc: '...',
-        startDate: courseStartDate,
-        endDate: startDate,
+      let i = 1
+      if (startDate > courseStartDate) {
+        const block = {
+          name: `Week ${i}`,
+          desc: '...',
+          startDate: courseStartDate,
+          endDate: startDate,
+        }
+        blocks.push(block)
+        i++
       }
-      blocks.push(block)
-      i++
-    }
 
-    while (endDate < courseEndDate) {
-      const block = {
-        name: `Week ${i}`,
-        desc: '...',
-        startDate,
-        endDate,
+      while (endDate < courseEndDate) {
+        const block = {
+          name: `Week ${i}`,
+          desc: '...',
+          startDate,
+          endDate,
+        }
+        blocks.push(block)
+        startDate = endDate
+        endDate = this.addDays(startDate, 7)
+        i++
       }
-      blocks.push(block)
-      startDate = endDate
-      endDate += 7
-      i++
-    }
 
-    if (endDate > courseEndDate) {
-      const block = {
-        name: `Week ${i}`,
-        desc: '...',
-        startDate,
-        endDate: courseEndDate,
+      if (endDate > courseEndDate) {
+        const block = {
+          name: `Week ${i}`,
+          desc: '...',
+          startDate,
+          endDate: courseEndDate,
+        }
+        blocks.push(block)
       }
-      blocks.push(block)
     }
-
     return blocks
   }
 
   postWeeklyBlocks = () => {
+    this.setState({
+      disabled: true,
+    })
+
     const { course } = this.props
     let errors = []
 
     if (course) {
       const blocks = this.generateWeeklyBlocks()
-      for (const block of blocks) {
-        block.courseInstance = course.id
 
-        // const url = BASE_URL + BLOCK_URL
-        // axiosRequest('post', JSON.stringify(block), url)
-        //   .then(response => {
-        //     if (response && response.status === 200) {
-        //     } else {
-        //       errors.push(
-        //         `There was a problem with server while posting ${block.name}`
-        //       )
-        //     }
-        //   })
-        //   .catch()
+      for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i]
+        block.courseInstance = course['@id']
+        const url = BASE_URL + BLOCK_URL
+        axiosRequest('post', JSON.stringify(block), url)
+          .then(response => {
+            if (response && response.status === 200) {
+            } else {
+              errors.push(
+                `There was a problem with server while posting ${block.name}`
+              )
+            }
+            if (i === blocks.length - 1) {
+              this.getBlockMenu()
+            }
+          })
+          .catch()
       }
       if (errors.length > 0) {
         //TODO nepodarilo sa vygenerovat vsetky bloky
+        console.log(errors)
       }
     }
+  }
+
+  addDays = (date, days) => {
+    let result = new Date(date)
+    result.setDate(result.getDate() + days)
+    return result
   }
 
   nextDay = (d, dow) => {
@@ -155,12 +194,25 @@ class CreateTimeline extends React.Component {
     }
     this.setState({
       event,
+      saved: false,
     })
   }
 
-  render() {
-    const { timelineBlocks, event } = this.state
+  setSavedAlert = id => {
+    if (id === null) {
+      this.setState({
+        event: null,
+      })
+    } else {
+      this.setState({
+        saved: true,
+      })
+    }
+    this.getBlockMenu()
+  }
 
+  render() {
+    const { timelineBlocks, event, saved, disabled } = this.state
     return (
       <div>
         <Container className="core-container">
@@ -170,10 +222,39 @@ class CreateTimeline extends React.Component {
                 courseEvents={timelineBlocks}
                 onClick={this.onBlockMenuClick}
               />
-              <Button onClick={() => this.onBlockMenuClick(null)}>New Block</Button>
+              {timelineBlocks.length === 0 && (
+                <Button disabled={disabled} onClick={this.postWeeklyBlocks}>
+                  {disabled ? 'Generatating...' : 'Generate Weekly Blocks'}
+                </Button>
+              )}
+              <Button onClick={() => this.onBlockMenuClick(null)}>
+                New Block
+              </Button>
             </Col>
             <Col>
-              <BlockEventTimelineCard event={event} />
+              {saved && (
+                <Alert color="secondary">Event saved successfully!</Alert>
+              )}
+              <Card>
+                <CardHeader className="event-card-header">New Event</CardHeader>
+                <CardBody>
+                  {event ? (
+                    <EventForm
+                      typeOfForm="Edit"
+                      {...event}
+                      options={[event.type]}
+                      callBack={this.setSavedAlert}
+                    />
+                  ) : (
+                    <EventForm
+                      typeOfForm="Create"
+                      {...INITIAL_EVENT_STATE}
+                      options={['Block', 'Lab', 'Lecture']}
+                      callBack={this.setSavedAlert}
+                    />
+                  )}
+                </CardBody>
+              </Card>
             </Col>
           </Row>
         </Container>
@@ -198,63 +279,38 @@ const BlockMenu = ({ courseEvents, onClick }) => (
   </ListGroup>
 )
 
-const BlockEventTimelineCard = event => {
-  // if (event) { console.log(event.event) } else { console.log('null') }
-
-  return (
-    <Card>
-      <CardHeader className="event-card-header">New Event</CardHeader>
-      <CardBody>
-        {event.event ? (
-          <EventForm
-            typeOfForm="Edit"
-            {...event.event}
-            options={[event.type]}
-          />
-        ) : (
-          <EventForm
-            typeOfForm="Create"
-            {...INITIAL_EVENT_STATE}
-            options={['Block', 'Lab', 'Lecture']}
-          />
-        )}
-
-        {/*  <Container className="sessions-tasks-container">*/}
-        {/*    <Row>*/}
-        {/*      <Col className="subevents-col-left">*/}
-        {/*        <CardSubtitle className="subevents-title">Sessions</CardSubtitle>*/}
-        {/*        <SubEventList events={[]} />*/}
-        {/*      </Col>*/}
-        {/*      <Col className="subevents-col-right">*/}
-        {/*        <CardSubtitle className="subevents-title">Tasks</CardSubtitle>*/}
-        {/*        <SubEventList events={[]} />*/}
-        {/*      </Col>*/}
-        {/*    </Row>*/}
-        {/*    <Row>*/}
-        {/*      <Col>*/}
-        {/*        <div className="button-container">*/}
-        {/*          <ModalCreateEvent from="" to="" />*/}
-        {/*        </div>*/}
-        {/*      </Col>*/}
-        {/*      <Col>*/}
-        {/*        <div className="button-container">*/}
-        {/*          <Button className="new-event-button">Add Task</Button>*/}
-        {/*        </div>*/}
-        {/*      </Col>*/}
-        {/*    </Row>*/}
-        {/*  </Container>*/}
-        {/*  <CardSubtitle className="subevents-title">Materials</CardSubtitle>*/}
-        {/*  <Card body className="materials-card">*/}
-        {/*    <CardBody> </CardBody>*/}
-        {/*    /!*<ListOfMaterials/>*!/*/}
-        {/*  </Card>*/}
-        {/*  <div className="button-container">*/}
-        {/*    <Button className="new-event-button">Add Material</Button>*/}
-        {/*  </div>*/}
-      </CardBody>
-    </Card>
-  )
-}
+//   <Container className="sessions-tasks-container">
+//   <Row>
+//   <Col className="subevents-col-left">
+//   <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
+// <SubEventList events={[]} />
+// </Col>
+// <Col className="subevents-col-right">
+//   <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
+//   <SubEventList events={[]} />
+// </Col>
+// </Row>
+// <Row>
+//   <Col>
+//     <div className="button-container">
+//       <ModalCreateEvent from="" to="" />
+//     </div>
+//   </Col>
+//   <Col>
+//     <div className="button-container">
+//       <Button className="new-event-button">Add Task</Button>
+//     </div>
+//   </Col>
+// </Row>
+// </Container>
+// <CardSubtitle className="subevents-title">Materials</CardSubtitle>
+// <Card body className="materials-card">
+//   <CardBody> </CardBody>
+// {/*<ListOfMaterials/>*/}
+// </Card>
+// <div className="button-container">
+// <Button className="new-event-button">Add Material</Button>
+// </div>
 
 const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
   return {
