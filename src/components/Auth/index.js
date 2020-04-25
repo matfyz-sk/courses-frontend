@@ -144,12 +144,12 @@ export function getUserInCourseType(course_id) {
     return 'visitor'
   }
   for (let i = 0; i < user.studentOf.length; i++) {
-    if (user.studentOf[i].indexOf(course_id) !== -1) {
+    if (user.studentOf[i]['@id'] === course_id) {
       return 'student'
     }
   }
   for (let i = 0; i < user.instructorOf.length; i++) {
-    if (user.instructorOf[i].indexOf(course_id) !== -1) {
+    if (user.instructorOf[i]['@id'] === course_id) {
       return 'instructor'
     }
   }
