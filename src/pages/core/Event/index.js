@@ -10,14 +10,12 @@ import {
   CardText,
   ListGroup,
   ListGroupItem,
-  Button,
   Table,
 } from 'reactstrap'
 import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 
 import './Event.css'
-import { setUserAdmin } from '../../../redux/actions'
 import { SubEventList } from '../Events'
 import {
   getDisplayDateTime,
@@ -29,9 +27,12 @@ import {
   BASE_URL,
   EVENT_URL,
   INITIAL_EVENT_STATE,
+  SESSIONS,
   TOKEN,
 } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
+import { redirect } from '../../../constants/redirect'
+import * as ROUTES from '../../../constants/routes'
 
 class Event extends React.Component {
   constructor(props) {
@@ -47,10 +48,12 @@ class Event extends React.Component {
       match: { params },
     } = this.props
 
-    const url = `${BASE_URL + EVENT_URL}/${params.id}?_join=courseInstance,uses,recommends`
+    const url = `${BASE_URL + EVENT_URL}/${
+      params.event_id
+    }?_join=courseInstance,uses,recommends`
     axiosRequest('get', TOKEN, null, url).then(response => {
       const data = getData(response)
-      if (data != null) {
+      if (data != null && data !== []) {
         const event = data.map(eventData => {
           return {
             id: getShortId(eventData['@id']),
@@ -74,18 +77,19 @@ class Event extends React.Component {
                 name: material.name,
               }
             }),
-            courseAbbr: eventData.courseInstance[0]
-              ? eventData.courseInstance[0].abbreviation
-              : '',
+            courseInstance: eventData.courseInstance[0]['@id'],
           }
         })[0]
+        console.log(event.type)
+        if (getShortId(event.courseInstance) !== params.course_id) {
+          //TODO redirect wrong event for courseInstance
+        }
         event.materials = mergeMaterials(event.uses, event.recommends)
-        console.log(event)
         this.setState({
           event,
         })
       } else {
-        // TODO redirect to 404?
+        // TODO redirect to 404? zle id
         console.log('Something went wrong!')
       }
     })
@@ -93,26 +97,44 @@ class Event extends React.Component {
 
   render() {
     const { event } = this.state
-    const { isAdmin } = this.props
+    const { user } = this.props
     return (
       <div>
         <Container>
-          {event && <EventCard event={event} isAdmin={isAdmin} />}
+          {event && (
+            <EventCard
+              event={event}
+              isAdmin={user ? user.isSuperAdmin : false}
+              detail
+            />
+          )}
         </Container>
       </div>
     )
   }
 }
 
-const EventCard = ({ event, isAdmin }) => (
+const EventCard = ({ event, isAdmin, detail }) => (
   <Card id={`${event.id}`} name={`${event.id}`} className="event-card">
     <CardHeader className="event-card-header">
-      <NavLink to={`/event/${event.id}`} className="subevent-name">
-        {event.name}
+      <NavLink
+        to={redirect(ROUTES.EVENT_ID, [
+          { key: 'course_id', value: getShortId(event.courseInstance) },
+          { key: 'event_id', value: event.id },
+        ])}
+        className="subevent-name"
+      >
+        {event.name} ({event.type})
       </NavLink>
-      {isAdmin && (
-        <NavLink to={`/editevent/${event.id}`}>
-          <Button className="edit-button"> Edit</Button>
+      {isAdmin && (SESSIONS.includes(event.type) || event.type === 'Block') && (
+        <NavLink
+          to={redirect(ROUTES.EDIT_EVENT_ID, [
+            { key: 'course_id', value: getShortId(event.courseInstance) },
+            { key: 'event_id', value: event.id },
+          ])}
+          className="edit-delete-buttons"
+        >
+          Edit
         </NavLink>
       )}
     </CardHeader>
@@ -126,15 +148,15 @@ const EventCard = ({ event, isAdmin }) => (
             <th>End</th>
             <td>{getDisplayDateTime(event.endDate, true)}</td>
           </tr>
-          {/*TODO uncomment*/}
-          {/*{event.location &&*/}
-          {/*<tr>*/}
-          {/*    <th>Location</th><td colSpan="3">{event.location}</td>*/}
-          {/*</tr>*/}
-          {/*}*/}
+          {event.place && (
+            <tr>
+              <th>Location</th>
+              <td colSpan="3">{event.place}</td>
+            </tr>
+          )}
         </tbody>
       </Table>
-      {event.type === 'Block' && (
+      {event.type === 'Block' && !detail && (
         <Container className="sessions-tasks-container core-container">
           <Row>
             <Col className="subevents-col-left">
@@ -168,13 +190,12 @@ const EventCard = ({ event, isAdmin }) => (
   </Card>
 )
 
-const mapStateToProps = ({ userReducer }) => {
+const mapStateToProps = ({ authReducer }) => {
   return {
-    isSignedIn: userReducer.isSignedIn,
-    isAdmin: userReducer.isAdmin,
+    user: authReducer.user,
   }
 }
 
-export default connect(mapStateToProps, { setUserAdmin })(Event)
+export default connect(mapStateToProps)(Event)
 
 export { EventCard }

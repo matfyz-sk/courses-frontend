@@ -4,7 +4,7 @@ import { Card, CardHeader, Container } from 'reactstrap'
 class CourseMigration extends React.Component {
   render() {
     return (
-      <React.Fragment>
+      <>
         <Container>
           <Card>
             <CardHeader className="event-card-header">
@@ -13,7 +13,7 @@ class CourseMigration extends React.Component {
             ...
           </Card>
         </Container>
-      </React.Fragment>
+      </>
     )
   }
 }

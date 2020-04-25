@@ -10,11 +10,9 @@ import {
   Label,
   Input,
 } from 'reactstrap'
-import { compose } from 'recompose'
-import { connect } from 'react-redux'
-import { fetchUser, setUserAdmin } from '../../../redux/actions'
 import { BASE_URL, COURSE_INSTANCE_URL, COURSE_URL, TOKEN } from '../constants'
 import { axiosRequest } from '../AxiosRequests'
+import './DeleteCourseModal.css'
 
 class DeleteCourseModal extends Component {
   constructor(props) {
@@ -33,10 +31,10 @@ class DeleteCourseModal extends Component {
   }
 
   render() {
-    const { course, courseInstance, type, className } = this.props
+    const { course, courseInstance, type, className, small } = this.props
     return (
       <div>
-        <Button onClick={this.toggle} className="delete-button">
+        <Button onClick={this.toggle} className={`delete-button ${small}`} >
           Delete
         </Button>
         {/*<span onClick={this.toggle} className="edit-delete-buttons">*/}
@@ -49,7 +47,7 @@ class DeleteCourseModal extends Component {
         >
           <ModalHeader toggle={this.toggle}>{course.name}</ModalHeader>
           <ModalBody>
-            <DeleteFormMapped
+            <DeleteForm
               course={course}
               courseInstance={courseInstance}
               type={type}
@@ -95,7 +93,6 @@ class DeleteForm extends Component {
   }
 
   onChange = event => {
-    console.log(event.target.name, event.target.value)
     this.setState({ [event.target.name]: event.target.value })
   }
 
@@ -104,8 +101,6 @@ class DeleteForm extends Component {
     const { course } = this.props
 
     const isInvalid = agreeWithDelete === false
-
-    console.log(agreeWithDelete, isInvalid)
 
     return (
       <Form onSubmit={this.onSubmit} className="enroll-form-modal">
@@ -131,16 +126,5 @@ class DeleteForm extends Component {
     )
   }
 }
-const mapStateToProps = ({ userReducer }) => {
-  return {
-    isSignedIn: userReducer.isSignedIn,
-    isAdmin: userReducer.isAdmin,
-    user: userReducer.user,
-  }
-}
-
-const DeleteFormMapped = compose(
-  connect(mapStateToProps, { setUserAdmin, fetchUser })
-)(DeleteForm)
 
 export default DeleteCourseModal

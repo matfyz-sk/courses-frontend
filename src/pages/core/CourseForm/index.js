@@ -12,11 +12,19 @@ import {
   COURSE_URL,
   USER_URL,
 } from '../constants'
+import * as ROUTES from '../../../constants/routes'
+import { getShortId } from '../Helper'
+import { Redirect } from 'react-router-dom'
 
 class CourseForm extends Component {
   constructor(props) {
     super(props)
-    this.state = { ...INITIAL_COURSE_STATE, courses: [], users: [] }
+    this.state = {
+      ...INITIAL_COURSE_STATE,
+      courses: [],
+      users: [],
+      redirect: null,
+    }
   }
 
   componentDidMount() {
@@ -45,7 +53,10 @@ class CourseForm extends Component {
         const users = data.map(user => {
           return {
             fullId: user['@id'],
-            name: user.name ? user.name : '',
+            name:
+              user.firstName !== '' && user.lastName !== ''
+                ? `${user.firstName} ${user.lastName}`
+                : 'Noname',
           }
         })
         this.setState({
@@ -85,7 +96,7 @@ class CourseForm extends Component {
 
     if (typeOfForm === 'Edit') {
       url += `/${id}`
-      method = 'put'
+      method = 'patch'
     }
 
     axiosRequest(
@@ -96,19 +107,25 @@ class CourseForm extends Component {
         description,
         abbreviation,
         hasPrerequisite,
-        // TODO uncomment when implemented
-        // hasAdmin
+        hasAdmin,
       }),
       url
     ).then(response => {
-      if (response.status === 200) {
-        // TODO
-        console.log('Hurray!')
+      if (response && response.status === 200) {
+        let newUrl
         if (typeOfForm === 'Create') {
-          // redirect to new Instance
+          const newCourseId = getShortId(response.data.resource.iri)
+          newUrl = {
+            pathname: `/newcourseinstance/${newCourseId}`,
+            state: { courseName: name },
+          }
         } else {
-          // redirect to courses
+          newUrl = `/courses/${id}`
+          console.log(newUrl)
         }
+        this.setState({
+          redirect: newUrl,
+        })
       } else {
         // TODO
         console.log('Ooops!')
@@ -138,10 +155,13 @@ class CourseForm extends Component {
       admins,
       courses,
       users,
+      redirect,
     } = this.state
     const { typeOfForm } = this.props
 
-    console.log(users)
+    if (redirect) {
+      return <Redirect to={redirect} />
+    }
 
     const isInvalid = name === '' || description === '' || abbreviation === ''
     return (

@@ -3,6 +3,7 @@ import { Route } from 'react-router-dom'
 import { Switch } from 'react-router'
 import LandingPage from './Landing'
 import CoursesPage from './Courses'
+import Course from './Course'
 import Event from './Event'
 import Timeline from './Timeline'
 import CreateTimeline from './CreateTimeline'
@@ -17,6 +18,9 @@ import CourseMigration from './CourseMigration'
 import CourseLayout from '../../layouts/CourseLayout'
 import PrivateOnlyRoute from '../../router/routes/PrivateOnlyRoute'
 import Teams from './Teams'
+import Profile from './Profile'
+import TeamDetail from './Teams/TeamDetail'
+import NewCourseInstance from "./NewCourseInstance";
 
 const CoreRoutes = [
   <RouteWrapper
@@ -32,11 +36,18 @@ const CoreRoutes = [
     auth
   />,
   <RouteWrapper
+    path={ROUTES.COURSE_TEAMS_DETAIL}
+    component={TeamDetail}
+    layout={CourseLayout}
+    auth
+  />,
+  <RouteWrapper
     path={ROUTES.COURSE_TEAMS}
     component={Teams}
     layout={CourseLayout}
     auth
   />,
+  <PrivateOnlyRoute path={ROUTES.PROFILE_SETTINGS} component={Profile} />,
 
   <PrivateOnlyRoute path="/dashboard" component={LandingPage} />,
 
@@ -59,12 +70,6 @@ const CoreRoutes = [
     auth
   />,
   <RouteWrapper
-    path={ROUTES.EDIT_COURSE}
-    component={EditCourse}
-    layout={CourseLayout}
-    auth
-  />,
-  <RouteWrapper
     path={ROUTES.NEW_EVENT}
     component={NewEvent}
     layout={CourseLayout}
@@ -83,16 +88,10 @@ const CoreRoutes = [
     auth
   />,
   <Route path={ROUTES.COURSES} component={CoursesPage} />,
+  <Route path={ROUTES.COURSE_ID} component={Course} auth />,
   <Route path={ROUTES.NEW_COURSE} component={NewCourse} auth />,
-
-  // <Route path={ROUTES.CREATE_TIMELINE} component={CreateTimeline} auth />,
-  // <Route path={ROUTES.EVENT_ID} component={Event} auth />,
-  // <Route path={ROUTES.EDIT_EVENT_ID} component={EditEvent} auth />,
-  // <Route path={ROUTES.EDIT_COURSE} component={EditCourse} auth />,
-  // <Route path={ROUTES.NEW_EVENT} component={NewEvent} auth />,
-  // <Route path={ROUTES.NEW_COURSE} component={NewCourse} auth />,
-  // <Route path={ROUTES.USER_MANAGEMENT} component={UserManagement} auth />,
-  // <Route path={ROUTES.COURSE_MIGRATION} component={CourseMigration} auth />,
+  <Route path={ROUTES.EDIT_COURSE_ID} component={EditCourse} auth />,
+  <Route path={ROUTES.NEW_COURSE_INSTANCE} component={NewCourseInstance} auth />,
 ]
 
 export default CoreRoutes

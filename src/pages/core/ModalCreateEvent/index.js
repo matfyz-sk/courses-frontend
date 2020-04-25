@@ -37,6 +37,7 @@ class ModalCreateEvent extends React.Component {
               type="Lecture"
               from={this.props.from}
               to={this.props.to}
+              options={["Lab", "Lecture"]}
             />
           </ModalBody>
           <ModalFooter>

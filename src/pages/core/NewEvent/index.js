@@ -9,7 +9,7 @@ const NewEvent = () => (
       <Card>
         <CardHeader className="event-card-header">New Event</CardHeader>
         <CardBody>
-          <EventForm typeOfForm="Create" {...INITIAL_EVENT_STATE}/>
+          <EventForm typeOfForm="Create" {...INITIAL_EVENT_STATE} options={["Block", "Lab", "Lecture"]} />
         </CardBody>
       </Card>
     </Container>

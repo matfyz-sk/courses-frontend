@@ -11,7 +11,7 @@ export default function userReducer(state = initialState, action) {
     case SET_USER:
       return {
         ...state,
-        user: action.user,
+        user: action.item.value,
       }
     case SET_USER_ADMIN:
       return {

@@ -9,6 +9,7 @@ import NotLoggedOnly from './types/VisitorOnlyMenu';
 
 import './assets/Navigation.scss';
 import logo from './assets/logo.svg';
+import {getUserAvatar, getUserName} from "../Auth";
 
 // eslint-disable-next-line react/prefer-stateless-function
 class MainNavigation extends Component {
@@ -27,10 +28,7 @@ class MainNavigation extends Component {
         </Nav>
         {authenticated ? (
           <Nav className="ml-auto" navbar>
-            <UserDropdown
-              name={this.props.authReducer.user.name}
-              avatar={this.props.authReducer.user.avatar}
-            />
+            <UserDropdown name={getUserName()} avatar={getUserAvatar()} />
           </Nav>
         ) : null}
       </Navbar>

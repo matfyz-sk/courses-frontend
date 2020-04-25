@@ -19,8 +19,8 @@ export const INITIAL_EVENT_STATE = {
   startDate: new Date(),
   endDate: new Date(),
   place: '',
-  type: '',
-  instanceOf: '',
+  type: 'Lecture',
+  courseInstance: '',
 }
 
 export const BASE_URL = apiConfig.API_URL
@@ -28,3 +28,14 @@ export const COURSE_URL = '/course'
 export const COURSE_INSTANCE_URL = '/courseInstance'
 export const EVENT_URL = '/event'
 export const USER_URL = '/user'
+
+export const TASKS = [
+  'OralExam',
+  'TestTake',
+  'Assignment Period',
+  'QuestionAssignment',
+  'GeneratedQuizAssignment',
+  'ManualQuizAssignment',
+]
+
+export const SESSIONS = ['Lab', 'Lecture']

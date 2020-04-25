@@ -14,19 +14,30 @@ import {
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import './NewEventFormStyle.css'
-import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, TOKEN } from '../constants'
+import {
+  BASE_URL,
+  COURSE_INSTANCE_URL, COURSE_URL,
+  EVENT_URL,
+  INITIAL_EVENT_STATE,
+  TOKEN,
+} from '../constants'
 import { axiosRequest } from '../AxiosRequests'
 
 class EventForm extends Component {
   constructor(props) {
     super(props)
 
-    this.state = { ...INITIAL_EVENT_STATE }
+    this.state = { ...INITIAL_EVENT_STATE, courseId: '' }
   }
 
   componentDidMount() {
-    this.setState({ ...this.props })
+    const {
+      match: { params },
+    } = this.props
+
+    this.setState({ ...this.props, courseId: params.course_id })
     //TODO get instanceOf course
+    //TODO redirect if type != session
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -44,32 +55,53 @@ class EventForm extends Component {
       endDate,
       place,
       type,
-      instanceOf,
+      courseInstance,
+      courseId,
     } = this.state
     const { typeOfForm } = this.props
 
-    let url = BASE_URL + EVENT_URL
-    let method = 'post'
-    if (typeOfForm === 'Edit') {
-      url += `/${id}`
-      method = 'patch'
+    const courseInstanceFullId = [
+      `http://www.courses.matfyz.sk/data${COURSE_INSTANCE_URL}/${courseId}`,
+    ]
+    const courseFullId = [
+      `http://www.courses.matfyz.sk/data${COURSE_URL}/${courseId}`,
+    ]
+
+
+    const typeLowerCase = this.lowerFirstLetter(type)
+    let url = `${BASE_URL}/${typeLowerCase}/${id}`
+    console.log(url)
+
+    let method = 'patch'
+    let data = {
+      name,
+      description,
+      startDate,
+      endDate,
+      location: place,
     }
+
+    if (typeOfForm === 'Create') {
+      url = BASE_URL + EVENT_URL
+      method = 'post'
+      // eslint-disable-next-line no-underscore-dangle
+      data._type = type
+      data.courseInstance = courseInstanceFullId
+    } else if (typeOfForm === 'New Course Instance') {
+      url = BASE_URL + COURSE_INSTANCE_URL
+      method = 'post'
+      data.instanceOf = courseFullId
+    }
+
+    console.log(data)
     axiosRequest(
       method,
       TOKEN,
-      JSON.stringify({
-        name,
-        description,
-        startDate,
-        endDate,
-        location: place,
-        instanceOf,
-        //TODO type when implemented
-      }),
+      JSON.stringify(data),
       url
     )
       .then(response => {
-        if (response.status === 200) {
+        if (response && response.status === 200) {
           // TODO redirect to event/id
           console.log('Hooray!')
         } else {
@@ -80,6 +112,11 @@ class EventForm extends Component {
       .catch()
     event.preventDefault()
   }
+
+  lowerFirstLetter = (s) => {
+    return s.charAt(0).toLowerCase() + s.slice(1)
+  }
+
 
   onChange = event => {
     this.setState({ [event.target.name]: event.target.value })
@@ -95,7 +132,7 @@ class EventForm extends Component {
 
   render() {
     const { name, description, startDate, endDate, place, type } = this.state
-    const { typeOfForm } = this.props
+    const { typeOfForm, options } = this.props
 
     const isInvalid =
       name === '' ||
@@ -130,9 +167,9 @@ class EventForm extends Component {
             value={type}
             onChange={this.onChange}
           >
-            <option value="Lecture">Lecture</option>
-            <option value="Lab">Lab</option>
-            <option value="Block">Block</option>
+            {options.map(option => (
+              <option value={option}>{option}</option>
+            ))}
           </Input>
         </FormGroup>
 

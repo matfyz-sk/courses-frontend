@@ -1,106 +1,112 @@
 .subevents-title {
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    margin-top: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 5px;
 }
 
 .event-card {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .block-menu-item {
-    background-color: #1D661D;
-    font-weight: bold;
-    margin-bottom: 2px;
+  background-color: #1d661d;
+  font-weight: bold;
+  margin-bottom: 2px;
 
-    border: none;
-    padding: 4px 10px;
-    display: flex;
-    align-items: center;
+  border: none;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
 }
 
 .timeline {
-    background-color: #C8C8C8;
-    color: black;
-    font-weight: bold;
-    justify-content: center;
+  background-color: #c8c8c8;
+  color: black;
+  font-weight: bold;
+  justify-content: center;
 }
 
 .sessions-tasks-container {
-    padding: 0;
-    margin: 0 0 20px;
-    width: 100%;
+  padding: 0;
+  margin: 0 0 20px;
+  width: 100%;
 }
 
 .subevents-container {
-    border: 1px solid #ced4da;
-    border-radius: .25rem;
-    padding: 15px;
-    width: 100%;
-    min-height: 60px;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  padding: 15px;
+  width: 100%;
+  min-height: 60px;
 }
 
 .subevents-item {
-    border: none;
-    height: 20px;
-    display: flex;
-    align-items: center;
+  border: none;
+  height: 20px;
+  display: flex;
+  align-items: center;
 }
 
 .events-list {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    overflow: scroll;
-    -webkit-overflow-scrolling: touch;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  overflow: scroll;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.events-list .event-card:last-child {
+  margin-bottom: 66vh;
 }
 
 .subevent-name {
-    padding-left: 10px;
+  padding-left: 10px;
 }
 
 .subevents-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .subevents-row-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 500px;
-    text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
 }
 
 .subevents-left-container {
-    text-align: left;
+  text-align: left;
 }
 
 .subevents-right-container {
-    text-align: right;
-    /*font-family: "Monospaced";*/
-    font-variant-numeric: tabular-nums;
+  text-align: right;
+  /*font-family: "Monospaced";*/
+  font-variant-numeric: tabular-nums;
 }
 
 .next-calendar {
-    margin-top:20px;
+  margin-top: 20px;
 }
 
 a.scrolllink-item {
-    color: white;
+  color: white;
 }
 
 a.scrolllink-item:hover {
-    color: #F4B800;
+  color: #f4b800;
 }
 
 a.active-scrolllink-item {
-    color: #F4B800;
+  color: #f4b800;
 }
 
-.subevent-name, .subevent-name:hover {
-    color: black;
+.subevent-name,
+.subevent-name:hover {
+  color: black;
 }
