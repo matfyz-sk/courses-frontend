@@ -4,6 +4,7 @@ import userReducer from './userReducer'
 import authReducer from './authReducer'
 import navReducer from './navigationReducer'
 import courseInstanceReducer from './courseInstanceReducer'
+import privilegesReducer from './privilegesReducer'
 
 export default {
   ...quizReducers,
@@ -12,4 +13,5 @@ export default {
   authReducer,
   navReducer,
   courseInstanceReducer,
+  privilegesReducer,
 }

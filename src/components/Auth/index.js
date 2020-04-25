@@ -1,10 +1,6 @@
 import React from 'react'
 import { store } from '../../index'
-import {
-  setToken,
-  setUser,
-  logoutRedux,
-} from '../../redux/actions/authActions'
+import { setToken, setUser, logoutRedux } from '../../redux/actions/authActions'
 
 /**
  * Store data to storage and redux
@@ -32,7 +28,7 @@ export function getUser() {
 }
 
 export function getToken() {
-  const token = localStorage.getItem('_token');
+  const token = localStorage.getItem('_token')
   if (token && token !== '') {
     return token
   }
@@ -70,7 +66,7 @@ export function getUserType() {
 
 export function getUserName() {
   const user = getUser()
-  if(user) {
+  if (user) {
     if (user.useNickName) {
       return user.nickname
     }
@@ -97,11 +93,11 @@ export function getUserEmail() {
 
 export function setUserToken(_token) {
   if (_token && _token !== '') {
-    store.dispatch(setToken({ name: '_token', value: _token }));
-    localStorage.setItem('_token', _token);
-    return true;
+    store.dispatch(setToken({ name: '_token', value: _token }))
+    localStorage.setItem('_token', _token)
+    return true
   }
-  return false;
+  return false
 }
 
 export function setUserProfile(user) {
@@ -116,7 +112,7 @@ export function setUserProfile(user) {
 
 export function getUserID() {
   const user = getUser()
-  if(user) {
+  if (user) {
     return user.id
   }
   return null
@@ -141,20 +137,21 @@ export function authHeader() {
 
 export function getUserInCourseType(course_id) {
   const user = getUser()
+  if (!course_id) {
+    return 'visitor'
+  }
   if (!user) {
     return 'visitor'
   }
-  else {
-    for (let i = 0; i < user.studentOf.length; i++) {
-      if (user.studentOf[i].indexOf(course_id) !== -1) {
-        return 'student'
-      }
+  for (let i = 0; i < user.studentOf.length; i++) {
+    if (user.studentOf[i].indexOf(course_id) !== -1) {
+      return 'student'
     }
-    for (let i = 0; i < user.instructorOf.length; i++) {
-      if (user.instructorOf[i].indexOf(course_id) !== -1) {
-        return 'instructor'
-      }
-    }
-    return 'visitor'
   }
+  for (let i = 0; i < user.instructorOf.length; i++) {
+    if (user.instructorOf[i].indexOf(course_id) !== -1) {
+      return 'instructor'
+    }
+  }
+  return 'visitor'
 }

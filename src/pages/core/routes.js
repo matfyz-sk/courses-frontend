@@ -20,7 +20,9 @@ import PrivateOnlyRoute from '../../router/routes/PrivateOnlyRoute'
 import Teams from './Teams'
 import Profile from './Profile'
 import TeamDetail from './Teams/TeamDetail'
-import NewCourseInstance from "./NewCourseInstance";
+import NewCourseInstance from './NewCourseInstance'
+import CreateTeam from './Teams/CreateTeam'
+import TeamInstance from './Teams/TeamInstance'
 
 const CoreRoutes = [
   <RouteWrapper
@@ -32,6 +34,30 @@ const CoreRoutes = [
   <RouteWrapper
     path={ROUTES.TIMELINE}
     component={Timeline}
+    layout={CourseLayout}
+    auth
+  />,
+  <RouteWrapper
+    path={ROUTES.COURSE_TEAM_EDIT}
+    component={CreateTeam}
+    layout={CourseLayout}
+    auth
+  />,
+  <RouteWrapper
+    path={ROUTES.COURSE_TEAM_CREATE}
+    component={CreateTeam}
+    layout={CourseLayout}
+    auth
+  />,
+  <RouteWrapper
+    path={ROUTES.COURSE_TEAM_INSTANCE_CREATE}
+    component={TeamDetail}
+    layout={CourseLayout}
+    auth
+  />,
+  <RouteWrapper
+    path={ROUTES.COURSE_TEAM_INSTANCE}
+    component={TeamInstance}
     layout={CourseLayout}
     auth
   />,

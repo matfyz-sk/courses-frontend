@@ -6,8 +6,11 @@ import { NavigationCourse } from '../components/Navigation'
 import { store } from '../index'
 import { setMainNav } from '../redux/actions/navigationActions'
 // eslint-disable-next-line import/no-cycle
-import { fetchCourseInstance } from '../redux/actions'
-import {getUserInCourseType} from "../components/Auth";
+import {
+  fetchCourseInstance,
+  setCourseInstancePrivileges,
+} from '../redux/actions'
+import { getUserInCourseType } from '../components/Auth'
 
 class CourseLayout extends Component {
   constructor(props) {
@@ -25,6 +28,7 @@ class CourseLayout extends Component {
     if (course_id) {
       this.setState({ course_id })
       this.props.fetchCourseInstance(course_id)
+      store.dispatch(setCourseInstancePrivileges({ course_id }))
     } else {
       // redirect wrong id
     }
@@ -33,11 +37,15 @@ class CourseLayout extends Component {
   render() {
     const { course } = this.props
     const { course_id } = this.state
-    const userInCourseType = getUserInCourseType(course_id);
+    const userInCourseType = getUserInCourseType(course_id)
     return (
       <>
         <NavigationCourse
-          abbr={course ? course.instanceOf[0].abbreviation : '...'}
+          abbr={
+            course && course.instanceOf
+              ? course.instanceOf[0].abbreviation
+              : '...'
+          }
           courseId={course_id}
           userInCourseType={userInCourseType}
         />

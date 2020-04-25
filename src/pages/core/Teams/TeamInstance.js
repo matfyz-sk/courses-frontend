@@ -4,27 +4,30 @@ import { connect } from 'react-redux'
 import { Badge, Container, Table } from 'reactstrap'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
-import { authHeader } from '../../../components/Auth'
+import { authHeader, getUserInCourseType } from '../../../components/Auth'
 import { BACKEND_URL } from '../../../configuration/api'
-import { formatDate, idFromURL } from '../../../functions/global'
+import { setCourseInstance } from '../../../redux/actions'
+import { formatDate } from '../../../functions/global'
 
-class Teams extends Component {
+class TeamInstance extends Component {
   constructor(props) {
     super(props)
     this.state = {
       course_id: this.props.match.params.course_id ?? null,
+      team_id: this.props.match.params.team_id ?? null,
+      userInCourse: null,
       teams: null,
     }
   }
 
   componentDidMount() {
-    fetch(`${BACKEND_URL}/data/team?courseInstance=${this.state.course_id}&_join=createdBy`, {
-        method: 'GET',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-      }
-    )
+    const userInCourse = getUserInCourseType(this.state.course_id)
+    fetch(`${BACKEND_URL}/data/teamInstance`, {
+      method: 'GET',
+      headers: authHeader(),
+      mode: 'cors',
+      credentials: 'omit',
+    })
       .then(response => {
         if (!response.ok) throw new Error(response)
         else return response.json()
@@ -35,45 +38,30 @@ class Teams extends Component {
           this.setState({ teams })
         }
       })
+    this.setState({ userInCourse })
   }
 
   render() {
-    const { teams, course_id } = this.state
+    const { teams, course_id, team_id } = this.state
     const render_teams = []
     if (teams) {
       for (let i = 0; i < teams.length; i++) {
         const team = teams[i]
-        const team_id = idFromURL(team['@id'])
         render_teams.push(
           <tr key={`team-${i}`}>
             <th>{team.name}</th>
-            <td>{team.minUsers} - {team.maxUsers}</td>
-            <td>{formatDate(team.dateFrom)} - {formatDate(team.dateTo)}</td>
-            <td>createdBy</td>
+            <td>
+              <Badge color="success">Approved</Badge>
+            </td>
             <td>{formatDate(team.createdAt)}</td>
             <td>
               <Link
-                key={`team-${i}-edit`}
-                className="btn btn-dark btn-sm ml-1"
-                to={redirect(ROUTES.COURSE_TEAM_EDIT, [
+                to={redirect(ROUTES.COURSE_TEAMS_DETAIL, [
                   {
                     key: 'course_id',
                     value: this.props.match.params.course_id,
                   },
-                  { key: 'team_id', value: team_id },
-                ])}
-              >
-                Edit
-              </Link>
-              <Link
-                key={`team-${i}-detail`}
-                className="btn btn-dark btn-sm ml-1"
-                to={redirect(ROUTES.COURSE_TEAM_INSTANCE, [
-                  {
-                    key: 'course_id',
-                    value: this.props.match.params.course_id,
-                  },
-                  { key: 'team_id', value: team_id },
+                  { key: 'team_id', value: 552 },
                 ])}
               >
                 Detail
@@ -87,26 +75,24 @@ class Teams extends Component {
     return (
       <Container>
         <h1>
-          Teams:
+          Team instances :
           {this.state.userInCourse}
         </h1>
         <Link
-          to={redirect(ROUTES.COURSE_TEAM_CREATE, [
+          to={redirect(ROUTES.COURSE_TEAM_INSTANCE_CREATE, [
             { key: 'course_id', value: course_id },
+            { key: 'team_id', value: team_id },
           ])}
         >
-          Create new team group
+          Create team instance
         </Link>
-
         <Table hover>
           <thead>
             <tr>
               <th>Team name</th>
-              <th>Users limit</th>
-              <th>Registration range</th>
-              <th>Creator</th>
+              <th>Status</th>
               <th>Created at</th>
-              <th></th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>{render_teams}</tbody>
@@ -120,4 +106,4 @@ const mapStateToProps = state => {
   return state
 }
 
-export default withRouter(connect(mapStateToProps)(Teams))
+export default withRouter(connect(mapStateToProps)(TeamInstance))
