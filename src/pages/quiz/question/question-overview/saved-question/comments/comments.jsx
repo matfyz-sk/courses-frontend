@@ -26,7 +26,7 @@ function Comments({ comments, questionAddress, token, callback }) {
           comment: [
             {
               _type: 'comment',
-              commentText: newComment,
+              commentText: `\"\"${newComment}\"\"`,
             },
           ],
         }),
@@ -64,7 +64,7 @@ function Comments({ comments, questionAddress, token, callback }) {
       <FormGroup color="warning">
         <InputGroup>
           <Input
-            type="text"
+            type="textarea"
             name="newComment"
             placeholder="Write a comment..."
             onChange={onChangeNewComment}

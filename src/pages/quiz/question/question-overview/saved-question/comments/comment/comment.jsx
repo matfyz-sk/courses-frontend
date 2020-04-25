@@ -45,7 +45,9 @@ function Comments({ id, commentText, createdAt, createdBy, token }) {
   return (
     <>
       <ListGroupItem key={id} color="warning">
-        <ListGroupItemText>{commentText}</ListGroupItemText>
+        <ListGroupItemText style={{ whiteSpace: 'pre-line' }}>
+          {commentText}
+        </ListGroupItemText>
         {author && <FormText color="muted">{author}</FormText>}
         {createdAt && (
           <FormText color="muted">

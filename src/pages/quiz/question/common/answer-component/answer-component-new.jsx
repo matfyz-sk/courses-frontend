@@ -4,8 +4,6 @@ import {
   InputGroupAddon,
   InputGroupText,
   Input,
-  Badge,
-  Label,
   CustomInput,
   Button,
 } from 'reactstrap'

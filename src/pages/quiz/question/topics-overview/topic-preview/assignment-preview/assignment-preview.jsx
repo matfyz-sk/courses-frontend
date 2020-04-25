@@ -2,7 +2,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { CardSubtitle, CardText, Button, CardHeader, Row } from 'reactstrap'
+import { CardText, Button, Row } from 'reactstrap'
 
 export default function AssignmentPreview({
   id,

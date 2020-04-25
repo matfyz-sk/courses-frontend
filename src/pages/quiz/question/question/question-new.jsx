@@ -72,7 +72,9 @@ function QuestionNew({
                 />
               </>
             )}
-            {disabled && <div>{question}</div>}
+            {disabled && (
+              <div style={{ whiteSpace: 'pre-line' }}>{question}</div>
+            )}
           </FormGroup>
         )}
         {topic !== null && (setTopic || disabled) && (

@@ -3,7 +3,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { CardSubtitle, Table, NavLink, Badge } from 'reactstrap'
+import { Table, NavLink } from 'reactstrap'
 
 function InfoTable(props) {
   const { headerText, questions, link } = props

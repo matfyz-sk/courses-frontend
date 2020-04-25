@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 
-import { Button, CardTitle } from 'reactstrap'
+import { Button } from 'reactstrap'
 import { API_URL } from '../../../../configuration/api'
 import QuestionNew from './question-new'
 
@@ -52,19 +52,22 @@ function QuestionNewData({
   const [answers, setAnswers] = useState((question && question.answers) || [])
   const [answerId, setAnswerId] = useState(-2)
 
-  const saveTopics = useCallback(topicsMapped => {
-    setTopicOptions(topicsMapped)
-    if (
-      topic === '' &&
-      topicsMapped &&
-      topicsMapped.length &&
-      topicsMapped.length > 0
-    ) {
-      if (topicsMapped[0].id) {
-        setTopic(topicsMapped[0].id)
+  const saveTopics = useCallback(
+    topicsMapped => {
+      setTopicOptions(topicsMapped)
+      if (
+        topic === '' &&
+        topicsMapped &&
+        topicsMapped.length &&
+        topicsMapped.length > 0
+      ) {
+        if (topicsMapped[0].id) {
+          setTopic(topicsMapped[0].id)
+        }
       }
-    }
-  }, [])
+    },
+    [topic]
+  )
 
   useEffect(() => {
     const fetchData = async () => {
@@ -288,7 +291,7 @@ function QuestionNewData({
       }, [])
       const questionWithPredefinedAnswer = {
         name: title,
-        text: questionText,
+        text: `\"\"${questionText}\"\"`,
         ofTopic: topic ? [topic] : [],
         hasAnswer,
       }
