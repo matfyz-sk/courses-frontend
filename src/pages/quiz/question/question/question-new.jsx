@@ -8,14 +8,17 @@ const enText = {
   title: 'Title',
   'title-placeholder': 'Add title',
   question: 'Question',
-  'question-placeholder': 'What is your question',
+  'question-placeholder': 'Add question text',
   topic: 'Topic',
   'topic-placeholder': 'Topic',
   'question-type': 'Question type',
   create: 'Create',
+  'new-question': 'New question',
 }
 
 function QuestionNew({
+  header,
+  metadata,
   title,
   setTitle,
   question,
@@ -30,10 +33,12 @@ function QuestionNew({
   addNewAnswer,
   disabled,
   children,
+  color,
 }) {
   return (
-    <Card>
+    <Card style={color && { backgroundColor: color }}>
       <CardBody>
+        {header && header()}
         {title !== null && (setTitle || disabled) && (
           <FormGroup>
             {setTitle && (
@@ -51,6 +56,7 @@ function QuestionNew({
             {disabled && <h3>{title}</h3>}
           </FormGroup>
         )}
+        {metadata && metadata()}
         {question !== null && (setQuestion || disabled) && (
           <FormGroup>
             {setQuestion && (
@@ -58,15 +64,17 @@ function QuestionNew({
                 <Label for="question">{enText.question}</Label>
                 <Input
                   id="question"
-                  type="text"
+                  type="textarea"
                   name="question"
-                  placeholder={enText['title-placeholder']}
+                  placeholder={enText['question-placeholder']}
                   value={question}
                   onChange={e => setQuestion(e.target.value)}
                 />
               </>
             )}
-            {disabled && <div>{question}</div>}
+            {disabled && (
+              <div style={{ whiteSpace: 'pre-line' }}>{question}</div>
+            )}
           </FormGroup>
         )}
         {topic !== null && (setTopic || disabled) && (

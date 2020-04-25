@@ -8,10 +8,10 @@ import {
   Button,
 } from 'reactstrap'
 import axios from 'axios'
-import apiConfig from '../../../../../configuration/api'
+import { API_URL } from '../../../../../../configuration/api'
 import Comment from './comment/comment'
 
-function Comments({ comments, questionAddress, token, refetch }) {
+function Comments({ comments, questionAddress, token, callback }) {
   const [newComment, setNewComment] = useState('')
 
   const onChangeNewComment = event => {
@@ -21,12 +21,12 @@ function Comments({ comments, questionAddress, token, refetch }) {
   const onSendNewComment = () => {
     axios
       .put(
-        `${apiConfig.API_URL}/${questionAddress}`,
+        `${API_URL}${questionAddress}`,
         JSON.stringify({
           comment: [
             {
-              type: 'comment',
-              commentText: newComment,
+              _type: 'comment',
+              commentText: `\"\"${newComment}\"\"`,
             },
           ],
         }),
@@ -41,7 +41,7 @@ function Comments({ comments, questionAddress, token, refetch }) {
       .then(({ status: statusQuestionAssignment }) => {
         if (statusQuestionAssignment === 200) {
           setNewComment('')
-          refetch()
+          callback()
         }
       })
       .catch(error => console.log(error))
@@ -64,7 +64,7 @@ function Comments({ comments, questionAddress, token, refetch }) {
       <FormGroup color="warning">
         <InputGroup>
           <Input
-            type="text"
+            type="textarea"
             name="newComment"
             placeholder="Write a comment..."
             onChange={onChangeNewComment}

@@ -2,17 +2,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
-import { Button } from 'reactstrap'
-import apiConfig from '../../../../configuration/api'
+import { API_URL } from '../../../../configuration/api'
 import QuestionNewData, {
   QuestionTypesEnums,
 } from '../question/question-new-data'
-import QuestionNew from '../question/question-new'
-import Comments from './comments/comments'
-
-const enText = {
-  'edit-question': 'Edit question',
-}
+import SavedQuestion from './saved-question/saved-question'
 
 function QuestionOverview({
   match,
@@ -24,17 +18,6 @@ function QuestionOverview({
 }) {
   const [questions, setQuestions] = useState([])
   const [showEditQuestion, setShowEditQuestion] = useState(false)
-  // state = {
-  //   questionVersions: [],
-  //   isEdit: false,
-  //   allQuestionTypes: {},
-  //   title: '',
-  //   approvedAsPublicId: '',
-  //   approvedAsPrivateId: '',
-  //   lastSeenByStudent: '',
-  //   lastSeenByTeacher: '',
-  //   lastChange: '',
-  // }
 
   const fetchQuestionChain = useCallback(() => {
     const questionTypeOld = match.params.questionType
@@ -43,7 +26,7 @@ function QuestionOverview({
       const fetchData = async () => {
         return axios
           .get(
-            `${apiConfig.API_URL}/${questionTypeOld}/${questionIdOld}?_join=hasAnswer,comment&_chain=previous`,
+            `${API_URL}/${questionTypeOld}/${questionIdOld}?_join=hasAnswer,comment&_chain=previous`,
             {
               headers: {
                 Accept: 'application/json',
@@ -67,6 +50,8 @@ function QuestionOverview({
                       text: questionTextData,
                       ofTopic,
                       createdBy: questionCreatedBy,
+                      createdAt: questionCreatedAt,
+                      approver,
                     } = questionData
                     let topicData = ''
                     if (ofTopic.length) {
@@ -79,7 +64,26 @@ function QuestionOverview({
                       topic: topicData,
                       questionType: questionData['@type'],
                       createdBy: questionCreatedBy,
+                      createdAt: new Date(questionCreatedAt),
+                      approver,
                     }
+                    question.comments = questionData.comment
+                      .map(comment => {
+                        const {
+                          commentText,
+                          createdAt: commentCreatedAt,
+                          createdBy: commentCreatedBy,
+                        } = comment
+                        return {
+                          id: comment['@id'],
+                          createdAt: commentCreatedAt,
+                          createdBy: commentCreatedBy,
+                          commentText,
+                        }
+                      })
+                      .sort(
+                        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+                      )
                     switch (question.questionType) {
                       case QuestionTypesEnums.multiple.id:
                         question.answers = questionData.hasAnswer.map(
@@ -88,24 +92,6 @@ function QuestionOverview({
                             return { id: answer['@id'], correct, text }
                           }
                         )
-                        question.comments = questionData.comment
-                          .map(comment => {
-                            const {
-                              commentText,
-                              createdAt,
-                              commentCreatedBy,
-                            } = comment
-                            return {
-                              id: comment['@id'],
-                              createdAt,
-                              createdBy: commentCreatedBy,
-                              commentText,
-                            }
-                          })
-                          .sort(
-                            (a, b) =>
-                              new Date(a.createdAt) - new Date(b.createdAt)
-                          )
                         break
                       case QuestionTypesEnums.open.id:
                         question.answers = [questionData.regexp]
@@ -149,9 +135,10 @@ function QuestionOverview({
               userId={userId}
               history={history}
               question={questions[0]}
+              creatingNewQuestionInChain
             />
           )}
-          {questions.map(question => {
+          {questions.map((question, index) => {
             const {
               id,
               title,
@@ -161,34 +148,35 @@ function QuestionOverview({
               answers,
               comments,
               createdBy,
+              createdAt,
+              approver,
             } = question
+            const isApproved = Array.isArray(approver) && approver.length > 0
             return (
-              <React.Fragment key={id}>
-                <QuestionNew
-                  key={id}
-                  title={title}
-                  question={questionText}
-                  topic={topic}
-                  questionType={questionType}
-                  answers={answers}
-                  edit={changeShowEditQuestion}
-                  disabled
-                >
-                  {createdBy === userId && (
-                    <Button color="success" onClick={changeShowEditQuestion}>
-                      {enText['edit-question']}
-                    </Button>
-                  )}
-                </QuestionNew>
-                <Comments
-                  comments={comments}
-                  token={token}
-                  questionAddress={id.substring(
-                    id.lastIndexOf('/', id.lastIndexOf('/') - 1)
-                  )}
-                  refetch={fetchQuestionChain}
-                />
-              </React.Fragment>
+              <SavedQuestion
+                key={id}
+                id={id}
+                title={title}
+                questionText={questionText}
+                topic={topic}
+                questionType={questionType}
+                answers={answers}
+                comments={comments}
+                createdBy={createdBy}
+                createdAt={createdAt}
+                changeShowEditQuestion={changeShowEditQuestion}
+                canEdit={index === 0 && !isApproved && createdBy === userId}
+                canApprove={!isApproved && isTeacher}
+                canDisapprove={isApproved && isTeacher}
+                isApproved={isApproved}
+                canApproveAsPrivate={
+                  !isApproved && isTeacher && createdBy === userId
+                }
+                isTeacher={isTeacher}
+                token={token}
+                callback={fetchQuestionChain}
+                userId={userId}
+              />
             )
           })}
         </>

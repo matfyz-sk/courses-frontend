@@ -1,21 +1,17 @@
 /* eslint-disable react/prefer-stateless-function */
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import {
-  ListGroupItem,
-  ListGroupItemHeading,
-  ListGroupItemText,
-} from 'reactstrap'
-import apiConfig from '../../../../../../configuration/api'
+import { ListGroupItem, ListGroupItemText, FormText } from 'reactstrap'
+import { API_URL } from '../../../../../../../configuration/api'
 
 function Comments({ id, commentText, createdAt, createdBy, token }) {
   const [author, setAuthor] = useState('')
   useEffect(() => {
-    if (createdBy) {
+    if (createdBy && token) {
       const fetchData = async () => {
         return axios
           .get(
-            `${apiConfig.API_URL}/user/${createdBy.substring(
+            `${API_URL}/user/${createdBy.substring(
               createdBy.lastIndexOf('/') + 1
             )}`,
             {
@@ -49,11 +45,15 @@ function Comments({ id, commentText, createdAt, createdBy, token }) {
   return (
     <>
       <ListGroupItem key={id} color="warning">
-        {author && <ListGroupItemHeading>{author}</ListGroupItemHeading>}
-        <ListGroupItemText>{commentText}</ListGroupItemText>
-        <ListGroupItemText>
-          {new Date(createdAt).toLocaleDateString()}
+        <ListGroupItemText style={{ whiteSpace: 'pre-line' }}>
+          {commentText}
         </ListGroupItemText>
+        {author && <FormText color="muted">{author}</FormText>}
+        {createdAt && (
+          <FormText color="muted">
+            {new Date(createdAt).toLocaleDateString()}
+          </FormText>
+        )}
       </ListGroupItem>
     </>
   )

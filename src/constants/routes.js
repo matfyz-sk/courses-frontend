@@ -24,4 +24,12 @@ export const DOCUMENTS = '/documents'
 export const INFO = '/info'
 
 export const COURSE_TEAMS = coursePrefix('/teams')
-export const COURSE_TEAMS_DETAIL = coursePrefix('/teams/:team_id')
+export const COURSE_TEAM_CREATE = coursePrefix('/team-create')
+export const COURSE_TEAM_EDIT = coursePrefix('/team-edit/:team_id')
+export const COURSE_TEAM_INSTANCE = coursePrefix('/teams/:team_id')
+export const COURSE_TEAM_INSTANCE_CREATE = coursePrefix(
+  '/teams/:team_id/create-team-instance'
+)
+export const COURSE_TEAMS_DETAIL = coursePrefix(
+  '/teams/:team_id/:teamInstance_id'
+)

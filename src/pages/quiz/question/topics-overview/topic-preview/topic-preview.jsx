@@ -51,15 +51,15 @@ function TopicPreview(props) {
       : null
 
   const questionsApproved = []
-  let questionsNotApproved = []
+  const questionsNotApproved = []
   if (questions) {
-    // questions.forEach(question => {
-    //   question.approvedAsPublicId !== 'undefined' ||
-    //   question.approvedAsPrivateId !== 'undefined'
-    //     ? questionsApproved.push(question)
-    //     : questionsNotApproved.push(question);
-    // })
-    questionsNotApproved = questions
+    questions.forEach(question => {
+      if (Array.isArray(question.approver) && question.approver.length > 0) {
+        questionsApproved.push(question)
+      } else {
+        questionsNotApproved.push(question)
+      }
+    })
   }
   return (
     <>
@@ -84,24 +84,19 @@ function TopicPreview(props) {
             </Button>
           )}
           {assignment && (
-            <>
-              <AssignmentPreview
-                id={assignmentId.substring(assignmentId.lastIndexOf('/') + 1)}
-                description={description}
-                startTime={startTime}
-                endTime={endTime}
-                isTeacher={isTeacher}
-                topic={id}
-                deleteAssignment={deleteAssignment}
-                match={match}
-              />
-            </>
+            <AssignmentPreview
+              id={assignmentId.substring(assignmentId.lastIndexOf('/') + 1)}
+              description={description}
+              startTime={startTime}
+              endTime={endTime}
+              isTeacher={isTeacher}
+              topic={id}
+              deleteAssignment={deleteAssignment}
+              match={match}
+            />
           )}
-        </CardBody>
-        <CardBody>
-          <CardSubtitle tag="h3" className="h4">
-            Questions
-          </CardSubtitle>
+          <hr />
+          <h3 className="h4">Questions</h3>
           <Row>
             {questionsNotApproved ? (
               <Col xs="12" md="6">

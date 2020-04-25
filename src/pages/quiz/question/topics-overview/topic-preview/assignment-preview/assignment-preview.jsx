@@ -2,7 +2,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { CardSubtitle, CardText, Button, CardHeader, Row } from 'reactstrap'
+import { CardText, Button, Row } from 'reactstrap'
 
 export default function AssignmentPreview({
   id,
@@ -15,22 +15,7 @@ export default function AssignmentPreview({
 }) {
   return (
     <>
-      <CardHeader>
-        <Row>
-          <CardSubtitle tag="h3" className="h4">
-            Assignment
-          </CardSubtitle>
-          {deleteAssignment && (
-            <Button
-              color="danger"
-              onClick={deleteAssignment}
-              className="text-center"
-            >
-              X
-            </Button>
-          )}
-        </Row>
-      </CardHeader>
+      <h3 className="h4">Assignment</h3>
       <CardText>{description}</CardText>
       <CardText>
         Start date:
@@ -40,17 +25,28 @@ export default function AssignmentPreview({
         End date:
         {` ${new Date(endTime).toLocaleDateString()}`}
       </CardText>
-      {isTeacher ? (
-        <Button
-          color="success"
-          tag={Link}
-          to={`/courses/${
-            match.params.courseId
-          }/quiz/questionAssignment/${encodeURIComponent(id)}`}
-        >
-          Edit assignment
-        </Button>
-      ) : null}
+      <Row>
+        {isTeacher ? (
+          <Button
+            color="success"
+            tag={Link}
+            to={`/courses/${
+              match.params.courseId
+            }/quiz/questionAssignment/${encodeURIComponent(id)}`}
+          >
+            Edit assignment
+          </Button>
+        ) : null}
+        {deleteAssignment && (
+          <Button
+            color="danger"
+            onClick={deleteAssignment}
+            className="text-center"
+          >
+            X
+          </Button>
+        )}
+      </Row>
     </>
   )
 }

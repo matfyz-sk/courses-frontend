@@ -3,15 +3,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { CardSubtitle, Table, NavLink, Badge } from 'reactstrap'
+import { Table, NavLink } from 'reactstrap'
 
 function InfoTable(props) {
   const { headerText, questions, link } = props
   return (
     <>
-      <CardSubtitle tag="h4" className="h5">
-        {headerText}
-      </CardSubtitle>
+      <h4 className="h5">{headerText}</h4>
       <Table hover striped size="sm">
         <tbody>
           {questions
@@ -20,7 +18,12 @@ function InfoTable(props) {
                   question.id.lastIndexOf('/', question.id.lastIndexOf('/') - 1)
                 )
                 return (
-                  <tr key={question.id}>
+                  <tr
+                    key={question.id}
+                    style={{
+                      backgroundColor: question.isMine ? 'lightgreen' : '',
+                    }}
+                  >
                     <td>
                       <NavLink
                         tag={Link}
@@ -29,6 +32,9 @@ function InfoTable(props) {
                         className="font-weight-bold"
                       >
                         {`${question.title} `}
+                        {question.isMine && (
+                          <small className="text-muted">(Yours)</small>
+                        )}
 
                         {/* {isTeacher &&
                         question.lastSeenByTeacher &&

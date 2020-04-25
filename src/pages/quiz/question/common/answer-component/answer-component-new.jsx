@@ -4,9 +4,14 @@ import {
   InputGroupAddon,
   InputGroupText,
   Input,
-  Badge,
-  Label,
+  CustomInput,
+  Button,
 } from 'reactstrap'
+
+const enText = {
+  'is-correct': 'Is correct',
+  delete: 'Delete',
+}
 
 export class AnswerComponentNew extends Component {
   onChangeAnswerText = event => {
@@ -21,49 +26,67 @@ export class AnswerComponentNew extends Component {
 
   render() {
     const {
+      id,
       text,
       correct,
       onChangeAnswerChecked,
       placeholder,
-      color,
+      // color,
       onChangeAnswerText,
+      deleteAnswer,
     } = this.props
     return (
-      <div className="inline">
-        <Badge color={color}>
-          <InputGroup>
-            {onChangeAnswerText ? (
-              <>
-                <InputGroupAddon addonType="prepend">
-                  <InputGroupText>
-                    <Input
-                      addon
-                      type="checkbox"
-                      checked={correct}
-                      onChange={
-                        onChangeAnswerChecked && this.onChangeAnswerChecked
-                      }
-                      // readOnly={!this.props.isCheckboxEnabled}
-                    />
-                  </InputGroupText>
-                </InputGroupAddon>
-                <Input
-                  type="text"
-                  placeholder={placeholder}
-                  value={text}
-                  onChange={onChangeAnswerText && this.onChangeAnswerText}
-                  // disabled={!this.props.isTextEnabled}
+      <InputGroup className="mb-3">
+        {onChangeAnswerText ? (
+          <>
+            <InputGroupAddon addonType="prepend">
+              <InputGroupText>
+                <CustomInput
+                  type="checkbox"
+                  id={id}
+                  label={enText['is-correct']}
+                  checked={correct}
+                  // TODO add color #1e7e34
+                  onChange={onChangeAnswerChecked && this.onChangeAnswerChecked}
                 />
-              </>
-            ) : (
-              <Label check>
-                <Input addon type="checkbox" checked={correct} readOnly />
-                {text}
-              </Label>
-            )}
-          </InputGroup>
-        </Badge>
-      </div>
+              </InputGroupText>
+            </InputGroupAddon>
+            <Input
+              type="text"
+              placeholder={placeholder}
+              value={text}
+              onChange={onChangeAnswerText && this.onChangeAnswerText}
+              // disabled={!this.props.isTextEnabled}
+            />
+            <InputGroupAddon addonType="append">
+              <Button color="danger" onClick={deleteAnswer}>
+                {enText.delete}
+              </Button>
+            </InputGroupAddon>
+          </>
+        ) : (
+          <>
+            <InputGroupAddon addonType="prepend">
+              <InputGroupText>
+                <CustomInput
+                  type="checkbox"
+                  id={id}
+                  label={enText['is-correct']}
+                  checked={correct}
+                  readOnly
+                />
+              </InputGroupText>
+            </InputGroupAddon>
+            <Input
+              type="text"
+              placeholder={placeholder}
+              value={text}
+              readOnly
+              // disabled={!this.props.isTextEnabled}
+            />
+          </>
+        )}
+      </InputGroup>
     )
   }
 }

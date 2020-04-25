@@ -12,7 +12,7 @@ import apiConfig from '../../configuration/api'
 import NewTopic from './topics/new-topic'
 import { QuestionAssignment } from './question/question-assignment/question-assignment'
 // import SideNav from '../../side-nav.tsx'
-import QuestionOverview from './question/question-overview/question-overview'
+import QuestionOverview from './question/question-overview/question-chain-overview'
 
 import QuizAssignmentsOverview from './quiz/quiz-assignment-overview/quiz-assignments-overview'
 import QuizAssignment from './quiz/quiz-assignment/quiz-assignment'
@@ -130,7 +130,7 @@ class Quiz extends Component {
         <Col xs="12" md="3">
           {/* <SideNav /> */}
         </Col>
-        <Col xs="12" md="9">
+        <Col xs="12" md="12">
           <Switch>
             <Route
               exact

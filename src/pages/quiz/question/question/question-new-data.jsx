@@ -2,14 +2,17 @@ import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 
 import { Button } from 'reactstrap'
-import apiConfig from '../../../../configuration/api'
+import { API_URL } from '../../../../configuration/api'
 import QuestionNew from './question-new'
 
 const enText = {
   'open-question': 'Open question',
   'essay-question': 'Essay question',
   'question-with-predefined-answer': 'Multiple answers question',
-  create: 'Create',
+  'create-question': 'Create question',
+  'create-new-question-version': 'Create new version',
+  'new-question': 'New question',
+  'new-question-version': 'New question version',
 }
 
 export const QuestionTypesEnums = Object.freeze({
@@ -34,6 +37,7 @@ function QuestionNewData({
   token,
   history,
   question,
+  creatingNewQuestionInChain,
 }) {
   const [title, setTitle] = useState((question && question.title) || '')
   const [questionText, setQuestion] = useState(
@@ -48,28 +52,29 @@ function QuestionNewData({
   const [answers, setAnswers] = useState((question && question.answers) || [])
   const [answerId, setAnswerId] = useState(-2)
 
-  const saveTopics = useCallback(topicsMapped => {
-    setTopicOptions(topicsMapped)
-    if (
-      topic === '' &&
-      topicsMapped &&
-      topicsMapped.length &&
-      topicsMapped.length > 0
-    ) {
-      if (topicsMapped[0].id) {
-        setTopic(topicsMapped[0].id)
+  const saveTopics = useCallback(
+    topicsMapped => {
+      setTopicOptions(topicsMapped)
+      if (
+        topic === '' &&
+        topicsMapped &&
+        topicsMapped.length &&
+        topicsMapped.length > 0
+      ) {
+        if (topicsMapped[0].id) {
+          setTopic(topicsMapped[0].id)
+        }
       }
-    }
-  }, [])
+    },
+    [topic]
+  )
 
   useEffect(() => {
     const fetchData = async () => {
       if (!isTeacher) {
         return axios
           .get(
-            `${
-              apiConfig.API_URL
-            }/questionAssignment?courseInstance=${courseInstanceId.substring(
+            `${API_URL}/questionAssignment?courseInstance=${courseInstanceId.substring(
               courseInstanceId.lastIndexOf('/') + 1
             )}${
               userId
@@ -113,7 +118,7 @@ function QuestionNewData({
       }
 
       return axios
-        .get(`${apiConfig.API_URL}/topic?covers=${courseInstanceId}`, {
+        .get(`${API_URL}/topic?covers=${courseInstanceId}`, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -152,7 +157,7 @@ function QuestionNewData({
   useEffect(() => {
     const fetchData = async () => {
       return axios
-        .get(`${apiConfig.API_URL}/question?_subclasses=true`, {
+        .get(`${API_URL}/question?_subclasses=true`, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -174,10 +179,10 @@ function QuestionNewData({
                       accumulator.push(QuestionTypesEnums.multiple)
                       break
                     case QuestionTypesEnums.open.id:
-                      accumulator.push(QuestionTypesEnums.open)
+                      // accumulator.push(QuestionTypesEnums.open)
                       break
                     case QuestionTypesEnums.essay.id:
-                      accumulator.push(QuestionTypesEnums.essay)
+                      // accumulator.push(QuestionTypesEnums.essay)
                       break
                     default:
                       break
@@ -189,7 +194,7 @@ function QuestionNewData({
             )
             setQuestionTypeOptions(questionTypesMapped)
             if (questionType === '') {
-              setQuestionType(questionTypesMapped[2].id)
+              setQuestionType(questionTypesMapped[0].id)
             }
           }
         })
@@ -214,6 +219,9 @@ function QuestionNewData({
       })
     )
 
+  const deleteAnswer = id =>
+    setAnswers(prevState => prevState.filter(el => el.id !== id))
+
   useEffect(() => {
     if (answers === []) {
       const answer = {
@@ -223,6 +231,7 @@ function QuestionNewData({
         changeAnswerText: text => changeAnswerText(-1, text),
         changeAnswerChecked: changedChecked =>
           changeAnswerChecked(-1, changedChecked),
+        deleteAnswer: () => deleteAnswer(-1),
       }
       setAnswers([answer])
     } else {
@@ -234,6 +243,7 @@ function QuestionNewData({
           changeAnswerText: text => changeAnswerText(id, text),
           changeAnswerChecked: changedChecked =>
             changeAnswerChecked(id, changedChecked),
+          deleteAnswer: () => deleteAnswer(id),
         }
         return answerMapped
       })
@@ -254,6 +264,7 @@ function QuestionNewData({
             return el.id === answerId ? { ...el, correct: changedChecked } : el
           })
         ),
+      deleteAnswer: () => deleteAnswer(answerId),
     }
     setAnswers(prevAnswers => prevAnswers.concat(answer))
     setAnswerId(prevAnswerId => prevAnswerId - 1)
@@ -280,7 +291,7 @@ function QuestionNewData({
       }, [])
       const questionWithPredefinedAnswer = {
         name: title,
-        text: questionText,
+        text: `\"\"${questionText}\"\"`,
         ofTopic: topic ? [topic] : [],
         hasAnswer,
       }
@@ -289,7 +300,7 @@ function QuestionNewData({
       }
       axios
         .post(
-          `${apiConfig.API_URL}/questionWithPredefinedAnswer`,
+          `${API_URL}/questionWithPredefinedAnswer`,
           JSON.stringify(questionWithPredefinedAnswer),
           {
             headers: {
@@ -314,6 +325,15 @@ function QuestionNewData({
 
   return (
     <QuestionNew
+      header={() => (
+        <>
+          {question ? (
+            <h2>{enText['new-question-version']}</h2>
+          ) : (
+            <h2>{enText['new-question']}</h2>
+          )}
+        </>
+      )}
       title={title}
       setTitle={setTitle}
       question={questionText}
@@ -329,7 +349,11 @@ function QuestionNewData({
       formSubmitHandler={formSubmitHandler}
     >
       <div>
-        <Button onClick={formSubmitHandler}>{enText.create}</Button>
+        <Button color="success" onClick={formSubmitHandler}>
+          {creatingNewQuestionInChain
+            ? enText['create-new-question-version']
+            : enText['create-question']}
+        </Button>
       </div>
     </QuestionNew>
   )
