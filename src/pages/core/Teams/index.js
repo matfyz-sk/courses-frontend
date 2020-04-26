@@ -6,7 +6,7 @@ import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import { authHeader } from '../../../components/Auth'
 import { BACKEND_URL } from '../../../configuration/api'
-import { formatDate, idFromURL } from '../../../functions/global'
+import {dateCompare, formatDate, idFromURL} from '../../../functions/global';
 
 class Teams extends Component {
   constructor(props) {
@@ -45,10 +45,19 @@ class Teams extends Component {
         const team = teams[i]
         const team_id = idFromURL(team['@id'])
         render_teams.push(
-          <tr key={`team-${i}`}>
+          <tr
+            key={`team-${i}`}
+            className={
+              dateCompare(team.dateFrom, '<>', new Date(), team.dateTo)
+                ? ''
+                : 'text-muted'
+            }
+          >
             <th>{team.name}</th>
-            <td>{team.minUsers} - {team.maxUsers}</td>
-            <td>{formatDate(team.dateFrom)} - {formatDate(team.dateTo)}</td>
+            <td>{`${team.minUsers} - ${team.maxUsers}`}</td>
+            <td>
+              {`${formatDate(team.dateFrom)} - ${formatDate(team.dateTo)}`}
+            </td>
             <td>createdBy</td>
             <td>{formatDate(team.createdAt)}</td>
             <td>
@@ -88,7 +97,6 @@ class Teams extends Component {
       <Container>
         <h1>
           Teams:
-          {this.state.userInCourse}
         </h1>
         <Link
           to={redirect(ROUTES.COURSE_TEAM_CREATE, [

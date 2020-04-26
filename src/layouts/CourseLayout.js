@@ -10,7 +10,6 @@ import {
   fetchCourseInstance,
   setCourseInstancePrivileges,
 } from '../redux/actions'
-import { getUserInCourseType } from '../components/Auth'
 
 class CourseLayout extends Component {
   constructor(props) {
@@ -35,9 +34,8 @@ class CourseLayout extends Component {
   }
 
   render() {
-    const { course } = this.props
+    const { course, privileges } = this.props
     const { course_id } = this.state
-    const userInCourseType = getUserInCourseType(course_id)
     return (
       <>
         <NavigationCourse
@@ -47,7 +45,7 @@ class CourseLayout extends Component {
               : '...'
           }
           courseId={course_id}
-          userInCourseType={userInCourseType}
+          userInCourseType={privileges}
         />
         {this.props.children}
       </>
@@ -55,9 +53,10 @@ class CourseLayout extends Component {
   }
 }
 
-const mapStateToProps = ({ courseInstanceReducer }) => {
+const mapStateToProps = ({ courseInstanceReducer, privilegesReducer }) => {
   return {
     course: courseInstanceReducer.courseInstance,
+    privileges: privilegesReducer.inCourseInstance,
   }
 }
 

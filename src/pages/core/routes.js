@@ -59,14 +59,14 @@ const CoreRoutes = [
     auth
   />,
   <RouteWrapper
-    path={ROUTES.COURSE_TEAM_INSTANCE}
-    component={TeamInstance}
+    path={ROUTES.COURSE_TEAMS_DETAIL}
+    component={TeamDetail}
     layout={CourseLayout}
     auth
   />,
   <RouteWrapper
-    path={ROUTES.COURSE_TEAMS_DETAIL}
-    component={TeamDetail}
+    path={ROUTES.COURSE_TEAM_INSTANCE}
+    component={TeamInstance}
     layout={CourseLayout}
     auth
   />,
