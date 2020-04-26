@@ -5,7 +5,7 @@ import { Container, Row, Col, Button, Alert } from 'reactstrap'
 import EventsList, { BlockMenu } from '../Events'
 import { getShortId } from '../Helper'
 import {
-  getCourseInstances,
+  getEvents,
   sortEventsFunction,
   getTimelineBlocks,
   getNestedEvents,
@@ -41,7 +41,7 @@ class Timeline extends Component {
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       if (data != null && data !== []) {
-        const events = getCourseInstances(data).sort(sortEventsFunction)
+        const events = getEvents(data).sort(sortEventsFunction)
 
         const timelineBlocks = getTimelineBlocks(events)
         const nestedEvents = getNestedEvents(events, timelineBlocks)

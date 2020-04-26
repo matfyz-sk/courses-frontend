@@ -29,10 +29,10 @@ export const EVENT_URL = '/event'
 export const BLOCK_URL = '/block'
 export const USER_URL = '/user'
 
-export const TASKS = [
-  'OralExam',
-  'TestTake',
-  'Assignment Period',
+export const TASKS_EXAMS = ['OralExam', 'TestTake']
+
+export const TASKS_DEADLINES = [
+  'AssignmentPeriod',
   'QuestionAssignment',
   'GeneratedQuizAssignment',
   'ManualQuizAssignment',

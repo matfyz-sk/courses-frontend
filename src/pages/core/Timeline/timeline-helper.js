@@ -1,5 +1,5 @@
 import { getDisplayDateTime, getShortId, mergeMaterials } from '../Helper'
-import { SESSIONS, TASKS } from '../constants'
+import { SESSIONS, TASKS_DEADLINES, TASKS_EXAMS } from '../constants'
 
 export const sortEventsFunction = (e1, e2) => {
   if (new Date(e1.startDate) > new Date(e2.startDate)) {
@@ -17,15 +17,15 @@ export const sortEventsFunction = (e1, e2) => {
   return 0
 }
 
-const greaterEqual = (dateTime1, dateTime2) => {
+export const greaterEqual = (dateTime1, dateTime2) => {
   return new Date(dateTime1) >= new Date(dateTime2)
 }
 
-const greater = (dateTime1, dateTime2) => {
+export const greater = (dateTime1, dateTime2) => {
   return new Date(dateTime1) > new Date(dateTime2)
 }
 
-export const getCourseInstances = data => {
+export const getEvents = data => {
   return data.map(eventData => {
     const event = {
       id: getShortId(eventData['@id']),
@@ -99,14 +99,14 @@ export const getNestedEvents = (events, timelineBlocks) => {
             block.sessions.push(event)
             block.materials = mergeMaterials(block.materials, event.materials)
           } else if (
-            (TASKS.includes(event.type) &&
+            (TASKS_EXAMS.includes(event.type) &&
               greaterEqual(event.startDate, block.startDate) &&
               !greaterEqual(event.startDate, block.endDate)) ||
-            (event.type === 'Task' &&
+            (TASKS_DEADLINES.includes(event.type) &&
               greater(event.endDate, block.startDate) &&
               !greater(event.endDate, block.endDate))
           ) {
-            if (event.type === 'OralExam' || event.type === 'TestTake') {
+            if (TASKS_EXAMS.includes(event.type)) {
               event.displayDateTime = getDisplayDateTime(event.startDate, false)
             } else {
               event.displayDateTime = getDisplayDateTime(event.endDate, false)

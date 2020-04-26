@@ -7,15 +7,12 @@ import {
   Container,
   Row,
   Col,
-  CardSubtitle,
   ListGroup,
   ListGroupItem,
   Alert,
 } from 'reactstrap'
 import { connect } from 'react-redux'
 import EventForm from '../EventForm'
-import { SubEventList } from '../Events'
-import ModalCreateEvent from '../ModalCreateEvent'
 import {
   BASE_URL,
   EVENT_URL,
@@ -24,7 +21,7 @@ import {
 } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import {
-  getCourseInstances,
+  getEvents,
   getNestedEvents,
   getTimelineBlocks,
   sortEventsFunction,
@@ -73,7 +70,7 @@ class CreateTimeline extends React.Component {
       axiosRequest('get', null, url).then(response => {
         const data = getData(response)
         if (data != null && data !== []) {
-          const events = getCourseInstances(data).sort(sortEventsFunction)
+          const events = getEvents(data).sort(sortEventsFunction)
 
           const timelineBlocks = getTimelineBlocks(events)
           const nestedEvents = getNestedEvents(events, timelineBlocks)

@@ -14,7 +14,12 @@ const ScrollLink = Scroll.Link
 const EventsList = ({ courseEvents, isAdmin }) => (
   <div className="events-list" id="containerElement">
     {courseEvents.map(event => (
-      <EventCard event={event} isAdmin={isAdmin} detail={false} key={event.id} />
+      <EventCard
+        event={event}
+        isAdmin={isAdmin}
+        detail={false}
+        key={event.id}
+      />
     ))}
   </div>
 )

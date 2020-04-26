@@ -1,7 +1,8 @@
 import React from 'react'
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
-import NewEventForm from '../EventForm'
+import EventForm from '../EventForm'
 import './ModalCreateEvent.css'
+import { INITIAL_EVENT_STATE } from '../constants'
 
 class ModalCreateEvent extends React.Component {
   constructor(props) {
@@ -19,7 +20,15 @@ class ModalCreateEvent extends React.Component {
     }))
   }
 
+  callback = id => {
+    this.setState({
+      modal: false,
+    })
+  }
+
   render() {
+    const { from, to } = this.props
+
     return (
       <div>
         <Button onClick={this.toggle} className="new-event-button">
@@ -32,12 +41,15 @@ class ModalCreateEvent extends React.Component {
         >
           <ModalHeader toggle={this.toggle}>New Session</ModalHeader>
           <ModalBody>
-            <NewEventForm
+            <EventForm
               typeOfForm="Create"
-              type="Lecture"
-              from={this.props.from}
-              to={this.props.to}
-              options={["Lab", "Lecture"]}
+              {...INITIAL_EVENT_STATE}
+              options={['Lab', 'Lecture']}
+              callBack={this.callback}
+              startDate={from}
+              endDate={to}
+              from={from}
+              to={to}
             />
           </ModalBody>
           <ModalFooter>

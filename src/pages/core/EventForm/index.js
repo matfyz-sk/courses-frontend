@@ -10,6 +10,7 @@ import {
   Container,
   Row,
   Col,
+  CardSubtitle,
 } from 'reactstrap'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -22,10 +23,21 @@ import {
   COURSE_URL,
   EVENT_URL,
   INITIAL_EVENT_STATE,
+  SESSIONS,
+  TASKS_EXAMS,
+  TASKS_DEADLINES,
   USER_URL,
 } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
-import { getShortId } from '../Helper'
+import { getDisplayDateTime, getShortId } from '../Helper'
+import ModalCreateEvent from '../ModalCreateEvent'
+import { SubEventList } from '../Events'
+import {
+  getEvents,
+  greaterEqual,
+  greater,
+  sortEventsFunction,
+} from '../Timeline/timeline-helper'
 
 class EventForm extends Component {
   constructor(props) {
@@ -36,6 +48,8 @@ class EventForm extends Component {
       courseId: '',
       errors: [],
       users: [],
+      tasks: [],
+      sessions: [],
     }
   }
 
@@ -49,7 +63,9 @@ class EventForm extends Component {
     const { options } = this.props
     this.setState({ type: options[0] })
 
-    let url = BASE_URL + USER_URL
+    this.getSubEvents()
+
+    const url = BASE_URL + USER_URL
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       if (data != null) {
@@ -72,6 +88,64 @@ class EventForm extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.name !== this.props.name) {
       this.setState({ ...this.props })
+    }
+    if (
+      prevState.startDate !== this.state.startDate ||
+      prevState.endDate !== this.state.endDate
+    ) {
+      this.getSubEvents()
+    }
+  }
+
+  getSubEvents = () => {
+    const { id, startDate, endDate, courseId } = this.state
+
+    if (courseId !== '') {
+      const url = `${BASE_URL + EVENT_URL}?courseInstance=${courseId}`
+
+      axiosRequest('get', null, url).then(response => {
+        const data = getData(response)
+        if (data != null && data !== []) {
+          const events = getEvents(data).sort(sortEventsFunction)
+          const tasks = []
+          const sessions = []
+
+          for (const event of events) {
+            if (
+              SESSIONS.includes(event.type) &&
+              ((greaterEqual(event.startDate, startDate) &&
+                !greaterEqual(event.startDate, startDate)) ||
+                (greater(event.endDate, startDate) &&
+                  !greater(event.endDate, endDate)))
+            ) {
+              event.displayDateTime = getDisplayDateTime(event.startDate, false)
+              sessions.push(event)
+            } else if (
+              (TASKS_EXAMS.includes(event.type) &&
+                greaterEqual(event.startDate, startDate) &&
+                !greaterEqual(event.startDate, endDate)) ||
+              (TASKS_DEADLINES.includes(event.type) &&
+                greater(event.endDate, startDate) &&
+                !greater(event.endDate, endDate))
+            ) {
+              if (TASKS_EXAMS.includes(event.type)) {
+                event.displayDateTime = getDisplayDateTime(
+                  event.startDate,
+                  false
+                )
+              } else {
+                event.displayDateTime = getDisplayDateTime(event.endDate, false)
+              }
+              tasks.push(event)
+            }
+          }
+
+          this.setState({
+            tasks,
+            sessions,
+          })
+        }
+      })
     }
   }
 
@@ -111,7 +185,7 @@ class EventForm extends Component {
     let url = `${BASE_URL}/${typeLowerCase}/${id}`
 
     let method = 'patch'
-    let data = {
+    const data = {
       name,
       description,
       startDate,
@@ -210,7 +284,6 @@ class EventForm extends Component {
 
   render() {
     const {
-      id,
       name,
       description,
       startDate,
@@ -220,8 +293,10 @@ class EventForm extends Component {
       errors,
       users,
       instructors,
+      tasks,
+      sessions,
     } = this.state
-    const { typeOfForm, options } = this.props
+    const { typeOfForm, options, from, to } = this.props
 
     const isInvalid =
       name === '' ||
@@ -232,7 +307,9 @@ class EventForm extends Component {
     return (
       <>
         {errors.map(error => (
-          <p key={error}>Error: {error}</p>
+          <p key={error} className="form-error">
+            Error: {error}
+          </p>
         ))}
         <Form onSubmit={this.onSubmit}>
           <FormGroup className="new-event-formGroup">
@@ -276,6 +353,8 @@ class EventForm extends Component {
                     id="from"
                     selected={startDate}
                     onChange={this.handleChangeFrom}
+                    minDate={from || ''}
+                    maxDate={to || endDate}
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
@@ -292,6 +371,8 @@ class EventForm extends Component {
                     id="to"
                     selected={endDate}
                     onChange={this.handleChangeTo}
+                    minDate={from || startDate}
+                    maxDate={to || ''}
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
@@ -326,6 +407,16 @@ class EventForm extends Component {
               type="text"
             />
           </FormGroup>
+
+          {type === 'Block' && (
+            <SubEvents
+              sessions={sessions}
+              tasks={tasks}
+              from={startDate}
+              to={endDate}
+              typeOfForm={typeOfForm}
+            />
+          )}
 
           {type === 'CourseInstance' && (
             <FormGroup className="add-instructors">
@@ -377,5 +468,32 @@ class EventForm extends Component {
     )
   }
 }
+
+const SubEvents = ({ sessions, tasks, from, to, typeOfForm }) => (
+  <Container className="sessions-tasks-container">
+    <Row>
+      <Col className="subevents-col-left">
+        <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
+        <SubEventList events={sessions} />
+      </Col>
+      <Col className="subevents-col-right">
+        <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
+        <SubEventList events={tasks} />
+      </Col>
+    </Row>
+    <Row>
+      {typeOfForm === 'Edit' && (
+        <>
+          <Col>
+            <div className="button-container">
+              <ModalCreateEvent from={from} to={to} />
+            </div>
+          </Col>
+          <Col />
+        </>
+      )}
+    </Row>
+  </Container>
+)
 
 export default compose(withRouter)(EventForm)
