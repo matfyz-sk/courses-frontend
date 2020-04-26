@@ -193,6 +193,9 @@ class EventForm extends Component {
       location: place,
     }
 
+    if (type === 'CourseInstance') {
+      data.hasInstructor = hasInstructor
+    }
     if (typeOfForm === 'Create') {
       url = BASE_URL + EVENT_URL
       method = 'post'

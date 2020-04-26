@@ -90,7 +90,7 @@ class Timeline extends Component {
                           { key: 'course_id', value: courseId },
                         ])}
                       >
-                        <Button className="new-event-button">New Event</Button>
+                        <Button className="new-event-button">Edit Timeline</Button>
                       </NavLink>
                     </div>
                   )}

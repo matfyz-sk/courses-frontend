@@ -13,6 +13,9 @@ import NewEvent from './NewEvent'
 import EditEvent from './EditEvent'
 import EditCourse from './EditCourse'
 import RouteWrapper from '../../router/routes/RouteWrapper'
+import SuperAdminRoute from '../../router/routes/SuperAdminRoute'
+import AdminRoute from '../../router/routes/AdminRoute'
+import InstructorRoute from '../../router/routes/InstructorRoute'
 import * as ROUTES from '../../constants/routes'
 import CourseMigration from './CourseMigration'
 import CourseLayout from '../../layouts/CourseLayout'
@@ -77,11 +80,10 @@ const CoreRoutes = [
 
   <PrivateOnlyRoute path="/dashboard" component={LandingPage} />,
 
-  <RouteWrapper
+  <InstructorRoute
     path={ROUTES.CREATE_TIMELINE}
     component={CreateTimeline}
     layout={CourseLayout}
-    auth
   />,
   <RouteWrapper
     path={ROUTES.EVENT_ID}
@@ -89,35 +91,31 @@ const CoreRoutes = [
     layout={CourseLayout}
     auth
   />,
-  <RouteWrapper
+  <InstructorRoute
     path={ROUTES.EDIT_EVENT_ID}
     component={EditEvent}
     layout={CourseLayout}
-    auth
   />,
-  <RouteWrapper
+  <InstructorRoute
     path={ROUTES.NEW_EVENT}
     component={NewEvent}
     layout={CourseLayout}
-    auth
   />,
-  <RouteWrapper
+  <InstructorRoute
     path={ROUTES.USER_MANAGEMENT}
     component={UserManagement}
     layout={CourseLayout}
-    auth
   />,
-  <RouteWrapper
+  <AdminRoute
     path={ROUTES.COURSE_MIGRATION}
-    component={NewCourse}
-    layout={CourseMigration}
-    auth
+    component={CourseMigration}
+    layout={CourseLayout}
   />,
   <Route path={ROUTES.COURSES} component={CoursesPage} />,
-  <Route path={ROUTES.COURSE_ID} component={Course} auth />,
-  <Route path={ROUTES.NEW_COURSE} component={NewCourse} auth />,
-  <Route path={ROUTES.EDIT_COURSE_ID} component={EditCourse} auth />,
-  <Route path={ROUTES.NEW_COURSE_INSTANCE} component={NewCourseInstance} auth />,
+  <AdminRoute path={ROUTES.COURSE_ID} component={Course} />,
+  <SuperAdminRoute path={ROUTES.NEW_COURSE} component={NewCourse} />,
+  <AdminRoute path={ROUTES.EDIT_COURSE_ID} component={EditCourse} />,
+  <AdminRoute path={ROUTES.NEW_COURSE_INSTANCE} component={NewCourseInstance} />,
 ]
 
 export default CoreRoutes

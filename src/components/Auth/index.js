@@ -148,10 +148,10 @@ export function getUserInCourseType(course_id) {
       return 'student'
     }
   }
-  for (let i = 0; i < user.instructorOf.length; i++) {
-    if (user.instructorOf[i]['@id'] === course_id) {
-      return 'instructor'
-    }
-  }
+  // for (let i = 0; i < user.instructorOf.length; i++) {
+  //   if (user.instructorOf[i]['@id'] === course_id) {
+  //     return 'instructor'
+  //   }
+  // }
   return 'visitor'
 }

@@ -21,7 +21,7 @@ export const ASSIGNMENTS = '/assignments'
 export const RESULTS = '/results'
 export const QUIZ = coursePrefix('/quiz')
 export const DOCUMENTS = '/documents'
-export const INFO = '/info'
+export const INFO = coursePrefix('/info')
 
 export const COURSE_TEAMS = coursePrefix('/teams')
 export const COURSE_TEAM_CREATE = coursePrefix('/team-create')

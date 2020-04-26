@@ -15,6 +15,7 @@ import {getUserAvatar, getUserName} from "../Auth";
 class MainNavigation extends Component {
   render() {
     const authenticated = this.props.authReducer._token !== null;
+    const user = this.props.authReducer.user;
     const current = this.props.navReducer.current.main;
     return (
       <Navbar expand="md" className="main-nav">
@@ -23,7 +24,7 @@ class MainNavigation extends Component {
         </Link>
         <Nav navbar>
           {!authenticated ? <NotLoggedOnly current={current} /> : null}
-          {authenticated ? <AuthOnlyMenu current={current} /> : null}
+          {authenticated ? <AuthOnlyMenu current={current} user={user}/> : null}
           <GlobalMenu current={current} />
         </Nav>
         {authenticated ? (
