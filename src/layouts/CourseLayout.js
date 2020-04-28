@@ -10,6 +10,7 @@ import {
   fetchCourseInstance,
   setCourseInstancePrivileges,
 } from '../redux/actions'
+import {idFromURL} from "../functions/global";
 
 class CourseLayout extends Component {
   constructor(props) {
@@ -26,8 +27,11 @@ class CourseLayout extends Component {
     const { course_id } = this.state
     if (course_id) {
       this.setState({ course_id })
-      this.props.fetchCourseInstance(course_id)
-      store.dispatch(setCourseInstancePrivileges({ course_id }))
+      const { course } = this.props
+      if (!course || idFromURL(course['@id']) !== course_id) {
+        this.props.fetchCourseInstance(course_id)
+        store.dispatch(setCourseInstancePrivileges({ course_id }))
+      }
     } else {
       // redirect wrong id
     }
@@ -45,9 +49,8 @@ class CourseLayout extends Component {
               : '...'
           }
           courseId={course_id}
-          userInCourseType={privileges}
         />
-        {this.props.children}
+        { this.props.children }
       </>
     )
   }

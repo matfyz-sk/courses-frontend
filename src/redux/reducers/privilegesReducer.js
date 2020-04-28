@@ -13,7 +13,7 @@ export default function privilegesReducer(state = initialState, action) {
         ...state,
         inGlobal: action.item.value,
       }
-    case PRIV_ACTIONS.SET_COURSE_INSTANCE:
+    case PRIV_ACTIONS.SET_COURSE_INSTANCE_PRIV:
       return {
         ...state,
         inCourseInstance: getUserInCourseType(action.item.course_id),

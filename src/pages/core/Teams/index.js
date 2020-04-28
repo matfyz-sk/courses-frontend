@@ -39,6 +39,7 @@ class Teams extends Component {
 
   render() {
     const { teams, course_id } = this.state
+    const privileges = this.props.privilegesReducer
     const render_teams = []
     if (teams) {
       for (let i = 0; i < teams.length; i++) {
@@ -61,19 +62,21 @@ class Teams extends Component {
             <td>createdBy</td>
             <td>{formatDate(team.createdAt)}</td>
             <td>
-              <Link
-                key={`team-${i}-edit`}
-                className="btn btn-dark btn-sm ml-1"
-                to={redirect(ROUTES.COURSE_TEAM_EDIT, [
-                  {
-                    key: 'course_id',
-                    value: this.props.match.params.course_id,
-                  },
-                  { key: 'team_id', value: team_id },
-                ])}
-              >
-                Edit
-              </Link>
+              {privileges.inCourseInstance !== 'student' ? (
+                <Link
+                  key={`team-${i}-edit`}
+                  className="btn btn-dark btn-sm ml-1"
+                  to={redirect(ROUTES.COURSE_TEAM_EDIT, [
+                    {
+                      key: 'course_id',
+                      value: this.props.match.params.course_id,
+                    },
+                    { key: 'team_id', value: team_id },
+                  ])}
+                >
+                  Edit
+                </Link>
+              ) : null}
               <Link
                 key={`team-${i}-detail`}
                 className="btn btn-dark btn-sm ml-1"
@@ -96,16 +99,17 @@ class Teams extends Component {
     return (
       <Container>
         <h1>
-          Teams:
+          Teams
         </h1>
-        <Link
-          to={redirect(ROUTES.COURSE_TEAM_CREATE, [
-            { key: 'course_id', value: course_id },
-          ])}
-        >
-          Create new team group
-        </Link>
-
+        {privileges.inCourseInstance !== 'student' ? (
+          <Link
+            to={redirect(ROUTES.COURSE_TEAM_CREATE, [
+              { key: 'course_id', value: course_id },
+            ])}
+          >
+            Create new team group
+          </Link>
+        ) : null}
         <Table hover>
           <thead>
             <tr>

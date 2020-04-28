@@ -185,9 +185,9 @@ class TeamsDetail extends Component {
         render_members.push(
           <tr key={`users-${i}`}>
             <th scope="row">
-              {`${users[i].firstName} ${users[i].lastName} (${
+              {`${users[i].firstName} ${users[i].lastName} ${
                 teamInstance && teamInstance.createdBy === users[i]['@id']
-                  ? 'owner'
+                  ? '(owner)'
                   : ''
               }`}
             </th>
