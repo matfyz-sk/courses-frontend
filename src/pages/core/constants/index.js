@@ -39,3 +39,13 @@ export const TASKS_DEADLINES = [
 ]
 
 export const SESSIONS = ['Lab', 'Lecture']
+
+export const INITIAL_MIGRATION_STATE = {
+  instanceOf: [],
+  startDate: new Date(),
+  endDate: new Date(),
+  instructors: [],
+  events: [],
+  assignments: [],
+  quizzes: [],
+}

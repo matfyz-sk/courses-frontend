@@ -135,5 +135,3 @@ const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
 }
 
 export default connect(mapStateToProps)(Timeline)
-
-// export default withAuthorization(condition)(Timeline);
