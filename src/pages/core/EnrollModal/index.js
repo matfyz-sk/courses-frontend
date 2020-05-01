@@ -14,7 +14,6 @@ import './EnrollModal.css'
 import { setUserProfile } from '../../../components/Auth'
 import { axiosRequest } from '../AxiosRequests'
 import { BASE_URL, USER_URL } from '../constants'
-import { getShortId } from '../Helper'
 import { Redirect } from 'react-router-dom'
 
 class EnrollModal extends Component {

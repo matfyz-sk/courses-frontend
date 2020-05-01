@@ -20,6 +20,7 @@ class DeleteCourseModal extends Component {
     super(props)
     this.state = {
       modal: false,
+      redirect: null,
     }
 
     this.toggle = this.toggle.bind(this)
@@ -31,8 +32,21 @@ class DeleteCourseModal extends Component {
     }))
   }
 
+  callback = () => {
+    this.setState({
+      redirect: '/courses',
+    })
+    window.location.reload();
+  }
+
   render() {
     const { course, courseInstance, type, className, small } = this.props
+    const { redirect } = this.state
+
+    if (redirect) {
+      return <Redirect to={redirect} />
+    }
+
     return (
       <div>
         <Button onClick={this.toggle} className={`delete-button ${small}`}>
@@ -52,6 +66,7 @@ class DeleteCourseModal extends Component {
               course={course}
               courseInstance={courseInstance}
               type={type}
+              callback={this.callback}
             />
           </ModalBody>
           <ModalFooter>
@@ -70,22 +85,19 @@ class DeleteForm extends Component {
     super(props)
     this.state = {
       agreeWithDelete: false,
-      redirect: null,
       errors: [],
     }
   }
 
   deleteCourse = () => {
-    const { course, courseInstance, type } = this.props
+    const { course, courseInstance, type, callback } = this.props
 
     const url = `${
       BASE_URL + (type === 'course' ? COURSE_URL : COURSE_INSTANCE_URL)
     }/${type === 'course' ? course.id : courseInstance.id}`
     axiosRequest('delete', null, url).then(response => {
       if (response && response.status === 200) {
-        this.setState({
-          redirect: `/courses`,
-        })
+        callback()
       } else {
         const errors = []
         errors.push('There was a problem with server. Try again later.')
@@ -123,14 +135,10 @@ class DeleteForm extends Component {
   }
 
   render() {
-    const { agreeWithDelete, redirect, errors } = this.state
+    const { agreeWithDelete, errors } = this.state
     const { course } = this.props
 
     const isInvalid = agreeWithDelete === false
-
-    if (redirect) {
-      return <Redirect to={redirect} />
-    }
 
     return (
       <>
