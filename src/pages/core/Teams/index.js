@@ -6,7 +6,7 @@ import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import { authHeader } from '../../../components/Auth'
 import { BACKEND_URL } from '../../../configuration/api'
-import { formatDate, idFromURL } from '../../../functions/global'
+import {dateCompare, formatDate, idFromURL} from '../../../functions/global';
 
 class Teams extends Component {
   constructor(props) {
@@ -39,32 +39,44 @@ class Teams extends Component {
 
   render() {
     const { teams, course_id } = this.state
+    const privileges = this.props.privilegesReducer
     const render_teams = []
     if (teams) {
       for (let i = 0; i < teams.length; i++) {
         const team = teams[i]
         const team_id = idFromURL(team['@id'])
         render_teams.push(
-          <tr key={`team-${i}`}>
+          <tr
+            key={`team-${i}`}
+            className={
+              dateCompare(team.dateFrom, '<>', new Date(), team.dateTo)
+                ? ''
+                : 'text-muted'
+            }
+          >
             <th>{team.name}</th>
-            <td>{team.minUsers} - {team.maxUsers}</td>
-            <td>{formatDate(team.dateFrom)} - {formatDate(team.dateTo)}</td>
+            <td>{`${team.minUsers} - ${team.maxUsers}`}</td>
+            <td>
+              {`${formatDate(team.dateFrom)} - ${formatDate(team.dateTo)}`}
+            </td>
             <td>createdBy</td>
             <td>{formatDate(team.createdAt)}</td>
             <td>
-              <Link
-                key={`team-${i}-edit`}
-                className="btn btn-dark btn-sm ml-1"
-                to={redirect(ROUTES.COURSE_TEAM_EDIT, [
-                  {
-                    key: 'course_id',
-                    value: this.props.match.params.course_id,
-                  },
-                  { key: 'team_id', value: team_id },
-                ])}
-              >
-                Edit
-              </Link>
+              {privileges.inCourseInstance !== 'student' ? (
+                <Link
+                  key={`team-${i}-edit`}
+                  className="btn btn-dark btn-sm ml-1"
+                  to={redirect(ROUTES.COURSE_TEAM_EDIT, [
+                    {
+                      key: 'course_id',
+                      value: this.props.match.params.course_id,
+                    },
+                    { key: 'team_id', value: team_id },
+                  ])}
+                >
+                  Edit
+                </Link>
+              ) : null}
               <Link
                 key={`team-${i}-detail`}
                 className="btn btn-dark btn-sm ml-1"
@@ -87,17 +99,17 @@ class Teams extends Component {
     return (
       <Container>
         <h1>
-          Teams:
-          {this.state.userInCourse}
+          Teams
         </h1>
-        <Link
-          to={redirect(ROUTES.COURSE_TEAM_CREATE, [
-            { key: 'course_id', value: course_id },
-          ])}
-        >
-          Create new team group
-        </Link>
-
+        {privileges.inCourseInstance !== 'student' ? (
+          <Link
+            to={redirect(ROUTES.COURSE_TEAM_CREATE, [
+              { key: 'course_id', value: course_id },
+            ])}
+          >
+            Create new team group
+          </Link>
+        ) : null}
         <Table hover>
           <thead>
             <tr>

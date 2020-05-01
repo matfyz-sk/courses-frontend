@@ -10,7 +10,7 @@ import {
   fetchCourseInstance,
   setCourseInstancePrivileges,
 } from '../redux/actions'
-import { getUserInCourseType } from '../components/Auth'
+import {idFromURL} from "../functions/global";
 
 class CourseLayout extends Component {
   constructor(props) {
@@ -27,17 +27,19 @@ class CourseLayout extends Component {
     const { course_id } = this.state
     if (course_id) {
       this.setState({ course_id })
-      this.props.fetchCourseInstance(course_id)
-      store.dispatch(setCourseInstancePrivileges({ course_id }))
+      const { course } = this.props
+      if (!course || idFromURL(course['@id']) !== course_id) {
+        this.props.fetchCourseInstance(course_id)
+        store.dispatch(setCourseInstancePrivileges({ course_id }))
+      }
     } else {
       // redirect wrong id
     }
   }
 
   render() {
-    const { course } = this.props
+    const { course, privileges } = this.props
     const { course_id } = this.state
-    const userInCourseType = getUserInCourseType(course_id)
     return (
       <>
         <NavigationCourse
@@ -47,17 +49,17 @@ class CourseLayout extends Component {
               : '...'
           }
           courseId={course_id}
-          userInCourseType={userInCourseType}
         />
-        {this.props.children}
+        { this.props.children }
       </>
     )
   }
 }
 
-const mapStateToProps = ({ courseInstanceReducer }) => {
+const mapStateToProps = ({ courseInstanceReducer, privilegesReducer }) => {
   return {
     course: courseInstanceReducer.courseInstance,
+    privileges: privilegesReducer.inCourseInstance,
   }
 }
 

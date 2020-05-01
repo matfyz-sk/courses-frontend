@@ -78,10 +78,11 @@ class Profile extends Component {
   }
 
   handleSubmit() {
+    console.log(authHeader());
     if (this.validation()) {
       const { user } = this.state;
       fetch(`${BACKEND_URL}/data/user/${getUserID()}`, {
-        method: 'POST',
+        method: 'PATCH',
         header: authHeader(),
         mode: 'cors',
         credentials: 'omit',

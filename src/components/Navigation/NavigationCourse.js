@@ -48,6 +48,7 @@ class NavigationCourseClass extends React.Component {
 
   render() {
     const current = this.props.navReducer.current.sub
+    const { privileges } = this.props
 
     return (
       <Navbar className="sub-nav" expand="md">
@@ -160,19 +161,21 @@ class NavigationCourseClass extends React.Component {
                 Info
               </NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink
-                activeClassName="is-active"
-                to={redirect(ROUTES.COURSE_TEAMS, [
-                  { key: 'course_id', value: this.state.courseId },
-                ])}
-                className={`nav-link nav-button ${
-                  current === 'teams' ? 'active' : ''
-                }`}
-              >
-                Teams
-              </NavLink>
-            </NavItem>
+            {privileges.inCourseInstance !== 'visitor' ? (
+              <NavItem>
+                <NavLink
+                  activeClassName="is-active"
+                  to={redirect(ROUTES.COURSE_TEAMS, [
+                    { key: 'course_id', value: this.state.courseId },
+                  ])}
+                  className={`nav-link nav-button ${
+                    current === 'teams' ? 'active' : ''
+                  }`}
+                >
+                  Teams
+                </NavLink>
+              </NavItem>
+            ) : null}
           </Nav>
         </Collapse>
       </Navbar>
@@ -180,11 +183,12 @@ class NavigationCourseClass extends React.Component {
   }
 }
 
-const mapStateToProps = ({ userReducer, navReducer }) => {
+const mapStateToProps = ({ userReducer, navReducer, privilegesReducer }) => {
   return {
     navReducer,
     isSignedIn: userReducer.isSignedIn,
     isAdmin: userReducer.isAdmin,
+    privileges: privilegesReducer,
   }
 }
 
