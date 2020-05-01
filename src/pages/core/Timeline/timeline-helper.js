@@ -77,6 +77,17 @@ export const getTimelineBlocks = events => {
   return timelineBlocks
 }
 
+export const getCurrentBlock = blocks => {
+  let currentBlock = blocks[0]
+  for (let block of blocks) {
+    if (block.startDate >= new Date()) {
+      return currentBlock.id
+    }
+    currentBlock = block
+  }
+  return currentBlock.id
+}
+
 export const getNestedEvents = (events, timelineBlocks) => {
   if (events.length === 0 || timelineBlocks === 0) {
     return timelineBlocks

@@ -98,7 +98,7 @@ class EventForm extends Component {
   }
 
   getSubEvents = () => {
-    const { id, startDate, endDate, courseId } = this.state
+    const { startDate, endDate, courseId } = this.state
 
     if (courseId !== '') {
       const url = `${BASE_URL + EVENT_URL}?courseInstance=${courseId}`
@@ -250,7 +250,7 @@ class EventForm extends Component {
   }
 
   deleteEvent = () => {
-    const { type, id, courseId } = this.state
+    const { type, id } = this.state
     const { callBack } = this.props
 
     const typeLowerCase = this.lowerFirstLetter(type)
@@ -457,7 +457,7 @@ class EventForm extends Component {
             >
               {typeOfForm}
             </Button>
-            {typeOfForm === 'Edit' && (
+            {typeOfForm === 'Edit' && type !== 'CourseInstance' && (
               <Button
                 className="new-event-button"
                 onClick={e => this.deleteEvent()}

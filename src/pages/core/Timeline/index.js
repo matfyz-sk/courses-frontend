@@ -8,7 +8,7 @@ import {
   getEvents,
   sortEventsFunction,
   getTimelineBlocks,
-  getNestedEvents,
+  getNestedEvents, getCurrentBlock,
 } from './timeline-helper'
 // import NextCalendar from '../NextCalendar'
 import * as ROUTES from '../../../constants/routes'
@@ -17,6 +17,8 @@ import './Timeline.css'
 import { BASE_URL, EVENT_URL } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
+import Scroll from 'react-scroll'
+const scroller = Scroll.scroller
 
 class Timeline extends Component {
   constructor(props) {
@@ -26,6 +28,7 @@ class Timeline extends Component {
       eventsSorted: [],
       timelineBlocks: [], // for timeline purposes even Session can be a block
       nestedEvents: [],
+      currentBlock: null,
     }
   }
 
@@ -51,6 +54,18 @@ class Timeline extends Component {
           timelineBlocks,
           nestedEvents,
         })
+
+
+        const currentBlock = getCurrentBlock(timelineBlocks)
+
+        if (currentBlock) {
+          scroller.scrollTo(currentBlock, {
+            duration: 1500,
+            delay: 100,
+            smooth: true,
+            containerId: 'containerElement',
+          })
+        }
       }
     })
   }
@@ -90,7 +105,9 @@ class Timeline extends Component {
                           { key: 'course_id', value: courseId },
                         ])}
                       >
-                        <Button className="new-event-button">Edit Timeline</Button>
+                        <Button className="new-event-button">
+                          Edit Timeline
+                        </Button>
                       </NavLink>
                     </div>
                   )}
