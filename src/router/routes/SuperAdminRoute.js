@@ -12,7 +12,7 @@ function SuperAdminRoute({ component: Component, ...rest }) {
         user && user.isSuperAdmin ? (
           <Component {...props} />
         ) : (
-          <Redirect to="/login" />
+          <Redirect to="/accessdenied" />
         )
       }
     />

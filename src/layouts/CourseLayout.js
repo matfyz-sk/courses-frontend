@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
-import { NavigationCourse } from '../components/Navigation'
+import { NavigationCourse } from '../components/Navigation/NavigationCourse'
 // eslint-disable-next-line import/no-cycle
 import { store } from '../index'
 import { setMainNav } from '../redux/actions/navigationActions'
@@ -29,11 +29,9 @@ class CourseLayout extends Component {
       this.setState({ course_id })
       const { course } = this.props
       if (!course || idFromURL(course['@id']) !== course_id) {
-        this.props.fetchCourseInstance(course_id)
+        this.props.fetchCourseInstance(this.props.history, course_id)
         store.dispatch(setCourseInstancePrivileges({ course_id }))
       }
-    } else {
-      // redirect wrong id
     }
   }
 

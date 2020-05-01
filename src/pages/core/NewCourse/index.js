@@ -1,7 +1,5 @@
 import React from 'react'
-import Navigation from '../../../components/Navigation'
 import CourseForm from '../CourseForm'
-// import {withAuthorization} from "../../../components/Session";
 import { Container, Card, CardHeader, CardBody } from 'reactstrap'
 import './NewCourse.css'
 import { INITIAL_COURSE_STATE } from '../constants'

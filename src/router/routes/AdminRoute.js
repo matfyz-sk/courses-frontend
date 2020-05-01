@@ -30,9 +30,11 @@ class AdminRoute extends React.Component {
           if (data != null && data !== []) {
             const course = data.map(courseData => {
               return {
-                admins: courseData.hasAdmin.map(admin =>
-                  getShortId(admin['@id'])
-                ),
+                admins: Array.isArray(courseData.hasAdmin)
+                  ? courseData.hasAdmin.map(admin =>
+                    getShortId(admin['@id'])
+                  )
+                  : [getShortId(courseData.hasAdmin['@id'])],
               }
             })[0]
 
@@ -69,7 +71,7 @@ class AdminRoute extends React.Component {
           return haveAccess ? (
             <Component {...props} />
           ) : (
-            <Redirect to="/login" />
+            <Redirect to="/accessdenied" />
           )
         }}
       />

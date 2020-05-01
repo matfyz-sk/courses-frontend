@@ -1,9 +1,10 @@
 import React from 'react'
-// import {withAuthorization} from "../../../components/Session";
 import { Container, Card, CardHeader, CardBody } from 'reactstrap'
 import CourseForm from '../CourseForm'
 import { BASE_URL, COURSE_URL, INITIAL_COURSE_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
+import { Redirect } from 'react-router'
+import { NOT_FOUND } from '../../../constants/routes'
 
 class EditCourse extends React.Component {
   constructor(props) {
@@ -11,6 +12,7 @@ class EditCourse extends React.Component {
 
     this.state = {
       course: INITIAL_COURSE_STATE,
+      redirect: null,
     }
   }
 
@@ -47,20 +49,27 @@ class EditCourse extends React.Component {
           course,
         })
       } else {
-        //TODO zle id - redirect na ?
-        console.log('Ooops!')
+        this.setState({
+          redirect: NOT_FOUND,
+        })
       }
     })
   }
 
   render() {
+    const { course, redirect } = this.state
+
+    if (redirect) {
+      return <Redirect to={redirect} />
+    }
+
     return (
       <div>
         <Container className="event-card-header">
           <Card>
             <CardHeader>Edit Course</CardHeader>
             <CardBody>
-              <CourseForm typeOfForm="Edit" {...this.state.course} />
+              <CourseForm typeOfForm="Edit" {...course} />
             </CardBody>
           </Card>
         </Container>

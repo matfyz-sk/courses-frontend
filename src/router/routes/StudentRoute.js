@@ -5,7 +5,7 @@ import { BASE_URL, COURSE_INSTANCE_URL } from '../../pages/core/constants'
 import { axiosRequest, getData } from '../../pages/core/AxiosRequests'
 import { getShortId } from '../../pages/core/Helper'
 
-class InstructorRoute extends React.Component {
+class StudentRoute extends React.Component {
   state = {
     haveAccess: false,
     loaded: false,
@@ -18,7 +18,12 @@ class InstructorRoute extends React.Component {
 
     const user = getUser()
     if (user) {
-      if (user.isSuperAdmin) {
+      if (
+        user.isSuperAdmin ||
+        user.studentOf
+          .map(course => getShortId(course['@id']))
+          .includes(params.course_id)
+      ) {
         this.setState({
           haveAccess: true,
           loaded: true,
@@ -45,6 +50,7 @@ class InstructorRoute extends React.Component {
                   : [getShortId(courseData.instanceOf[0].hasAdmin)],
               }
             })[0]
+
             if (
               course.admins.includes(user.id) ||
               course.instructors.includes(user.id)
@@ -96,4 +102,4 @@ class InstructorRoute extends React.Component {
   }
 }
 
-export default withRouter(InstructorRoute)
+export default withRouter(StudentRoute)

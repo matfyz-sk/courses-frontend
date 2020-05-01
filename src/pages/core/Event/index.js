@@ -13,8 +13,7 @@ import {
   Table,
 } from 'reactstrap'
 import { connect } from 'react-redux'
-import { NavLink } from 'react-router-dom'
-
+import { NavLink, Redirect } from 'react-router-dom'
 import './Event.css'
 import { SubEventList } from '../Events'
 import {
@@ -39,6 +38,7 @@ class Event extends React.Component {
 
     this.state = {
       event: INITIAL_EVENT_STATE,
+      redirectTo: null,
     }
   }
 
@@ -76,26 +76,39 @@ class Event extends React.Component {
                 name: material.name,
               }
             }),
-            courseInstance: eventData.courseInstance ? eventData.courseInstance[0]['@id'] : '',
+            courseInstance: eventData.courseInstance
+              ? eventData.courseInstance[0]['@id']
+              : '',
           }
         })[0]
-        if (getShortId(event.courseInstance) !== params.course_id) {
-          //TODO redirect wrong event for courseInstance
+        if (
+          event.courseInstance !== '' &&
+          params.course_id !== getShortId(event.courseInstance)
+        ) {
+          this.setState({
+            redirectTo: ROUTES.NOT_FOUND,
+          })
         }
         event.materials = mergeMaterials(event.uses, event.recommends)
         this.setState({
           event,
         })
       } else {
-        // TODO redirect to 404? zle id
-        console.log('Something went wrong!')
+        this.setState({
+          redirectTo: ROUTES.NOT_FOUND,
+        })
       }
     })
   }
 
   render() {
-    const { event } = this.state
+    const { event, redirectTo } = this.state
     const { user } = this.props
+
+    if (redirectTo) {
+      return <Redirect to={redirectTo} />
+    }
+
     return (
       <div>
         <Container>

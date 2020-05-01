@@ -1,6 +1,5 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
-import { Switch } from 'react-router'
 import LandingPage from './Landing'
 import CoursesPage from './Courses'
 import Course from './Course'
@@ -16,6 +15,7 @@ import RouteWrapper from '../../router/routes/RouteWrapper'
 import SuperAdminRoute from '../../router/routes/SuperAdminRoute'
 import AdminRoute from '../../router/routes/AdminRoute'
 import InstructorRoute from '../../router/routes/InstructorRoute'
+import StudentRoute from '../../router/routes/StudentRoute'
 import * as ROUTES from '../../constants/routes'
 import CourseMigration from './CourseMigration'
 import CourseLayout from '../../layouts/CourseLayout'
@@ -34,7 +34,7 @@ const CoreRoutes = [
     layout={CourseLayout}
     auth
   />,
-  <RouteWrapper
+  <StudentRoute
     path={ROUTES.TIMELINE}
     component={Timeline}
     layout={CourseLayout}
@@ -85,7 +85,7 @@ const CoreRoutes = [
     component={CreateTimeline}
     layout={CourseLayout}
   />,
-  <RouteWrapper
+  <StudentRoute
     path={ROUTES.EVENT_ID}
     component={Event}
     layout={CourseLayout}
@@ -106,7 +106,7 @@ const CoreRoutes = [
     component={UserManagement}
     layout={CourseLayout}
   />,
-  <AdminRoute
+  <InstructorRoute
     path={ROUTES.COURSE_MIGRATION}
     component={CourseMigration}
     layout={CourseLayout}
@@ -115,7 +115,10 @@ const CoreRoutes = [
   <AdminRoute path={ROUTES.COURSE_ID} component={Course} />,
   <SuperAdminRoute path={ROUTES.NEW_COURSE} component={NewCourse} />,
   <AdminRoute path={ROUTES.EDIT_COURSE_ID} component={EditCourse} />,
-  <AdminRoute path={ROUTES.NEW_COURSE_INSTANCE} component={NewCourseInstance} />,
+  <AdminRoute
+    path={ROUTES.NEW_COURSE_INSTANCE}
+    component={NewCourseInstance}
+  />,
 ]
 
 export default CoreRoutes

@@ -13,11 +13,8 @@ import {
 } from 'reactstrap'
 import { NavLink } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { ProfileTab } from './index'
 import * as ROUTES from '../../constants/routes'
-import profilePicture from '../../images/profile.jpg'
 import { setUserAdmin } from '../../redux/actions'
-import logo from '../../images/hat.svg'
 import RightArrow from './assets/next.svg'
 import { redirect } from '../../constants/redirect'
 

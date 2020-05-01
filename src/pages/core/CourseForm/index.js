@@ -12,6 +12,7 @@ import {
 } from '../constants'
 import { getShortId } from '../Helper'
 import { Redirect } from 'react-router-dom'
+import { connect } from 'react-redux'
 
 class CourseForm extends Component {
   constructor(props) {
@@ -179,7 +180,7 @@ class CourseForm extends Component {
       redirect,
       errors,
     } = this.state
-    const { typeOfForm } = this.props
+    const { typeOfForm, user } = this.props
 
     if (redirect) {
       return <Redirect to={redirect} />
@@ -237,25 +238,31 @@ class CourseForm extends Component {
                 />
               )}
             />
-
-            <Label for="admins">Admins</Label>
-            <Autocomplete
-              multiple
-              name="admins"
-              id="admins"
-              options={users}
-              getOptionLabel={option => option.name}
-              onChange={this.onAdminsChange}
-              value={admins}
-              style={{ maxWidth: 500 }}
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  placeholder=""
-                  InputProps={{ ...params.InputProps, disableUnderline: true }}
+            {user && user.isSuperAdmin && (
+              <>
+                <Label for="admins">Admins</Label>
+                <Autocomplete
+                  multiple
+                  name="admins"
+                  id="admins"
+                  options={users}
+                  getOptionLabel={option => option.name}
+                  onChange={this.onAdminsChange}
+                  value={admins}
+                  style={{ maxWidth: 500 }}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      placeholder=""
+                      InputProps={{
+                        ...params.InputProps,
+                        disableUnderline: true,
+                      }}
+                    />
+                  )}
                 />
-              )}
-            />
+              </>
+            )}
           </FormGroup>
           <div className="button-container">
             <Button
@@ -272,4 +279,10 @@ class CourseForm extends Component {
   }
 }
 
-export default CourseForm
+const mapStateToProps = ({ authReducer }) => {
+  return {
+    user: authReducer.user,
+  }
+}
+
+export default connect(mapStateToProps)(CourseForm)

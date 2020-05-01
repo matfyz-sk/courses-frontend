@@ -5,6 +5,7 @@ import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { getShortId } from '../Helper'
 import { Redirect } from 'react-router-dom'
+import { NOT_FOUND } from '../../../constants/routes'
 
 class EditEvent extends React.Component {
   constructor(props) {
@@ -66,11 +67,18 @@ class EditEvent extends React.Component {
           event,
         })
 
-        if (params.course_id !== getShortId(event.courseInstance)) {
-          //TODO redirect different ids
+        if (
+          event.courseInstance !== '' &&
+          params.course_id !== getShortId(event.courseInstance)
+        ) {
+          this.setState({
+            redirect: NOT_FOUND,
+          })
         }
       } else {
-        // TODO zle id
+        this.setState({
+          redirect: NOT_FOUND,
+        })
       }
     })
   }

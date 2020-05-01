@@ -22,6 +22,8 @@ export const RESULTS = '/results'
 export const QUIZ = coursePrefix('/quiz')
 export const DOCUMENTS = '/documents'
 export const INFO = coursePrefix('/info')
+export const ACCESS_DENIED = '/accessdenied';
+export const NOT_FOUND = '/notfound'
 
 export const COURSE_TEAMS = coursePrefix('/teams')
 export const COURSE_TEAM_CREATE = coursePrefix('/team-create')

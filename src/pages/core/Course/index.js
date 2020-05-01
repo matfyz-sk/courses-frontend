@@ -16,6 +16,9 @@ import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import './course.css'
+import { Redirect } from 'react-router'
+import { NOT_FOUND } from '../../../constants/routes'
+
 
 class Course extends React.Component {
   constructor(props) {
@@ -23,6 +26,7 @@ class Course extends React.Component {
 
     this.state = {
       course: INITIAL_COURSE_STATE,
+      redirectTo: null,
     }
   }
 
@@ -59,15 +63,20 @@ class Course extends React.Component {
           course,
         })
       } else {
-        //TODO zle id - redirect na ?
-        console.log('Ooops!')
+        this.setState({
+          redirectTo: NOT_FOUND,
+        })
       }
     })
   }
 
   render() {
-    const { course } = this.state
+    const { course, redirectTo } = this.state
     const { user } = this.props
+
+    if (redirectTo) {
+      return <Redirect to={redirectTo} />
+    }
 
     const isAdmin = user
       ? course.admins.findIndex(admin => {

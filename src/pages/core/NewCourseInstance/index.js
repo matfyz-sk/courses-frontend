@@ -4,6 +4,7 @@ import EventForm from '../EventForm'
 import { BASE_URL, COURSE_URL, INITIAL_EVENT_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { Redirect } from 'react-router-dom'
+import { NOT_FOUND } from '../../../constants/routes'
 
 class NewCourseInstance extends React.Component {
   constructor(props) {
@@ -39,7 +40,9 @@ class NewCourseInstance extends React.Component {
           course,
         })
       } else {
-        // TODO wrong course id
+        this.setState({
+          redirect: NOT_FOUND,
+        })
       }
     })
   }
