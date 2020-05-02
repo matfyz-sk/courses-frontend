@@ -10,6 +10,7 @@ import {
   NavLink as NL,
   TabPane,
   UncontrolledCollapse,
+  Button,
 } from 'reactstrap'
 import { NavLink } from 'react-router-dom'
 import classnames from 'classnames'
@@ -18,11 +19,11 @@ import { connect } from 'react-redux'
 import * as ROUTES from '../../../constants/routes'
 import './Courses.css'
 import EnrollModal from '../EnrollModal'
-import { getIcon } from '../Helper'
+import { getIcon, getShortId } from '../Helper'
 import arrow from '../../../images/arrow.svg'
 
 import { axiosRequest, getData } from '../AxiosRequests'
-import { BASE_URL, COURSE_INSTANCE_URL } from '../constants'
+import { BASE_URL, COURSE_INSTANCE_URL, COURSE_URL } from '../constants'
 import DeleteCourseModal from '../DeleteCourseModal'
 import { redirect } from '../../../constants/redirect'
 
@@ -97,11 +98,6 @@ class CoursesPageBase extends Component {
                 return userRequestedCourse['@id'] === course.fullId
               }) > -1
 
-            // course.instructor =
-            //   user.instructorOf.findIndex(userInstructorCourse => {
-            //     return userInstructorCourse['@id'] === course.fullId
-            //   }) > -1
-
             // eslint-disable-next-line no-nested-ternary
             course.instructor = course.hasInstructor
               ? Array.isArray(course.hasInstructor)
@@ -157,6 +153,9 @@ class CoursesPageBase extends Component {
             myArchivedCourses,
             allCourses,
           })
+
+          this.getAllCourses(courses)
+
         } else {
           let activeCourses = []
           for (const course of courses) {
@@ -176,6 +175,46 @@ class CoursesPageBase extends Component {
             activeCourses,
           })
         }
+      }
+    })
+  }
+
+  getAllCourses = courseInstances => {
+    const { allCourses, myActiveCourses } = this.state
+    const { user } = this.props
+    const coursesToAdd = []
+    const courseIds = courseInstances.map(c => c.courseId)
+    const url = BASE_URL + COURSE_URL
+    axiosRequest('get', null, url).then(response => {
+      const courses = getData(response)
+      if (courses != null) {
+        for (const course of courses) {
+          if (!courseIds.includes(getShortId(course['@id']))) {
+            coursesToAdd.push(course)
+          }
+        }
+
+        for (const course of coursesToAdd) {
+          const admins = course.hasAdmin.map(a => getShortId(a['@id']))
+          const courseToAdd = {
+            id: getShortId(course['@id']),
+            fullId: course['@id'],
+            name: course.name,
+            desc: course.description,
+            abbr: course.abbreviation,
+            courses: [],
+            admin: admins.includes(user.id),
+          }
+          allCourses.push(courseToAdd)
+          if (courseToAdd.admin) {
+            myActiveCourses.push(courseToAdd)
+          }
+        }
+
+        this.setState({
+          allCourses,
+          myActiveCourses,
+        })
       }
     })
   }
@@ -489,67 +528,81 @@ const CollapsableCourse = ({
     <UncontrolledCollapse toggler={`#toggler${course.id}${tab}`}>
       <Card className="course-instances-card">
         <CardBody className="course-instances-card-body">
-          {course.courses
-            .sort((a, b) => (a.year > b.year ? 1 : -1))
-            .map(courseInstance => (
-              <ListGroup key={courseInstance.id}>
-                <ListGroupItem className="single-course-container instance-container">
-                  {myCourses || isAdmin ? (
-                    <NavLinkCourseInstance
-                      course={course}
-                      courseInstance={courseInstance}
-                      to={ROUTES.TIMELINE}
-                    />
-                  ) : (
-                    <NavLinkCourseInstance
-                      course={course}
-                      courseInstance={courseInstance}
-                      to={''}
-                    />
-                  )}
-
-                  <div className="courses-right-top-corner-container">
-                    {enroll != null &&
-                      (!courseInstance.requests ? (
-                        <EnrollModal
-                          user={user}
-                          course={course}
-                          courseInstance={course.courses[0]}
-                        />
-                      ) : (
-                        <span className="requested">Requested</span>
-                      ))}
-                    <RoleIcon course={courseInstance} />
-                    {/* edit/delete course */}
-                    {(isAdmin || course.admin) && (
-                      <div className="edit-delete-buttons-instance">
-                        <NavLink
-                          className="edit-delete-buttons"
-                          to={redirect(ROUTES.EDIT_EVENT_ID, [
-                            { key: 'event_id', value: courseInstance.id },
-                            { key: 'course_id', value: course.courses[0].id },
-                          ])}
-                        >
-                          <span className="edit-delete-buttons">Edit</span>
-                        </NavLink>
-                        <DeleteCourseModal
-                          course={course}
-                          courseInstance={courseInstance}
-                          type="courseInstance"
-                          small="small-delete-button"
-                        />
-                        {/*<NavLink*/}
-                        {/*  className="edit-delete-buttons"*/}
-                        {/*  to={`/deleteevent/${courseInstance.id}`}*/}
-                        {/*>*/}
-                        {/*  <span className="edit-delete-buttons">Delete</span>*/}
-                        {/*</NavLink>*/}
-                      </div>
+          {course.courses.length > 0 ? (
+            course.courses
+              .sort((a, b) => (a.year > b.year ? 1 : -1))
+              .map(courseInstance => (
+                <ListGroup key={courseInstance.id}>
+                  <ListGroupItem className="single-course-container instance-container">
+                    {myCourses || isAdmin ? (
+                      <NavLinkCourseInstance
+                        course={course}
+                        courseInstance={courseInstance}
+                        to={ROUTES.TIMELINE}
+                      />
+                    ) : (
+                      <NavLinkCourseInstance
+                        course={course}
+                        courseInstance={courseInstance}
+                        to={''}
+                      />
                     )}
-                  </div>
-                </ListGroupItem>
-              </ListGroup>
-            ))}
+
+                    <div className="courses-right-top-corner-container">
+                      {enroll != null &&
+                        (!courseInstance.requests ? (
+                          <EnrollModal
+                            user={user}
+                            course={course}
+                            courseInstance={course.courses[0]}
+                          />
+                        ) : (
+                          <span className="requested">Requested</span>
+                        ))}
+                      <RoleIcon course={courseInstance} />
+                      {/* edit/delete course */}
+                      {(isAdmin || course.admin) && (
+                        <div className="edit-delete-buttons-instance">
+                          <NavLink
+                            className="edit-delete-buttons"
+                            to={redirect(ROUTES.EDIT_EVENT_ID, [
+                              { key: 'event_id', value: courseInstance.id },
+                              { key: 'course_id', value: course.courses[0].id },
+                            ])}
+                          >
+                            <span className="edit-delete-buttons">Edit</span>
+                          </NavLink>
+                          <DeleteCourseModal
+                            course={course}
+                            courseInstance={courseInstance}
+                            type="courseInstance"
+                            small="small-delete-button"
+                          />
+                          {/*<NavLink*/}
+                          {/*  className="edit-delete-buttons"*/}
+                          {/*  to={`/deleteevent/${courseInstance.id}`}*/}
+                          {/*>*/}
+                          {/*  <span className="edit-delete-buttons">Delete</span>*/}
+                          {/*</NavLink>*/}
+                        </div>
+                      )}
+                    </div>
+                  </ListGroupItem>
+                </ListGroup>
+              ))
+          ) : (
+            <div className="single-course-container instance-container">
+              No Course Instance for this course.
+              <NavLink
+                className="edit-delete-buttons"
+                to={redirect(ROUTES.NEW_COURSE_INSTANCE, [
+                  { key: 'course_id', value: course.id },
+                ])}
+              >
+                <Button className="new-event-button">Create New</Button>
+              </NavLink>
+            </div>
+          )}
         </CardBody>
       </Card>
     </UncontrolledCollapse>
