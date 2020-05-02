@@ -25,6 +25,7 @@ import {
   getNestedEvents,
   getTimelineBlocks,
   sortEventsFunction,
+  addDays,
 } from '../Timeline/timeline-helper'
 
 class CreateTimeline extends React.Component {
@@ -93,7 +94,7 @@ class CreateTimeline extends React.Component {
       const courseEndDate = new Date(course.endDate)
 
       let startDate = this.nextDay(courseStartDate, 1)
-      let endDate = this.addDays(startDate, 7)
+      let endDate = addDays(startDate, 7)
 
       let i = 1
       if (startDate > courseStartDate) {
@@ -116,7 +117,7 @@ class CreateTimeline extends React.Component {
         }
         blocks.push(block)
         startDate = endDate
-        endDate = this.addDays(startDate, 7)
+        endDate = addDays(startDate, 7)
         i++
       }
 
@@ -167,12 +168,6 @@ class CreateTimeline extends React.Component {
         console.log(errors)
       }
     }
-  }
-
-  addDays = (date, days) => {
-    let result = new Date(date)
-    result.setDate(result.getDate() + days)
-    return result
   }
 
   nextDay = (d, dow) => {

@@ -78,6 +78,7 @@ class CoursesPageBase extends Component {
             startDate: courseInstance.startDate,
             endDate: courseInstance.endDate,
             hasAdmin: courseInstance.instanceOf[0].hasAdmin,
+            hasInstructor: courseInstance.hasInstructor,
           }
         })
 
@@ -458,7 +459,7 @@ const NavLinkCourse = ({ course, to, id }) => (
 const NavLinkCourseInstance = ({ course, courseInstance, to }) => (
   <>
     <NavLink
-      to={redirect(to, [{ key: 'course_id', value: course.courses[0].id }])}
+      to={redirect(to, [{ key: 'course_id', value: courseInstance.id }])}
       className="instance-container-name"
     >
       <span>{course.name}</span>&nbsp;
@@ -524,7 +525,6 @@ const CollapsableCourse = ({
                       <div className="edit-delete-buttons-instance">
                         <NavLink
                           className="edit-delete-buttons"
-                          //TODO edit courseInstance
                           to={redirect(ROUTES.EDIT_EVENT_ID, [
                             { key: 'event_id', value: courseInstance.id },
                             { key: 'course_id', value: course.courses[0].id },

@@ -1,3 +1,52 @@
 .course-migration-card {
+  height: 500px;
+}
+
+.course-migration-cardbody {
   padding: 20px;
+}
+
+.button-container-migrations {
+  text-align: center;
+  width: 100%;
+  position: absolute;
+  bottom: 10px;
+}
+
+.events-container-migrations {
+  height: 300px;
+  overflow: scroll;
+}
+
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.event-row-migrations {
+  width: 100%;
+}
+
+.event-link-migrations {
+  color: black;
+  text-decoration: none;
+}
+
+.event-link-migrations:hover {
+  color: black;
+}
+
+.migrateAll-formgroup {
+  text-align: center;
+}
+
+.card-subtitle-migrations {
+  font-weight: bold;
+  text-align: center;
 }

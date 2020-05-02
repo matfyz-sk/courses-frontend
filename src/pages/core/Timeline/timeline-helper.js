@@ -131,3 +131,17 @@ export const getNestedEvents = (events, timelineBlocks) => {
   }
   return timelineBlocks
 }
+
+export const addDays = (date, days) => {
+  let result = new Date(date)
+  result.setDate(result.getDate() + days)
+  return result
+}
+
+export const dateDiffInDays = (a, b) => {
+  const MSPERDAY = 1000 * 60 * 60 * 24
+  const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())
+  const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate())
+
+  return Math.floor((utc2 - utc1) / MSPERDAY)
+}

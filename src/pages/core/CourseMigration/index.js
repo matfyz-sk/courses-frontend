@@ -1,53 +1,92 @@
 import React from 'react'
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Container,
-  Form,
-  FormGroup,
-  Input,
-  Label,
-} from 'reactstrap'
+import { Card, CardBody, CardHeader, Container } from 'reactstrap'
 import './CourseMigration.css'
-import { INITIAL_COURSE_STATE } from '../constants'
 import { connect } from 'react-redux'
-import CourseMigrationForm from '../CourseMigrationForm'
-import EventsMigrationForm from '../EventsMigrationForm'
+import { MultiStepForm } from '../MultiStepForm'
+import { BASE_URL, EVENT_URL, INITIAL_MIGRATION_STATE } from '../constants'
+import { getShortId } from '../Helper'
+import { axiosRequest, getData } from '../AxiosRequests'
+import { getEvents, sortEventsFunction } from '../Timeline/timeline-helper'
+import { setCourseMigrationState, setCourseMigrationAllEvents } from '../../../redux/actions'
 
 class CourseMigration extends React.Component {
-  constructor(props) {
-    super(props)
 
-    this.state = {
-      course: INITIAL_COURSE_STATE,
-      redirectTo: null,
+  componentDidMount() {
+    if (!this.props.initialized) {
+      this.setCourseInstance()
     }
   }
 
-  componentDidMount() {
-    const {
-      match: { params },
-    } = this.props
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.courseInstance !== this.props.courseInstance) {
+      if (!this.props.initialized) {
+        this.setCourseInstance()
+      }
+    }
+  }
+
+  setCourseInstance = () => {
+    const { courseInstance } = this.props
+    if (courseInstance) {
+      const state = {
+        initialized: true,
+        name: courseInstance.name,
+        description: courseInstance.description
+          ? courseInstance.description
+          : '',
+        startDate: new Date(courseInstance.startDate),
+        endDate: new Date(courseInstance.endDate),
+        instructors: courseInstance.hasInstructor
+          ? courseInstance.hasInstructor.map(instructor => {
+              return {
+                fullId: instructor['@id'],
+                name: `${instructor.firstName} ${instructor.lastName}`,
+              }
+            })
+          : [],
+        instanceOf: courseInstance.instanceOf,
+        quizzes: [],
+        assignments: [],
+        checkedEvents: [],
+      }
+
+      this.props.setCourseMigrationState(state)
+      this.getEvents()
+    }
+  }
+
+  getEvents = () => {
+    const { courseInstance } = this.props
+
+    const courseInstanceId = getShortId(courseInstance['@id'])
+
+    const url = `${
+      BASE_URL + EVENT_URL
+    }?courseInstance=${courseInstanceId}&_join=uses,recommends`
+
+    axiosRequest('get', null, url).then(response => {
+      const data = getData(response)
+      if (data != null && data !== []) {
+        const allEvents = getEvents(data).sort(sortEventsFunction)
+
+        this.props.setCourseMigrationAllEvents(allEvents)
+      }
+    })
   }
 
   render() {
     const { courseInstance } = this.props
+
     return (
       <>
         <Container>
-          <Card>
+          <Card className="course-migration-card">
             <CardHeader className="event-card-header">
               Course Migration
               {courseInstance && <> - {courseInstance.instanceOf[0].name}</>}
             </CardHeader>
             <CardBody className="course-migration-card">
-              <CourseMigrationForm />
-              {/*{...courseInstance} />*/}
-              <EventsMigrationForm courseInstance={courseInstance} />
-              <AssignmentsMigrationForm />
-              <QuizMigrationForm />
+              <MultiStepForm />
             </CardBody>
           </Card>
         </Container>
@@ -56,57 +95,14 @@ class CourseMigration extends React.Component {
   }
 }
 
-const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
+const mapStateToProps = ({ courseInstanceReducer, courseMigrationReducer }) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
-    user: authReducer.user,
+    initialized: courseMigrationReducer.initialized,
+    courseMigrationState: courseMigrationReducer,
   }
 }
 
-export default connect(mapStateToProps)(CourseMigration)
-
-const AssignmentsMigrationForm = () => (
-  <Form>
-    <FormGroup check>
-      <Label for="assignmentsMigrationCheckbox">
-        <Input
-          name="assignmentsMigrationCheckbox"
-          id="assignmentsMigrationCheckbox"
-          type="checkbox"
-        />{' '}
-        I don't want to migrate assignments.
-      </Label>
-    </FormGroup>
-    <div className="button-container">
-      <Button
-        className="new-event-button"
-        type="submit"
-      >
-        Next
-      </Button>
-    </div>
-  </Form>
-)
-
-const QuizMigrationForm = () => (
-  <Form>
-    <FormGroup check>
-      <Label for="quizMigrationCheckbox">
-        <Input
-          name="quizMigrationCheckbox"
-          id="quizMigrationCheckbox"
-          type="checkbox"
-        />{' '}
-        I don't want to migrate quizes.
-      </Label>
-    </FormGroup>
-    <div className="button-container">
-      <Button
-        className="new-event-button"
-        type="submit"
-      >
-        Next
-      </Button>
-    </div>
-  </Form>
+export default connect(mapStateToProps, { setCourseMigrationState, setCourseMigrationAllEvents })(
+  CourseMigration
 )

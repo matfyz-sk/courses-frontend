@@ -1,33 +1,40 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
-import { Button, Form, FormGroup, Label, Container, Row, Col } from 'reactstrap'
+import {Button, Form, FormGroup, Label, Container, Row, Col, CardSubtitle} from 'reactstrap'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import TextField from '@material-ui/core/TextField'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import {
-  BASE_URL,
-  COURSE_INSTANCE_URL,
-  COURSE_URL,
-  INITIAL_EVENT_STATE,
-  USER_URL,
-} from '../constants'
+import { BASE_URL, USER_URL } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
+import { connect } from 'react-redux'
+import {
+  setCourseMigrationState,
+  setCourseMigrationStartDate,
+  setCourseMigrationEndDate,
+  setCourseMigrationInstructors,
+} from '../../../redux/actions'
 
 class CourseMigrationForm extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      ...INITIAL_EVENT_STATE,
-      errors: [],
       users: [],
+      startDate: new Date(),
+      endDate: new Date(),
+      instructors: [],
     }
   }
 
   componentDidMount() {
-    this.setState({ ...this.props })
+    const { startDate, endDate, instructors } = this.props
+    this.setState({
+      startDate,
+      endDate,
+      instructors,
+    })
 
     const url = BASE_URL + USER_URL
     axiosRequest('get', null, url).then(response => {
@@ -50,103 +57,40 @@ class CourseMigrationForm extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.name !== this.props.name) {
-      this.setState({ ...this.props })
-    }
-  }
+    if (prevProps.startDate !== this.props.startDate) {
+      const { startDate, endDate, instructors } = this.props
 
-  onSubmit = event => {
-    const {
-      name,
-      description,
-      startDate,
-      endDate,
-      place,
-      courseId,
-      instructors,
-    } = this.state
-
-    const errors = this.validate(description, startDate, endDate)
-    if (errors.length > 0) {
-      this.setState({ errors })
-      event.preventDefault()
-      return
-    }
-
-    const courseFullId = [
-      `http://www.courses.matfyz.sk/data${COURSE_URL}/${courseId}`,
-    ]
-
-    const hasInstructor = instructors.map(instructor => {
-      return instructor.fullId
-    })
-
-    const data = {
-      name,
-      description,
-      startDate,
-      endDate,
-      location: place,
-      hasInstructor,
-      instanceOf: courseFullId,
-    }
-
-    const url = BASE_URL + COURSE_INSTANCE_URL
-
-    axiosRequest('post', JSON.stringify(data), url)
-      .then(response => {
-        if (response && response.status === 200) {
-          //TODO
-        } else {
-          errors.push(
-            'There was a problem with server while sending your form. Try again later.'
-          )
-          this.setState({
-            errors,
-          })
-        }
+      this.setState({
+        startDate,
+        endDate,
+        instructors,
       })
-      .catch()
-    event.preventDefault()
-  }
-
-  validate = (name, description, startDate, endDate) => {
-    const errors = []
-    if (new Date(startDate) > new Date(endDate)) {
-      errors.push('The End date must be greater than the Start date.')
     }
-    return errors
   }
 
   onInstructorChange = (event, values) => {
     this.setState({ instructors: values })
-  }
-
-  onChange = event => {
-    this.setState({ [event.target.name]: event.target.value })
+    this.props.setCourseMigrationInstructors(values)
   }
 
   handleChangeFrom = date => {
     this.setState({ startDate: date })
+    this.props.setCourseMigrationStartDate(date)
   }
 
   handleChangeTo = date => {
     this.setState({ endDate: date })
+    this.props.setCourseMigrationEndDate(date)
   }
 
   render() {
-    const { startDate, endDate, errors, users, instructors } = this.state
-
-    const isInvalid = startDate === null || endDate === null
+    const { startDate, endDate, users, instructors } = this.state
+    const { next } = this.props.navigation
 
     return (
       <>
-        {errors.map(error => (
-          <p key={error} className="form-error">
-            Error: {error}
-          </p>
-        ))}
-        <Form onSubmit={this.onSubmit}>
+        <CardSubtitle className="card-subtitle-migrations">Course Details</CardSubtitle>
+        <Form onSubmit={this.onSubmit} className="course-migration-container">
           <FormGroup>
             <Container className="event-form-dateTime-container">
               <Row>
@@ -213,13 +157,8 @@ class CourseMigrationForm extends Component {
               )}
             />
           </FormGroup>
-
-          <div className="button-container">
-            <Button
-              className="new-event-button"
-              disabled={isInvalid}
-              type="submit"
-            >
+          <div className="button-container-migrations">
+            <Button className="new-event-button" onClick={next}>
               Next
             </Button>
           </div>
@@ -229,4 +168,20 @@ class CourseMigrationForm extends Component {
   }
 }
 
-export default compose(withRouter)(CourseMigrationForm)
+const mapStateToProps = ({ courseMigrationReducer }) => {
+  return {
+    startDate: courseMigrationReducer.startDate,
+    endDate: courseMigrationReducer.endDate,
+    instructors: courseMigrationReducer.instructors,
+  }
+}
+
+export default compose(
+  withRouter,
+  connect(mapStateToProps, {
+    setCourseMigrationState,
+    setCourseMigrationStartDate,
+    setCourseMigrationEndDate,
+    setCourseMigrationInstructors,
+  })
+)(CourseMigrationForm)

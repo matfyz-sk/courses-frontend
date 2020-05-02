@@ -12,7 +12,7 @@ export const fetchCourseInstance = (history, course_id) => {
   const header = authHeader()
   return dispatch => {
     fetch(
-      `${BASE_URL}${COURSE_INSTANCE_URL}/${course_id}?_join=instanceOf,covers`,
+      `${BASE_URL}${COURSE_INSTANCE_URL}/${course_id}?_join=instanceOf,covers,hasInstructor`,
       {
         method: 'GET',
         headers: header,

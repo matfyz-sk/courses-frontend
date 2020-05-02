@@ -6,6 +6,7 @@ import navReducer from './navigationReducer'
 import courseInstanceReducer from './courseInstanceReducer'
 import privilegesReducer from './privilegesReducer'
 import teamReducers from './teamReducers'
+import courseMigrationReducer from './courseMigrationReducer'
 
 export default {
   ...quizReducers,
@@ -14,6 +15,7 @@ export default {
   authReducer,
   navReducer,
   courseInstanceReducer,
+  courseMigrationReducer,
   privilegesReducer,
   ...teamReducers,
 }
