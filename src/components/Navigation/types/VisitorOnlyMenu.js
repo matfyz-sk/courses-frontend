@@ -1,16 +1,32 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { NavItem } from 'reactstrap';
+import React from 'react'
+import { Link, NavLink } from 'react-router-dom'
+import { NavItem } from 'reactstrap'
 
 const VisitorOnlyMenu = props => (
   <>
     <NavItem>
-      <Link to="/login" className={`clickable nav-link ${ props.current === 'login' ? 'active' : ""}`}>Login</Link>
+      <NavLink
+        to="/login"
+        activeClassName="is-active"
+        className={`clickable nav-link ${
+          props.current === 'login' ? 'active' : ''
+        }`}
+      >
+        Login
+      </NavLink>
     </NavItem>
     <NavItem>
-      <Link to="/register" className={`clickable nav-link ${ props.current === 'register' ? 'active' : ""}`}>Register</Link>
+      <NavLink
+        to="/register"
+        activeClassName="is-active"
+        className={`clickable nav-link ${
+          props.current === 'register' ? 'active' : ''
+        }`}
+      >
+        Register
+      </NavLink>
     </NavItem>
   </>
-);
+)
 
-export default VisitorOnlyMenu;
+export default VisitorOnlyMenu

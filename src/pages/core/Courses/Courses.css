@@ -144,7 +144,7 @@ a.active.nav-link .tab {
   }
 }
 
-@media only screen and (max-width: 660px) {
+@media only screen and (max-width: 767px) {
   .admin-tabs {
     display: flex;
     flex-direction: column;
@@ -153,7 +153,8 @@ a.active.nav-link .tab {
 
   .admin-tabs .nav-link {
     border: 1px solid transparent;
-    border-color: #dee2e6 #dee2e6 #fff;  }
+    border-color: #dee2e6 #dee2e6 #fff;
+  }
 
   .admin-tabs .nav-link.active {
     border: 1px solid transparent;
@@ -178,13 +179,13 @@ a.active.nav-link .tab {
     border-color: #dee2e6 #dee2e6 #fff;
   }
 
-  .nav-link.active {
+  .tabs .nav-link.active {
     border: 1px solid transparent;
     border-color: #dee2e6 #dee2e6 #fff;
     font-weight: bold;
   }
 
-  .nav-link:hover {
+  .tabs .nav-link:hover {
     border: none;
     color: #005005;
   }

@@ -14,8 +14,8 @@ import {
 import { NavLink } from 'react-router-dom'
 import { connect } from 'react-redux'
 import * as ROUTES from '../../constants/routes'
-import { setUserAdmin } from '../../redux/actions'
 import RightArrow from './assets/next.svg'
+import Bars from './assets/bars.png'
 import { redirect } from '../../constants/redirect'
 
 class NavigationCourseClass extends React.Component {
@@ -49,45 +49,45 @@ class NavigationCourseClass extends React.Component {
 
     return (
       <Navbar className="sub-nav" expand="md">
+        {/*<UncontrolledDropdown className="dropdown-course">*/}
+        {/*  <DropdownToggle tag="a" className="nav-link nav-toggle">*/}
+        {/*    <div*/}
+        {/*      className="nav-course nav-button navbar-brand"*/}
+        {/*      href="/courses"*/}
+        {/*    >*/}
+        {/*      {this.props.courseAbbr}*/}
+        {/*    </div>*/}
+        {/*  </DropdownToggle>*/}
+        {/*  <DropdownMenu>*/}
+        {/*    <DropdownItem className="nav-button">*/}
+        {/*      <NavLink*/}
+        {/*        to={ROUTES.USER_MANAGEMENT + this.state.courseId}*/}
+        {/*        className="nav-link nav-button"*/}
+        {/*      >*/}
+        {/*        User Management*/}
+        {/*      </NavLink>*/}
+        {/*    </DropdownItem>*/}
+        {/*    <DropdownItem className="nav-button">*/}
+        {/*      <NavLink*/}
+        {/*        to={ROUTES.COURSE_MIGRATION + this.state.courseId}*/}
+        {/*        className="nav-link nav-button"*/}
+        {/*      >*/}
+        {/*        Course Migration*/}
+        {/*      </NavLink>*/}
+        {/*    </DropdownItem>*/}
+        {/*  </DropdownMenu>*/}
+        {/*</UncontrolledDropdown>*/}
+
         <div className="navbar-left">
-          {this.props.isAdmin ? (
-            <UncontrolledDropdown className="dropdown-course">
-              <DropdownToggle tag="a" className="nav-link nav-toggle">
-                <div
-                  className="nav-course nav-button navbar-brand"
-                  href="/courses"
-                >
-                  {this.props.courseAbbr}
-                </div>
-              </DropdownToggle>
-              <DropdownMenu>
-                <DropdownItem className="nav-button">
-                  <NavLink
-                    to={ROUTES.USER_MANAGEMENT + this.state.courseId}
-                    className="nav-link nav-button"
-                  >
-                    User Management
-                  </NavLink>
-                </DropdownItem>
-                <DropdownItem className="nav-button">
-                  <NavLink
-                    to={ROUTES.COURSE_MIGRATION + this.state.courseId}
-                    className="nav-link nav-button"
-                  >
-                    Course Migration
-                  </NavLink>
-                </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
-          ) : (
-            <NavbarBrand href="/courses">
-              {this.props.abbr}{' '}
-              <img src={RightArrow} alt="right" className="arrow-right" />
-            </NavbarBrand>
-          )}
+          <NavbarBrand href="/courses">
+            {this.props.abbr}{' '}
+            <img src={RightArrow} alt="right" className="arrow-right" />
+          </NavbarBrand>
         </div>
 
-        <NavbarToggler onClick={this.toggle} />
+        <NavbarToggler onClick={this.toggle}>
+          <img src={Bars} alr='bars' style={ {width: "30px"} }/>
+        </NavbarToggler>
 
         <Collapse isOpen={this.state.isOpen} navbar>
           <Nav>
@@ -180,17 +180,13 @@ class NavigationCourseClass extends React.Component {
   }
 }
 
-const mapStateToProps = ({ userReducer, navReducer, privilegesReducer }) => {
+const mapStateToProps = ({ navReducer, privilegesReducer }) => {
   return {
     navReducer,
-    isSignedIn: userReducer.isSignedIn,
-    isAdmin: userReducer.isAdmin,
     privileges: privilegesReducer,
   }
 }
 
-const NavigationCourse = connect(mapStateToProps, { setUserAdmin })(
-  NavigationCourseClass
-)
+const NavigationCourse = connect(mapStateToProps)(NavigationCourseClass)
 
 export { NavigationCourse }

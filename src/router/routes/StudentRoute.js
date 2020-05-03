@@ -4,6 +4,7 @@ import { getUser } from '../../components/Auth'
 import { BASE_URL, COURSE_INSTANCE_URL } from '../../pages/core/constants'
 import { axiosRequest, getData } from '../../pages/core/AxiosRequests'
 import { getShortId } from '../../pages/core/Helper'
+import { connect } from 'react-redux'
 
 class StudentRoute extends React.Component {
   state = {
@@ -17,6 +18,8 @@ class StudentRoute extends React.Component {
     } = this.props
 
     const user = getUser()
+    // const { user } = this.props
+    // console.log(user)
     if (user) {
       if (
         user.isSuperAdmin ||
@@ -102,4 +105,10 @@ class StudentRoute extends React.Component {
   }
 }
 
-export default withRouter(StudentRoute)
+const mapStateToProps = ({ authReducer }) => {
+  return {
+    user: authReducer.user,
+  }
+}
+
+export default withRouter(connect(mapStateToProps)(StudentRoute))
