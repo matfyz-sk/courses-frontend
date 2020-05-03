@@ -1,15 +1,10 @@
 import React from 'react'
 import {
   Container,
-  Row,
-  Col,
   Card,
   CardSubtitle,
   CardHeader,
   CardBody,
-  CardText,
-  ListGroup,
-  ListGroupItem,
   Table,
 } from 'reactstrap'
 import { connect } from 'react-redux'
@@ -31,7 +26,6 @@ import {
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
-import ModalCreateEvent from '../ModalCreateEvent'
 
 class Event extends React.Component {
   constructor(props) {

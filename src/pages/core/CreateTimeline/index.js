@@ -12,6 +12,7 @@ import {
   Alert,
 } from 'reactstrap'
 import { connect } from 'react-redux'
+import Scroll from 'react-scroll'
 import EventForm from '../EventForm'
 import {
   BASE_URL,
@@ -27,6 +28,9 @@ import {
   sortEventsFunction,
   addDays,
 } from '../Timeline/timeline-helper'
+import { BlockMenuToggle } from '../Events'
+
+const ScrollLink = Scroll.Link
 
 class CreateTimeline extends React.Component {
   constructor(props) {
@@ -207,12 +211,18 @@ class CreateTimeline extends React.Component {
     return (
       <div>
         <Container className="core-container">
-          <Row>
-            <Col xs="3">
+          <Row className="timeline-row">
+            <Col xs="3" className="create-timeline-left-col">
               <BlockMenu
                 courseEvents={timelineBlocks}
                 onClick={this.onBlockMenuClick}
                 activeEvent={event}
+              />
+              <BlockMenuToggle
+                courseEvents={timelineBlocks}
+                onClick={this.onBlockMenuClick}
+                activeEvent={event}
+                scroll={false}
               />
               {timelineBlocks.length === 0 && (
                 <Button
@@ -263,7 +273,7 @@ class CreateTimeline extends React.Component {
 }
 
 const BlockMenu = ({ courseEvents, onClick, activeEvent }) => (
-  <ListGroup className="block-menu">
+  <ListGroup className="block-menu block-menu-non-toggle">
     <ListGroupItem className="timeline block-menu-item">Timeline</ListGroupItem>
     {courseEvents.map(event => (
       <ListGroupItem
@@ -282,30 +292,7 @@ const BlockMenu = ({ courseEvents, onClick, activeEvent }) => (
   </ListGroup>
 )
 
-//   <Container className="sessions-tasks-container">
-//   <Row>
-//   <Col className="subevents-col-left">
-//   <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
-// <SubEventList events={[]} />
-// </Col>
-// <Col className="subevents-col-right">
-//   <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
-//   <SubEventList events={[]} />
-// </Col>
-// </Row>
-// <Row>
-//   <Col>
-//     <div className="button-container">
-//       <ModalCreateEvent from="" to="" />
-//     </div>
-//   </Col>
-//   <Col>
-//     <div className="button-container">
-//       <Button className="new-event-button">Add Task</Button>
-//     </div>
-//   </Col>
-// </Row>
-// </Container>
+
 // <CardSubtitle className="subevents-title">Materials</CardSubtitle>
 // <Card body className="materials-card">
 //   <CardBody> </CardBody>

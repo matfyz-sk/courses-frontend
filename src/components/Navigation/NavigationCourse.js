@@ -109,9 +109,7 @@ class NavigationCourseClass extends React.Component {
               <NavLink
                 activeClassName="is-active"
                 to={ROUTES.RESULTS}
-                className={`nav-link nav-button ${
-                  current === 'results' ? 'active' : ''
-                }`}
+                className="nav-link nav-button"
               >
                 Results
               </NavLink>
@@ -120,9 +118,7 @@ class NavigationCourseClass extends React.Component {
               <NavLink
                 activeClassName="is-active"
                 to={ROUTES.ASSIGNMENTS}
-                className={`nav-link nav-button ${
-                  current === 'assignments' ? 'active' : ''
-                }`}
+                className="nav-link nav-button"
               >
                 Assignments
               </NavLink>
@@ -142,22 +138,20 @@ class NavigationCourseClass extends React.Component {
                 to={redirect(ROUTES.QUIZ, [
                   { key: 'course_id', value: this.state.courseId },
                 ])}
-                className={`nav-link nav-button ${
-                  current === 'quiz' ? 'active' : ''
-                }`}
+                className="nav-link nav-button"
               >
                 Quiz
               </NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink
-                activeClassName="is-active"
-                to={ROUTES.INFO}
-                className="nav-link nav-button"
-              >
-                Info
-              </NavLink>
-            </NavItem>
+            {/*<NavItem>*/}
+            {/*  <NavLink*/}
+            {/*    activeClassName="is-active"*/}
+            {/*    to={ROUTES.INFO}*/}
+            {/*    className="nav-link nav-button"*/}
+            {/*  >*/}
+            {/*    Info*/}
+            {/*  </NavLink>*/}
+            {/*</NavItem>*/}
             {privileges.inCourseInstance !== 'visitor' ? (
               <NavItem>
                 <NavLink
@@ -165,9 +159,7 @@ class NavigationCourseClass extends React.Component {
                   to={redirect(ROUTES.COURSE_TEAMS, [
                     { key: 'course_id', value: this.state.courseId },
                   ])}
-                  className={`nav-link nav-button ${
-                    current === 'teams' ? 'active' : ''
-                  }`}
+                  className="nav-link nav-button"
                 >
                   Teams
                 </NavLink>

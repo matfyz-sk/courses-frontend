@@ -1,23 +1,24 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
-import { Container, Row, Col, Button, Alert } from 'reactstrap'
-import EventsList, { BlockMenu } from '../Events'
+import { Container, Row, Col, Alert } from 'reactstrap'
+import Scroll from 'react-scroll'
+import EventsList, { BlockMenu, BlockMenuToggle } from '../Events'
 import { getShortId } from '../Helper'
 import {
   getEvents,
   sortEventsFunction,
   getTimelineBlocks,
-  getNestedEvents, getCurrentBlock,
+  getNestedEvents,
+  getCurrentBlock,
 } from './timeline-helper'
 // import NextCalendar from '../NextCalendar'
 import * as ROUTES from '../../../constants/routes'
 import './Timeline.css'
-// import withAuthorization from "../../../components/Session/withAuthorization";
 import { BASE_URL, EVENT_URL } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
-import Scroll from 'react-scroll'
+
 const scroller = Scroll.scroller
 
 class Timeline extends Component {
@@ -54,7 +55,6 @@ class Timeline extends Component {
           timelineBlocks,
           nestedEvents,
         })
-
 
         const currentBlock = getCurrentBlock(timelineBlocks)
 
@@ -97,6 +97,7 @@ class Timeline extends Component {
             <Row className="timeline-row">
               <Col xs="3" className="timeline-left-col">
                 <BlockMenu courseEvents={timelineBlocks} />
+                {/*<BlockMenuToggle courseEvents={timelineBlocks} scroll />*/}
                 {/*{user &&*/}
                 {/*user.isSuperAdmin && ( // TODO || myId===courseInstance.hasInstructor &&*/}
                 {/*    <div className="button-container">*/}
