@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { NavItem } from 'reactstrap'
 import { NEW_COURSE } from '../../../constants/routes'
 
@@ -9,23 +9,25 @@ const AuthOnlyMenu = props => {
   return (
     <>
       <NavItem>
-        <Link
+        <NavLink
           to="/dashboard"
+          activeClassName="is-active"
           className={`clickable nav-link ${
             current === 'dashboard' ? 'active' : ''
           }`}
         >
           Dashboard
-        </Link>
+        </NavLink>
       </NavItem>
       {user && user.isSuperAdmin && (
         <NavItem>
-          <Link
+          <NavLink
             to={NEW_COURSE}
+            activeClassName="is-active"
             className='clickable nav-link'
           >
             New Course
-          </Link>
+          </NavLink>
         </NavItem>
       )}
     </>

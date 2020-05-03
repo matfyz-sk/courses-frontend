@@ -1,15 +1,21 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { NavItem } from 'reactstrap';
+import React from 'react'
+import {Link, NavLink} from 'react-router-dom'
+import { NavItem } from 'reactstrap'
 
 const GlobalMenu = props => (
   <>
     <NavItem>
-      <Link to="/courses" className={`clickable nav-link ${ props.current === 'courses' ? 'active' : ""}`}>
+      <NavLink
+        to="/courses"
+        activeClassName="is-active"
+        className={`clickable nav-link ${
+          props.current === 'courses' ? 'active' : ''
+        }`}
+      >
         Courses
-      </Link>
+      </NavLink>
     </NavItem>
   </>
-);
+)
 
-export default GlobalMenu;
+export default GlobalMenu

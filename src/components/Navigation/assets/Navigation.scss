@@ -27,10 +27,8 @@
       &:hover {
         background-color: lighten($dark_green, 3);
       }
-      &.active {
+      &.is-active {
         background-color: $green;
-        display: flex;
-        text-decoration: none;
       }
     }
   }
@@ -50,8 +48,8 @@
       &:hover {
         background-color: lighten($green, 5);
       }
-      &.active {
-        background-color: $light_green;
+      &.is-active {
+        background-color: lighten($green, 5);
       }
     }
     .arrow-right {
