@@ -164,7 +164,6 @@ class CreateTimeline extends React.Component {
           .catch()
       }
       if (errors.length > 0) {
-        //TODO nepodarilo sa vygenerovat vsetky bloky
         console.log(errors)
       }
     }
@@ -213,13 +212,21 @@ class CreateTimeline extends React.Component {
               <BlockMenu
                 courseEvents={timelineBlocks}
                 onClick={this.onBlockMenuClick}
+                activeEvent={event}
               />
               {timelineBlocks.length === 0 && (
-                <Button disabled={disabled} onClick={this.postWeeklyBlocks}>
+                <Button
+                  className="timeline-block-button"
+                  disabled={disabled}
+                  onClick={this.postWeeklyBlocks}
+                >
                   {disabled ? 'Generatating...' : 'Generate Weekly Blocks'}
                 </Button>
               )}
-              <Button onClick={() => this.onBlockMenuClick(null)}>
+              <Button
+                className="timeline-block-button"
+                onClick={() => this.onBlockMenuClick(null)}
+              >
                 New Block
               </Button>
             </Col>
@@ -255,14 +262,18 @@ class CreateTimeline extends React.Component {
   }
 }
 
-const BlockMenu = ({ courseEvents, onClick }) => (
+const BlockMenu = ({ courseEvents, onClick, activeEvent }) => (
   <ListGroup className="block-menu">
     <ListGroupItem className="timeline block-menu-item">Timeline</ListGroupItem>
     {courseEvents.map(event => (
       <ListGroupItem
         id={event.id}
         key={event.id}
-        className="block-menu-item"
+        className={
+          activeEvent && event.id === activeEvent.id
+            ? 'block-menu-item block-menu-item-active'
+            : 'block-menu-item'
+        }
         onClick={e => onClick(e.target.id)}
       >
         {event.name}

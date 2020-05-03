@@ -79,7 +79,7 @@ class CourseMigration extends React.Component {
 
     return (
       <>
-        <Container>
+        <Container className="container-view">
           <Card className="course-migration-card">
             <CardHeader className="event-card-header">
               Course Migration

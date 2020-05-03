@@ -4,6 +4,7 @@
   padding: 0 1rem;
   display: flex;
   flex-direction: row;
+  font-weight: bold;
   &.main-nav {
     background-color: $dark_green;
     height: $header-height;

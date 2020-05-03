@@ -8,6 +8,7 @@ import {
   CardText,
   ListGroup,
   ListGroupItem,
+  Table,
 } from 'reactstrap'
 import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
@@ -18,7 +19,6 @@ import * as ROUTES from '../../../constants/routes'
 import './course.css'
 import { Redirect } from 'react-router'
 import { NOT_FOUND } from '../../../constants/routes'
-
 
 class Course extends React.Component {
   constructor(props) {
@@ -86,7 +86,7 @@ class Course extends React.Component {
 
     return (
       <div>
-        <Container>
+        <Container className="container-view">
           {course && (
             <CourseCard
               course={course}
@@ -115,38 +115,40 @@ const CourseCard = ({ course, isAdmin }) => (
       )}
     </CardHeader>
     <CardBody>
-      <strong>Abbreviation:</strong> {course.abbreviation}
-      <br />
-      <br />
-      <CardText className="event-card-text">{course.description}</CardText>
+      <CardSubtitle className="event-card-subtitle">Abbreviation</CardSubtitle>
+      <div className="fake-table">{course.abbreviation}</div>
+
+      <CardSubtitle className="event-card-subtitle">Description</CardSubtitle>
+      <div className="fake-table">{course.description}</div>
+
       {course.prerequisites && course.prerequisites.length > 0 && (
         <>
           <CardSubtitle className="event-card-subtitle">
             Prerequisites
           </CardSubtitle>
-          <ListGroup key={course.id} className="course-list-group">
-            {course.prerequisites.map(prerequisite => (
-              <ListGroupItem
-                key={prerequisite.id}
-                className="course-list-group-item"
-              >
-                <div className="material-name">{prerequisite.name}</div>
-              </ListGroupItem>
-            ))}
-          </ListGroup>
+          <Table responsive key='prerequisites' className="course-tables">
+            <tbody>
+              {course.prerequisites.map(prerequisite => (
+                <tr key={prerequisite.id} className="course-list-group-item">
+                  <td className="material-name">{prerequisite.name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </>
       )}
-      <br />
       {course.admins && course.admins.length > 0 && (
         <>
           <CardSubtitle className="event-card-subtitle">Admins</CardSubtitle>
-          <ListGroup key={course.id} className="course-list-group">
-            {course.admins.map(admin => (
-              <ListGroupItem key={admin.id} className="course-list-group-item">
-                <div className="material-name">{admin.name}</div>
-              </ListGroupItem>
-            ))}
-          </ListGroup>
+          <Table responsive key='admins' className="course-tables">
+            <tbody>
+              {course.admins.map(admin => (
+                <tr key={admin.id} className="course-list-group-item">
+                  <td className="material-name">{admin.name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </>
       )}
     </CardBody>

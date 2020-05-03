@@ -14,7 +14,7 @@ import {
 } from 'reactstrap'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import './NewEventFormStyle.css'
+import './EventForm.css'
 import TextField from '@material-ui/core/TextField'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import {
@@ -348,7 +348,11 @@ class EventForm extends Component {
             <Container className="event-form-dateTime-container">
               <Row>
                 <Col className="event-form-dateTime-col">
-                  <Label id="from-label" for="from" className="label-dateTime">
+                  <Label
+                    id="from-label"
+                    for="from"
+                    className="label-dateTime new-event-label"
+                  >
                     From
                   </Label>
                   <DatePicker
@@ -366,7 +370,7 @@ class EventForm extends Component {
                   />
                 </Col>
                 <Col className="event-form-dateTime-col">
-                  <Label for="to" className="label-dateTime">
+                  <Label for="to" className="label-dateTime new-event-label">
                     To
                   </Label>
                   <DatePicker
@@ -422,7 +426,7 @@ class EventForm extends Component {
           )}
 
           {type === 'CourseInstance' && (
-            <FormGroup className="add-instructors">
+            <FormGroup className="new-event-formGroup">
               <Label id="instructors-label" for="instructors">
                 Instructors
               </Label>
@@ -434,7 +438,7 @@ class EventForm extends Component {
                 getOptionLabel={option => option.name}
                 onChange={this.onInstructorChange}
                 value={instructors}
-                style={{ minWidth: 200, maxWidth: 500 }}
+                style={{ minWidth: 200, maxWidth: 700 }}
                 renderInput={params => (
                   <TextField
                     {...params}
@@ -473,30 +477,27 @@ class EventForm extends Component {
 }
 
 const SubEvents = ({ sessions, tasks, from, to, typeOfForm }) => (
-  <Container className="sessions-tasks-container">
-    <Row>
-      <Col className="subevents-col-left">
-        <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
-        <SubEventList events={sessions} />
-      </Col>
-      <Col className="subevents-col-right">
-        <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
-        <SubEventList events={tasks} />
-      </Col>
-    </Row>
-    <Row>
+  <div className="sessions-tasks-container">
+    <div className="subevents-col-left">
+      <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
+      <SubEventList events={sessions} />
       {typeOfForm === 'Edit' && (
-        <>
-          <Col>
-            <div className="button-container">
-              <ModalCreateEvent from={from} to={to} />
-            </div>
-          </Col>
-          <Col />
-        </>
+        <div className="button-container">
+          <ModalCreateEvent from={from} to={to} />
+        </div>
       )}
-    </Row>
-  </Container>
+    </div>
+    <div
+      className={
+        typeOfForm === 'Edit'
+          ? 'subevents-col-right subevents-col-right-w-button'
+          : 'subevents-col-right'
+      }
+    >
+      <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
+      <SubEventList events={tasks} />
+    </div>
+  </div>
 )
 
 export default compose(withRouter)(EventForm)

@@ -1,7 +1,16 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
-import {Button, Form, FormGroup, Label, Container, Row, Col, CardSubtitle} from 'reactstrap'
+import {
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Container,
+  Row,
+  Col,
+  CardSubtitle,
+} from 'reactstrap'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import TextField from '@material-ui/core/TextField'
@@ -89,74 +98,64 @@ class CourseMigrationForm extends Component {
 
     return (
       <>
-        <CardSubtitle className="card-subtitle-migrations">Course Details</CardSubtitle>
+        <CardSubtitle className="card-subtitle-migrations">
+          Course Details
+        </CardSubtitle>
         <Form onSubmit={this.onSubmit} className="course-migration-container">
-          <FormGroup>
-            <Container className="event-form-dateTime-container">
-              <Row>
-                <Col className="event-form-dateTime-col">
-                  <Label id="from-label" for="from" className="label-dateTime">
-                    From
-                  </Label>
-                  <DatePicker
-                    name="from"
-                    id="from"
-                    selected={startDate}
-                    onChange={this.handleChangeFrom}
-                    maxDate={endDate}
-                    showTimeSelect
-                    timeFormat="HH:mm"
-                    timeIntervals={15}
-                    dateFormat="dd/MM/yyyy HH:mm"
-                    timeCaption="time"
-                  />
-                </Col>
-                <Col className="event-form-dateTime-col">
-                  <Label for="to" className="label-dateTime">
-                    To
-                  </Label>
-                  <DatePicker
-                    name="to"
-                    id="to"
-                    selected={endDate}
-                    onChange={this.handleChangeTo}
-                    minDate={startDate}
-                    showTimeSelect
-                    timeFormat="HH:mm"
-                    timeIntervals={15}
-                    dateFormat="dd/MM/yyyy HH:mm"
-                    timeCaption="time"
-                  />
-                </Col>
-              </Row>
-            </Container>
-          </FormGroup>
+          <Label id="from-label" for="from" className="new-event-label">
+            From
+          </Label>
+          <DatePicker
+            name="from"
+            id="from"
+            selected={startDate}
+            onChange={this.handleChangeFrom}
+            maxDate={endDate}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+            dateFormat="dd/MM/yyyy HH:mm"
+            timeCaption="time"
+          />
+          <Label for="to" className="new-event-label">
+            To
+          </Label>
+          <DatePicker
+            name="to"
+            id="to"
+            selected={endDate}
+            onChange={this.handleChangeTo}
+            minDate={startDate}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+            dateFormat="dd/MM/yyyy HH:mm"
+            timeCaption="time"
+          />
 
-          <FormGroup className="add-instructors">
-            <Label id="instructors-label" for="instructors">
-              Instructors
-            </Label>
-            <Autocomplete
-              multiple
-              name="instructors"
-              id="instructors"
-              options={users}
-              getOptionLabel={option => option.name}
-              onChange={this.onInstructorChange}
-              value={instructors}
-              style={{ minWidth: 200, maxWidth: 500 }}
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  placeholder=""
-                  InputProps={{
-                    ...params.InputProps,
-                    disableUnderline: true,
-                  }}
-                />
-              )}
-            />
-          </FormGroup>
+          <Label id="instructors-label" for="instructors">
+            Instructors
+          </Label>
+          <Autocomplete
+            multiple
+            name="instructors"
+            id="instructors"
+            options={users}
+            getOptionLabel={option => option.name}
+            onChange={this.onInstructorChange}
+            value={instructors}
+            style={{ minWidth: 200, maxWidth: 500 }}
+            renderInput={params => (
+              <TextField
+                {...params}
+                placeholder=""
+                InputProps={{
+                  ...params.InputProps,
+                  disableUnderline: true,
+                }}
+              />
+            )}
+          />
           <div className="button-container-migrations">
             <Button className="new-event-button" onClick={next}>
               Next

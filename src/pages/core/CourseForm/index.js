@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Form, FormGroup, Input, Label } from 'reactstrap'
+import {Button, CardSubtitle, Form, FormGroup, Input, Label} from 'reactstrap'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import './CourseForm.css'
@@ -194,33 +194,36 @@ class CourseForm extends Component {
         ))}
         <Form className="new-course-form" onSubmit={this.onSubmit}>
           <FormGroup>
-            <Label for="name">Name</Label>
+            <Label for="name" className="form-label-subtitle">Name</Label>
             <Input
               name="name"
               id="name"
               value={name}
               onChange={this.onChange}
               type="text"
+              className="form-input"
             />
-            <Label for="abbreviation">Abbreviation</Label>
+            <Label for="abbreviation" className="form-label-subtitle">Abbreviation</Label>
             <Input
               name="abbreviation"
               id="abbreviation"
               value={abbreviation}
               onChange={this.onChange}
               type="text"
+              className="form-input"
             />
-            <Label for="description">Description</Label>
+            <Label for="description" className="form-label-subtitle">Description</Label>
             <Input
               name="description"
               id="description"
               value={description}
               onChange={this.onChange}
               type="textarea"
+              className="form-input"
             />
           </FormGroup>
           <FormGroup>
-            <Label for="prerequisites">Prerequisites</Label>
+            <Label for="prerequisites" className="form-label-subtitle">Prerequisites</Label>
             <Autocomplete
               multiple
               name="prerequisites"
@@ -229,7 +232,7 @@ class CourseForm extends Component {
               getOptionLabel={option => option.name}
               value={prerequisites}
               onChange={this.onPrerequisitesChange}
-              style={{ maxWidth: 500 }}
+              style={{ maxWidth: 700 }}
               renderInput={params => (
                 <TextField
                   {...params}
@@ -237,19 +240,21 @@ class CourseForm extends Component {
                   InputProps={{ ...params.InputProps, disableUnderline: true }}
                 />
               )}
+              className="form-input"
             />
             {user && user.isSuperAdmin && (
               <>
-                <Label for="admins">Admins</Label>
+                <Label for="admins" className="form-label-subtitle">Admins</Label>
                 <Autocomplete
                   multiple
                   name="admins"
                   id="admins"
+                  className="form-input"
                   options={users}
                   getOptionLabel={option => option.name}
                   onChange={this.onAdminsChange}
                   value={admins}
-                  style={{ maxWidth: 500 }}
+                  style={{ maxWidth: 700 }}
                   renderInput={params => (
                     <TextField
                       {...params}

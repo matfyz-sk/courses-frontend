@@ -269,7 +269,7 @@ class CoursesPageBase extends Component {
     return (
       <main className="courses_main">
         <div className="courses">
-          <Nav tabs>
+          <Nav tabs className={(user && user.isSuperAdmin) ? 'admin-tabs' : ''}>
             {user && (
               <NavItem>
                 <NL

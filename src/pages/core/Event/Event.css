@@ -2,16 +2,41 @@
   margin-top: 30px;
 }
 
-.event-card-header {
+.event-card-header-flex {
   display: flex;
   justify-content: space-between;
+}
+
+.event-card-header {
+  font-weight: bold;
+}
+
+.event-card-name {
   font-weight: bold;
 }
 
 .event-card-subtitle {
   font-weight: bold;
-  text-align: center;
+  /*text-align: center;*/
+  padding-left: 6%;
+  padding-bottom: 8px;
   margin-bottom: 5px;
+  margin-top: 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.event-card-subtitle-double {
+  padding-left: 12%;
+  padding-bottom: 8px;
+  margin-bottom: 5px;
+  margin-top: 20px;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  flex-direction: row;
+}
+
+.fake-table-double {
+  padding: .35rem .35rem .35rem 40%;
 }
 
 .event-list-group-item {
@@ -23,6 +48,7 @@
 
 .event-card-text {
   text-align: justify;
+  padding: 20px;
 }
 
 .icon {
@@ -46,4 +72,47 @@
 .event-table th,
 .event-table td {
   padding: 0;
+}
+
+.event-dates-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.event-dates-col {
+  width: 100%;
+}
+
+.event-subtitle {
+  font-weight: bold;
+  width: 15%;
+}
+
+.event-card-subtitle-one-line {
+  display: flex;
+  flex-direction: row;
+}
+
+.event-subtitle-double {
+  font-weight: bold;
+  width: 31%;
+}
+
+.event-card-subtitle-one-line {
+  padding-left: 6%;
+  padding-bottom: 8px;
+  margin-bottom: 5px;
+  margin-top: 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+
+@media only screen and (max-width: 550px) {
+  .event-subtitle {
+    width: 31%;
+  }
+
+  .event-dates-container {
+    flex-direction: column;
+  }
 }

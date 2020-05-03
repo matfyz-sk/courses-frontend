@@ -37,10 +37,10 @@ class NewEvent extends React.Component {
 
     return (
       <div>
-        <Container>
+        <Container className="container-view">
           <Card>
             <CardHeader className="event-card-header">New Event</CardHeader>
-            <CardBody>
+            <CardBody className="form-cardbody">
               <EventForm
                 typeOfForm="Create"
                 {...INITIAL_EVENT_STATE}

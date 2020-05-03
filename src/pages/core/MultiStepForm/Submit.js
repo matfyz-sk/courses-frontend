@@ -134,7 +134,7 @@ class Submit extends React.Component {
   render() {
     const { sent } = this.state
     const { courseMigrationState } = this.props
-    const { go } = this.props.navigation
+    const { go,previous } = this.props.navigation
 
     return (
       <div>
@@ -152,29 +152,29 @@ class Submit extends React.Component {
         {courseMigrationState && (
           <Table>
             <tr>
-              <td>Name</td>
+              <th>Name</th>
               <td>{courseMigrationState.name}</td>
             </tr>
             <tr>
-              <td>Description</td>
+              <th>Description</th>
               <td>{courseMigrationState.description}</td>
             </tr>
             <tr>
-              <td>From</td>
+              <th>From</th>
               <td>{courseMigrationState.startDate.toString()}</td>
             </tr>
             <tr>
-              <td>To</td>
+              <th>To</th>
               <td>{courseMigrationState.endDate.toString()}</td>
             </tr>
             <tr>
-              <td>Instructors</td>
+              <th>Instructors</th>
               <td>
                 {courseMigrationState.instructors.map(i => i.name + '; ')}
               </td>
             </tr>
             <tr>
-              <td>Events</td>
+              <th>Events</th>
               <td>
                 {courseMigrationState.allEvents.map(e => {
                   if (courseMigrationState.checkedEvents.includes(e.id)) {
@@ -187,6 +187,9 @@ class Submit extends React.Component {
         )}
         {!sent && (
           <div className="button-container-migrations">
+            <Button className="new-event-button" onClick={previous}>
+              Previous
+            </Button>
             <Button className="new-event-button" onClick={this.migrate}>
               Migrate
             </Button>

@@ -10,7 +10,7 @@
 }
 
 .block-menu-item {
-  background-color: #1d661d;
+  background-color: rgba(0,0,0,.03);
   font-weight: bold;
   margin-bottom: 2px;
 
@@ -18,20 +18,30 @@
   padding: 4px 10px;
   display: flex;
   align-items: center;
+  cursor: pointer;
+}
+
+.block-menu-item-active {
+  color: #1d661d;
+}
+
+.block-menu-item:hover {
+  color: #1d661d;
 }
 
 .timeline {
-  background-color: #c8c8c8;
+  background-color: #C8c8c8;;
   color: black;
   font-weight: bold;
+  margin-bottom: 2px;
+
+  border: none;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }
 
-.sessions-tasks-container {
-  padding: 0;
-  margin: 0 0 20px;
-  width: 100%;
-}
 
 .subevents-container {
   border: 1px solid #ced4da;
@@ -39,6 +49,7 @@
   padding: 15px;
   width: 100%;
   min-height: 60px;
+  height: 100%;
 }
 
 .subevents-item {
@@ -47,6 +58,41 @@
   display: flex;
   align-items: center;
 }
+
+.subevents-col-left {
+  padding: 0 3px 0 0;
+}
+
+.subevents-col-right {
+  padding: 0 0 0 3px;
+}
+
+.subevents-col-right-w-button {
+  padding: 0 0 48px 3px;
+}
+
+.subevents-col-left, .subevents-col-right {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+
+.sessions-tasks-container {
+  max-width: 700px;
+  display: flex;
+  flex-direction: row;
+}
+
+.new-session-button {
+  padding: 3px 10px;
+  background-color: #999999;
+  border: none;
+  margin-top: 8px;
+  margin-bottom: 10px;
+}
+
 
 .events-list {
   position: absolute;
@@ -95,18 +141,41 @@
 }
 
 a.scrolllink-item {
-  color: white;
+  color: black;
+  cursor: pointer;
 }
 
 a.scrolllink-item:hover {
-  color: #f4b800;
+  color: #1d661d;
 }
 
 a.active-scrolllink-item {
-  color: #f4b800;
+  color: #1d661d;
+  /*color: //#f4b800;*/
 }
 
 .subevent-name,
 .subevent-name:hover {
   color: black;
+}
+
+.timeline-sessions-tasks-container {
+  display: flex;
+  flex-direction: row;
+  margin-top: 30px;
+}
+
+@media only screen and (max-width: 700px) {
+  .sessions-tasks-container {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+
+@media only screen and (max-width: 700px) {
+  .timeline-sessions-tasks-container {
+    display: flex;
+    flex-direction: column;
+  }
 }

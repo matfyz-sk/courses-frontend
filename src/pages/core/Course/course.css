@@ -22,3 +22,37 @@
   border: 1px solid rgba(0,0,0,.125);
   border-radius: .25rem;
 }
+
+.container-view {
+  padding-left: 30px;
+  padding-right: 30px;
+  max-width: 900px;
+  margin-bottom: 30px;
+}
+
+.course-tables td, .fake-table {
+  padding: .35rem .35rem .35rem 20%;
+}
+
+.table-center-text {
+  text-align: center;
+}
+
+.course-tables td, .course-tables tr {
+  border: none;
+}
+
+@media only screen and (max-width: 1000px) {
+   .container-view {
+     padding-left: 30px;
+     padding-right: 30px;
+     max-width: 900px
+   }
+}
+
+@media only screen and (max-width: 500px) {
+  .course-tables td, .fake-table {
+    padding: .35rem;
+  }
+
+}

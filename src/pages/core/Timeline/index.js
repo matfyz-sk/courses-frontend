@@ -97,21 +97,21 @@ class Timeline extends Component {
             <Row className="timeline-row">
               <Col xs="3" className="timeline-left-col">
                 <BlockMenu courseEvents={timelineBlocks} />
-                {user &&
-                user.isSuperAdmin && ( // TODO || myId===courseInstance.hasInstructor &&
-                    <div className="button-container">
-                      <NavLink
-                        to={redirect(ROUTES.CREATE_TIMELINE, [
-                          { key: 'course_id', value: courseId },
-                        ])}
-                      >
-                        <Button className="new-event-button">
-                          Edit Timeline
-                        </Button>
-                      </NavLink>
-                    </div>
-                  )}
-                {/*<NextCalendar />*/}
+                {/*{user &&*/}
+                {/*user.isSuperAdmin && ( // TODO || myId===courseInstance.hasInstructor &&*/}
+                {/*    <div className="button-container">*/}
+                {/*      <NavLink*/}
+                {/*        to={redirect(ROUTES.CREATE_TIMELINE, [*/}
+                {/*          { key: 'course_id', value: courseId },*/}
+                {/*        ])}*/}
+                {/*      >*/}
+                {/*        <Button className="new-session-button">*/}
+                {/*          Edit Timeline*/}
+                {/*        </Button>*/}
+                {/*      </NavLink>*/}
+                {/*    </div>*/}
+                {/*  )}*/}
+                {/*/!*<NextCalendar />*!/*/}
               </Col>
               <Col className="event-list-col">
                 <EventsList

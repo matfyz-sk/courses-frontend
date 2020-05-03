@@ -6,10 +6,10 @@ import { INITIAL_COURSE_STATE } from '../constants'
 
 const NewCourse = () => (
   <div>
-    <Container>
+    <Container className="container-view">
       <Card>
         <CardHeader className="event-card-header">New Course</CardHeader>
-        <CardBody>
+        <CardBody className="form-cardbody">
           <CourseForm typeOfForm="Create" {...INITIAL_COURSE_STATE} />
         </CardBody>
       </Card>

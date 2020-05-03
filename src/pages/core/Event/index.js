@@ -31,6 +31,7 @@ import {
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
+import ModalCreateEvent from '../ModalCreateEvent'
 
 class Event extends React.Component {
   constructor(props) {
@@ -111,7 +112,7 @@ class Event extends React.Component {
 
     return (
       <div>
-        <Container>
+        <Container className="container-view">
           {event && (
             <EventCard
               event={event}
@@ -127,7 +128,7 @@ class Event extends React.Component {
 
 const EventCard = ({ event, isAdmin, detail }) => (
   <Card id={`${event.id}`} name={`${event.id}`} className="event-card">
-    <CardHeader className="event-card-header">
+    <CardHeader className="event-card-header-flex">
       <NavLink
         to={redirect(ROUTES.EVENT_ID, [
           { key: 'course_id', value: getShortId(event.courseInstance) },
@@ -135,7 +136,10 @@ const EventCard = ({ event, isAdmin, detail }) => (
         ])}
         className="subevent-name"
       >
-        {event.name} ({event.type})
+        <div className="event-card-name">
+          {event.name} ({event.type})
+        </div>
+
       </NavLink>
       {isAdmin && (SESSIONS.includes(event.type) || event.type === 'Block') && (
         <NavLink
@@ -150,51 +154,58 @@ const EventCard = ({ event, isAdmin, detail }) => (
       )}
     </CardHeader>
     <CardBody>
-      <CardText className="event-card-text">{event.description}</CardText>
-      <Table borderless className="event-table">
-        <tbody>
-          <tr>
-            <th>Start</th>
-            <td>{getDisplayDateTime(event.startDate, true)}</td>
-            <th>End</th>
-            <td>{getDisplayDateTime(event.endDate, true)}</td>
-          </tr>
-          {event.place && (
-            <tr>
-              <th>Location</th>
-              <td colSpan="3">{event.place}</td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
+
+      <div className="event-dates-container">
+        <div className="event-dates-col">
+          <CardSubtitle className="event-card-subtitle-double">
+            <div className='event-subtitle-double'>From</div>{getDisplayDateTime(event.startDate, true)}
+          </CardSubtitle>
+        </div>
+        <div className="event-dates-col">
+          <CardSubtitle className="event-card-subtitle-double">
+            <div className='event-subtitle-double'>To</div>{getDisplayDateTime(event.endDate, true)}
+          </CardSubtitle>
+        </div>
+      </div>
+      {/*<CardText className="event-card-text">{event.description}</CardText>*/}
+      <CardSubtitle className="event-card-subtitle">Description</CardSubtitle>
+      <div className="fake-table">{event.description}</div>
+      {event.place && (
+        <>
+          <CardSubtitle className="event-card-subtitle-one-line">
+            <div className='event-subtitle'>Location</div>
+            <div className='event-one-line-text'>{event.place}</div>
+          </CardSubtitle>
+        </>
+      )}
+
       {event.type === 'Block' && !detail && (
-        <Container className="sessions-tasks-container core-container">
-          <Row>
-            <Col className="subevents-col-left">
-              <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
-              <SubEventList events={event.sessions} />
-            </Col>
-            <Col className="subevents-col-right">
-              <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
-              <SubEventList events={event.tasks} />
-            </Col>
-          </Row>
-        </Container>
+        <div className="timeline-sessions-tasks-container">
+          <div className="subevents-col-left">
+            <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
+            <SubEventList events={event.sessions} />
+          </div>
+          <div className="subevents-col-right">
+            <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
+            <SubEventList events={event.tasks} />
+          </div>
+        </div>
       )}
       {event.materials && event.materials.length > 0 && (
         <>
           <CardSubtitle className="event-card-subtitle">Materials</CardSubtitle>
-          <ListGroup key={event.id}>
-            {event.materials.map(material => (
-              <ListGroupItem
-                key={material.id}
-                className="event-list-group-item"
-              >
-                {getIcon('Material')}
-                <div className="material-name">{material.name}</div>
-              </ListGroupItem>
-            ))}
-          </ListGroup>
+          <Table key={event.id}>
+            <tbody>
+              {event.materials.map(material => (
+                <tr key={material.id} className="event-list-group-item">
+                  <td>
+                    {getIcon('Material')}
+                    <div className="material-name">{material.name}</div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </>
       )}
     </CardBody>

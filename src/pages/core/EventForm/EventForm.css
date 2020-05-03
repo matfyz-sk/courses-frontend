@@ -1,0 +1,77 @@
+.new-event-label {
+  font-weight: bold;
+}
+
+.label-dateTime {
+  margin-right: 10px;
+}
+
+.event-form-dateTime-container {
+  padding: 0;
+  margin: 0;
+  max-width: 700px;
+  text-align: center;
+}
+
+.event-form-dateTime-col {
+  text-align: left;
+  width: auto;
+  padding: 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+#from,
+#to {
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+}
+
+#name,
+#type,
+#place {
+  max-width: 700px;
+}
+
+.button-container {
+  width: 100%;
+  text-align: center;
+}
+
+.new-event-button {
+  margin: 10px;
+  background-color: #1d661d;
+  color: white;
+  font-weight: bold;
+  border: none;
+}
+
+.add-instructors {
+  display: flex;
+  flex-direction: row;
+}
+
+#instructors-label {
+  font-weight: bold;
+  padding-right: 20px;
+}
+
+.form-error {
+  color: red;
+}
+
+.react-datepicker-wrapper {
+  display: block;
+}
+
+.react-datepicker {
+  display: flex;
+}
+
+@media only screen and (max-width: 400px) {
+  .react-datepicker__time-container {
+    display: none;
+  }
+}

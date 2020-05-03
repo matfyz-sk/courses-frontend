@@ -53,7 +53,7 @@ const SubEventList = ({ events }) => (
 
 const BlockMenu = ({ courseEvents }) => (
   <ListGroup className="block-menu">
-    <ListGroupItem className="timeline block-menu-item">Timeline</ListGroupItem>
+    <ListGroupItem className="timeline">Timeline</ListGroupItem>
     {courseEvents.map(event => (
       <ListGroupItem key={event.id} className="block-menu-item">
         <ScrollLink

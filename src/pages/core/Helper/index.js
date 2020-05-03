@@ -41,11 +41,11 @@ export const getIcon = name => {
     case 'Material':
       return <FaRegFile className="icon" />
     case 'Student':
-      return <img src={student_icon} alt="student" width="20px" height="20px" />
+      return <img src={student_icon} alt="student" width="20px" height="20px" className="icon" />
     case 'Teacher':
-      return <img src={teacher_icon} alt="teacher" width="20px" height="20px" />
+      return <img src={teacher_icon} alt="teacher" width="20px" height="20px" className="icon" />
     case 'Admin':
-      return <img src={admin_icon} alt="admin" width="20px" height="20px" />
+      return <img src={admin_icon} alt="admin" width="20px" height="20px" className="icon" />
     default:
       return
   }

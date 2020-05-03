@@ -64,7 +64,8 @@ a.active.nav-link .tab {
   flex-direction: row;
 }
 
-.single-course-container, .multiple-course-container {
+.single-course-container,
+.multiple-course-container {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -129,7 +130,6 @@ a.active.nav-link .tab {
     min-width: 200px;
     display: flex;
     flex-direction: column;
-    /*align-items: center;*/
   }
 
   .enroll-button {
@@ -138,10 +138,89 @@ a.active.nav-link .tab {
     margin-top: 20px;
     max-width: 100px;
   }
-  .list-group-item a {
+  .multiple-course-container .list-group-item a {
     display: flex;
     flex-direction: column;
-    align-content: center;
-    align-items: center;
+  }
+}
+
+@media only screen and (max-width: 660px) {
+  .admin-tabs {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .admin-tabs .nav-link {
+    border: 1px solid transparent;
+    border-color: #dee2e6 #dee2e6 #fff;  }
+
+  .admin-tabs .nav-link.active {
+    border: 1px solid transparent;
+    border-color: #dee2e6 #dee2e6 #fff;
+    font-weight: bold;
+  }
+
+  .admin-tabs .nav-link:hover {
+    color: #005005;
+  }
+}
+
+@media only screen and (max-width: 520px) {
+  .nav-tabs {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-color: #dee2e6 #dee2e6 #fff;
+  }
+
+  .nav-link.active {
+    border: 1px solid transparent;
+    border-color: #dee2e6 #dee2e6 #fff;
+    font-weight: bold;
+  }
+
+  .nav-link:hover {
+    border: none;
+    color: #005005;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  nav {
+    display: none;
+  }
+  main {
+    font-size: 12px;
+  }
+  .courses_main {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .name {
+    font-size: 14px;
+  }
+
+  .course-container,
+  .single-course-container {
+    padding: 5px;
+  }
+
+  .courses {
+    width: 95%;
+  }
+
+  .edit-delete-buttons-instance,
+  .small-delete-button {
+    font-size: 10px;
+  }
+
+  .icon {
+    width: 15px;
   }
 }
