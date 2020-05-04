@@ -24,13 +24,13 @@ export default class Assignment extends Component{
   }
 
   render(){
-    const tabURL='/assignments/'+(this.state.submission.active?'edit/':'view/')+this.props.match.params.id+'/';
+    const tabURL='/assignments/'+(this.state.submission.active?'edit/':'view/')+4+'/';
     return(
       <div className="assignmentContainer center-ver">
         <Card className="assignmentsContainer center-ver">
           <CardHeader className="row">
             <Button size="sm" color="" onClick={()=>this.props.history.goBack()}>
-              <i className="fa fa-arrow-left" />
+              <i className="fa fa-arrow-left clickable" />
             </Button>
             <h4 className="center-hor ml-5">
               {this.state.submission.title}

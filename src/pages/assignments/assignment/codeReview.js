@@ -5,8 +5,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import classnames from 'classnames';
 
-import { timestampToString, getFileType, htmlFixNewLines } from '../../../../helperFunctions';
-import { assignmentsGetTestFileLocally } from '../../../../redux/actions';
+import { timestampToString, getFileType, htmlFixNewLines } from '../../../helperFunctions';
+import { assignmentsGetTestFileLocally } from '../../../redux/actions';
 
 var fakeComments = [
   {

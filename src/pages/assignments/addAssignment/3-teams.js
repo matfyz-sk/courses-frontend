@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { FormGroup, Label, Input } from 'reactstrap';
-import ErrorMessage from '../../../../components/error';
+import ErrorMessage from '../../../components/error';
 
 export default class Teams extends Component {
   constructor(props){
