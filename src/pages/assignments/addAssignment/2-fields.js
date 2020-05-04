@@ -3,7 +3,7 @@ import { CardBody, Card, CardHeader, Button, FormGroup, Label, Input } from 'rea
 import Select from 'react-select';
 import CKEditor from 'ckeditor4-react';
 
-import ErrorMessage from '../../../../components/error';
+import ErrorMessage from '../../../components/error';
 
 export default class Fields extends Component {
   constructor(props){

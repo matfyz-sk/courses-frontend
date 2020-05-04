@@ -41,6 +41,8 @@ class CourseLayout extends Component {
     return (
       <>
         <NavigationCourse
+          history = { this.props.history }
+          match = { this.props.match }
           abbr={
             course && course.instanceOf
               ? course.instanceOf[0].abbreviation

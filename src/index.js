@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import { BrowserRouter, Route } from 'react-router-dom';
 import createStore from './redux/store';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -15,7 +16,11 @@ export const store = createStore(reducers, initialState);
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router />
+    <BrowserRouter>
+      <div>
+        <Route path='/' component={Router} />
+      </div>
+    </BrowserRouter>
   </Provider>,
   document.getElementById('root')
 );

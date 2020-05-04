@@ -1,3 +1,6 @@
+import axios from 'axios'
+import { getToken } from './components/Auth';
+
 export const timestampToString = (timestamp) => {
   let date = (new Date(timestamp));
   return date.getHours()+":"+(date.getMinutes() < 10 ? '0' : '') + date.getMinutes()+" "+date.getDate()+"."+(date.getMonth()+1)+"."+date.getFullYear();
@@ -30,4 +33,25 @@ export const getFileType = (extension) =>{
 
 export const htmlFixNewLines = (text) => {
   return text.replace(/(?:\r\n|\r|\n)/g,'<br>');
+}
+
+
+export const axiosRequest = (method, url, data) => {
+  return axios
+    .request({
+      url,
+      method,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getToken()}`,
+      },
+      data,
+    })
+    .then(response => {
+      return { failed: false, error: null, response }
+    })
+    .catch(error => {
+      return { failed: true, error, response: error.response }
+    })
 }

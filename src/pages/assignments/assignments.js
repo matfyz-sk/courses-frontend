@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import AssignmentView from './assignmentView';
+import AddAssignment from './addAssignment';
 
 export default class Assignments extends Component{
   constructor(props){
     super(props);
+    console.log('HERE');
+    console.log(props);
     this.state={
       tasks:[
         {id:0,title:'Assignmnent 1',description:'Short description of assignment',deadline:'13.11.2019 23:59',opened:true,submitted:false},
@@ -16,11 +19,12 @@ export default class Assignments extends Component{
   render(){
     return(
       <div className="assignmentsContainer center-ver">
+        <AddAssignment/>
         <h1>
           Assignments
         </h1>
         {
-          this.state.tasks.map((task,index)=> <AssignmentView task={task} history={this.props.history}/>)
+          this.state.tasks.map((task,index)=> <AssignmentView key={index} task={task} history={this.props.history}/>)
         }
       </div>
     )

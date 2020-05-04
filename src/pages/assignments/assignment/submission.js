@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Button, FormGroup, Label, Input, FormText } from 'reactstrap';
 import Select from 'react-select';
 
-import {timestampToString} from '../../../../helperFunctions';
+import {timestampToString} from '../../../helperFunctions';
 import {submissions, teams} from './data';
 
 const selectStyle = {

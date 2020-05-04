@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { CardBody, Card, Button, FormGroup, Label, Input, Collapse,ListGroup, ListGroupItem, FormText } from 'reactstrap';
 import { Slider, Rail, Handles, Tracks } from 'react-compound-slider';
-import{ SliderRail, Handle, Track } from '../../../../components/slider';
+import{ SliderRail, Handle, Track } from '../../../components/slider';
 
 const sliderStyle = {
   position: 'relative',
@@ -121,7 +121,7 @@ export default class TextTeview extends Component {
             <ListGroup>
               {
                 students.map((item)=>
-                <ListGroupItem action>
+                <ListGroupItem action key={item.value}>
                   <div>
                     <div>
                       <Label className="bold mr-2">Teammate:</Label>{item.label}

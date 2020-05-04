@@ -47,6 +47,12 @@ class NavigationCourseClass extends React.Component {
     const current = this.props.navReducer.current.sub
     const { privileges } = this.props
 
+    let courseID = this.props.history.location.pathname.substring(8);
+    if( courseID.indexOf('/') !== -1 ){
+      courseID = courseID.substring( 0, courseID.indexOf('/') );
+    }
+    const ASSIGNMENTS = '/course/'+courseID+'/assignments';
+
     return (
       <Navbar className="sub-nav" expand="md">
         {/*<UncontrolledDropdown className="dropdown-course">*/}
@@ -117,7 +123,8 @@ class NavigationCourseClass extends React.Component {
             <NavItem>
               <NavLink
                 activeClassName="is-active"
-                to={ROUTES.ASSIGNMENTS}
+                to={{pathname:''}}
+                onClick={()=>this.props.history.push(ASSIGNMENTS)}
                 className="nav-link nav-button"
               >
                 Assignments

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, NavItem, NavLink, Nav, TabContent, TabPane } from 'reactstrap';
 import classnames from 'classnames';
 import moment from 'moment';
+import {addAssignment} from '../restCalls';
 
 import Info from './0-info';
 import Submission from './1-submission';

@@ -1,25 +1,18 @@
 import React, { Component } from 'react';
-import { connect } from "react-redux";
+import { Route} from 'react-router-dom';
+import Assignments from './assignments';
+import Assignment from './assignment';
 
-import StudentNavigation from './student';
-import TeacherNavigation from './teacher';
+export default class Navigation extends Component{
 
-
-class Assignments extends Component{
-    render() {
-        if (this.props.isAdmin) {
-            return (
-                <TeacherNavigation/>
-            );
-        }
-        return (
-            <StudentNavigation/>
-        );
-    }
+  render(){
+    return(
+      <>
+        <Route exact path='/course/:courseID/assignments' component={Assignments} />
+        <Route exact path='/course/:courseID/assignments/view/:assignmentID/:submissionID/:tabID' component={Assignment} />
+        <Route exact path='/course/:courseID/assignments/edit/:assignmentID/:tabID' component={Assignment} />
+        <Route exact path='/course/:courseID/assignments/review/:assignmentID/:submissionID/:tabID' component={Assignment} />
+      </>
+    )
+  }
 }
-
-const mapStateToProps = ({ userReducer }) => {
-	return { isAdmin: userReducer.isAdmin };
-};
-
-export default connect(mapStateToProps, {})(Assignments);

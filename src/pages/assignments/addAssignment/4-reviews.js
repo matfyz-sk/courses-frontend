@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { FormGroup, Label, Input, Button, Table } from 'reactstrap';
 import moment from 'moment';
 
-import ErrorMessage from '../../../../components/error';
+import ErrorMessage from '../../../components/error';
 
 
 export default class Reviews extends Component {

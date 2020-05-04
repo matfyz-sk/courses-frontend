@@ -3,7 +3,7 @@ import { Button, FormGroup, Label, Input, Table } from 'reactstrap';
 import CKEditor from 'ckeditor4-react';
 import moment from 'moment';
 
-import ErrorMessage from '../../../../components/error';
+import ErrorMessage from '../../../components/error';
 
 export default class TextReview extends Component {
   constructor(props){

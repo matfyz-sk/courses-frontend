@@ -112,7 +112,7 @@ const CoreRoutes = [
     layout={CourseLayout}
   />,
   <Route path={ROUTES.COURSES} component={CoursesPage} />,
-  <AdminRoute path={ROUTES.COURSE_ID} component={Course} />,
+  <AdminRoute exact path={ROUTES.COURSE_ID} component={Course} />,
   <SuperAdminRoute path={ROUTES.NEW_COURSE} component={NewCourse} />,
   <AdminRoute path={ROUTES.EDIT_COURSE_ID} component={EditCourse} />,
   <AdminRoute
