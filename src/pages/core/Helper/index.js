@@ -68,3 +68,21 @@ export const mergeMaterials = (arr1, arr2) => {
 export const getShortId = id => {
   return id.substring(id.length - 5)
 }
+
+export const getInstructorRights = (user, courseInstance ) => {
+  // const { user, courseInstance } = this.props
+  if (user) {
+    if (user.isSuperAdmin) {
+      return true
+    }
+    const instructors = courseInstance.hasInstructor.map(i => i['@id'])
+    if (instructors.includes(user.fullURI)) {
+      return true
+    }
+    const admins = courseInstance.instanceOf.hasAdmin
+    if (admins.includes(user.fullURI)) {
+      return true
+    }
+  }
+  return false
+}

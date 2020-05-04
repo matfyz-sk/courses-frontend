@@ -54,6 +54,9 @@ export const getEvents = data => {
         ? eventData.courseInstance[0].abbreviation
         : '',
       courseInstance: eventData.courseInstance[0]['@id'],
+      instructors: eventData.courseInstance[0]
+        ? eventData.courseInstance[0].hasInstructor
+        : eventData.hasInstructor,
     }
     event.materials = mergeMaterials(event.uses, event.recommends)
     return event

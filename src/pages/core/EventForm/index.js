@@ -38,6 +38,7 @@ import {
   greater,
   sortEventsFunction,
 } from '../Timeline/timeline-helper'
+import { connect } from 'react-redux'
 
 class EventForm extends Component {
   constructor(props) {
@@ -299,7 +300,7 @@ class EventForm extends Component {
       tasks,
       sessions,
     } = this.state
-    const { typeOfForm, options, from, to } = this.props
+    const { typeOfForm, options, from, to, user } = this.props
 
     const isInvalid =
       name === '' ||
@@ -425,33 +426,37 @@ class EventForm extends Component {
             />
           )}
 
-          {type === 'CourseInstance' && (
-            <FormGroup className="new-event-formGroup">
-              <Label id="instructors-label" for="instructors">
-                Instructors
-              </Label>
-              <Autocomplete
-                multiple
-                name="instructors"
-                id="instructors"
-                options={users}
-                getOptionLabel={option => option.name}
-                onChange={this.onInstructorChange}
-                value={instructors}
-                style={{ minWidth: 200, maxWidth: 700 }}
-                renderInput={params => (
-                  <TextField
-                    {...params}
-                    placeholder=""
-                    InputProps={{
-                      ...params.InputProps,
-                      disableUnderline: true,
-                    }}
-                  />
-                )}
-              />
-            </FormGroup>
-          )}
+          {type === 'CourseInstance' &&
+            user != null &&
+            (instructors.findIndex(i => i.fullId === user.fullURI) === -1 ||
+              //TODO || isAdmin
+              user.isSuperAdmin) && (
+              <FormGroup className="new-event-formGroup">
+                <Label id="instructors-label" for="instructors">
+                  Instructors
+                </Label>
+                <Autocomplete
+                  multiple
+                  name="instructors"
+                  id="instructors"
+                  options={users}
+                  getOptionLabel={option => option.name}
+                  onChange={this.onInstructorChange}
+                  value={instructors}
+                  style={{ minWidth: 200, maxWidth: 700 }}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      placeholder=""
+                      InputProps={{
+                        ...params.InputProps,
+                        disableUnderline: true,
+                      }}
+                    />
+                  )}
+                />
+              </FormGroup>
+            )}
 
           <div className="button-container">
             <Button
@@ -500,4 +505,10 @@ const SubEvents = ({ sessions, tasks, from, to, typeOfForm }) => (
   </div>
 )
 
-export default compose(withRouter)(EventForm)
+const mapStateToProps = ({ authReducer }) => {
+  return {
+    user: authReducer.user,
+  }
+}
+
+export default compose(withRouter, connect(mapStateToProps))(EventForm)

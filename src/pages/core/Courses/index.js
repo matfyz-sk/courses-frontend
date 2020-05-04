@@ -101,18 +101,22 @@ class CoursesPageBase extends Component {
             // eslint-disable-next-line no-nested-ternary
             course.instructor = course.hasInstructor
               ? Array.isArray(course.hasInstructor)
-                ? course.hasInstructor.findIndex(instructor => {
-                    return instructor === user.fullURI
-                  }) > -1
+                ? course.hasInstructor
+                    .map(instructor => instructor['@id'])
+                    .findIndex(instructor => {
+                      return instructor === user.fullURI
+                    }) > -1
                 : course.hasInstructor === user.fullURI
               : false
 
             // eslint-disable-next-line no-nested-ternary
             course.admin = course.hasAdmin
               ? Array.isArray(course.hasAdmin)
-                ? course.hasAdmin.findIndex(admin => {
-                    return admin === user.fullURI
-                  }) > -1
+                ? course.hasAdmin
+                    .map(admin => admin['@id'])
+                    .findIndex(admin => {
+                      return admin === user.fullURI
+                    }) > -1
                 : course.hasAdmin === user.fullURI
               : false
           }
@@ -155,7 +159,6 @@ class CoursesPageBase extends Component {
           })
 
           this.getAllCourses(courses)
-
         } else {
           let activeCourses = []
           for (const course of courses) {
@@ -269,7 +272,10 @@ class CoursesPageBase extends Component {
     return (
       <main className="courses_main">
         <div className="courses">
-          <Nav tabs className={(user && user.isSuperAdmin) ? 'admin-tabs tabs' : 'tabs'}>
+          <Nav
+            tabs
+            className={user && user.isSuperAdmin ? 'admin-tabs tabs' : 'tabs'}
+          >
             {user && (
               <NavItem>
                 <NL
@@ -561,7 +567,7 @@ const CollapsableCourse = ({
                         ))}
                       <RoleIcon course={courseInstance} />
                       {/* edit/delete course */}
-                      {(isAdmin || course.admin) && (
+                      {(isAdmin || course.admin || courseInstance.instructor) && (
                         <div className="edit-delete-buttons-instance">
                           <NavLink
                             className="edit-delete-buttons"

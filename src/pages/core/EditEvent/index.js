@@ -50,7 +50,7 @@ class EditEvent extends React.Component {
                 name: material.name,
               }
             }),
-            courseInstance: eventData.courseInstance
+            courseInstance: eventData.courseInstance[0]
               ? eventData.courseInstance[0]['@id']
               : '',
             instructors: eventData.hasInstructor

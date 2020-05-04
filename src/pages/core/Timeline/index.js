@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom'
 import { Container, Row, Col, Alert } from 'reactstrap'
 import Scroll from 'react-scroll'
 import EventsList, { BlockMenu, BlockMenuToggle } from '../Events'
-import { getShortId } from '../Helper'
+import {getInstructorRights, getShortId} from '../Helper'
 import {
   getEvents,
   sortEventsFunction,
@@ -30,6 +30,7 @@ class Timeline extends Component {
       timelineBlocks: [], // for timeline purposes even Session can be a block
       nestedEvents: [],
       currentBlock: null,
+      hasAccess: false,
     }
   }
 
@@ -37,6 +38,13 @@ class Timeline extends Component {
     const {
       match: { params },
     } = this.props
+    const { course, user } = this.props
+
+    if(course && user && getInstructorRights(user, course)) {
+      this.setState({
+        hasAccess: true,
+      })
+    }
 
     const url = `${BASE_URL + EVENT_URL}?courseInstance=${
       params.course_id
@@ -70,8 +78,19 @@ class Timeline extends Component {
     })
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { user, course } = this.props
+    if(prevProps.user !== user || prevProps.course !== course) {
+      if(course && user && getInstructorRights(user, course)) {
+        this.setState({
+          hasAccess: true,
+        })
+      }
+    }
+  }
+
   render() {
-    const { eventsSorted, timelineBlocks, nestedEvents } = this.state
+    const { eventsSorted, timelineBlocks, nestedEvents, hasAccess } = this.state
     const { course, user } = this.props
     const courseId = course ? getShortId(course['@id']) : ''
 
@@ -81,7 +100,7 @@ class Timeline extends Component {
           <Alert color="secondary" className="empty-message">
             Timeline for this course is empty.
             <br />
-            {user && user.isSuperAdmin && (
+            {hasAccess && (
               <NavLink
                 to={redirect(ROUTES.CREATE_TIMELINE, [
                   { key: 'course_id', value: courseId },
@@ -98,8 +117,7 @@ class Timeline extends Component {
               <Col xs="3" className="timeline-left-col">
                 <BlockMenu courseEvents={timelineBlocks} />
                 {/*<BlockMenuToggle courseEvents={timelineBlocks} scroll />*/}
-                {/*{user &&*/}
-                {/*user.isSuperAdmin && ( // TODO || myId===courseInstance.hasInstructor &&*/}
+                {/*{hasAccess &&*/}
                 {/*    <div className="button-container">*/}
                 {/*      <NavLink*/}
                 {/*        to={redirect(ROUTES.CREATE_TIMELINE, [*/}
@@ -117,7 +135,7 @@ class Timeline extends Component {
               <Col className="event-list-col">
                 <EventsList
                   courseEvents={nestedEvents}
-                  isAdmin={user ? user.isSuperAdmin : false}
+                  isAdmin={hasAccess}
                 />
               </Col>
             </Row>

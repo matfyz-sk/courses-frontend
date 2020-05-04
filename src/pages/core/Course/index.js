@@ -79,9 +79,11 @@ class Course extends React.Component {
     }
 
     const isAdmin = user
-      ? course.admins.findIndex(admin => {
-          return admin === user.fullURI
-        }) > -1
+      ? course.admins
+          .map(admin => admin.fullId)
+          .findIndex(admin => {
+            return admin === user.fullURI
+          }) > -1
       : false
 
     return (
@@ -126,7 +128,7 @@ const CourseCard = ({ course, isAdmin }) => (
           <CardSubtitle className="event-card-subtitle">
             Prerequisites
           </CardSubtitle>
-          <Table responsive key='prerequisites' className="course-tables">
+          <Table responsive key="prerequisites" className="course-tables">
             <tbody>
               {course.prerequisites.map(prerequisite => (
                 <tr key={prerequisite.id} className="course-list-group-item">
@@ -140,7 +142,7 @@ const CourseCard = ({ course, isAdmin }) => (
       {course.admins && course.admins.length > 0 && (
         <>
           <CardSubtitle className="event-card-subtitle">Admins</CardSubtitle>
-          <Table responsive key='admins' className="course-tables">
+          <Table responsive key="admins" className="course-tables">
             <tbody>
               {course.admins.map(admin => (
                 <tr key={admin.id} className="course-list-group-item">

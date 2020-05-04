@@ -19,6 +19,7 @@ import {
 } from '../Helper'
 import {
   BASE_URL,
+  COURSE_URL,
   EVENT_URL,
   INITIAL_EVENT_STATE,
   SESSIONS,
@@ -26,6 +27,7 @@ import {
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
+import { getInstructorRights } from '../Helper'
 
 class Event extends React.Component {
   constructor(props) {
@@ -34,6 +36,7 @@ class Event extends React.Component {
     this.state = {
       event: INITIAL_EVENT_STATE,
       redirectTo: null,
+      hasAccess: false,
     }
   }
 
@@ -41,6 +44,14 @@ class Event extends React.Component {
     const {
       match: { params },
     } = this.props
+
+    const { user, courseInstance } = this.props
+
+    if(courseInstance && user && getInstructorRights(user, courseInstance)) {
+      this.setState({
+        hasAccess: true,
+      })
+    }
 
     const url = `${BASE_URL + EVENT_URL}/${
       params.event_id
@@ -71,11 +82,15 @@ class Event extends React.Component {
                 name: material.name,
               }
             }),
-            courseInstance: eventData.courseInstance
+            courseInstance: eventData.courseInstance[0]
               ? eventData.courseInstance[0]['@id']
-              : '',
+              : eventData['@id'],
+            instructors: eventData.courseInstance[0]
+              ? eventData.courseInstance[0].hasInstructor
+              : eventData.hasInstructor,
           }
         })[0]
+
         if (
           event.courseInstance !== '' &&
           params.course_id !== getShortId(event.courseInstance)
@@ -84,6 +99,7 @@ class Event extends React.Component {
             redirectTo: ROUTES.NOT_FOUND,
           })
         }
+
         event.materials = mergeMaterials(event.uses, event.recommends)
         this.setState({
           event,
@@ -96,24 +112,30 @@ class Event extends React.Component {
     })
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { user, courseInstance } = this.props
+    if(prevProps.user !== user || prevProps.courseInstance !== courseInstance) {
+      if(courseInstance && user && getInstructorRights(user, courseInstance)) {
+        this.setState({
+          hasAccess: true,
+        })
+      }
+    }
+  }
+
   render() {
-    const { event, redirectTo } = this.state
+    const { event, redirectTo, hasAccess } = this.state
     const { user } = this.props
 
     if (redirectTo) {
       return <Redirect to={redirectTo} />
     }
 
+    // const isAdmin = user ? user.isSuperAdmin : false
     return (
       <div>
         <Container className="container-view">
-          {event && (
-            <EventCard
-              event={event}
-              isAdmin={user ? user.isSuperAdmin : false}
-              detail
-            />
-          )}
+          {event && <EventCard event={event} isAdmin={hasAccess} detail />}
         </Container>
       </div>
     )
@@ -133,7 +155,6 @@ const EventCard = ({ event, isAdmin, detail }) => (
         <div className="event-card-name">
           {event.name} ({event.type})
         </div>
-
       </NavLink>
       {isAdmin && (SESSIONS.includes(event.type) || event.type === 'Block') && (
         <NavLink
@@ -148,16 +169,17 @@ const EventCard = ({ event, isAdmin, detail }) => (
       )}
     </CardHeader>
     <CardBody>
-
       <div className="event-dates-container">
         <div className="event-dates-col">
           <CardSubtitle className="event-card-subtitle-double">
-            <div className='event-subtitle-double'>From</div>{getDisplayDateTime(event.startDate, true)}
+            <div className="event-subtitle-double">From</div>
+            {getDisplayDateTime(event.startDate, true)}
           </CardSubtitle>
         </div>
         <div className="event-dates-col">
           <CardSubtitle className="event-card-subtitle-double">
-            <div className='event-subtitle-double'>To</div>{getDisplayDateTime(event.endDate, true)}
+            <div className="event-subtitle-double">To</div>
+            {getDisplayDateTime(event.endDate, true)}
           </CardSubtitle>
         </div>
       </div>
@@ -167,8 +189,8 @@ const EventCard = ({ event, isAdmin, detail }) => (
       {event.place && (
         <>
           <CardSubtitle className="event-card-subtitle-one-line">
-            <div className='event-subtitle'>Location</div>
-            <div className='event-one-line-text'>{event.place}</div>
+            <div className="event-subtitle">Location</div>
+            <div className="event-one-line-text">{event.place}</div>
           </CardSubtitle>
         </>
       )}
@@ -206,9 +228,10 @@ const EventCard = ({ event, isAdmin, detail }) => (
   </Card>
 )
 
-const mapStateToProps = ({ authReducer }) => {
+const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
   return {
     user: authReducer.user,
+    courseInstance: courseInstanceReducer.courseInstance,
   }
 }
 

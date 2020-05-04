@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Button, CardSubtitle, Form, FormGroup, Input, Label} from 'reactstrap'
+import { Button, CardSubtitle, Form, FormGroup, Input, Label } from 'reactstrap'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import './CourseForm.css'
@@ -194,7 +194,9 @@ class CourseForm extends Component {
         ))}
         <Form className="new-course-form" onSubmit={this.onSubmit}>
           <FormGroup>
-            <Label for="name" className="form-label-subtitle">Name</Label>
+            <Label for="name" className="form-label-subtitle">
+              Name
+            </Label>
             <Input
               name="name"
               id="name"
@@ -203,7 +205,9 @@ class CourseForm extends Component {
               type="text"
               className="form-input"
             />
-            <Label for="abbreviation" className="form-label-subtitle">Abbreviation</Label>
+            <Label for="abbreviation" className="form-label-subtitle">
+              Abbreviation
+            </Label>
             <Input
               name="abbreviation"
               id="abbreviation"
@@ -212,7 +216,9 @@ class CourseForm extends Component {
               type="text"
               className="form-input"
             />
-            <Label for="description" className="form-label-subtitle">Description</Label>
+            <Label for="description" className="form-label-subtitle">
+              Description
+            </Label>
             <Input
               name="description"
               id="description"
@@ -223,7 +229,9 @@ class CourseForm extends Component {
             />
           </FormGroup>
           <FormGroup>
-            <Label for="prerequisites" className="form-label-subtitle">Prerequisites</Label>
+            <Label for="prerequisites" className="form-label-subtitle">
+              Prerequisites
+            </Label>
             <Autocomplete
               multiple
               name="prerequisites"
@@ -244,7 +252,9 @@ class CourseForm extends Component {
             />
             {user && user.isSuperAdmin && (
               <>
-                <Label for="admins" className="form-label-subtitle">Admins</Label>
+                <Label for="admins" className="form-label-subtitle">
+                  Admins
+                </Label>
                 <Autocomplete
                   multiple
                   name="admins"
