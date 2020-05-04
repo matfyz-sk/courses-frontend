@@ -25,6 +25,15 @@
   border-bottom: 1px solid #dee2e6;
 }
 
+.event-card-table-subtitle {
+  font-weight: bold;
+  padding-left: 6%;
+  padding-bottom: 8px;
+  margin-bottom: 5px;
+  margin-top: 20px;
+}
+
+
 .event-card-subtitle-double {
   padding-left: 12%;
   padding-bottom: 8px;
@@ -106,6 +115,13 @@
   border-bottom: 1px solid #dee2e6;
 }
 
+.materials-table td {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 20%;
+}
 
 @media only screen and (max-width: 550px) {
   .event-subtitle {
@@ -114,5 +130,11 @@
 
   .event-dates-container {
     flex-direction: column;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .materials-table td {
+    padding-left: 10px;
   }
 }

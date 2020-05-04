@@ -209,12 +209,12 @@ const EventCard = ({ event, isAdmin, detail }) => (
       )}
       {event.materials && event.materials.length > 0 && (
         <>
-          <CardSubtitle className="event-card-subtitle">Materials</CardSubtitle>
-          <Table key={event.id}>
+          <CardSubtitle className="event-card-table-subtitle">Materials</CardSubtitle>
+          <Table key={event.id} className="materials-table">
             <tbody>
               {event.materials.map(material => (
                 <tr key={material.id} className="event-list-group-item">
-                  <td>
+                  <td className="materials-td">
                     {getIcon('Material')}
                     <div className="material-name">{material.name}</div>
                   </td>

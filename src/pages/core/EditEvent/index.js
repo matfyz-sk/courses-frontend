@@ -22,7 +22,9 @@ class EditEvent extends React.Component {
       courseId: params.course_id,
     })
 
-    const url = `${BASE_URL + EVENT_URL}/${params.event_id}?_join=hasInstructor`
+    const url = `${BASE_URL + EVENT_URL}/${
+      params.event_id
+    }?_join=hasInstructor,uses,recommends`
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       if (data != null) {
@@ -63,6 +65,8 @@ class EditEvent extends React.Component {
               : [],
           }
         })[0]
+        console.log(event.recommends)
+        console.log(event.uses)
         this.setState({
           event,
         })

@@ -27,6 +27,7 @@ import {
   TASKS_EXAMS,
   TASKS_DEADLINES,
   USER_URL,
+  MATERIAL_URL,
 } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { getDisplayDateTime, getShortId } from '../Helper'
@@ -49,6 +50,7 @@ class EventForm extends Component {
       courseId: '',
       errors: [],
       users: [],
+      docs: [],
       tasks: [],
       sessions: [],
     }
@@ -66,7 +68,7 @@ class EventForm extends Component {
 
     this.getSubEvents()
 
-    const url = BASE_URL + USER_URL
+    let url = BASE_URL + USER_URL
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       if (data != null) {
@@ -81,6 +83,22 @@ class EventForm extends Component {
         })
         this.setState({
           users,
+        })
+      }
+    })
+
+    url = BASE_URL + MATERIAL_URL
+    axiosRequest('get', null, url).then(response => {
+      const data = getData(response)
+      if (data != null) {
+        const docs = data.map(doc => {
+          return {
+            fullId: doc['@id'],
+            name: doc.name,
+          }
+        })
+        this.setState({
+          docs,
         })
       }
     })
@@ -161,6 +179,8 @@ class EventForm extends Component {
       type,
       courseId,
       instructors,
+      uses,
+      recommends,
     } = this.state
     const { typeOfForm, callBack } = this.props
 
@@ -182,6 +202,14 @@ class EventForm extends Component {
       return instructor.fullId
     })
 
+    const usedMaterials = uses.map(doc => {
+      return doc.fullId
+    })
+
+    const recommendedMaterials = recommends.map(doc => {
+      return doc.fullId
+    })
+
     const typeLowerCase = this.lowerFirstLetter(type)
     let url = `${BASE_URL}/${typeLowerCase}/${id}`
 
@@ -192,6 +220,8 @@ class EventForm extends Component {
       startDate,
       endDate,
       location: place,
+      uses: usedMaterials,
+      recommends: recommendedMaterials,
     }
 
     if (type === 'CourseInstance') {
@@ -274,6 +304,14 @@ class EventForm extends Component {
     this.setState({ instructors: values })
   }
 
+  onUsesChange = (event, values) => {
+    this.setState({ uses: values })
+  }
+
+  onRecommendsChange = (event, values) => {
+    this.setState({ recommends: values })
+  }
+
   onChange = event => {
     this.setState({ [event.target.name]: event.target.value })
   }
@@ -299,6 +337,9 @@ class EventForm extends Component {
       instructors,
       tasks,
       sessions,
+      docs,
+      uses,
+      recommends,
     } = this.state
     const { typeOfForm, options, from, to, user } = this.props
 
@@ -416,6 +457,66 @@ class EventForm extends Component {
             />
           </FormGroup>
 
+          <FormGroup className="new-event-formGroup">
+            <Label
+              id="usesMaterials"
+              for="usesMaterials"
+              className="new-event-label"
+            >
+              Used Materials
+            </Label>
+            <Autocomplete
+              multiple
+              name="usesMaterials"
+              id="usesMaterials"
+              options={docs}
+              getOptionLabel={option => option.name}
+              onChange={this.onUsesChange}
+              value={uses}
+              style={{ minWidth: 200, maxWidth: 700 }}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  placeholder=""
+                  InputProps={{
+                    ...params.InputProps,
+                    disableUnderline: true,
+                  }}
+                />
+              )}
+            />
+          </FormGroup>
+
+          <FormGroup className="new-event-formGroup">
+            <Label
+              id="recommendsMaterials"
+              for="recommendsMaterials"
+              className="new-event-label"
+            >
+              Recommended Materials
+            </Label>
+            <Autocomplete
+              multiple
+              name="recommendsMaterials"
+              id="recommendsMaterials"
+              options={docs}
+              getOptionLabel={option => option.name}
+              onChange={this.onRecommendsChange}
+              value={recommends}
+              style={{ minWidth: 200, maxWidth: 700 }}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  placeholder=""
+                  InputProps={{
+                    ...params.InputProps,
+                    disableUnderline: true,
+                  }}
+                />
+              )}
+            />
+          </FormGroup>
+
           {type === 'Block' && (
             <SubEvents
               sessions={sessions}
@@ -429,7 +530,6 @@ class EventForm extends Component {
           {type === 'CourseInstance' &&
             user != null &&
             (instructors.findIndex(i => i.fullId === user.fullURI) === -1 ||
-              //TODO || isAdmin
               user.isSuperAdmin) && (
               <FormGroup className="new-event-formGroup">
                 <Label id="instructors-label" for="instructors">
