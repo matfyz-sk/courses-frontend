@@ -47,52 +47,59 @@ class NavigationCourseClass extends React.Component {
     const current = this.props.navReducer.current.sub
     const { privileges } = this.props
 
-    let courseID = this.props.history.location.pathname.substring(8);
-    if( courseID.indexOf('/') !== -1 ){
-      courseID = courseID.substring( 0, courseID.indexOf('/') );
+    let courseID = this.props.history.location.pathname.substring(8)
+    if (courseID.indexOf('/') !== -1) {
+      courseID = courseID.substring(0, courseID.indexOf('/'))
     }
-    const ASSIGNMENTS = '/course/'+courseID+'/assignments';
+    const ASSIGNMENTS = '/course/' + courseID + '/assignments'
 
     return (
       <Navbar className="sub-nav" expand="md">
-        {/*<UncontrolledDropdown className="dropdown-course">*/}
-        {/*  <DropdownToggle tag="a" className="nav-link nav-toggle">*/}
-        {/*    <div*/}
-        {/*      className="nav-course nav-button navbar-brand"*/}
-        {/*      href="/courses"*/}
-        {/*    >*/}
-        {/*      {this.props.courseAbbr}*/}
-        {/*    </div>*/}
-        {/*  </DropdownToggle>*/}
-        {/*  <DropdownMenu>*/}
-        {/*    <DropdownItem className="nav-button">*/}
-        {/*      <NavLink*/}
-        {/*        to={ROUTES.USER_MANAGEMENT + this.state.courseId}*/}
-        {/*        className="nav-link nav-button"*/}
-        {/*      >*/}
-        {/*        User Management*/}
-        {/*      </NavLink>*/}
-        {/*    </DropdownItem>*/}
-        {/*    <DropdownItem className="nav-button">*/}
-        {/*      <NavLink*/}
-        {/*        to={ROUTES.COURSE_MIGRATION + this.state.courseId}*/}
-        {/*        className="nav-link nav-button"*/}
-        {/*      >*/}
-        {/*        Course Migration*/}
-        {/*      </NavLink>*/}
-        {/*    </DropdownItem>*/}
-        {/*  </DropdownMenu>*/}
-        {/*</UncontrolledDropdown>*/}
-
         <div className="navbar-left">
-          <NavbarBrand href="/courses">
-            {this.props.abbr}{' '}
-            <img src={RightArrow} alt="right" className="arrow-right" />
-          </NavbarBrand>
+          <UncontrolledDropdown className="dropdown-course">
+            <DropdownToggle tag="a" className="nav-toggle">
+              <NavbarBrand>
+                {this.props.abbr}{' '}
+                <img src={RightArrow} alt="right" className="arrow-right" />
+              </NavbarBrand>
+            </DropdownToggle>
+            <DropdownMenu className="teacher-dropdown">
+              <DropdownItem className="nav-button">
+                <NavLink
+                  to={redirect(ROUTES.USER_MANAGEMENT, [
+                    { key: 'course_id', value: this.state.courseId },
+                  ])}
+                  className="nav-link nav-button"
+                >
+                  User Management
+                </NavLink>
+              </DropdownItem>
+              <DropdownItem className="nav-button">
+                <NavLink
+                  to={redirect(ROUTES.COURSE_MIGRATION, [
+                    { key: 'course_id', value: this.state.courseId },
+                  ])}
+                  className="nav-link nav-button"
+                >
+                  Course Migration
+                </NavLink>
+              </DropdownItem>
+              <DropdownItem className="nav-button">
+                <NavLink
+                  to={redirect(ROUTES.CREATE_TIMELINE, [
+                    { key: 'course_id', value: this.state.courseId },
+                  ])}
+                  className="nav-link nav-button"
+                >
+                  Edit Timeline
+                </NavLink>
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
         </div>
 
         <NavbarToggler onClick={this.toggle}>
-          <img src={Bars} alr='bars' style={ {width: "30px"} }/>
+          <img src={Bars} alr="bars" style={{ width: '30px' }} />
         </NavbarToggler>
 
         <Collapse isOpen={this.state.isOpen} navbar>
@@ -123,8 +130,8 @@ class NavigationCourseClass extends React.Component {
             <NavItem>
               <NavLink
                 activeClassName="is-active"
-                to={{pathname:''}}
-                onClick={()=>this.props.history.push(ASSIGNMENTS)}
+                to={{ pathname: '' }}
+                onClick={() => this.props.history.push(ASSIGNMENTS)}
                 className="nav-link nav-button"
               >
                 Assignments
