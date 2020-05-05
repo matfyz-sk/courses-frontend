@@ -54,6 +54,22 @@ export default class TextReview extends Component {
               <CKEditor
                 onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) }
                 id="submission-add-desc"
+                data={this.props.data.shortDescription}
+                onChange={(e)=>this.setData('shortDescription',e.editor.getData())}
+                config={{
+                    height: [ '5em' ],
+                    codeSnippet_languages: {
+                      javascript: 'JavaScript',
+                      php: 'PHP'
+                    }
+                }}
+              />
+          </FormGroup>
+          <FormGroup>
+            <Label for="submission-add-desc">Full description</Label>
+              <CKEditor
+                onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) }
+                id="submission-add-desc"
                 data={this.props.data.description}
                 onChange={(e)=>this.setData('description',e.editor.getData())}
                 config={{

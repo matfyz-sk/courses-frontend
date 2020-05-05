@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FormGroup, Label, Input } from 'reactstrap';
+import { FormGroup, Label, Input, Button } from 'reactstrap';
 import moment from 'moment';
 import ErrorMessage from '../../../components/error';
 
@@ -34,6 +34,7 @@ export default class TeamReview extends Component {
 
         <FormGroup>
           <Label htmlFor="submission-add-deadline" >Deadline</Label>
+          <Button className="ml-2 mb-2 p-1" color="primary" onClick={()=>{ this.setData('deadline', this.props.data.openTime ) }}><i className="fa fa-copy clickable" />Copy open time</Button>
           <Input id="submission-add-deadline" type="datetime-local" value={this.props.data.deadline} onChange={(e)=>{this.setData('deadline',e.target.value)}} disabled={this.props.data.disabled}/>
         </FormGroup>
         <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.deadline === '' } message="You must pick the deadline!" />

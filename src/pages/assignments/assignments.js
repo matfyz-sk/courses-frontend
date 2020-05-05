@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import AssignmentView from './assignmentView';
 import AddAssignment from './addAssignment';
+import {logCourses} from './restCalls';
 
 export default class Assignments extends Component{
   constructor(props){
     super(props);
-    console.log('HERE');
-    console.log(props);
     this.state={
       tasks:[
         {id:0,title:'Assignmnent 1',description:'Short description of assignment',deadline:'13.11.2019 23:59',opened:true,submitted:false},
@@ -14,12 +13,13 @@ export default class Assignments extends Component{
         {id:2,title:'Assignmnent 3',description:'Short description of assignment',deadline:'1.1.2019 23:59',opened:false,submitted:true,submissions:[{date:'24.12.2018 21:00',title:'Submission 1'},{date:'24.12.2018 21:45',title:'Submission 2'}]},
       ]
     }
+    //logCourses();
   }
 
   render(){
     return(
       <div className="assignmentsContainer center-ver">
-        <AddAssignment/>
+        <AddAssignment courseID={this.props.match.params.courseID} />
         <h1>
           Assignments
         </h1>

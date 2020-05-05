@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { FormGroup, Label, Input, Button, Table } from 'reactstrap';
+import { FormGroup, Label, Input, Button, Table, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import moment from 'moment';
+import AddNewQuestion from './addNewQuestion';
+import AddExistingQuestion from './addExistingQuestion';
 
 import ErrorMessage from '../../../components/error';
 
@@ -8,8 +10,12 @@ import ErrorMessage from '../../../components/error';
 export default class Reviews extends Component {
   constructor(props){
     super(props);
+    this.state = {
+      addingExistingQuestion: false,
+      addingNewQuestion: false,
+    }
     this.setData.bind(this);
-    this.removeQuestion.bind(this);
+    this.deleteQuestion.bind(this);
   }
 
   setData(parameter,value){
@@ -18,11 +24,9 @@ export default class Reviews extends Component {
     this.props.setData(newData);
   }
 
-  removeQuestion(id){
-    if(window.confirm('Are you sure you want to delete this question?')){
-      let newQuestions=[...this.props.data.questions];
-      newQuestions.splice(newQuestions.findIndex((question)=>question.id===id),1);
-      this.setData('questions',newQuestions);
+  deleteQuestion(question){
+    if(window.confirm(`Are you sure you want to delete question "${question.question}" ?`)){
+      this.props.deleteQuestion(question);
     }
   }
 
@@ -45,6 +49,7 @@ export default class Reviews extends Component {
         <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.openTime===''} message="You must pick an open time!" />
         <FormGroup>
           <Label htmlFor="submission-add-deadline" >Deadline</Label>
+          <Button className="ml-2 mb-2 p-1" color="primary" onClick={()=>{ this.setData('deadline', this.props.data.openTime ) }}><i className="fa fa-copy clickable" />Copy open time</Button>
           <Input id="submission-add-deadline" type="datetime-local" value={this.props.data.deadline} onChange={(e)=>{this.setData('deadline',e.target.value)}} disabled={this.props.data.disabled}/>
         </FormGroup>
         <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.deadline === '' } message="You must pick the deadline!" />
@@ -102,28 +107,76 @@ export default class Reviews extends Component {
             </FormGroup>
           </FormGroup>
         </div>
-        <Button size="sm" color="success">
+
+        <Button size="sm" className="m-2" id="addingExistingQuestionButton" color="primary" onClick={()=> this.setState({ addingExistingQuestion: true }) }>
           <i className="fa fa-plus clickable" />
-          Add questions
+          Add existing question
         </Button>
+
+        <Popover
+          placement='right'
+          isOpen={ this.state.addingExistingQuestion }
+          target={"addingExistingQuestionButton"}
+          toggle={ () => this.setState({ addingExistingQuestion: false }) }
+          className="popover-700 popover-max-height-700"
+          >
+          <PopoverHeader>Adding existing question</PopoverHeader>
+          <PopoverBody>
+            <AddExistingQuestion
+              allQuestions = { this.props.allQuestions }
+              selectedQuestions = { this.props.data.questions }
+              addQuestion={ (question) => {
+                this.props.addQuestion(question);
+              }}
+              closePopover={ () => this.setState({ addingExistingQuestion: false }) }
+              />
+          </PopoverBody>
+        </Popover>
+
+
+        <Button size="sm" className="m-2 m-l-10" color="success" id="addingNewQuestionButton" onClick={()=> this.setState({ addingNewQuestion: true }) }>
+          <i className="fa fa-plus clickable" />
+          Add new question
+        </Button>
+        <Popover
+          placement='right'
+          isOpen={ this.state.addingNewQuestion }
+          target={"addingNewQuestionButton"}
+          className="popover-500"
+          toggle={ () => this.setState({ addingNewQuestion: false }) }
+        >
+          <PopoverHeader>Adding new question</PopoverHeader>
+          <PopoverBody>
+            <AddNewQuestion
+              addQuestion={ (question) => {
+                this.setState({ addingNewQuestion: false });
+                this.props.addQuestion(question);
+              }}
+              closePopover={ () => this.setState({ addingNewQuestion: false }) }
+            />
+          </PopoverBody>
+        </Popover>
+
         <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.questions.length < 1} message="There must be a review question!" />
         <Table>
           <thead>
             <tr>
-              <th>#</th>
               <th>Name</th>
-              <th>
+              <th width="25">Rated</th>
+              <th width="75">Is new</th>
+              <th width="20">
               </th>
             </tr>
           </thead>
           <tbody>
             {this.props.data.questions.map((question)=>
-              <tr key={question.id}>
-                <th scope="row">{question.id}</th>
-                <td>{question.name}</td>
+              <tr key={question['@id']}>
+                <td>{ question.question }</td>
+                <td style={{ textAlign: 'center' }}>{ question.rated ? <i className="fa fa-check green-color" /> : <i className="fa fa-times light-red-color" /> }</td>
+                <td style={{ textAlign: 'center' }}>{ question.new ? <i className="fa fa-check green-color" /> : <i className="fa fa-times light-red-color" /> }</td>
                 <td>
-                  <Button size="sm" color="" onClick={()=>this.removeQuestion(question.id)}>
-                    <i className="fa fa-times clickable" />
+                  <Button size="sm" color=""  className="center-ver" onClick={()=>this.deleteQuestion(question)}>
+                    <i className="fa fa-trash clickable red-color" />
                   </Button>
                 </td>
               </tr>
