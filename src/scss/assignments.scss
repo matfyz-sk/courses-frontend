@@ -71,3 +71,18 @@
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Opera and Firefox */
 }
+.popover-500{
+  min-width: 500px;
+}
+
+.popover-700{
+  min-width: 700px;
+}
+
+.popover-max-height-700{
+  max-height: 700px;
+}
+
+.m-r-285{
+  margin-right: 285px !important;
+}

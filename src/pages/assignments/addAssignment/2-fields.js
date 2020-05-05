@@ -76,7 +76,7 @@ export default class Fields extends Component {
                   data={this.state.description}
                   onChange={(e)=>this.setState({description:e.editor.getData()})}
                   config={{
-                      height: [ '10em' ],
+                      height: [ '5em' ],
                       codeSnippet_languages: {
                         javascript: 'JavaScript',
                         php: 'PHP'

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, NavItem, NavLink, Nav, TabContent, TabPane } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, NavItem, NavLink, Nav, TabContent, TabPane, Alert } from 'reactstrap';
 import classnames from 'classnames';
 import moment from 'moment';
-import {addAssignment} from '../restCalls';
+import { addAssignment, getReviewQuestions, axiosAddEntity } from '../restCalls';
 
 import Info from './0-info';
 import Submission from './1-submission';
@@ -15,6 +15,7 @@ const defaultForm={
   info:{
     name:'',
     description:'',
+    shortDescription:'',
     documents:[{id:1,name:'Document 1',url:'https://www.google.com/search?q=semantika'},{id:2,name:'Document 2',url:'https://www.google.com/search?q=matematika'},{id:3,name:'Document 3',url:'https://www.google.com/search?q=logika'}],
   },
   fields:{
@@ -48,11 +49,7 @@ const defaultForm={
     reviewsPerSubmission:3,
     reviewedByTeam:true,
     visibility:'blind',
-    questions:[
-      {id:1,name:'Question 1'},
-      {id:2,name:'Question 2'},
-      {id:3,name:'Question 3'}
-    ]
+    questions:[]
   },
   teamReviews:{
     disabled:false,
@@ -65,12 +62,15 @@ const defaultForm={
 export default class ModalAdd extends Component {
   constructor(props){
     super(props);
-    this.state={
+    this.state = {
       activeTab:'1',
-      opened:false,
-      showErrors:false,
+      opened: false,
+      showErrors: true,
       ...defaultForm,
+      allQuestions: [],
+      questionsLoaded: false
     }
+    this.newQuestionID = 0;
     this.toggle.bind(this);
     this.canSave.bind(this);
     this.infoOK.bind(this);
@@ -80,8 +80,40 @@ export default class ModalAdd extends Component {
     this.teamReviewsOK.bind(this);
   }
 
+  getNewQuestionID(){
+    return this.newQuestionID++;
+  }
+
+  deleteQuestion(question){
+    let reviews = { ...this.state.reviews };
+    reviews.questions = reviews.questions.filter((question2) => question2.id !== question.id )
+    this.setState({ reviews })
+  }
+
+  addQuestion( questionData ){
+    let question = {... questionData }
+    if( questionData.new === undefined ){
+      question.new = true;
+      question['@id'] = '#n-' + this.getNewQuestionID();
+    }
+    let reviews = { ...this.state.reviews };
+    reviews.questions.push(question);
+    if( question.new ){
+      this.setState({ reviews, allQuestions: [ ...this.state.allQuestions, question ] })
+    }else{
+      this.setState({ reviews })
+    }
+  }
+
   toggle(){
-    this.setState({opened:!this.state.opened})
+    let isOpen = this.state.opened;
+    this.setState({opened:!this.state.opened, questionsLoaded: false })
+    if(!isOpen){
+      getReviewQuestions().then((questions)=>{
+        console.log(questions.response.data['@graph']);
+        this.setState({questionsLoaded: true, allQuestions: questions.response.data['@graph'] });
+      })
+    }
   }
 
   setDefaults(){
@@ -169,6 +201,18 @@ export default class ModalAdd extends Component {
   }
 
   submitAssignment(){
+    addAssignment(
+      {
+        info: this.state.info,
+        fields: this.state.fields,
+        submission: this.state.submission,
+        teams: this.state.teams,
+        reviews: this.state.reviews,
+        teamReviews: this.state.teamReviews,
+      },
+      this.props.courseID
+    );
+    return;
     this.toggle();
     this.setState(defaultForm);
   }
@@ -234,7 +278,11 @@ export default class ModalAdd extends Component {
               </NavItem>
             }
             </Nav>
-            <TabContent activeTab={this.state.activeTab}>
+            <Alert color="primary" isOpen={!this.state.questionsLoaded}>
+              Data is loading!
+            </Alert>
+            { this.state.questionsLoaded &&
+              <TabContent activeTab={this.state.activeTab}>
               <TabPane tabId="1">
                 <Info data={this.state.info} showErrors={this.state.showErrors} setData={(info)=>{this.setState({info})}} />
               </TabPane>
@@ -258,19 +306,19 @@ export default class ModalAdd extends Component {
                 <Teams data={this.state.teams} showErrors={this.state.showErrors} setData={(teams)=>{this.setState({teams})}} />
               </TabPane>
               <TabPane tabId="5">
-                <Reviews data={this.state.reviews} showErrors={this.state.showErrors} openDisabled={this.state.submission.anonymousSubmission} setData={(reviews)=>{this.setState({reviews})}}/>
+                <Reviews data={this.state.reviews} allQuestions={this.state.allQuestions} addQuestion={ this.addQuestion.bind(this) }  deleteQuestion={ this.deleteQuestion.bind(this) } showErrors={this.state.showErrors} openDisabled={this.state.submission.anonymousSubmission} setData={(reviews)=>{this.setState({reviews})}}/>
               </TabPane>
               <TabPane tabId="6">
                 <TeamReviews data={this.state.teamReviews} showErrors={this.state.showErrors} setData={(teamReviews)=>{this.setState({teamReviews})}}/>
               </TabPane>
             </TabContent>
+          }
           </ModalBody>
           <ModalFooter>
             <span className="mr-auto">
               <Button outline color="secondary" onClick={this.toggle.bind(this)}>Cancel</Button>
             </span>
             <span>
-              {!this.canSave() && <Button color="link" className={classnames({ "red-text":!this.state.showErrors,"grey-text":this.state.showErrors})} onClick={()=>{this.setState({showErrors:!this.state.showErrors})}}><i className="fa fa-info-circle" /> Show errors</Button>}
               <Button color="danger" onClick={this.setDefaults.bind(this)}>Reset</Button>{' '}
               <Button color="primary" disabled={this.state.activeTab==="1"} onClick={()=>this.setState({activeTab:(parseInt(this.state.activeTab)-1)+""})}>Prev</Button>{' '}
               <Button color="primary" disabled={this.state.activeTab==="6"} onClick={()=>{ this.setState({activeTab:(parseInt(this.state.activeTab)+1)+""});}}>Next</Button>{' '}
