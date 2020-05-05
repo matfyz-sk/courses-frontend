@@ -112,11 +112,7 @@ class CoursesPageBase extends Component {
             // eslint-disable-next-line no-nested-ternary
             course.admin = course.hasAdmin
               ? Array.isArray(course.hasAdmin)
-                ? course.hasAdmin
-                    .map(admin => admin['@id'])
-                    .findIndex(admin => {
-                      return admin === user.fullURI
-                    }) > -1
+                ? course.hasAdmin.includes(user.fullURI)
                 : course.hasAdmin === user.fullURI
               : false
           }

@@ -80,6 +80,7 @@ class Timeline extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { user, course } = this.props
+    console.log(course)
     if(prevProps.user !== user || prevProps.course !== course) {
       if(course && user && getInstructorRights(user, course)) {
         this.setState({

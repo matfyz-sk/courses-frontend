@@ -76,12 +76,24 @@ export const getInstructorRights = (user, courseInstance ) => {
       return true
     }
     const instructors = courseInstance.hasInstructor.map(i => i['@id'])
-    if (instructors.includes(user.fullURI)) {
-      return true
+    if (Array.isArray(instructors) ) {
+      if (instructors.includes(user.fullURI)) {
+        return true
+      }
+    } else {
+      if (instructors === user.fullURI) {
+        return true
+      }
     }
     const admins = courseInstance.instanceOf.hasAdmin
-    if (admins.includes(user.fullURI)) {
-      return true
+    if (Array.isArray(admins) ) {
+      if (admins.includes(user.fullURI)) {
+        return true
+      }
+    } else {
+      if (admins === user.fullURI) {
+        return true
+      }
     }
   }
   return false
