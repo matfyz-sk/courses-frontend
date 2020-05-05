@@ -51,7 +51,7 @@ class NavigationCourseClass extends React.Component {
     if (courseID.indexOf('/') !== -1) {
       courseID = courseID.substring(0, courseID.indexOf('/'))
     }
-    const ASSIGNMENTS = '/course/' + courseID + '/assignments'
+    const ASSIGNMENTS = '/courses/' + courseID + '/assignments'
 
     return (
       <Navbar className="sub-nav" expand="md">
