@@ -133,3 +133,18 @@
     }
   }
 }
+
+.teacher-menu {
+  .list-group-item {
+    &.active {
+      background: inherit;
+      a {color: #1d661d;}
+    }
+    a {
+      &:hover {
+        text-decoration: none;
+        color: #1d661d;
+      }
+    }
+  }
+}

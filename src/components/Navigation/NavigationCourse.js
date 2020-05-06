@@ -17,6 +17,7 @@ import * as ROUTES from '../../constants/routes'
 import RightArrow from './assets/next.svg'
 import Bars from './assets/bars.png'
 import { redirect } from '../../constants/redirect'
+import Settings from './assets/settings.svg'
 
 class NavigationCourseClass extends React.Component {
   constructor(props) {
@@ -24,14 +25,23 @@ class NavigationCourseClass extends React.Component {
 
     this.toggle = this.toggle.bind(this)
     this.state = {
-      isOpen: false,
+      isOpen: [false, false],
       courseId: props.courseId,
     }
   }
 
-  toggle() {
+  toggle(teacherNav = true) {
+    const { isOpen } = this.state
+    if(teacherNav) {
+      isOpen[1] = !isOpen[1]
+      isOpen[0] = false
+    }
+    else {
+      isOpen[0] = !isOpen[0]
+      isOpen[1] = false
+    }
     this.setState({
-      isOpen: !this.state.isOpen,
+      isOpen,
     })
   }
 
@@ -45,13 +55,30 @@ class NavigationCourseClass extends React.Component {
 
   render() {
     const current = this.props.navReducer.current.sub
-    const { privileges } = this.props
+    const { privileges, teacherNav } = this.props
 
     let courseID = this.props.history.location.pathname.substring(8)
     if (courseID.indexOf('/') !== -1) {
       courseID = courseID.substring(0, courseID.indexOf('/'))
     }
-    const ASSIGNMENTS = '/courses/' + courseID + '/assignments'
+    const ASSIGNMENTS = `/courses/${courseID}/assignments`
+
+    const teacherMenu = []
+    for (let i = 0; i < teacherNav.menu.length; i++) {
+      teacherMenu.push(
+        <NavItem key={`mobile-nav ${teacherNav.menu[i].key}`}>
+          <NavLink
+            activeClassName="is-active"
+            to={teacherNav.menu[i].href}
+            className={`nav-link nav-button ${
+              teacherNav.current === teacherNav.menu[i].key ? 'is-active' : ''
+            }`}
+          >
+            {teacherNav.menu[i].name}
+          </NavLink>
+        </NavItem>
+      )
+    }
 
     return (
       <Navbar className="sub-nav" expand="md">
@@ -98,11 +125,17 @@ class NavigationCourseClass extends React.Component {
           </UncontrolledDropdown>
         </div>
 
-        <NavbarToggler onClick={this.toggle}>
+        {teacherNav.menu.length > 0 ? (
+          <NavbarToggler onClick={() => this.toggle(true)} className="ml-auto">
+            <img src={Settings} alr="bars" style={{ width: '30px' }} />
+          </NavbarToggler>
+        ) : null}
+
+        <NavbarToggler onClick={() => this.toggle(false)}>
           <img src={Bars} alr="bars" style={{ width: '30px' }} />
         </NavbarToggler>
 
-        <Collapse isOpen={this.state.isOpen} navbar>
+        <Collapse isOpen={this.state.isOpen[0]} navbar>
           <Nav>
             <NavItem>
               <NavLink
@@ -181,15 +214,23 @@ class NavigationCourseClass extends React.Component {
             ) : null}
           </Nav>
         </Collapse>
+
+        <Collapse isOpen={this.state.isOpen[1]} navbar>
+          <Nav>
+            {teacherMenu}
+          </Nav>
+        </Collapse>
+
       </Navbar>
     )
   }
 }
 
-const mapStateToProps = ({ navReducer, privilegesReducer }) => {
+const mapStateToProps = ({ navReducer, privilegesReducer, teacherNavReducer }) => {
   return {
     navReducer,
     privileges: privilegesReducer,
+    teacherNav: teacherNavReducer,
   }
 }
 

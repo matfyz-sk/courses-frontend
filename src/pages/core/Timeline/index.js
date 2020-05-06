@@ -18,6 +18,7 @@ import './Timeline.css'
 import { BASE_URL, EVENT_URL } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
+import TeacherNavigation from '../../../components/Navigation/TeacherNavigation'
 
 const scroller = Scroll.scroller
 
@@ -95,6 +96,10 @@ class Timeline extends Component {
     const { course, user } = this.props
     const courseId = course ? getShortId(course['@id']) : ''
 
+    const adminMenuRoutes = [
+      { key: 1, name: 'Pridať Kurz', href: '////' },
+      { key: 2, name: 'Upraviť Kurz', href: '////'},
+    ]
     return (
       <>
         {eventsSorted.length === 0 ? (
@@ -139,6 +144,7 @@ class Timeline extends Component {
                   isAdmin={hasAccess}
                 />
               </Col>
+              <TeacherNavigation currentKey={1} href_array={adminMenuRoutes} />
             </Row>
           </Container>
         )}
