@@ -8,7 +8,7 @@ import UserDropdown from './types/UserDropdown';
 import NotLoggedOnly from './types/VisitorOnlyMenu';
 
 import './assets/Navigation.scss';
-import logo from './assets/logo.svg';
+import logo from './assets/matfyz-logo.svg';
 import {getUserAvatar, getUserName} from "../Auth";
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -20,7 +20,8 @@ class MainNavigation extends Component {
     return (
       <Navbar expand="md" className="main-nav">
         <Link className="navbar-brand" to="/dashboard">
-          <img src={logo} alt="logo" /> MATFYZ.sk
+          <img src={logo} alt="logo" />
+          <span className="d-none d-sm-inline-block">MATFYZ.sk</span>
         </Link>
         <Nav navbar>
           {!authenticated ? <NotLoggedOnly current={current} /> : null}

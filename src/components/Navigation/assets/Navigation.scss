@@ -12,8 +12,8 @@
       color: $white;
       height: $header-height;
       padding-top: 10px;
-      padding-right: 1rem !important;
-      padding-left: 1rem !important;
+      padding-right: 1rem;
+      padding-left: 1rem;
       transition: background-color 300ms ease-in-out;
       &.navbar-brand {
         padding-top: 5px;
@@ -21,7 +21,8 @@
         img {
           width: auto;
           height: 40px;
-          margin-right: 10px;
+          margin-right: 3px;
+          padding: 3px;
         }
       }
       &:hover {
@@ -93,6 +94,42 @@
       &:hover {
         background-color: rgba(0,0,0,.05);
       }
+    }
+  }
+}
+
+.navbar-nav .dropdown-menu {
+  position: absolute;
+  float: left;
+}
+.profile-settings{
+  @media only screen and (max-width: 767px) {
+    padding-right: 1.8rem !important;
+    &:after{
+      position: absolute;
+      right: 10px;
+      top: 21px;
+    }
+  }
+
+}
+.profile-icon {
+  border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  width: 30px;
+  height: 30px;
+  margin-top: -2px;
+  text-align: center;
+  padding-top: 3px;
+}
+
+.sub-nav .navbar-collapse {
+  .nav .nav-item {
+    text-align: left;
+    font-weight: 400;
+    border: 0;
+    a {
+      border: 0;
     }
   }
 }

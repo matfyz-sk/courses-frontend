@@ -2,6 +2,7 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { NavItem } from 'reactstrap'
 import { NEW_COURSE } from '../../../constants/routes'
+import DashboardIcon from '../assets/dashboard.svg'
 
 const AuthOnlyMenu = props => {
   const { current, user } = props
@@ -16,7 +17,14 @@ const AuthOnlyMenu = props => {
             current === 'dashboard' ? 'active' : ''
           }`}
         >
-          Dashboard
+          <div className="d-md-none d-sm-inline-block h-100">
+            <img
+              src={DashboardIcon}
+              alt="dashboard-icon"
+              className="h-100"
+            />
+          </div>
+          <div className="d-none d-md-inline-block">Dashboard</div>
         </NavLink>
       </NavItem>
       {user && user.isSuperAdmin && (
