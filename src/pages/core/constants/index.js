@@ -9,6 +9,16 @@ export const INITIAL_COURSE_STATE = {
   admins: [],
 }
 
+export const INITIAL_INFO_STATE = {
+  name: '',
+  description: '',
+  abbreviation: '',
+  prerequisites: [],
+  startDate: new Date(),
+  endDate: new Date(),
+  instructors: [],
+}
+
 export const INITIAL_EVENT_STATE = {
   id: '',
   fullId: '',

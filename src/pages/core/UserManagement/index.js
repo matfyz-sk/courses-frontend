@@ -17,6 +17,7 @@ class UserManagement extends Component {
       courseFullId: '',
       requestedUsers: [],
       enrolledUsers: [],
+      loading: true,
     }
   }
 
@@ -25,6 +26,8 @@ class UserManagement extends Component {
     if (this.props.course != null) {
       this.setState({
         courseFullId: this.props.course['@id'],
+        loading: false,
+
       })
     }
   }
@@ -35,6 +38,7 @@ class UserManagement extends Component {
       if (this.props.course != null) {
         this.setState({
           courseFullId: this.props.course['@id'],
+          loading: false,
         })
       }
     }
@@ -175,7 +179,15 @@ class UserManagement extends Component {
   }
 
   render() {
-    const { enrolledUsers, requestedUsers } = this.state
+    const { enrolledUsers, requestedUsers, loading } = this.state
+
+    if (loading) {
+      return (
+        <Alert color="secondary" className="empty-message">
+          Loading...
+        </Alert>
+      )
+    }
 
     return (
       <div>

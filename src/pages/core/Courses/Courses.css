@@ -176,29 +176,6 @@ a.active.nav-link .tab {
 }
 
 @media only screen and (max-width: 767px) {
-  .admin-tabs {
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .admin-tabs .nav-link {
-    border: 1px solid transparent;
-    border-color: #dee2e6 #dee2e6 #fff;
-  }
-
-  .admin-tabs .nav-link.active {
-    border: 1px solid transparent;
-    border-color: #dee2e6 #dee2e6 #fff;
-    font-weight: bold;
-  }
-
-  .admin-tabs .nav-link:hover {
-    color: #005005;
-  }
-}
-
-@media only screen and (max-width: 520px) {
   .nav-tabs {
     display: flex;
     flex-direction: column;

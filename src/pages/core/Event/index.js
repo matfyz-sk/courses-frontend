@@ -5,7 +5,7 @@ import {
   CardSubtitle,
   CardHeader,
   CardBody,
-  Table,
+  Table, Alert,
 } from 'reactstrap'
 import { connect } from 'react-redux'
 import { NavLink, Redirect } from 'react-router-dom'
@@ -37,6 +37,7 @@ class Event extends React.Component {
       event: INITIAL_EVENT_STATE,
       redirectTo: null,
       hasAccess: false,
+      loading: true,
     }
   }
 
@@ -58,6 +59,9 @@ class Event extends React.Component {
     }?_join=courseInstance,uses,recommends`
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
+      this.setState({
+        loading: false,
+      })
       if (data != null && data !== []) {
         const event = data.map(eventData => {
           return {
@@ -124,11 +128,18 @@ class Event extends React.Component {
   }
 
   render() {
-    const { event, redirectTo, hasAccess } = this.state
-    const { user } = this.props
+    const { event, redirectTo, hasAccess, loading } = this.state
 
     if (redirectTo) {
       return <Redirect to={redirectTo} />
+    }
+
+    if (loading) {
+      return (
+        <Alert color="secondary" className="empty-message">
+          Loading...
+        </Alert>
+      )
     }
 
     // const isAdmin = user ? user.isSuperAdmin : false

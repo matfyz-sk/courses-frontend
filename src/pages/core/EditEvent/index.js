@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Card, CardHeader, CardBody } from 'reactstrap'
+import {Container, Card, CardHeader, CardBody, Alert} from 'reactstrap'
 import EventForm from '../EventForm'
 import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
@@ -10,7 +10,7 @@ import { NOT_FOUND } from '../../../constants/routes'
 class EditEvent extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { event: INITIAL_EVENT_STATE, redirect: null, courseId: '' }
+    this.state = { event: INITIAL_EVENT_STATE, redirect: null, courseId: '', loading: true }
   }
 
   componentDidMount() {
@@ -27,6 +27,9 @@ class EditEvent extends React.Component {
     }?_join=hasInstructor,uses,recommends`
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
+      this.setState({
+        loading: false,
+      })
       if (data != null) {
         const event = data.map(eventData => {
           return {
@@ -101,10 +104,18 @@ class EditEvent extends React.Component {
   }
 
   render() {
-    const { event, redirect } = this.state
+    const { event, redirect, loading } = this.state
 
     if (redirect) {
       return <Redirect to={redirect} />
+    }
+
+    if (loading) {
+      return (
+        <Alert color="secondary" className="empty-message">
+          Loading...
+        </Alert>
+      )
     }
 
     return (

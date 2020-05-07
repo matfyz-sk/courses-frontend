@@ -27,102 +27,140 @@ import TeamDetail from './Teams/TeamDetail'
 import NewCourseInstance from './NewCourseInstance'
 import CreateTeam from './Teams/CreateTeam'
 import TeamInstance from './Teams/TeamInstance'
+import InfoPage from './InfoPage'
 
 const CoreRoutes = [
   <RouteWrapper
+    key={ROUTES.DASHBOARD}
     path={ROUTES.DASHBOARD}
     component={LandingPage}
     layout={CourseLayout}
     auth
   />,
   <StudentRoute
+    key={ROUTES.TIMELINE}
     path={ROUTES.TIMELINE}
     component={Timeline}
     layout={CourseLayout}
     auth
   />,
   <RouteWrapper
+    key={ROUTES.COURSE_TEAM_EDIT}
     path={ROUTES.COURSE_TEAM_EDIT}
     component={CreateTeam}
     layout={CourseLayout}
     auth
   />,
   <RouteWrapper
+    key={ROUTES.COURSE_TEAM_CREATE}
     path={ROUTES.COURSE_TEAM_CREATE}
     component={CreateTeam}
     layout={CourseLayout}
     auth
   />,
   <RouteWrapper
+    key={ROUTES.COURSE_TEAM_INSTANCE_CREATE}
     path={ROUTES.COURSE_TEAM_INSTANCE_CREATE}
     component={TeamDetail}
     layout={CourseLayout}
     auth
   />,
   <RouteWrapper
+    key={ROUTES.COURSE_TEAMS_DETAIL}
     path={ROUTES.COURSE_TEAMS_DETAIL}
     component={TeamDetail}
     layout={CourseLayout}
     auth
   />,
   <RouteWrapper
+    key={ROUTES.COURSE_TEAM_INSTANCE}
     path={ROUTES.COURSE_TEAM_INSTANCE}
     component={TeamInstance}
     layout={CourseLayout}
     auth
   />,
   <RouteWrapper
+    key={ROUTES.COURSE_TEAMS}
     path={ROUTES.COURSE_TEAMS}
     component={Teams}
     layout={CourseLayout}
     auth
   />,
-  <PrivateOnlyRoute path={ROUTES.PROFILE_SETTINGS} component={Profile} />,
+  <PrivateOnlyRoute
+    key={ROUTES.PROFILE_SETTINGS}
+    path={ROUTES.PROFILE_SETTINGS}
+    component={Profile}
+  />,
 
-  <PrivateOnlyRoute path="/dashboard" component={LandingPage} />,
+  <PrivateOnlyRoute
+    key="/dashboard"
+    path="/dashboard"
+    component={LandingPage}
+  />,
 
   <InstructorRoute
+    key={ROUTES.CREATE_TIMELINE}
     path={ROUTES.CREATE_TIMELINE}
     component={CreateTimeline}
     layout={CourseLayout}
   />,
   <StudentRoute
+    key={ROUTES.EVENT_ID}
     path={ROUTES.EVENT_ID}
     component={Event}
     layout={CourseLayout}
     auth
   />,
   <InstructorRoute
+    key={ROUTES.EDIT_EVENT_ID}
     path={ROUTES.EDIT_EVENT_ID}
     component={EditEvent}
     layout={CourseLayout}
   />,
   <InstructorRoute
+    key={ROUTES.NEW_EVENT}
     path={ROUTES.NEW_EVENT}
     component={NewEvent}
     layout={CourseLayout}
   />,
   <InstructorRoute
+    key={ROUTES.USER_MANAGEMENT}
     path={ROUTES.USER_MANAGEMENT}
     component={UserManagement}
     layout={CourseLayout}
   />,
   <InstructorRoute
+    key={ROUTES.COURSE_MIGRATION}
     path={ROUTES.COURSE_MIGRATION}
     component={CourseMigration}
     layout={CourseLayout}
   />,
   <RouteWrapper
+    key={ROUTES.ASSIGNMENTS}
     path={ROUTES.ASSIGNMENTS}
     component={Assignments}
     layout={CourseLayout}
     auth
   />,
-  <Route path={ROUTES.COURSES} component={CoursesPage} />,
-  <AdminRoute path={ROUTES.COURSE_ID} component={Course} />,
-  <SuperAdminRoute path={ROUTES.NEW_COURSE} component={NewCourse} />,
-  <AdminRoute path={ROUTES.EDIT_COURSE_ID} component={EditCourse} />,
+  <Route key={ROUTES.COURSES} path={ROUTES.COURSES} component={CoursesPage} />,
+  <Route key={ROUTES.INFO_PAGE} path={ROUTES.INFO_PAGE} component={InfoPage} />,
   <AdminRoute
+    key={ROUTES.COURSE_ID}
+    path={ROUTES.COURSE_ID}
+    component={Course}
+  />,
+  <SuperAdminRoute
+    key={ROUTES.NEW_COURSE}
+    path={ROUTES.NEW_COURSE}
+    component={NewCourse}
+  />,
+  <AdminRoute
+    key={ROUTES.EDIT_COURSE_ID}
+    path={ROUTES.EDIT_COURSE_ID}
+    component={EditCourse}
+  />,
+  <AdminRoute
+    key={ROUTES.NEW_COURSE_INSTANCE}
     path={ROUTES.NEW_COURSE_INSTANCE}
     component={NewCourseInstance}
   />,

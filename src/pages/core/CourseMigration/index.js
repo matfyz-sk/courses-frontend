@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardBody, CardHeader, Container } from 'reactstrap'
+import { Alert, Card, CardBody, CardHeader, Container } from 'reactstrap'
 import './CourseMigration.css'
 import { connect } from 'react-redux'
 import { MultiStepForm } from '../MultiStepForm'
@@ -7,9 +7,19 @@ import { BASE_URL, EVENT_URL, INITIAL_MIGRATION_STATE } from '../constants'
 import { getShortId } from '../Helper'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { getEvents, sortEventsFunction } from '../Timeline/timeline-helper'
-import { setCourseMigrationState, setCourseMigrationAllEvents } from '../../../redux/actions'
+import {
+  setCourseMigrationState,
+  setCourseMigrationAllEvents,
+} from '../../../redux/actions'
 
 class CourseMigration extends React.Component {
+  constructor() {
+    super()
+
+    this.state = {
+      loading: true,
+    }
+  }
 
   componentDidMount() {
     if (!this.props.initialized) {
@@ -66,6 +76,9 @@ class CourseMigration extends React.Component {
 
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
+      this.setState({
+        loading: false,
+      })
       if (data != null && data !== []) {
         const allEvents = getEvents(data).sort(sortEventsFunction)
 
@@ -76,6 +89,15 @@ class CourseMigration extends React.Component {
 
   render() {
     const { courseInstance } = this.props
+    const { loading } = this.state
+
+    if (loading) {
+      return (
+        <Alert color="secondary" className="empty-message">
+          Loading...
+        </Alert>
+      )
+    }
 
     return (
       <>
@@ -103,6 +125,7 @@ const mapStateToProps = ({ courseInstanceReducer, courseMigrationReducer }) => {
   }
 }
 
-export default connect(mapStateToProps, { setCourseMigrationState, setCourseMigrationAllEvents })(
-  CourseMigration
-)
+export default connect(mapStateToProps, {
+  setCourseMigrationState,
+  setCourseMigrationAllEvents,
+})(CourseMigration)
