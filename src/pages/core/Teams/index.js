@@ -18,7 +18,7 @@ class Teams extends Component {
   }
 
   componentDidMount() {
-    fetch(`${BACKEND_URL}/data/team?courseInstance=${this.state.course_id}&_join=createdBy`, {
+    fetch(`${BACKEND_URL}/data/team?courseInstance=${this.state.course_id}&_orderBy=name`, {
         method: 'GET',
         headers: authHeader(),
         mode: 'cors',
@@ -48,18 +48,9 @@ class Teams extends Component {
         render_teams.push(
           <tr
             key={`team-${i}`}
-            className={
-              dateCompare(team.dateFrom, '<>', new Date(), team.dateTo)
-                ? ''
-                : 'text-muted'
-            }
           >
             <th>{team.name}</th>
-            <td>{`${team.minUsers} - ${team.maxUsers}`}</td>
-            <td>
-              {`${formatDate(team.dateFrom)} - ${formatDate(team.dateTo)}`}
-            </td>
-            <td>createdBy</td>
+            <td>{`${team.courseInstance.length} ${team.courseInstance.length > 1 ? 'users' : 'user'}`}</td>
             <td>{formatDate(team.createdAt)}</td>
             <td>
               {privileges.inCourseInstance !== 'student' ? (
@@ -107,18 +98,16 @@ class Teams extends Component {
               { key: 'course_id', value: course_id },
             ])}
           >
-            Create new team group
+            Create new team
           </Link>
         ) : null}
         <Table hover>
           <thead>
             <tr>
               <th>Team name</th>
-              <th>Users limit</th>
-              <th>Registration range</th>
-              <th>Creator</th>
+              <th>Users in team</th>
               <th>Created at</th>
-              <th></th>
+              <th />
             </tr>
           </thead>
           <tbody>{render_teams}</tbody>

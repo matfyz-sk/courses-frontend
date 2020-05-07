@@ -12,15 +12,13 @@ import {
   Input,
   Label,
   Row,
-} from 'reactstrap';
+} from 'reactstrap'
 import {
   emailValidator,
-  passwordValidator,
   textValidator,
 } from '../../../functions/validators'
-import {authHeader, getUser, getUserID, setUserProfile} from '../../../components/Auth';
+import { authHeader, getUserID, setUserProfile} from '../../../components/Auth';
 import { BACKEND_URL } from '../../../configuration/api'
-import {store} from "../../../index";
 
 class Profile extends Component {
   constructor(props) {
@@ -29,10 +27,12 @@ class Profile extends Component {
     this.validation = this.validation.bind(this)
     this.handleInputChange = this.handleInputChange.bind(this)
     this.fetchCurrentData = this.fetchCurrentData.bind(this)
+    this.handleToggleNickException = this.handleToggleNickException.bind(this)
     this.state = {
       user: null,
       errors: {},
       be_error: null,
+      success: false,
     }
   }
 
@@ -78,32 +78,39 @@ class Profile extends Component {
   }
 
   handleSubmit() {
-    console.log(authHeader());
     if (this.validation()) {
-      const { user } = this.state;
+      const { user } = this.state
+      const updatedAttrs = [
+        'firstName', 'lastName', 'description', 'email', 'description',
+        'nickname', 'useNickName', 'nickNameTeamException', 'allowContact', 'publicProfile', 'showBadges', 'showCourses'
+      ]
+      const body = {}
+      for (let i = 0; i < updatedAttrs.length; i++) {
+        body[updatedAttrs[i]] = user[updatedAttrs[i]]
+      }
+
       fetch(`${BACKEND_URL}/data/user/${getUserID()}`, {
         method: 'PATCH',
-        header: authHeader(),
+        headers: authHeader(),
         mode: 'cors',
         credentials: 'omit',
-        body: JSON.stringify(user),
+        body: JSON.stringify(body),
       })
         .then(response => {
           if (!response.ok) throw new Error(response)
           else return response.json()
         })
         .then(data => {
-          const _user = {
-            firstName: user.firstName,
-            lastName: user.lastName,
-            description: user.description,
-            nickname: user.nickname,
-            useNickName: user.useNickName,
-            email: user.email,
-          }
-          setUserProfile(_user)
+          this.setState({success: true})
+          setUserProfile(body)
         })
     }
+  }
+
+  handleToggleNickException() {
+    const { user } = this.state
+    user.nickNameTeamException = !user.nickNameTeamException
+    this.setState({ user })
   }
 
   fetchCurrentData() {
@@ -126,11 +133,12 @@ class Profile extends Component {
   }
 
   render() {
-    const { user, errors, be_error } = this.state
+    const { user, errors, be_error, success } = this.state
     return (
       <Container>
         <h1 className="mb-5">Profile settings</h1>
         {be_error ? <Alert color="danger">Error!{be_error}</Alert> : null}
+        {success ? <Alert color="success">Profile has been updated!</Alert> : null}
         <Row>
           <Col sm={6} xs={12} key="col1">
             <h3>Basic information</h3>
@@ -271,6 +279,30 @@ class Profile extends Component {
                   <FormFeedback tooltip>
                     {errors && errors.nickname ? errors.nickname.msg : ''}
                   </FormFeedback>
+                </FormGroup>
+                <FormGroup check>
+                  <Input
+                    type="checkbox"
+                    name="nickNameTeamException"
+                    id="nickNameTeamException-teacher"
+                    onChange={() => this.handleToggleNickException()}
+                    checked={user ? !user.nickNameTeamException : false}
+                  />
+                  <Label for="nickNameTeamException-teacher" check>
+                    Only teacher can see my real name
+                  </Label>
+                </FormGroup>
+                <FormGroup check>
+                  <Input
+                    type="checkbox"
+                    name="nickNameTeamException"
+                    id="nickNameTeamException"
+                    onChange={() => this.handleToggleNickException()}
+                    checked={user ? user.nickNameTeamException : false}
+                  />
+                  <Label for="nickNameTeamException" check>
+                    Only teacher <b>and my team members</b> can see my real name
+                  </Label>
                 </FormGroup>
               </Collapse>
 
