@@ -1,6 +1,7 @@
 import React from 'react'
 import { Route, Redirect, withRouter } from 'react-router-dom'
 import { getUser } from '../../components/Auth'
+import {connect} from "react-redux";
 
 function SuperAdminRoute({ component: Component, ...rest }) {
   const user = getUser()
@@ -12,11 +13,17 @@ function SuperAdminRoute({ component: Component, ...rest }) {
         user && user.isSuperAdmin ? (
           <Component {...props} />
         ) : (
-          <Redirect to="/accessdenied" />
+          <Redirect to="/" />
         )
       }
     />
   )
 }
 
-export default withRouter(SuperAdminRoute)
+const mapStateToProps = ({ authReducer }) => {
+  return {
+    token: authReducer._token,
+  }
+}
+
+export default withRouter(connect(mapStateToProps)(SuperAdminRoute))

@@ -4,6 +4,7 @@ import { getUser } from '../../components/Auth'
 import { BASE_URL, COURSE_INSTANCE_URL } from '../../pages/core/constants'
 import { axiosRequest, getData } from '../../pages/core/AxiosRequests'
 import { getShortId } from '../../pages/core/Helper'
+import {connect} from "react-redux";
 
 class InstructorRoute extends React.Component {
   state = {
@@ -12,6 +13,10 @@ class InstructorRoute extends React.Component {
   }
 
   componentDidMount() {
+    this.haveAccess()
+  }
+
+  haveAccess = () => {
     const {
       computedMatch: { params },
     } = this.props
@@ -75,6 +80,12 @@ class InstructorRoute extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.token !== this.props.token) {
+      this.haveAccess()
+    }
+  }
+
   render() {
     const { component: Component, layout: Layout, ...rest } = this.props
     const { loaded, haveAccess } = this.state
@@ -88,7 +99,7 @@ class InstructorRoute extends React.Component {
               <Component {...props} />
             </Layout>
           ) : (
-            <Redirect to="/accessdenied" />
+            <Redirect to="/" />
           )
         }}
       />
@@ -96,4 +107,10 @@ class InstructorRoute extends React.Component {
   }
 }
 
-export default withRouter(InstructorRoute)
+const mapStateToProps = ({ authReducer }) => {
+  return {
+    token: authReducer._token,
+  }
+}
+
+export default withRouter(connect(mapStateToProps)(InstructorRoute))

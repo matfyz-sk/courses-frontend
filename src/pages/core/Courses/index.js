@@ -26,6 +26,7 @@ import { axiosRequest, getData } from '../AxiosRequests'
 import { BASE_URL, COURSE_INSTANCE_URL, COURSE_URL } from '../constants'
 import DeleteCourseModal from '../DeleteCourseModal'
 import { redirect } from '../../../constants/redirect'
+import { NEW_COURSE } from '../../../constants/routes'
 
 class CoursesPageBase extends Component {
   constructor(props) {
@@ -377,6 +378,14 @@ class CoursesPageBase extends Component {
             )}
           </TabContent>
         </div>
+        {user && user.isSuperAdmin && (
+          <NavLink
+            to={NEW_COURSE}
+            className='new-course-button-container'
+          >
+            <Button className='new-course-button'>New Course</Button>
+          </NavLink>
+        )}
       </main>
     )
   }
@@ -440,7 +449,7 @@ const CoursesList = ({
                   />
                 ) : (
                   <>
-                    <span className="name">{course.name}</span>
+                    <span className="course-name">{course.name}</span>
                     <br />
                     <span className="about">{course.desc}</span>
                   </>
@@ -490,9 +499,9 @@ const CoursesList = ({
 const NavLinkCourse = ({ course, to, id }) => (
   <>
     <NavLink to={redirect(to, [{ key: 'course_id', value: id }])}>
-      <span className="name">{course.name}</span>
+      <span className="course-name">{course.name}</span>
       <br />
-      <span className="about">{course.desc}</span>
+      <span className="course-desc">{course.desc}</span>
     </NavLink>
   </>
 )

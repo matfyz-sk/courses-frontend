@@ -69,14 +69,14 @@ export const getShortId = id => {
   return id.substring(id.length - 5)
 }
 
-export const getInstructorRights = (user, courseInstance ) => {
+export const getInstructorRights = (user, courseInstance) => {
   // const { user, courseInstance } = this.props
   if (user) {
     if (user.isSuperAdmin) {
       return true
     }
     const instructors = courseInstance.hasInstructor.map(i => i['@id'])
-    if (Array.isArray(instructors) ) {
+    if (Array.isArray(instructors)) {
       if (instructors.includes(user.fullURI)) {
         return true
       }
@@ -86,7 +86,7 @@ export const getInstructorRights = (user, courseInstance ) => {
       }
     }
     const admins = courseInstance.instanceOf.hasAdmin
-    if (Array.isArray(admins) ) {
+    if (Array.isArray(admins)) {
       if (admins.includes(user.fullURI)) {
         return true
       }

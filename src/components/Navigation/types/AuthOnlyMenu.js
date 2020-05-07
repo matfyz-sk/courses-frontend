@@ -27,17 +27,17 @@ const AuthOnlyMenu = props => {
           <div className="d-none d-md-inline-block">Dashboard</div>
         </NavLink>
       </NavItem>
-      {user && user.isSuperAdmin && (
-        <NavItem>
-          <NavLink
-            to={NEW_COURSE}
-            activeClassName="is-active"
-            className='clickable nav-link'
-          >
-            New Course
-          </NavLink>
-        </NavItem>
-      )}
+      {/*{user && user.isSuperAdmin && (*/}
+      {/*  <NavItem>*/}
+      {/*    <NavLink*/}
+      {/*      to={NEW_COURSE}*/}
+      {/*      activeClassName="is-active"*/}
+      {/*      className='clickable nav-link'*/}
+      {/*    >*/}
+      {/*      New Course*/}
+      {/*    </NavLink>*/}
+      {/*  </NavItem>*/}
+      {/*)}*/}
     </>
   )
 }

@@ -13,6 +13,10 @@ class StudentRoute extends React.Component {
   }
 
   componentDidMount() {
+    this.haveAccess()
+  }
+
+  haveAccess = () => {
     const {
       computedMatch: { params },
     } = this.props
@@ -82,12 +86,15 @@ class StudentRoute extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.token !== this.props.token) {
+      this.haveAccess()
+    }
+  }
+
   render() {
     const { component: Component, layout: Layout, token, ...rest } = this.props
     const { loaded, haveAccess } = this.state
-    if (!token) {
-      return <Redirect to="/login" />
-    }
     if (!loaded) return null
     return (
       <Route
@@ -98,7 +105,7 @@ class StudentRoute extends React.Component {
               <Component {...props} />
             </Layout>
           ) : (
-            <Redirect to="/accessdenied" />
+            <Redirect to="/" />
           )
         }}
       />

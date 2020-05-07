@@ -4,6 +4,7 @@ import { getUser } from '../../components/Auth'
 import { BASE_URL, COURSE_URL } from '../../pages/core/constants'
 import { axiosRequest, getData } from '../../pages/core/AxiosRequests'
 import { getShortId } from '../../pages/core/Helper'
+import {connect} from "react-redux";
 
 class AdminRoute extends React.Component {
   state = {
@@ -12,6 +13,10 @@ class AdminRoute extends React.Component {
   }
 
   componentDidMount() {
+    this.haveAccess()
+  }
+
+  haveAccess = () => {
     const {
       computedMatch: { params },
     } = this.props
@@ -60,6 +65,12 @@ class AdminRoute extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.token !== this.props.token) {
+      this.haveAccess()
+    }
+  }
+
   render() {
     const { component: Component, ...rest } = this.props
     const { loaded, haveAccess } = this.state
@@ -71,7 +82,7 @@ class AdminRoute extends React.Component {
           return haveAccess ? (
             <Component {...props} />
           ) : (
-            <Redirect to="/accessdenied" />
+            <Redirect to="/" />
           )
         }}
       />
@@ -79,4 +90,10 @@ class AdminRoute extends React.Component {
   }
 }
 
-export default withRouter(AdminRoute)
+const mapStateToProps = ({ authReducer }) => {
+  return {
+    token: authReducer._token,
+  }
+}
+
+export default withRouter(connect(mapStateToProps)(AdminRoute))

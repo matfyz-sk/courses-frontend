@@ -20,7 +20,7 @@ class MainNavigation extends Component {
     return (
       <Navbar expand="md" className="main-nav">
         <Link className="navbar-brand" to="/dashboard">
-          <img src={logo} alt="logo" />
+          <img src={logo} alt="logo" style={{"padding-bottom": "8px"}}/>
           <span className="d-none d-sm-inline-block">MATFYZ.sk</span>
         </Link>
         <Nav navbar>
