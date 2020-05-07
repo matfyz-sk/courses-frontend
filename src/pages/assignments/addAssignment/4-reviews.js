@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { FormGroup, Label, Input, Button, Table, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import moment from 'moment';
-import AddNewQuestion from './addNewQuestion';
-import AddExistingQuestion from './addExistingQuestion';
+import AddNewQuestion from './question/newQuestion';
+import AddExistingQuestion from './question/existingQuestion';
 
 import ErrorMessage from '../../../components/error';
 

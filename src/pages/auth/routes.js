@@ -4,8 +4,8 @@ import LoginPage from './LoginPage';
 import RegisterPage from './RegisterPage';
 
 const AuthRoutes = [
-  <PublicOnlyRoute exact path="/login" component={LoginPage} />,
-  <PublicOnlyRoute exact path="/register" component={RegisterPage} />,
+  <PublicOnlyRoute key='/login' exact path="/login" component={LoginPage} />,
+  <PublicOnlyRoute key='/register' exact path="/register" component={RegisterPage} />,
 ];
 
 export default AuthRoutes;

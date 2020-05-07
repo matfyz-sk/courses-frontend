@@ -3,6 +3,7 @@ import { Route } from 'react-router-dom'
 import LandingPage from './Landing'
 import CoursesPage from './Courses'
 import Course from './Course'
+import Assignments from '../assignments'
 import Event from './Event'
 import Timeline from './Timeline'
 import CreateTimeline from './CreateTimeline'
@@ -110,6 +111,12 @@ const CoreRoutes = [
     path={ROUTES.COURSE_MIGRATION}
     component={CourseMigration}
     layout={CourseLayout}
+  />,
+  <RouteWrapper
+    path={ROUTES.ASSIGNMENTS}
+    component={Assignments}
+    layout={CourseLayout}
+    auth
   />,
   <Route path={ROUTES.COURSES} component={CoursesPage} />,
   <AdminRoute path={ROUTES.COURSE_ID} component={Course} />,

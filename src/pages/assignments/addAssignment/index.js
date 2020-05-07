@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, NavItem, NavLink, Nav, TabContent, TabPane, Alert } from 'reactstrap';
 import classnames from 'classnames';
 import moment from 'moment';
-import { addAssignment, getReviewQuestions, axiosAddEntity } from '../restCalls';
+import { connect } from "react-redux";
+import { addAssignment } from '../restCalls';
+import { inputToTimestamp, getResponseBody, axiosGetEntities, axiosAddEntity, getIRIFromAddResponse } from '../../../helperFunctions';
 
 import Info from './0-info';
 import Submission from './1-submission';
@@ -13,10 +15,10 @@ import TeamReviews from './5-teamReviews';
 
 const defaultForm={
   info:{
-    name:'',
-    description:'',
-    shortDescription:'',
-    documents:[{id:1,name:'Document 1',url:'https://www.google.com/search?q=semantika'},{id:2,name:'Document 2',url:'https://www.google.com/search?q=matematika'},{id:3,name:'Document 3',url:'https://www.google.com/search?q=logika'}],
+    name:'Test assignment',
+    description: "<p>Full description</p>",
+    shortDescription: `<p>Short <strong>description</strong> asdadsdasdsdasad</p>`,
+    hasMaterial:[],
   },
   fields:{
     fields:[
@@ -25,26 +27,26 @@ const defaultForm={
     ],
   },
   submission:{
-    anonymousSubmission:false,
-    openTime:'',
-    deadline:'',
-    extraTime:15,
-    improvedSubmission:false,
-    improvedOpenTime:'',
-    improvedDeadline:'',
+    anonymousSubmission: false,
+    openTime: "2020-05-04T23:59",
+    deadline: "2020-05-11T23:59",
+    extraTime: 15,
+    improvedSubmission: false,
+    improvedOpenTime: "2020-05-12T23:00",
+    improvedDeadline: "2020-05-13T23:00",
     improvedExtraTime:15
   },
   teams:{
     disabled:false,
     submittedAsTeam:true,
-    minimumInTeam:1,
+    minimumInTeam:2,
     maximumInTeam:2,
     multipleSubmissions:false,
   },
   reviews:{
     disabled:false,
-    openTime:'',
-    deadline:'',
+    openTime: "2020-01-10T10:10",
+    deadline: "2020-05-12T10:10",
     extraTime:15,
     reviewsPerSubmission:3,
     reviewedByTeam:true,
@@ -53,13 +55,13 @@ const defaultForm={
   },
   teamReviews:{
     disabled:false,
-    openTime:'',
-    deadline:'',
+    openTime: "2020-05-04T10:10",
+    deadline: "2020-05-10T10:10",
     extraTime:15
   }
 }
 
-export default class ModalAdd extends Component {
+class ModalAddAssignment extends Component {
   constructor(props){
     super(props);
     this.state = {
@@ -68,9 +70,11 @@ export default class ModalAdd extends Component {
       showErrors: true,
       ...defaultForm,
       allQuestions: [],
-      questionsLoaded: false
+      allMaterials: [],
+      formLoaded: false,
+      saving: false
     }
-    this.newQuestionID = 0;
+    this.newID = 0;
     this.toggle.bind(this);
     this.canSave.bind(this);
     this.infoOK.bind(this);
@@ -78,15 +82,37 @@ export default class ModalAdd extends Component {
     this.teamsOK.bind(this);
     this.reviewsOK.bind(this);
     this.teamReviewsOK.bind(this);
+    axiosGetEntities('AssignmentPeriod')
   }
 
-  getNewQuestionID(){
-    return this.newQuestionID++;
+  getNewID(){
+    return this.newID++;
+  }
+
+  deleteMaterial(material){
+    let info = { ...this.state.info };
+    info.hasMaterial = info.hasMaterial.filter((material2) => material2['@id'] !== material['@id'] )
+    this.setState({ info })
+  }
+
+  addMaterial( materialData ){
+    let material = {... materialData }
+    if( materialData.new === undefined ){
+      material.new = true;
+      material['@id'] = '#n-' + this.getNewID();
+    }
+    let info = { ...this.state.info };
+    info.hasMaterial.push(material);
+    if( materialData.new === undefined ){
+      this.setState({ info, allMaterials: [ ...this.state.allMaterials, material ] })
+    }else{
+      this.setState({ info })
+    }
   }
 
   deleteQuestion(question){
     let reviews = { ...this.state.reviews };
-    reviews.questions = reviews.questions.filter((question2) => question2.id !== question.id )
+    reviews.questions = reviews.questions.filter((question2) => question2['@id'] !== question['@id'] )
     this.setState({ reviews })
   }
 
@@ -94,11 +120,11 @@ export default class ModalAdd extends Component {
     let question = {... questionData }
     if( questionData.new === undefined ){
       question.new = true;
-      question['@id'] = '#n-' + this.getNewQuestionID();
+      question['@id'] = '#n-' + this.getNewID();
     }
     let reviews = { ...this.state.reviews };
     reviews.questions.push(question);
-    if( question.new ){
+    if( questionData.new === undefined ){
       this.setState({ reviews, allQuestions: [ ...this.state.allQuestions, question ] })
     }else{
       this.setState({ reviews })
@@ -107,18 +133,29 @@ export default class ModalAdd extends Component {
 
   toggle(){
     let isOpen = this.state.opened;
-    this.setState({opened:!this.state.opened, questionsLoaded: false })
+    this.setState({opened:!this.state.opened, formLoaded: false })
     if(!isOpen){
-      getReviewQuestions().then((questions)=>{
-        console.log(questions.response.data['@graph']);
-        this.setState({questionsLoaded: true, allQuestions: questions.response.data['@graph'] });
+      Promise.all([
+        axiosGetEntities('PeerReviewQuestion'),
+        axiosGetEntities('material')
+      ])
+      .then(([questions,materials])=>{
+        this.setState({
+          formLoaded: true,
+          allQuestions: questions.response.data['@graph'].map((question)=>({...question, new:false })),
+          allMaterials: materials.response.data['@graph'].map((material)=>({...material, new:false })),
+        });
       })
     }
   }
 
   setDefaults(){
     if(window.confirm('Are you sure you want to reset all assignment settings?')){
-      this.setState(defaultForm);
+      let reviews = { ...defaultForm.reviews };
+      reviews.questions = [];
+      let info = { ...defaultForm.info };
+      info.hasMaterial = [];
+      this.setState({...defaultForm, info, reviews });
     }
   }
 
@@ -201,6 +238,7 @@ export default class ModalAdd extends Component {
   }
 
   submitAssignment(){
+    this.setState({ saving: true })
     addAssignment(
       {
         info: this.state.info,
@@ -210,16 +248,23 @@ export default class ModalAdd extends Component {
         reviews: this.state.reviews,
         teamReviews: this.state.teamReviews,
       },
-      this.props.courseID
+      this.props.courseInstance['@id'],
+      (response)=>{
+        let reviews = { ...defaultForm.reviews };
+        reviews.questions = [];
+        let info = { ...defaultForm.info };
+        info.hasMaterial = [];
+        this.setState({...defaultForm, reviews, info, saving: false},()=>{
+        });
+        this.props.updateAssignment(getIRIFromAddResponse(response));
+        this.toggle();
+      }
     );
-    return;
-    this.toggle();
-    this.setState(defaultForm);
   }
 
   render(){
     return(
-      <div>
+      <div className="ml-auto">
         <Button color="primary" onClick={this.toggle.bind(this)}>Add assignment</Button>
         <Modal isOpen={this.state.opened} className={this.props.className} style={{width:'auto',maxWidth:1000}}>
           <ModalHeader toggle={this.toggle.bind(this)}>
@@ -278,13 +323,23 @@ export default class ModalAdd extends Component {
               </NavItem>
             }
             </Nav>
-            <Alert color="primary" isOpen={!this.state.questionsLoaded}>
+            <Alert color="primary" isOpen={!this.state.formLoaded}>
               Data is loading!
             </Alert>
-            { this.state.questionsLoaded &&
+            <Alert color="primary" isOpen={this.state.saving}>
+              Creating assignment, please wait!
+            </Alert>
+            { this.state.formLoaded &&
               <TabContent activeTab={this.state.activeTab}>
               <TabPane tabId="1">
-                <Info data={this.state.info} showErrors={this.state.showErrors} setData={(info)=>{this.setState({info})}} />
+                <Info
+                  data={this.state.info}
+                  allMaterials={this.state.allMaterials}
+                  addMaterial={ this.addMaterial.bind(this) }
+                  deleteMaterial={ this.deleteMaterial.bind(this) }
+                  showErrors={this.state.showErrors}
+                  setData={(info)=>{this.setState({info})}}
+                  />
               </TabPane>
               <TabPane tabId="2">
                 <Submission
@@ -306,7 +361,15 @@ export default class ModalAdd extends Component {
                 <Teams data={this.state.teams} showErrors={this.state.showErrors} setData={(teams)=>{this.setState({teams})}} />
               </TabPane>
               <TabPane tabId="5">
-                <Reviews data={this.state.reviews} allQuestions={this.state.allQuestions} addQuestion={ this.addQuestion.bind(this) }  deleteQuestion={ this.deleteQuestion.bind(this) } showErrors={this.state.showErrors} openDisabled={this.state.submission.anonymousSubmission} setData={(reviews)=>{this.setState({reviews})}}/>
+                <Reviews
+                  data={this.state.reviews}
+                  allQuestions={this.state.allQuestions}
+                  addQuestion={ this.addQuestion.bind(this) }
+                  deleteQuestion={ this.deleteQuestion.bind(this) }
+                  showErrors={this.state.showErrors}
+                  openDisabled={this.state.submission.anonymousSubmission}
+                  setData={(reviews)=>{this.setState({reviews})}}
+                  />
               </TabPane>
               <TabPane tabId="6">
                 <TeamReviews data={this.state.teamReviews} showErrors={this.state.showErrors} setData={(teamReviews)=>{this.setState({teamReviews})}}/>
@@ -322,7 +385,7 @@ export default class ModalAdd extends Component {
               <Button color="danger" onClick={this.setDefaults.bind(this)}>Reset</Button>{' '}
               <Button color="primary" disabled={this.state.activeTab==="1"} onClick={()=>this.setState({activeTab:(parseInt(this.state.activeTab)-1)+""})}>Prev</Button>{' '}
               <Button color="primary" disabled={this.state.activeTab==="6"} onClick={()=>{ this.setState({activeTab:(parseInt(this.state.activeTab)+1)+""});}}>Next</Button>{' '}
-              <Button color="success" disabled={!this.canSave()} onClick={this.submitAssignment.bind(this)}>Add assignment</Button>
+              <Button color="success" disabled={!this.canSave() || this.state.saving} onClick={this.submitAssignment.bind(this)}>{this.state.saving? 'Adding assignment' : 'Add assignment'}</Button>
             </span>
           </ModalFooter>
         </Modal>
@@ -330,3 +393,13 @@ export default class ModalAdd extends Component {
     )
   }
 }
+
+
+const mapStateToProps = ({courseInstanceReducer}) => {
+	const { courseInstance } = courseInstanceReducer;
+	return {
+    courseInstance
+	};
+};
+
+export default connect(mapStateToProps, {  })(ModalAddAssignment);
