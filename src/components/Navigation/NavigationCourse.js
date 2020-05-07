@@ -215,11 +215,13 @@ class NavigationCourseClass extends React.Component {
           </Nav>
         </Collapse>
 
-        <Collapse isOpen={this.state.isOpen[1]} navbar>
-          <Nav>
-            {teacherMenu}
-          </Nav>
-        </Collapse>
+        <div className="d-md-none d-sm-block w-100">
+          <Collapse isOpen={this.state.isOpen[1]} navbar>
+            <Nav>
+              {teacherMenu}
+            </Nav>
+          </Collapse>
+        </div>
 
       </Navbar>
     )

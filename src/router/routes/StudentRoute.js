@@ -4,6 +4,7 @@ import { getUser } from '../../components/Auth'
 import { BASE_URL, COURSE_INSTANCE_URL } from '../../pages/core/constants'
 import { axiosRequest, getData } from '../../pages/core/AxiosRequests'
 import { getShortId } from '../../pages/core/Helper'
+import { connect } from 'react-redux'
 
 class StudentRoute extends React.Component {
   state = {
@@ -82,8 +83,11 @@ class StudentRoute extends React.Component {
   }
 
   render() {
-    const { component: Component, layout: Layout, ...rest } = this.props
+    const { component: Component, layout: Layout, token, ...rest } = this.props
     const { loaded, haveAccess } = this.state
+    if (!token) {
+      return <Redirect to="/login" />
+    }
     if (!loaded) return null
     return (
       <Route
@@ -102,4 +106,10 @@ class StudentRoute extends React.Component {
   }
 }
 
-export default withRouter(StudentRoute)
+const mapStateToProps = ({ authReducer }) => {
+  return {
+    token: authReducer._token,
+  }
+}
+
+export default withRouter(connect(mapStateToProps)(StudentRoute))
