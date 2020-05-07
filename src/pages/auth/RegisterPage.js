@@ -26,6 +26,7 @@ export default class RegisterPage extends Component {
     this.handlePrivacyChange = this.handlePrivacyChange.bind(this);
     this.registerValidation = this.registerValidation.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleToggleNickException = this.handleToggleNickException.bind(this);
     this.state = {
       user: {
         first_name: '', // required
@@ -41,6 +42,7 @@ export default class RegisterPage extends Component {
         show_courses: false,
         show_badges: false,
         allow_contact: false,
+        nickNameTeamException: false,
       },
       errors: {
         first_name: null,
@@ -76,7 +78,6 @@ export default class RegisterPage extends Component {
         user: this.state.user,
         privacy: this.state.privacy,
       };
-
       fetch(this.state.register_url, {
         method: 'POST',
         headers: header,
@@ -143,6 +144,12 @@ export default class RegisterPage extends Component {
     const { name } = target;
     const { privacy } = this.state;
     privacy[name] = value;
+    this.setState({ privacy });
+  }
+
+  handleToggleNickException() {
+    const { privacy } = this.state;
+    privacy.nickNameTeamException = !privacy.nickNameTeamException;
     this.setState({ privacy });
   }
 
@@ -330,6 +337,30 @@ export default class RegisterPage extends Component {
                   <FormFeedback tooltip>
                     {errors.nickname ? errors.nickname.msg : ''}
                   </FormFeedback>
+                </FormGroup>
+                <FormGroup check>
+                  <Input
+                    type="checkbox"
+                    name="nickNameTeamException"
+                    id="nickNameTeamException-teacher"
+                    onChange={() => this.handleToggleNickException()}
+                    checked={!privacy.nickNameTeamException}
+                  />
+                  <Label for="nickNameTeamException-teacher" check>
+                    Only teacher can see my real name
+                  </Label>
+                </FormGroup>
+                <FormGroup check>
+                  <Input
+                    type="checkbox"
+                    name="nickNameTeamException"
+                    id="nickNameTeamException"
+                    onChange={() => this.handleToggleNickException()}
+                    checked={privacy.nickNameTeamException}
+                  />
+                  <Label for="nickNameTeamException" check>
+                    Only teacher <b>and my team members</b> can see my real name
+                  </Label>
                 </FormGroup>
               </Collapse>
 

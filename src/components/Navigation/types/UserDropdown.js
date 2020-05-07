@@ -21,9 +21,6 @@ const UserDropdown = props => (
         <DropdownItem>
           <Link to="/profile-settings">Profile settings</Link>
         </DropdownItem>
-        <DropdownItem>
-          <Link to="/privacy-settings">Privacy settings</Link>
-        </DropdownItem>
         <DropdownItem divider />
         <DropdownItem
           onClick={() => {
