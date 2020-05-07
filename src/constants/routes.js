@@ -1,8 +1,6 @@
 import { coursePrefix } from './prefix'
 
 export const DASHBOARD = coursePrefix('/dashboard')
-export const SIGN_UP = '/signup'
-export const SIGN_IN = '/signin'
 export const PROFILE_SETTINGS = '/profile-settings'
 export const PRIVACY_SETTINGS = '/privacy-settings'
 export const COURSES = '/courses'
@@ -21,8 +19,8 @@ export const ASSIGNMENTS = coursePrefix('/assignments')
 export const RESULTS = '/results'
 export const QUIZ = coursePrefix('/quiz')
 export const DOCUMENTS = '/documents'
-export const INFO = coursePrefix('/info')
-export const ACCESS_DENIED = '/accessdenied';
+export const INFO_PAGE = '/info/:course_id'
+export const ACCESS_DENIED = '/accessdenied'
 export const NOT_FOUND = '/notfound'
 
 export const COURSE_TEAMS = coursePrefix('/teams')

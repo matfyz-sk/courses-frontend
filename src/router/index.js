@@ -18,14 +18,22 @@ const Router = () => (
           {AuthRoutes}
           {QuizRoutes}
           {CoreRoutes}
-          <Route path={ROUTES.ACCESS_DENIED} component={Page401} />
-          <Route path={ROUTES.NOT_FOUND} component={Page404} />
-          <Route exact path="/" component={MainPage} />
-          <Route component={Page404} />
+          <Route
+            key={ROUTES.ACCESS_DENIED}
+            path={ROUTES.ACCESS_DENIED}
+            component={Page401}
+          />
+          <Route
+            key={ROUTES.NOT_FOUND}
+            path={ROUTES.NOT_FOUND}
+            component={Page404}
+          />
+          <Route key="/" exact path="/" component={MainPage} />
+          <Route key="404" component={Page404} />
         </Switch>
       </MainLayout>
     </div>
   </BrowserRouter>
 )
 
-export default Router;
+export default Router

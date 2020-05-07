@@ -27,7 +27,7 @@ import { axiosRequest, getData } from '../AxiosRequests'
 import { BASE_URL, COURSE_INSTANCE_URL, COURSE_URL } from '../constants'
 import DeleteCourseModal from '../DeleteCourseModal'
 import { redirect } from '../../../constants/redirect'
-import { NEW_COURSE } from '../../../constants/routes'
+import { NEW_COURSE, INFO_PAGE } from '../../../constants/routes'
 
 class CoursesPageBase extends Component {
   constructor(props) {
@@ -430,7 +430,11 @@ const CoursesList = ({
                 id={course.courses[0].id}
               />
             ) : (
-              <NavLinkCourse course={course} to={''} />
+              <NavLinkCourse
+                course={course}
+                to={ROUTES.INFO_PAGE}
+                id={course.courses[0].id}
+              />
             )}
 
             <div className="courses-right-top-corner-container">
