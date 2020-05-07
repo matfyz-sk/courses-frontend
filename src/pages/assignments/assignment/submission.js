@@ -16,7 +16,7 @@ export default class Assignment extends Component{
   constructor(props){
     super(props);
     this.state={
-      submission:submissions.find((item)=>item.id===parseInt(this.props.match.params.id))
+      submission:submissions[0]
     }
   }
 

@@ -162,9 +162,9 @@ class NavigationCourseClass extends React.Component {
             </NavItem>
             <NavItem>
               <NavLink
-                activeClassName="is-active"
-                to={{ pathname: '' }}
-                onClick={() => this.props.history.push(ASSIGNMENTS)}
+                to={redirect(ROUTES.ASSIGNMENTS, [
+                  { key: 'course_id', value: this.state.courseId },
+                ])}
                 className="nav-link nav-button"
               >
                 Assignments

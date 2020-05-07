@@ -1,29 +1,27 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, Input, Table } from 'reactstrap';
+import { Button, FormGroup, Label, Input, Table, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import CKEditor from 'ckeditor4-react';
 import moment from 'moment';
 
 import ErrorMessage from '../../../components/error';
+import AddNewMaterial from './material/newMaterial';
+import AddExistingMaterial from './material/existingMaterial';
 
 export default class TextReview extends Component {
   constructor(props){
     super(props);
+    this.state = {
+        addingExistingMaterial: false,
+        addingNewMaterial: false,
+    }
     this.setData.bind(this);
-    this.removeDocument.bind(this);
+    this.deleteMaterial.bind(this);
   }
 
   setData(parameter,value){
     let newData={...this.props.data};
     newData[parameter]=value;
     this.props.setData(newData);
-  }
-
-  removeDocument(id){
-    if(window.confirm('Are you sure you want to delete this document?')){
-      let newDocuments=[...this.props.data.documents];
-      newDocuments.splice(newDocuments.findIndex((document)=>document.id===id),1);
-      this.setData('documents',newDocuments);
-    }
   }
 
   getRealCloseTime(data){
@@ -39,6 +37,12 @@ export default class TextReview extends Component {
     return realCloseTime;
   }
 
+  deleteMaterial(material){
+    if(window.confirm(`Are you sure you want to delete question "${material.name}" ?`)){
+      this.props.deleteMaterial(material);
+    }
+  }
+
   render(){
     return(
       <div>
@@ -51,11 +55,13 @@ export default class TextReview extends Component {
           </FormGroup>
           <FormGroup>
             <Label for="submission-add-desc">Short description</Label>
+              {console.log(this.props.data.shortDescription)}
+              {console.log(typeof this.props.data.shortDescription)}
               <CKEditor
                 onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) }
                 id="submission-add-desc"
                 data={this.props.data.shortDescription}
-                onChange={(e)=>this.setData('shortDescription',e.editor.getData())}
+                onChange={(e)=>this.setData('shortDescription',e.editor.getData()+"")}
                 config={{
                     height: [ '5em' ],
                     codeSnippet_languages: {
@@ -71,7 +77,7 @@ export default class TextReview extends Component {
                 onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) }
                 id="submission-add-desc"
                 data={this.props.data.description}
-                onChange={(e)=>this.setData('description',e.editor.getData())}
+                onChange={(e)=>this.setData('description',e.editor.getData()+"")}
                 config={{
                     height: [ '10em' ],
                     codeSnippet_languages: {
@@ -81,30 +87,75 @@ export default class TextReview extends Component {
                 }}
               />
           </FormGroup>
-          <h4>Documents</h4>
-            <Button size="sm" color="success">
-              <i className="fa fa-plus clickable" />
-              Add document
-            </Button>
+          <h4>Materials</h4>
+
+          <Button size="sm" className="m-2" id="addingExistingMaterialButton" color="primary" onClick={()=> this.setState({ addingExistingMaterial: true }) }>
+            <i className="fa fa-plus clickable" />
+            Add existing materials
+          </Button>
+
+          <Popover
+            placement='right'
+            isOpen={ this.state.addingExistingMaterial }
+            target={"addingExistingMaterialButton"}
+            toggle={ () => this.setState({ addingExistingMaterial: false }) }
+            className="popover-700 popover-max-height-700"
+            >
+            <PopoverHeader>Adding existing materials</PopoverHeader>
+            <PopoverBody>
+              <AddExistingMaterial
+                allMaterials = { this.props.allMaterials }
+                selectedMaterials = { this.props.data.hasMaterial }
+                addMaterial={ (material) => {
+                  this.props.addMaterial(material);
+                }}
+                closePopover={ () => this.setState({ addingExistingMaterial: false }) }
+                />
+            </PopoverBody>
+          </Popover>
+
+
+          <Button size="sm" className="m-2 m-l-10" color="success" id="addingNewMaterialButton" onClick={()=> this.setState({ addingNewMaterial: true }) }>
+            <i className="fa fa-plus clickable" />
+            Add new material
+          </Button>
+          <Popover
+            placement='right'
+            isOpen={ this.state.addingNewMaterial }
+            target={"addingNewMaterialButton"}
+            className="popover-500"
+            toggle={ () => this.setState({ addingNewMaterial: false }) }
+          >
+            <PopoverHeader>Adding new material</PopoverHeader>
+            <PopoverBody>
+              <AddNewMaterial
+                addMaterial={ (material) => {
+                  this.setState({ addingNewMaterial: false });
+                  this.props.addMaterial(material);
+                }}
+                closePopover={ () => this.setState({ addingNewMaterial: false }) }
+              />
+            </PopoverBody>
+          </Popover>
             <Table>
               <thead>
                 <tr>
-                  <th>#</th>
                   <th>Name</th>
                   <th>URL</th>
-                  <th>
+                  <th width="75">Is new</th>
+                  <th width="20">
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {this.props.data.documents.map((document)=>
-                  <tr key={document.id}>
-                    <th scope="row">{document.id}</th>
-                    <td>{document.name}</td>
-                    <td><a href={document.url}>{document.url}</a></td>
+                {this.props.data.hasMaterial.map((material)=>
+                  <tr key={material['@id']}>
+                    <td>{ material.name }</td>
+                    <td><a href={material.URL} target="_blank" without rel="noopener noreferrer">{ material.URL }</a></td>
+                    <td style={{ textAlign: 'center' }}>{ material.new ? <i className="fa fa-check green-color" /> : <i className="fa fa-times light-red-color" /> }</td>
                     <td>
-                      <Button size="sm" color="" onClick={()=>this.removeDocument(document.id)}>
-                        <i className="fa fa-times clickable" />
+                      <Button size="sm" color=""  className="center-ver" onClick={()=>this.deleteMaterial(material)}>
+                        <i className="fa fa-trash clickable red-color" />
                       </Button>
                     </td>
                   </tr>

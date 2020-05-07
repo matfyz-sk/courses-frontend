@@ -7,7 +7,6 @@ import Page404 from '../pages/errors/Page404'
 import CoreRoutes from '../pages/core/routes'
 import QuizRoutes from '../pages/quiz/routes'
 import AuthRoutes from '../pages/auth/routes'
-import AssignmentsRouter from '../pages/assignments';
 import * as ROUTES from '../constants/routes'
 import Page401 from '../pages/errors/Page401'
 
