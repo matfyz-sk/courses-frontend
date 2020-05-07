@@ -8,10 +8,10 @@ export default class Navigation extends Component{
   render(){
     return(
       <>
-        <Route exact path='/course/:courseID/assignments' component={Assignments} />
-        <Route exact path='/course/:courseID/assignments/view/:assignmentID/:submissionID/:tabID' component={Assignment} />
-        <Route exact path='/course/:courseID/assignments/edit/:assignmentID/:tabID' component={Assignment} />
-        <Route exact path='/course/:courseID/assignments/review/:assignmentID/:submissionID/:tabID' component={Assignment} />
+        <Route exact path='/courses/:courseInstanceID/assignments' component={Assignments} />
+        <Route exact path='/courses/:courseInstanceID/assignments/view/:assignmentID/:submissionID/:tabID' component={Assignment} />
+        <Route exact path='/courses/:courseInstanceID/assignments/edit/:assignmentID/:tabID' component={Assignment} />
+        <Route exact path='/courses/:courseInstanceID/assignments/review/:assignmentID/:submissionID/:tabID' component={Assignment} />
       </>
     )
   }

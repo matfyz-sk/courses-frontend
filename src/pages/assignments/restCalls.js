@@ -1,24 +1,21 @@
-import {axiosRequest} from '../../helperFunctions';
-import { API_URL as REST_URL } from '../../configuration/api';
+import { inputToTimestamp, getIRIFromAddResponse, axiosAddEntity } from '../../helperFunctions';
 
-export const addAssignment = (newAssignment, courseInstanceID) => {
-  let courseInstanceFullID = `http://www.courses.matfyz.sk/data/course/${courseInstanceID}`;
-  console.log(courseInstanceFullID);
+export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) => {
 
   let assignmentData = {
-    courseInstance: courseInstanceFullID,
+    courseInstance: courseInstanceID,
     name: newAssignment.info.name,
-    shortDescription: newAssignment.info.shortDescription,
-    description: newAssignment.info.description,
+    shortDescription: newAssignment.info.shortDescription.replace(/(?:\r\n|\r|\n)/g,''),
+    description: newAssignment.info.description.replace(/(?:\r\n|\r|\n)/g,''),
     submissionAnonymousSubmission: newAssignment.submission.anonymousSubmission,
     submissionImprovedSubmission: newAssignment.submission.improvedSubmission,
     teamsDisabled: newAssignment.teams.disabled,
     reviewsDisabled: newAssignment.reviews.disabled,
 
     teamReviewsDisabled: newAssignment.teamReviews.disabled,
-    hasDocument:[],
+    hasMaterial:[],
     hasField:[],
-    reviewsQuestions:[],
+    reviewsQuestion:[],
   }
 
   if(!assignmentData.teamsDisabled){
@@ -38,44 +35,51 @@ export const addAssignment = (newAssignment, courseInstanceID) => {
     deadline: 10,
   }));
 
-  let exstingQuestionsIDs = newAssignment.reviews.questions.filter((question) => !question.new).map((question) => question['@id'] );
+  let existingQuestionsIDs = newAssignment.reviews.questions.filter((question) => !question.new).map((question) => question['@id'] );
+
+  let newMaterials = newAssignment.info.hasMaterial.filter((material) => material.new).map((material) => ({
+    name: material.name,
+    URL: material.URL
+  }));
+
+  let existingMaterialsIDs = newAssignment.info.hasMaterial.filter((material) => !material.new).map((material) => material['@id'] );
 
   let newFields = newAssignment.fields.fields.map((field) => ({
     name: field.title,
-    description: field.description,
+    description: field.description.replace(/(?:\r\n|\r|\n)/g,''),
     label: field.type.label,
     fieldType: field.type.value,
   }));
-
+  console.log(newFields);
 
   let periodsAxios=[];
 
   periodsAxios.push(axiosAddEntity( {//initial sub
+    openTime: inputToTimestamp(newAssignment.submission.openTime),
+    deadline: inputToTimestamp(newAssignment.submission.deadline),
     extraTime: newAssignment.submission.extraTime,
-    openTime: newAssignment.submission.openTime,
-    deadline: newAssignment.submission.deadline,
     startDate: newAssignment.submission.openTime,
     endDate: newAssignment.submission.deadline,
-  }, 'AssignmentPeriod' ));
+  }, 'assignmentPeriod' ));
 
   if(assignmentData.submissionImprovedSubmission){
     periodsAxios.push(axiosAddEntity( {//imp sub
-      openTime: newAssignment.submission.improvedOpenTime,
-      deadline: newAssignment.submission.improvedDeadline,
+      openTime: inputToTimestamp(newAssignment.submission.improvedOpenTime),
+      deadline: inputToTimestamp(newAssignment.submission.improvedDeadline),
       extraTime: newAssignment.submission.improvedExtraTime,
       startDate: newAssignment.submission.improvedOpenTime,
       endDate: newAssignment.submission.improvedDeadline,
-    }, 'AssignmentPeriod' ));
+    }, 'assignmentPeriod' ));
   }
 
   if(!assignmentData.reviewsDisabled){
     periodsAxios.push(axiosAddEntity( {//peer review
-      openTime: newAssignment.reviews.openTime,
-      deadline: newAssignment.reviews.deadline,
+      openTime: inputToTimestamp(newAssignment.reviews.openTime),
+      deadline: inputToTimestamp(newAssignment.reviews.deadline),
       extraTime: newAssignment.reviews.extraTime,
       startDate: newAssignment.reviews.openTime,
       endDate: newAssignment.reviews.deadline,
-    }, 'AssignmentPeriod' ));
+    }, 'assignmentPeriod' ));
     assignmentData = {
       ...assignmentData,
       reviewsPerSubmission: parseInt(newAssignment.reviews.reviewsPerSubmission),
@@ -86,12 +90,12 @@ export const addAssignment = (newAssignment, courseInstanceID) => {
 
   if(!assignmentData.teamReviewsDisabled && !assignmentData.teamsDisabled){
     periodsAxios.push(axiosAddEntity( {//team review
-      openTime: newAssignment.teamReviews.openTime,
-      deadline: newAssignment.teamReviews.deadline,
+      openTime: inputToTimestamp(newAssignment.teamReviews.openTime),
+      deadline: inputToTimestamp(newAssignment.teamReviews.deadline),
       extraTime: newAssignment.teamReviews.extraTime,
       startDate: newAssignment.teamReviews.openTime,
       endDate: newAssignment.teamReviews.deadline,
-    }, 'AssignmentPeriod' ));
+    }, 'assignmentPeriod' ));
   }
 
   let questionsAxios = [];
@@ -99,107 +103,46 @@ export const addAssignment = (newAssignment, courseInstanceID) => {
     questionsAxios = newQuestions.map((question) => axiosAddEntity( question, 'PeerReviewQuestion' ) )
   }
 
+  let materialsAxios = newMaterials.map((material) => axiosAddEntity( material, 'material' ) )
+
   let fieldsAxios =  newFields.map((field) => axiosAddEntity( field, 'Field' ) )
 
-  /*
-  let newMaterials = newAssignment.info.documents.map((document) => ({
-    name: document.name,
-    url: document.url
-  }));
-  console.log(newMaterials);
-  */
   Promise.all([
     Promise.all( periodsAxios ),
     Promise.all( questionsAxios ),
     Promise.all( fieldsAxios ),
-    //Promise.all([ newMaterials.map((material) => axiosAddEntity( material, 'AssignmentMaterial' ) ) ]),
-  ]).then(([periods, questions, fields, /*materials*/])=>{
+    Promise.all( materialsAxios ),
+  ]).then(([periods, questions, fields, materials])=>{
+    console.log('Everything is ready');
     console.log(periods);
     console.log(questions);
     console.log(fields);
-    //console.log(materials);
+    console.log(materials);
     let index = 0;
-    assignmentData.initialSubmissionPeriod = getIRIFromResponse(periods[index]);
+    //periods
+    assignmentData.initialSubmissionPeriod = getIRIFromAddResponse(periods[index]);
     index ++;
+
     if(assignmentData.submissionImprovedSubmission){
-      assignmentData.improvedSubmissionPeriod = getIRIFromResponse(periods[index]);
+      assignmentData.improvedSubmissionPeriod = getIRIFromAddResponse(periods[index]);
       index++;
     }
 
     if(!assignmentData.reviewsDisabled){
-      assignmentData.peerReviewPeriod = getIRIFromResponse(periods[index]);
+      assignmentData.peerReviewPeriod = getIRIFromAddResponse(periods[index]);
       index++;
-      assignmentData.reviewsQuestions = exstingQuestionsIDs.concat(questions.map((question)=>getIRIFromResponse(question)));
+      assignmentData.reviewsQuestion = existingQuestionsIDs.concat(questions.map((question)=>getIRIFromAddResponse(question)));
     }
 
     if(!assignmentData.teamReviewsDisabled && !assignmentData.teamsDisabled){
-      assignmentData.teamReviewPeriod = getIRIFromResponse(periods[index]);
+      assignmentData.teamReviewPeriod = getIRIFromAddResponse(periods[index]);
     }
-    assignmentData.hasField = fields.map((field)=>getIRIFromResponse(field));
-    return axiosAddEntity( assignmentData, 'Assignment' );
+    //end of periods
+
+    assignmentData.hasMaterial = existingMaterialsIDs.concat(materials.map((material)=>getIRIFromAddResponse(material)));
+    assignmentData.hasField = fields.map((field)=>getIRIFromAddResponse(field));
+    console.log(assignmentData);
+    console.log(assignmentData);
+    return axiosAddEntity( assignmentData, 'assignment' ).then(afterFunction);
   })
 }
-
-export const getIRIFromResponse = (response) => {
-  return response.response.data.resource.iri;
-}
-
-export const getReviewQuestions = () => {
-  return axiosRequest(
-    'get',
-    `${REST_URL}/PeerReviewQuestion`,
-    null
-  )
-}
-
-export const logCourses = () => {
-  return axiosRequest(
-    'get',
-    `${REST_URL}/course`,
-    null
-  ).then( (response) => console.log(response) )
-}
-
-export const axiosAddEntity = ( data, entity  ) => {
-  return axiosRequest(
-    'post',
-    `${REST_URL}/${entity}`,
-    data
-  )
-}
-
-/*
-addCourse() {
-  this.addCourseInstance();
-  return;
-  axiosRequest(
-    'post',
-    `${BACKEND_URL}/data/course`,
-    {
-      name:'Assignments test course',
-      description: 'I test assignments here',
-      abbreviation: 'AS',
-      hasPrerequisite:[],
-      hasAdmin:["http://www.courses.matfyz.sk/data/user/OkL1d"]
-    }
-  )
-}
-
-addCourseInstance() {
-  axiosRequest(
-    'post',
-    `${BACKEND_URL}/data/CourseInstance`,
-    {
-      description:'Testing assignments here',
-      endDate: "2020-07-09T23:00:00.000Z",
-      hasInstructor: ["http://www.courses.matfyz.sk/data/user/OkL1d"],
-      instanceOf: "http://www.courses.matfyz.sk/data/course/LpYwo",
-      mentions:[],
-      name: 'I test assignments here 1',
-      reccomends:[],
-      startDate: "2020-02-21T23:00:00.000Z",
-      uses:[]
-    }
-  )
-}
-*/
