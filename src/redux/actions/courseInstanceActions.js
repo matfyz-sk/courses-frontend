@@ -1,4 +1,4 @@
-import { SET_COURSE_INSTANCE } from '../types'
+import { SET_COURSE_INSTANCE, CLEAR_COURSE_INSTANCE } from '../types'
 import { authHeader } from '../../components/Auth'
 import { BASE_URL, COURSE_INSTANCE_URL } from '../../pages/core/constants'
 import { NOT_FOUND } from '../../constants/routes'
@@ -6,6 +6,10 @@ import { NOT_FOUND } from '../../constants/routes'
 export const setCourseInstance = item => ({
   type: SET_COURSE_INSTANCE,
   item,
+})
+
+export const clearCourseInstance = () => ({
+  type: CLEAR_COURSE_INSTANCE,
 })
 
 export const fetchCourseInstance = (history, course_id) => {

@@ -39,7 +39,7 @@ class AdminRoute extends React.Component {
                   ? courseData.hasAdmin.map(admin =>
                     getShortId(admin['@id'])
                   )
-                  : [getShortId(courseData.hasAdmin['@id'])],
+                  : courseData.hasAdmin ? [getShortId(courseData.hasAdmin['@id'])] : [],
               }
             })[0]
 

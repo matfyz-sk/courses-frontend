@@ -78,13 +78,10 @@ class Submit extends React.Component {
     } = this.props.courseMigrationState
     const { courseInstance } = this.props
 
-    console.log(new Date(courseInstance.startDate))
-    console.log(startDate)
     const noOfDays = dateDiffInDays(
       new Date(courseInstance.startDate),
       startDate
     )
-    console.log(noOfDays)
 
     let eventsToAdd = []
 
@@ -104,12 +101,9 @@ class Submit extends React.Component {
       }
     }
 
-    console.log(eventsToAdd)
-
     const url = BASE_URL + EVENT_URL
     let errors = []
     for (let event of eventsToAdd) {
-      console.log(event)
       axiosRequest('post', JSON.stringify(event), url)
         .then(response => {
           if (response && response.status === 200) {
@@ -134,7 +128,7 @@ class Submit extends React.Component {
   render() {
     const { sent } = this.state
     const { courseMigrationState } = this.props
-    const { go,previous } = this.props.navigation
+    const { go, previous } = this.props.navigation
 
     return (
       <div>
@@ -148,41 +142,45 @@ class Submit extends React.Component {
             </div>
           </>
         )}
-        <CardSubtitle className="card-subtitle-migrations">Overview</CardSubtitle>
+        <CardSubtitle className="card-subtitle-migrations">
+          Overview
+        </CardSubtitle>
         {courseMigrationState && (
           <Table>
-            <tr>
-              <th>Name</th>
-              <td>{courseMigrationState.name}</td>
-            </tr>
-            <tr>
-              <th>Description</th>
-              <td>{courseMigrationState.description}</td>
-            </tr>
-            <tr>
-              <th>From</th>
-              <td>{courseMigrationState.startDate.toString()}</td>
-            </tr>
-            <tr>
-              <th>To</th>
-              <td>{courseMigrationState.endDate.toString()}</td>
-            </tr>
-            <tr>
-              <th>Instructors</th>
-              <td>
-                {courseMigrationState.instructors.map(i => i.name + '; ')}
-              </td>
-            </tr>
-            <tr>
-              <th>Events</th>
-              <td>
-                {courseMigrationState.allEvents.map(e => {
-                  if (courseMigrationState.checkedEvents.includes(e.id)) {
-                    return e.name + '; '
-                  }
-                })}
-              </td>
-            </tr>
+            <tbody>
+              <tr>
+                <th>Name</th>
+                <td>{courseMigrationState.name}</td>
+              </tr>
+              <tr>
+                <th>Description</th>
+                <td>{courseMigrationState.description}</td>
+              </tr>
+              <tr>
+                <th>From</th>
+                <td>{courseMigrationState.startDate.toString()}</td>
+              </tr>
+              <tr>
+                <th>To</th>
+                <td>{courseMigrationState.endDate.toString()}</td>
+              </tr>
+              <tr>
+                <th>Instructors</th>
+                <td>
+                  {courseMigrationState.instructors.map(i => i.name + '; ')}
+                </td>
+              </tr>
+              <tr>
+                <th>Events</th>
+                <td>
+                  {courseMigrationState.allEvents.map(e => {
+                    if (courseMigrationState.checkedEvents.includes(e.id)) {
+                      return e.name + '; '
+                    }
+                  })}
+                </td>
+              </tr>
+            </tbody>
           </Table>
         )}
         {!sent && (

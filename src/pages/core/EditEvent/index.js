@@ -1,5 +1,5 @@
 import React from 'react'
-import {Container, Card, CardHeader, CardBody, Alert} from 'reactstrap'
+import { Container, Card, CardHeader, CardBody, Alert } from 'reactstrap'
 import EventForm from '../EventForm'
 import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
@@ -10,7 +10,12 @@ import { NOT_FOUND } from '../../../constants/routes'
 class EditEvent extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { event: INITIAL_EVENT_STATE, redirect: null, courseId: '', loading: true }
+    this.state = {
+      event: INITIAL_EVENT_STATE,
+      redirect: null,
+      courseId: '',
+      loading: true,
+    }
   }
 
   componentDidMount() {
@@ -40,7 +45,10 @@ class EditEvent extends React.Component {
             startDate: new Date(eventData.startDate),
             endDate: new Date(eventData.endDate),
             place: eventData.location ? eventData.location : '',
-            type: eventData['@type'].split('#')[1],
+            type:
+              typeof eventData['@type'] === 'string'
+                ? eventData['@type'].split('#')[1]
+                : '',
             uses: eventData.uses.map(material => {
               return {
                 id: getShortId(material['@id']),
@@ -68,8 +76,7 @@ class EditEvent extends React.Component {
               : [],
           }
         })[0]
-        console.log(event.recommends)
-        console.log(event.uses)
+
         this.setState({
           event,
         })

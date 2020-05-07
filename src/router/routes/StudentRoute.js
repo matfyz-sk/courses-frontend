@@ -52,7 +52,9 @@ class StudentRoute extends React.Component {
                   ? courseData.instanceOf[0].hasAdmin.map(admin =>
                       getShortId(admin)
                     )
-                  : [getShortId(courseData.instanceOf[0].hasAdmin)],
+                  : courseData.instanceOf[0].hasAdmin
+                  ? [getShortId(courseData.instanceOf[0].hasAdmin)]
+                  : [],
               }
             })[0]
 

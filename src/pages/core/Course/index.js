@@ -8,7 +8,8 @@ import {
   CardText,
   ListGroup,
   ListGroupItem,
-  Table, Alert,
+  Table,
+  Alert,
 } from 'reactstrap'
 import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
@@ -143,7 +144,7 @@ const CourseCard = ({ course, isAdmin }) => (
           <Table responsive key="prerequisites" className="course-tables">
             <tbody>
               {course.prerequisites.map(prerequisite => (
-                <tr key={prerequisite.id} className="course-list-group-item">
+                <tr key={`${prerequisite.id}tr`} className="course-list-group-item">
                   <td className="material-name">{prerequisite.name}</td>
                 </tr>
               ))}
@@ -157,8 +158,10 @@ const CourseCard = ({ course, isAdmin }) => (
           <Table responsive key="admins" className="course-tables">
             <tbody>
               {course.admins.map(admin => (
-                <tr key={admin.id} className="course-list-group-item">
-                  <td className="material-name">{admin.name}</td>
+                <tr key={`${admin.id}tr`} className="course-list-group-item">
+                  <td className="material-name">
+                    {admin.name}
+                  </td>
                 </tr>
               ))}
             </tbody>

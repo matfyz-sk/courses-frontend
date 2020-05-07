@@ -9,6 +9,7 @@ import { setMainNav } from '../redux/actions/navigationActions'
 import {
   fetchCourseInstance,
   setCourseInstancePrivileges,
+  clearCourseInstance
 } from '../redux/actions'
 import {idFromURL} from "../functions/global";
 
@@ -33,6 +34,10 @@ class CourseLayout extends Component {
         store.dispatch(setCourseInstancePrivileges({ course_id }))
       }
     }
+  }
+
+  componentWillUnmount() {
+    store.dispatch(clearCourseInstance())
   }
 
   render() {

@@ -30,7 +30,7 @@ export const getEvents = data => {
     const event = {
       id: getShortId(eventData['@id']),
       fullId: eventData['@id'],
-      type: eventData['@type'].split('#')[1],
+      type: typeof eventData['@type'] === 'string' ? eventData['@type'].split('#')[1] : '',
       name: eventData.name,
       description: eventData.description ? eventData.description : '',
       startDate: new Date(eventData.startDate),

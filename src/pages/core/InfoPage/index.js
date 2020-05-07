@@ -8,15 +8,11 @@ import {
   Table,
   Alert,
 } from 'reactstrap'
-import { connect } from 'react-redux'
-import { NavLink } from 'react-router-dom'
+import { Redirect } from 'react-router'
 import { BASE_URL, COURSE_INSTANCE_URL, INITIAL_INFO_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
-import { redirect } from '../../../constants/redirect'
-import * as ROUTES from '../../../constants/routes'
-import { Redirect } from 'react-router'
 import { NOT_FOUND } from '../../../constants/routes'
-import { getDisplayDateTime, getShortId } from '../Helper'
+import { getDisplayDateTime } from '../Helper'
 
 class InfoPage extends React.Component {
   constructor(props) {
@@ -140,7 +136,7 @@ class InfoPage extends React.Component {
                     <tbody>
                       {prerequisites.map(prerequisite => (
                         <tr
-                          key={prerequisite.id}
+                          key={`${prerequisite.id}tr`}
                           className="course-list-group-item"
                         >
                           <td className="material-name">{prerequisite.name}</td>
@@ -160,7 +156,7 @@ class InfoPage extends React.Component {
                     <tbody>
                       {instructors.map(instructor => (
                         <tr
-                          key={instructor.id}
+                          key={`${instructor.id}tr`}
                           className="course-list-group-item"
                         >
                           <td className="material-name">{instructor.name}</td>

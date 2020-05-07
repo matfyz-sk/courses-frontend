@@ -4,7 +4,7 @@ import { getUser } from '../../components/Auth'
 import { BASE_URL, COURSE_INSTANCE_URL } from '../../pages/core/constants'
 import { axiosRequest, getData } from '../../pages/core/AxiosRequests'
 import { getShortId } from '../../pages/core/Helper'
-import {connect} from "react-redux";
+import { connect } from 'react-redux'
 
 class InstructorRoute extends React.Component {
   state = {
@@ -47,7 +47,9 @@ class InstructorRoute extends React.Component {
                   ? courseData.instanceOf[0].hasAdmin.map(admin =>
                       getShortId(admin)
                     )
-                  : [getShortId(courseData.instanceOf[0].hasAdmin)],
+                  : courseData.instanceOf[0].hasAdmin
+                  ? [getShortId(courseData.instanceOf[0].hasAdmin)]
+                  : [],
               }
             })[0]
             if (
