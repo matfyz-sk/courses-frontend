@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Card, CardHeader, CardBody } from 'reactstrap'
+import {Container, Card, CardHeader, CardBody, Alert} from 'reactstrap'
 import CourseForm from '../CourseForm'
 import { BASE_URL, COURSE_URL, INITIAL_COURSE_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
@@ -13,6 +13,7 @@ class EditCourse extends React.Component {
     this.state = {
       course: INITIAL_COURSE_STATE,
       redirect: null,
+      loading: true,
     }
   }
 
@@ -26,6 +27,9 @@ class EditCourse extends React.Component {
     }?_join=hasPrerequisite,hasAdmin`
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
+      this.setState({
+        loading: false,
+      })
       if (data != null && data !== []) {
         const course = data.map(courseData => {
           return {
@@ -57,10 +61,18 @@ class EditCourse extends React.Component {
   }
 
   render() {
-    const { course, redirect } = this.state
+    const { course, redirect, loading } = this.state
 
     if (redirect) {
       return <Redirect to={redirect} />
+    }
+
+    if (loading) {
+      return (
+        <Alert color="secondary" className="empty-message">
+          Loading...
+        </Alert>
+      )
     }
 
     return (

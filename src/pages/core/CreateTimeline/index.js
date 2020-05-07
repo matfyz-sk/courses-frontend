@@ -43,6 +43,7 @@ class CreateTimeline extends React.Component {
       nestedEvents: [],
       saved: false,
       disabled: false,
+      loading: true,
     }
   }
 
@@ -74,6 +75,9 @@ class CreateTimeline extends React.Component {
 
       axiosRequest('get', null, url).then(response => {
         const data = getData(response)
+        this.setState({
+          loading: false,
+        })
         if (data != null && data !== []) {
           const events = getEvents(data).sort(sortEventsFunction)
 
@@ -207,7 +211,16 @@ class CreateTimeline extends React.Component {
   }
 
   render() {
-    const { timelineBlocks, event, saved, disabled } = this.state
+    const { timelineBlocks, event, saved, disabled, loading } = this.state
+
+    if (loading) {
+      return (
+        <Alert color="secondary" className="empty-message">
+          Loading...
+        </Alert>
+      )
+    }
+
     return (
       <div>
         <Container className="core-container">
@@ -245,7 +258,9 @@ class CreateTimeline extends React.Component {
                 <Alert color="secondary">Event saved successfully!</Alert>
               )}
               <Card>
-                <CardHeader className="event-card-header">New Event</CardHeader>
+                <CardHeader className="event-card-header">
+                  {event ? 'Edit Block' : 'New Event'}
+                </CardHeader>
                 <CardBody>
                   {event ? (
                     <EventForm
@@ -291,7 +306,6 @@ const BlockMenu = ({ courseEvents, onClick, activeEvent }) => (
     ))}
   </ListGroup>
 )
-
 
 // <CardSubtitle className="subevents-title">Materials</CardSubtitle>
 // <Card body className="materials-card">

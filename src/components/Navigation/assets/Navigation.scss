@@ -66,11 +66,21 @@
       &:hover {
         background-color: transparent;
       }
-
     }
   }
   .teacher-dropdown {
     margin-top: 10px;
+  }
+  .dropdown-course {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    .setting-img {
+      width: 20px;
+    }
+  }
+  .bars-toggler {
+    margin-right: 35px;
   }
 }
 

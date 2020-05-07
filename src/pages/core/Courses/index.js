@@ -11,6 +11,7 @@ import {
   TabPane,
   UncontrolledCollapse,
   Button,
+  Alert,
 } from 'reactstrap'
 import { NavLink } from 'react-router-dom'
 import classnames from 'classnames'
@@ -39,6 +40,7 @@ class CoursesPageBase extends Component {
       myActiveCourses: [], //MyActiveCourses, //  (enrolled || teaching || admin) && this semester
       myArchivedCourses: [], //MyArchivedCourses, // (enrolled || teaching || admin) && not this semester
       allCourses: [],
+      loading: true,
     }
   }
 
@@ -63,6 +65,9 @@ class CoursesPageBase extends Component {
     const url = `${BASE_URL + COURSE_INSTANCE_URL}?_join=instanceOf`
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
+      this.setState({
+        loading: false,
+      })
       if (data != null) {
         const courses = data.map(courseInstance => {
           return {
@@ -262,9 +267,17 @@ class CoursesPageBase extends Component {
       activeCourses,
       allCourses,
       activeTab,
+      loading,
     } = this.state
-
     const { user } = this.props
+
+    if (loading) {
+      return (
+        <Alert color="secondary" className="empty-message">
+          Loading...
+        </Alert>
+      )
+    }
 
     return (
       <main className="courses_main">
@@ -379,11 +392,8 @@ class CoursesPageBase extends Component {
           </TabContent>
         </div>
         {user && user.isSuperAdmin && (
-          <NavLink
-            to={NEW_COURSE}
-            className='new-course-button-container'
-          >
-            <Button className='new-course-button'>New Course</Button>
+          <NavLink to={NEW_COURSE} className="new-course-button-container">
+            <Button className="new-course-button">New Course</Button>
           </NavLink>
         )}
       </main>
@@ -572,7 +582,9 @@ const CollapsableCourse = ({
                         ))}
                       <RoleIcon course={courseInstance} />
                       {/* edit/delete course */}
-                      {(isAdmin || course.admin || courseInstance.instructor) && (
+                      {(isAdmin ||
+                        course.admin ||
+                        courseInstance.instructor) && (
                         <div className="edit-delete-buttons-instance">
                           <NavLink
                             className="edit-delete-buttons"

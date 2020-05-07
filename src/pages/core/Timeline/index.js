@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom'
 import { Container, Row, Col, Alert } from 'reactstrap'
 import Scroll from 'react-scroll'
 import EventsList, { BlockMenu, BlockMenuToggle } from '../Events'
-import {getInstructorRights, getShortId} from '../Helper'
+import { getInstructorRights, getShortId } from '../Helper'
 import {
   getEvents,
   sortEventsFunction,
@@ -18,9 +18,9 @@ import './Timeline.css'
 import { BASE_URL, EVENT_URL } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
-import TeacherNavigation from '../../../components/Navigation/TeacherNavigation'
+// import TeacherNavigation from '../../../components/Navigation/TeacherNavigation'
 
-const scroller = Scroll.scroller
+const { scroller } = Scroll
 
 class Timeline extends Component {
   constructor(props) {
@@ -32,6 +32,7 @@ class Timeline extends Component {
       nestedEvents: [],
       currentBlock: null,
       hasAccess: false,
+      loading: true,
     }
   }
 
@@ -41,7 +42,7 @@ class Timeline extends Component {
     } = this.props
     const { course, user } = this.props
 
-    if(course && user && getInstructorRights(user, course)) {
+    if (course && user && getInstructorRights(user, course)) {
       this.setState({
         hasAccess: true,
       })
@@ -53,6 +54,9 @@ class Timeline extends Component {
 
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
+      this.setState({
+        loading: false,
+      })
       if (data != null && data !== []) {
         const events = getEvents(data).sort(sortEventsFunction)
 
@@ -69,8 +73,8 @@ class Timeline extends Component {
 
         if (currentBlock) {
           scroller.scrollTo(currentBlock, {
-            duration: 1500,
-            delay: 100,
+            duration: 500,
+            // delay: 100,
             smooth: true,
             containerId: 'containerElement',
           })
@@ -81,9 +85,8 @@ class Timeline extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { user, course } = this.props
-    console.log(course)
-    if(prevProps.user !== user || prevProps.course !== course) {
-      if(course && user && getInstructorRights(user, course)) {
+    if (prevProps.user !== user || prevProps.course !== course) {
+      if (course && user && getInstructorRights(user, course)) {
         this.setState({
           hasAccess: true,
         })
@@ -92,16 +95,26 @@ class Timeline extends Component {
   }
 
   render() {
-    const { eventsSorted, timelineBlocks, nestedEvents, hasAccess } = this.state
-    const { course, user } = this.props
+    const {
+      eventsSorted,
+      timelineBlocks,
+      nestedEvents,
+      hasAccess,
+      loading,
+    } = this.state
+    const { course } = this.props
     const courseId = course ? getShortId(course['@id']) : ''
 
-    const adminMenuRoutes = [
-      { key: 1, name: 'Pridať Kurz', href: '////' },
-      { key: 2, name: 'Upraviť Kurz', href: '////'},
-    ]
+    if (loading) {
+      return (
+        <Alert color="secondary" className="empty-message">
+          Loading...
+        </Alert>
+      )
+    }
     return (
       <>
+        {/* eslint-disable-next-line no-nested-ternary */}
         {eventsSorted.length === 0 ? (
           <Alert color="secondary" className="empty-message">
             Timeline for this course is empty.
@@ -139,12 +152,9 @@ class Timeline extends Component {
                 {/*/!*<NextCalendar />*!/*/}
               </Col>
               <Col className="event-list-col">
-                <EventsList
-                  courseEvents={nestedEvents}
-                  isAdmin={hasAccess}
-                />
+                <EventsList courseEvents={nestedEvents} isAdmin={hasAccess} />
               </Col>
-              <TeacherNavigation currentKey={1} href_array={adminMenuRoutes} />
+              {/*<TeacherNavigation currentKey={1} href_array={adminMenuRoutes} />*/}
             </Row>
           </Container>
         )}

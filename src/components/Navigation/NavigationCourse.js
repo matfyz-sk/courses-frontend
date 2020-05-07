@@ -18,6 +18,7 @@ import RightArrow from './assets/next.svg'
 import Bars from './assets/bars.png'
 import { redirect } from '../../constants/redirect'
 import Settings from './assets/settings.svg'
+import { getInstructorRights } from '../../pages/core/Helper'
 
 class NavigationCourseClass extends React.Component {
   constructor(props) {
@@ -27,16 +28,16 @@ class NavigationCourseClass extends React.Component {
     this.state = {
       isOpen: [false, false],
       courseId: props.courseId,
+      isAdmin: false,
     }
   }
 
   toggle(teacherNav = true) {
     const { isOpen } = this.state
-    if(teacherNav) {
+    if (teacherNav) {
       isOpen[1] = !isOpen[1]
       isOpen[0] = false
-    }
-    else {
+    } else {
       isOpen[0] = !isOpen[0]
       isOpen[1] = false
     }
@@ -46,92 +47,75 @@ class NavigationCourseClass extends React.Component {
   }
 
   componentDidMount() {
-    // const { match: { params } } = this.props;
-    //
-    // this.setState({
-    //     courseId: params.id,
-    // })
+    const { user, courseInstance } = this.props
+    if (courseInstance && user && getInstructorRights(user, courseInstance)) {
+      this.setState({
+        isAdmin: true,
+      })
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { user, courseInstance } = this.props
+    if (
+      prevProps.user !== user ||
+      prevProps.courseInstance !== courseInstance
+    ) {
+      if (courseInstance && user && getInstructorRights(user, courseInstance)) {
+        this.setState({
+          isAdmin: true,
+        })
+      }
+    }
   }
 
   render() {
     const current = this.props.navReducer.current.sub
-    const { privileges, teacherNav } = this.props
-
+    const { privileges, teacherNav, courseInstance, user } = this.props
+    const { isAdmin } = this.state
     let courseID = this.props.history.location.pathname.substring(8)
     if (courseID.indexOf('/') !== -1) {
       courseID = courseID.substring(0, courseID.indexOf('/'))
     }
     const ASSIGNMENTS = `/courses/${courseID}/assignments`
 
-    const teacherMenu = []
-    for (let i = 0; i < teacherNav.menu.length; i++) {
-      teacherMenu.push(
-        <NavItem key={`mobile-nav ${teacherNav.menu[i].key}`}>
-          <NavLink
-            activeClassName="is-active"
-            to={teacherNav.menu[i].href}
-            className={`nav-link nav-button ${
-              teacherNav.current === teacherNav.menu[i].key ? 'is-active' : ''
-            }`}
-          >
-            {teacherNav.menu[i].name}
-          </NavLink>
-        </NavItem>
-      )
-    }
+    // const teacherMenu = []
+    // for (let i = 0; i < teacherNav.menu.length; i++) {
+    //   teacherMenu.push(
+    //     <NavItem key={`mobile-nav ${teacherNav.menu[i].key}`}>
+    //       <NavLink
+    //         activeClassName="is-active"
+    //         to={teacherNav.menu[i].href}
+    //         className={`nav-link nav-button ${
+    //           teacherNav.current === teacherNav.menu[i].key ? 'is-active' : ''
+    //         }`}
+    //       >
+    //         {teacherNav.menu[i].name}
+    //       </NavLink>
+    //     </NavItem>
+    //   )
+    // }
 
     return (
       <Navbar className="sub-nav" expand="md">
         <div className="navbar-left">
-          <UncontrolledDropdown className="dropdown-course">
-            <DropdownToggle tag="a" className="nav-toggle">
-              <NavbarBrand>
-                {this.props.abbr}{' '}
-                <img src={RightArrow} alt="right" className="arrow-right" />
-              </NavbarBrand>
-            </DropdownToggle>
-            <DropdownMenu className="teacher-dropdown">
-              <DropdownItem className="nav-button">
-                <NavLink
-                  to={redirect(ROUTES.USER_MANAGEMENT, [
-                    { key: 'course_id', value: this.state.courseId },
-                  ])}
-                  className="nav-link nav-button"
-                >
-                  User Management
-                </NavLink>
-              </DropdownItem>
-              <DropdownItem className="nav-button">
-                <NavLink
-                  to={redirect(ROUTES.COURSE_MIGRATION, [
-                    { key: 'course_id', value: this.state.courseId },
-                  ])}
-                  className="nav-link nav-button"
-                >
-                  Course Migration
-                </NavLink>
-              </DropdownItem>
-              <DropdownItem className="nav-button">
-                <NavLink
-                  to={redirect(ROUTES.CREATE_TIMELINE, [
-                    { key: 'course_id', value: this.state.courseId },
-                  ])}
-                  className="nav-link nav-button"
-                >
-                  Edit Timeline
-                </NavLink>
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
+          <NavbarBrand>
+            {this.props.abbr}{' '}
+            <img src={RightArrow} alt="right" className="arrow-right" />
+          </NavbarBrand>
         </div>
 
-        {teacherNav.menu.length > 0 ? (
-          <NavbarToggler onClick={() => this.toggle(true)} className="ml-auto">
-            <img src={Settings} alr="bars" style={{ width: '30px' }} />
-          </NavbarToggler>
-        ) : null}
+        {/*{teacherNav.menu.length > 0 ? (*/}
+        {/*  <NavbarToggler onClick={() => this.toggle(true)} className="ml-auto">*/}
+        {/*    <img src={Settings} alr="settings" style={{ width: '20px' }} />*/}
+        {/*  </NavbarToggler>*/}
+        {/*) : null}*/}
+        {/*<div class="navbar-container">*/}
 
-        <NavbarToggler onClick={() => this.toggle(false)}>
+        <NavbarToggler
+          onClick={() => this.toggle(false)}
+          className={isAdmin ? "bars-toggler" : ""}
+        >
           <img src={Bars} alr="bars" style={{ width: '30px' }} />
         </NavbarToggler>
 
@@ -214,25 +198,71 @@ class NavigationCourseClass extends React.Component {
             ) : null}
           </Nav>
         </Collapse>
-
-        <div className="d-md-none d-sm-block w-100">
-          <Collapse isOpen={this.state.isOpen[1]} navbar>
-            <Nav>
-              {teacherMenu}
-            </Nav>
-          </Collapse>
-        </div>
-
+        {isAdmin && (
+          <UncontrolledDropdown className="dropdown-course">
+            <DropdownToggle tag="a" className="settings">
+              <img src={Settings} alr="settings" className="setting-img mr-2" />
+            </DropdownToggle>
+            <DropdownMenu right className="teacher-dropdown">
+              <DropdownItem className="nav-button">
+                <NavLink
+                  to={redirect(ROUTES.USER_MANAGEMENT, [
+                    { key: 'course_id', value: this.state.courseId },
+                  ])}
+                  className="nav-link nav-button"
+                >
+                  User Management
+                </NavLink>
+              </DropdownItem>
+              <DropdownItem className="nav-button">
+                <NavLink
+                  to={redirect(ROUTES.COURSE_MIGRATION, [
+                    { key: 'course_id', value: this.state.courseId },
+                  ])}
+                  className="nav-link nav-button"
+                >
+                  Course Migration
+                </NavLink>
+              </DropdownItem>
+              <DropdownItem className="nav-button">
+                <NavLink
+                  to={redirect(ROUTES.CREATE_TIMELINE, [
+                    { key: 'course_id', value: this.state.courseId },
+                  ])}
+                  className="nav-link nav-button"
+                >
+                  Edit Timeline
+                </NavLink>
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        )}
+        {/*<div className="d-md-none d-sm-block w-100">*/}
+        {/*  <Collapse isOpen={this.state.isOpen[1]} navbar>*/}
+        {/*    <Nav>*/}
+        {/*      {teacherMenu}*/}
+        {/*    </Nav>*/}
+        {/*  </Collapse>*/}
+        {/*</div>*/}
+        {/*</div>*/}
       </Navbar>
     )
   }
 }
 
-const mapStateToProps = ({ navReducer, privilegesReducer, teacherNavReducer }) => {
+const mapStateToProps = ({
+  navReducer,
+  privilegesReducer,
+  teacherNavReducer,
+  courseInstanceReducer,
+  authReducer,
+}) => {
   return {
     navReducer,
     privileges: privilegesReducer,
     teacherNav: teacherNavReducer,
+    courseInstance: courseInstanceReducer.courseInstance,
+    user: authReducer.user,
   }
 }
 

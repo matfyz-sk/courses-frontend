@@ -8,7 +8,7 @@ import {
   CardText,
   ListGroup,
   ListGroupItem,
-  Table,
+  Table, Alert,
 } from 'reactstrap'
 import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
@@ -27,6 +27,7 @@ class Course extends React.Component {
     this.state = {
       course: INITIAL_COURSE_STATE,
       redirectTo: null,
+      loading: true,
     }
   }
 
@@ -40,6 +41,9 @@ class Course extends React.Component {
     }?_join=hasPrerequisite,hasAdmin`
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
+      this.setState({
+        loading: false,
+      })
       if (data != null && data !== []) {
         const course = data.map(courseData => {
           return {
@@ -71,11 +75,19 @@ class Course extends React.Component {
   }
 
   render() {
-    const { course, redirectTo } = this.state
+    const { course, redirectTo, loading } = this.state
     const { user } = this.props
 
     if (redirectTo) {
       return <Redirect to={redirectTo} />
+    }
+
+    if (loading) {
+      return (
+        <Alert color="secondary" className="empty-message">
+          Loading...
+        </Alert>
+      )
     }
 
     const isAdmin = user

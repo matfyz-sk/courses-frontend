@@ -31,6 +31,7 @@
 
 .event-row-migrations {
   width: 100%;
+  font-weight: normal;
 }
 
 .event-link-migrations {
@@ -44,6 +45,10 @@
 
 .migrateAll-formgroup {
   text-align: center;
+}
+
+.migrateAll {
+  font-weight: normal;
 }
 
 .card-subtitle-migrations {
