@@ -1,12 +1,7 @@
 import axios from 'axios'
 import { getToken } from './components/Auth';
 import { API_URL as REST_URL } from './configuration/api';
-
-export const timestampToString = (timestamp) => {
-  let date = (new Date(timestamp));
-  return date.getHours()+":"+(date.getMinutes() < 10 ? '0' : '') + date.getMinutes()+" "+date.getDate()+"."+(date.getMonth()+1)+"."+date.getFullYear();
-}
-
+import moment from 'moment';
 export const randomSentence = () =>{
 
 const subjects=['I','You','Bob','John','Sue','Kate','The lizard people'];
@@ -16,12 +11,26 @@ const endings=['.',', right?','.',', like I said.','.',', just like you!'];
 	return subjects[Math.round(Math.random()*(subjects.length-1))]+' '+verbs[Math.round(Math.random()*(verbs.length-1))]+' '+objects[Math.round(Math.random()*(objects.length-1))]+endings[Math.round(Math.random()*(endings.length-1))];
 }
 
+//time manipulation
 export const timestampToInput = (timestamp)=>{
   return timestamp!==null && timestamp!=='' && timestamp!==undefined ?new Date(timestamp).toISOString().replace('Z',''):''
 }
 
 export const inputToTimestamp = (input)=>{
   return isNaN(new Date(input).getTime()) || input === '' ? null : (new Date(input).getTime())
+}
+
+export const timestampToString = (timestamp) => {
+  let date = (new Date(timestamp));
+  return date.getHours()+":"+(date.getMinutes() < 10 ? '0' : '') + date.getMinutes()+" "+date.getDate()+"."+(date.getMonth()+1)+"."+date.getFullYear();
+}
+
+export const afterNow = (date) => {
+	return inputToTimestamp(date) !== null && inputToTimestamp(date) > (new Date()).getTime()
+}
+
+export const addMinutesToDate = ( date, minutes ) =>{
+	return moment(date).add(minutes, 'm').toDate()
 }
 
 //supported languages at https://github.com/conorhastings/react-syntax-highlighter/blob/HEAD/AVAILABLE_LANGUAGES_HLJS.MD
@@ -85,6 +94,22 @@ export const axiosAddEntity = ( data, entity  ) => {
   )
 }
 
+export const axiosUpdateEntity = ( data, entity ) => {
+  return axiosRequest(
+    'patch',
+    `${REST_URL}/${entity}`,
+    data
+  )
+}
+
+export const axiosDeleteEntity = ( entity ) => {
+  return axiosRequest(
+    'delete',
+    `${REST_URL}/${entity}`,
+    null
+  )
+}
+
 export const axiosGetEntities = (entity) => {
   return axiosRequest(
     'get',
@@ -94,3 +119,23 @@ export const axiosGetEntities = (entity) => {
   return response;
   })
 }
+
+export const shuffleArray = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+export const periodHappening = (period) => {
+	return !afterNow(period.openTime) &&
+	afterNow(addMinutesToDate(new Date(period.deadline), period.extraTime).getTime())
+}
+
+export const periodHasEnded = (period) => {
+	return !afterNow(period.openTime) &&
+	!afterNow(addMinutesToDate(new Date(period.deadline), period.extraTime).getTime())
+}
+
+export const getStudentName = (student) => student.firstName + ' ' + student.lastName;
