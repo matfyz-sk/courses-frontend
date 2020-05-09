@@ -1,5 +1,7 @@
-import assignmentsTestFileReducer from './testFileReducer';
+import assignTestFileReducer from './testFileReducer';
+import assignStudentDataReducer from './studentDataReducer';
 
 export default {
-  assignmentsTestFileReducer
+  assignTestFileReducer,
+  assignStudentDataReducer
 }

@@ -21,7 +21,7 @@ export default class Teams extends Component {
         <div>
           <FormGroup check>
           <Label check>
-            <Input type="checkbox" checked={this.props.data.disabled} onChange={()=>this.setData('disabled',!this.props.data.disabled)} /> {' '}
+            <Input type="checkbox" checked={this.props.data.disabled} onChange={()=>this.props.setTeamsDisabled(!this.props.data.disabled)} /> {' '}
             Disabled
           </Label>
         </FormGroup>

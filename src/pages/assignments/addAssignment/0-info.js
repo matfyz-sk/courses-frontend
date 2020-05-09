@@ -55,8 +55,6 @@ export default class TextReview extends Component {
           </FormGroup>
           <FormGroup>
             <Label for="submission-add-desc">Short description</Label>
-              {console.log(this.props.data.shortDescription)}
-              {console.log(typeof this.props.data.shortDescription)}
               <CKEditor
                 onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) }
                 id="submission-add-desc"

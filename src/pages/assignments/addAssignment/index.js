@@ -352,13 +352,25 @@ class ModalAddAssignment extends Component {
                     }else{
                       this.setState({submission:{...this.state.submission,anonymousSubmission}});
                     }
-                  }} />
+                  }}
+                  />
               </TabPane>
               <TabPane tabId="3">
                 <Fields data={this.state.fields} showErrors={this.state.showErrors} setData={(fields)=>{this.setState({fields})}} />
               </TabPane>
               <TabPane tabId="4">
-                <Teams data={this.state.teams} showErrors={this.state.showErrors} setData={(teams)=>{this.setState({teams})}} />
+                <Teams
+                  data={this.state.teams}
+                  showErrors={this.state.showErrors}
+                  setData={(teams)=>{this.setState({teams})}}
+                  setTeamsDisabled={(disabled)=>{
+                      if(disabled && this.state.reviews.reviewedByTeam){
+                      this.setState({teams:{...this.state.teams,disabled},reviews:{...this.state.reviews,reviewedByTeam:false}});
+                    }else{
+                      this.setState({teams:{...this.state.teams,disabled}});
+                    }
+                  }}
+                  />
               </TabPane>
               <TabPane tabId="5">
                 <Reviews
@@ -368,6 +380,7 @@ class ModalAddAssignment extends Component {
                   deleteQuestion={ this.deleteQuestion.bind(this) }
                   showErrors={this.state.showErrors}
                   openDisabled={this.state.submission.anonymousSubmission}
+                  teamsDisabled={this.state.teams.disabled}
                   setData={(reviews)=>{this.setState({reviews})}}
                   />
               </TabPane>
