@@ -1,6 +1,7 @@
 import React from 'react'
 import { store } from '../../index'
 import { setToken, setUser, logoutRedux } from '../../redux/actions/authActions'
+import {getShortID} from "../../helperFunctions";
 
 /**
  * Store data to storage and redux
@@ -144,14 +145,9 @@ export function getUserInCourseType(course_id) {
     return 'visitor'
   }
   for (let i = 0; i < user.studentOf.length; i++) {
-    if (user.studentOf[i]['@id'] === course_id) {
+    if (getShortID(user.studentOf[i]['@id']) === course_id) {
       return 'student'
     }
   }
-  // for (let i = 0; i < user.instructorOf.length; i++) {
-  //   if (user.instructorOf[i]['@id'] === course_id) {
-  //     return 'instructor'
-  //   }
-  // }
   return 'visitor'
 }

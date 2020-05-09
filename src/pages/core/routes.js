@@ -25,8 +25,6 @@ import Teams from './Teams'
 import Profile from './Profile'
 import TeamDetail from './Teams/TeamDetail'
 import NewCourseInstance from './NewCourseInstance'
-import CreateTeam from './Teams/CreateTeam'
-import TeamInstance from './Teams/TeamInstance'
 import InfoPage from './InfoPage'
 
 const CoreRoutes = [
@@ -45,38 +43,19 @@ const CoreRoutes = [
     auth
   />,
   <RouteWrapper
-    key={ROUTES.COURSE_TEAM_EDIT}
-    path={ROUTES.COURSE_TEAM_EDIT}
-    component={CreateTeam}
-    layout={CourseLayout}
-    auth
-  />,
-  <RouteWrapper
     key={ROUTES.COURSE_TEAM_CREATE}
     path={ROUTES.COURSE_TEAM_CREATE}
-    component={CreateTeam}
-    layout={CourseLayout}
-    auth
-  />,
-  <RouteWrapper
-    key={ROUTES.COURSE_TEAM_INSTANCE_CREATE}
-    path={ROUTES.COURSE_TEAM_INSTANCE_CREATE}
     component={TeamDetail}
     layout={CourseLayout}
+    exact
     auth
   />,
   <RouteWrapper
-    key={ROUTES.COURSE_TEAMS_DETAIL}
-    path={ROUTES.COURSE_TEAMS_DETAIL}
+    key={ROUTES.COURSE_TEAM_DETAIL}
+    path={ROUTES.COURSE_TEAM_DETAIL}
     component={TeamDetail}
     layout={CourseLayout}
-    auth
-  />,
-  <RouteWrapper
-    key={ROUTES.COURSE_TEAM_INSTANCE}
-    path={ROUTES.COURSE_TEAM_INSTANCE}
-    component={TeamInstance}
-    layout={CourseLayout}
+    exact
     auth
   />,
   <RouteWrapper
@@ -84,6 +63,7 @@ const CoreRoutes = [
     path={ROUTES.COURSE_TEAMS}
     component={Teams}
     layout={CourseLayout}
+    exact
     auth
   />,
   <PrivateOnlyRoute

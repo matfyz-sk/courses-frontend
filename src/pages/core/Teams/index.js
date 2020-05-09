@@ -45,33 +45,16 @@ class Teams extends Component {
       for (let i = 0; i < teams.length; i++) {
         const team = teams[i]
         const team_id = idFromURL(team['@id'])
+        console.log(team.courseInstance)
         render_teams.push(
-          <tr
-            key={`team-${i}`}
-          >
+          <tr key={`team-${i}`}>
             <th>{team.name}</th>
-            <td>{`${team.courseInstance.length} ${team.courseInstance.length > 1 ? 'users' : 'user'}`}</td>
             <td>{formatDate(team.createdAt)}</td>
             <td>
-              {privileges.inCourseInstance !== 'student' ? (
-                <Link
-                  key={`team-${i}-edit`}
-                  className="btn btn-dark btn-sm ml-1"
-                  to={redirect(ROUTES.COURSE_TEAM_EDIT, [
-                    {
-                      key: 'course_id',
-                      value: this.props.match.params.course_id,
-                    },
-                    { key: 'team_id', value: team_id },
-                  ])}
-                >
-                  Edit
-                </Link>
-              ) : null}
               <Link
-                key={`team-${i}-detail`}
+                key={`team-${i}-edit`}
                 className="btn btn-dark btn-sm ml-1"
-                to={redirect(ROUTES.COURSE_TEAM_INSTANCE, [
+                to={redirect(ROUTES.COURSE_TEAM_DETAIL, [
                   {
                     key: 'course_id',
                     value: this.props.match.params.course_id,
@@ -92,20 +75,18 @@ class Teams extends Component {
         <h1>
           Teams
         </h1>
-        {privileges.inCourseInstance !== 'student' ? (
-          <Link
-            to={redirect(ROUTES.COURSE_TEAM_CREATE, [
-              { key: 'course_id', value: course_id },
-            ])}
-          >
-            Create new team
-          </Link>
-        ) : null}
+        <Link
+          to={redirect(ROUTES.COURSE_TEAM_CREATE, [
+            { key: 'course_id', value: course_id },
+          ])}
+          className="btn btn-success mb-2"
+        >
+          Create new team
+        </Link>
         <Table hover>
           <thead>
             <tr>
               <th>Team name</th>
-              <th>Users in team</th>
               <th>Created at</th>
               <th />
             </tr>
