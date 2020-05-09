@@ -295,7 +295,7 @@ class TeamsDetail extends Component {
 
   render() {
     const { isOpen, form, error } = this.state
-    const { team, users, create, privileges, isAdmin } = this.props
+    const { team, users, create, privileges, isAdmin, privilegesReducer } = this.props
 
     const render_members = []
     let canEdit = false
@@ -344,7 +344,7 @@ class TeamsDetail extends Component {
         }
         render_members.push(
           <tr key={`users-${i}`}>
-            <th scope="row">{showUserName(user, privileges)}</th>
+            <th scope="row">{showUserName(user, privilegesReducer)}</th>
             <td>
               <h5>
                 <Badge color={users[i].approved ? 'success' : 'danger'}>

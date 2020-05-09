@@ -1,4 +1,4 @@
-import { PRIV_ACTIONS } from '../types/privilegesTypes'
+import { PRIV_ACTIONS } from '../types'
 
 export const setGlobalPrivileges = item => ({
   type: PRIV_ACTIONS.SET_GLOBAL_PRIV,

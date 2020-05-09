@@ -2,6 +2,7 @@ import React from 'react'
 import { store } from '../../index'
 import { setToken, setUser, logoutRedux } from '../../redux/actions/authActions'
 import {getShortID} from "../../helperFunctions";
+import {setGlobalPrivileges} from "../../redux/actions";
 
 /**
  * Store data to storage and redux
@@ -15,6 +16,11 @@ export function registerData(_token, user) {
     store.dispatch(setUser({ name: 'user', value: user }))
     localStorage.setItem('_token', _token)
     localStorage.setItem('user', JSON.stringify(user))
+    if(user.isSuperAdmin) {
+      store.dispatch(setGlobalPrivileges('admin'))
+    } else {
+      store.dispatch(setGlobalPrivileges('user'))
+    }
     return true
   }
   return false
@@ -48,6 +54,7 @@ export function synchronize() {
 }
 
 export function logout() {
+  store.dispatch(setGlobalPrivileges('visitor'))
   store.dispatch(logoutRedux())
   localStorage.clear()
   return true

@@ -19,7 +19,7 @@ class MainNavigation extends Component {
     const current = this.props.navReducer.current.main;
     return (
       <Navbar expand="md" className="main-nav">
-        <Link className="navbar-brand" to="/dashboard">
+        <Link className="navbar-brand" to="/">
           <img src={logo} alt="logo" style={{paddingBottom: "8px"}}/>
           <span className="d-none d-sm-inline-block">MATFYZ.sk</span>
         </Link>

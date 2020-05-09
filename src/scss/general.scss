@@ -1,3 +1,5 @@
+@import "variables";
+
 .modal-customs{
   max-width:900px;
 }
@@ -156,4 +158,20 @@ label {
 .scrollable{
   overflow-y: auto;
   overflow-x: auto;
+}
+
+.pagination-wrapper {margin-top: 20px}
+.pagination {display: inline-flex}
+.pagination * {cursor: pointer}
+.page-item.active .page-link {
+  background-color: $green
+}
+
+.rounded-image {
+  width: 100%;
+  padding-top: 100%;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: 50%;
 }
