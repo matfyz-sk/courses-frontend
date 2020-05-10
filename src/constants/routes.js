@@ -28,3 +28,4 @@ export const COURSE_TEAM_CREATE = coursePrefix('/team-create')
 export const COURSE_TEAM_DETAIL = coursePrefix('/teams/:team_id')
 
 export const PUBLIC_PROFILE = '/profile/:user_id'
+export const REGISTER_COMPLETION = '/register-completion'

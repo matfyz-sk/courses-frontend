@@ -1,5 +1,5 @@
 import { getShortID } from '../../helperFunctions'
-import { getUserID } from './index'
+import {getUser, getUserID} from './index';
 
 export function showUserName(user, privilege) {
   if (privilege.inGlobal === 'admin') {
@@ -30,4 +30,15 @@ export function textLimiter(text, words = 15) {
     return text
   }
   return ''
+}
+
+export function isVisibleUser(user) {
+  return (
+    user.publicProfile ||
+    user.allowContact ||
+    user.showCourses ||
+    user.showBadges ||
+    (getUserID() && getUserID() === getShortID(user['@id'])) ||
+    (getUser() && getUser().isSuperAdmin)
+  )
 }

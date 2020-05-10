@@ -4,7 +4,8 @@ import { connect } from 'react-redux'
 import {
   Alert,
   Button,
-  Col, Collapse,
+  Col,
+  Collapse,
   Container,
   Form,
   FormFeedback,
@@ -13,23 +14,20 @@ import {
   Label,
   Row,
 } from 'reactstrap'
-import {
-  emailValidator,
-  textValidator,
-} from '../../../functions/validators'
-import { authHeader, getUserID, setUserProfile} from '../../../components/Auth';
-import { BACKEND_URL } from '../../../configuration/api'
+import { emailValidator, textValidator } from '../../functions/validators'
+import { authHeader, getUser, getUserID, setUserProfile} from '../../components/Auth';
+import { BACKEND_URL } from '../../configuration/api'
 
-class Profile extends Component {
+class RegisterCompletion extends Component {
   constructor(props) {
     super(props)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.validation = this.validation.bind(this)
     this.handleInputChange = this.handleInputChange.bind(this)
-    this.fetchCurrentData = this.fetchCurrentData.bind(this)
     this.handleToggleNickException = this.handleToggleNickException.bind(this)
+    this.checkEmailExisting = this.checkEmailExisting.bind(this)
     this.state = {
-      user: null,
+      user: { ...getUser(), description: '' },
       errors: {},
       be_error: null,
       success: false,
@@ -37,11 +35,11 @@ class Profile extends Component {
   }
 
   componentDidMount() {
-    this.fetchCurrentData()
+    document.getElementsByClassName('main-nav')[0].style.display = 'none'
     document.addEventListener('keyup', event => {
       if (event.keyCode === 13) {
         event.preventDefault()
-        this.handleSubmit()
+        this.checkEmailExisting()
       }
     })
   }
@@ -62,49 +60,78 @@ class Profile extends Component {
     }
     errors.firstName = textValidator(user.firstName, 3, 20)
     errors.lastName = textValidator(user.lastName, 3, 20)
-    errors.email = emailValidator(user.email)
     if (user.useNickName) {
       errors.nickname = textValidator(user.nickname, 5, 20)
     } else {
       errors.nickname = null
     }
     this.setState({ errors })
-    return (
+    const result = (
       errors.firstName.result &&
       errors.lastName.result &&
       errors.email.result &&
       (errors.nickname === null || errors.nickname.result === true)
     )
+    if(result) {
+      this.handleSubmit()
+    }
   }
 
   handleSubmit() {
-    if (this.validation()) {
-      const { user } = this.state
-      const updatedAttrs = [
-        'firstName', 'lastName', 'description', 'email',
-        'nickname', 'useNickName', 'nickNameTeamException', 'allowContact', 'publicProfile', 'showBadges', 'showCourses'
-      ]
-      const body = {}
-      for (let i = 0; i < updatedAttrs.length; i++) {
-        body[updatedAttrs[i]] = user[updatedAttrs[i]]
-      }
+    const { user } = this.state
+    const updatedAttrs = [
+      'firstName', 'lastName', 'description', 'email',
+      'nickname', 'useNickName', 'nickNameTeamException', 'allowContact', 'publicProfile', 'showBadges', 'showCourses'
+    ]
+    const body = {}
+    for (let i = 0; i < updatedAttrs.length; i++) {
+      body[updatedAttrs[i]] = user[updatedAttrs[i]]
+    }
 
-      fetch(`${BACKEND_URL}/data/user/${getUserID()}`, {
-        method: 'PATCH',
+    fetch(`${BACKEND_URL}/data/user/${getUserID()}`, {
+      method: 'PATCH',
+      headers: authHeader(),
+      mode: 'cors',
+      credentials: 'omit',
+      body: JSON.stringify(body),
+    })
+      .then(response => {
+        if (!response.ok) throw new Error(response)
+        else return response.json()
+      })
+      .then(data => {
+        setUserProfile(body)
+        document.getElementsByClassName('main-nav')[0].style.display = 'block'
+        this.props.history.push('/dashboard')
+      })
+
+  }
+
+  checkEmailExisting() {
+    const { user, errors } = this.state
+    errors.email = emailValidator(user.email)
+    if (errors.email && errors.email.result) {
+      fetch(`${BACKEND_URL}/data/user?email=${user.email}`, {
+        method: 'GET',
         headers: authHeader(),
         mode: 'cors',
         credentials: 'omit',
-        body: JSON.stringify(body),
       })
         .then(response => {
           if (!response.ok) throw new Error(response)
           else return response.json()
         })
         .then(data => {
-          this.setState({success: true})
-          setUserProfile(body)
+          if(data['@graph'] && data['@graph'].length > 0) {
+            errors.email = { result: false, msg: 'Sorry, but email is already taken!' }
+            this.setState({ errors })
+            return false
+          }
+          return this.validation()
         })
     }
+    this.setState({ errors })
+    return false
   }
 
   handleToggleNickException() {
@@ -113,30 +140,23 @@ class Profile extends Component {
     this.setState({ user })
   }
 
-  fetchCurrentData() {
-    fetch(`${BACKEND_URL}/data/user/${getUserID()}`, {
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if (!response.ok) throw new Error(response);
-        else return response.json();
-      })
-      .then(data => {
-        if (data && data['@graph']) {
-          const user = data['@graph'][0]
-          this.setState({ user })
-        }
-      })
-  }
-
   render() {
     const { user, errors, be_error, success } = this.state
     return (
-      <Container>
-        <h1 className="mb-5">Profile settings</h1>
+      <Container className="mb-5">
+        <Row>
+          <Col xs={12}>
+            <h1 className="mt-5">This account is new!</h1>
+            <h2 className="mb-5">Fill your profile and set your privacy.</h2>
+          </Col>
+        </Row>
+        <Alert color="warning" className="mb-3">
+          If your <b>already have account in this system</b> and you <b>dont want to create new one</b>, remove this settings and go back to login!
+          <br />
+          <div className="text-sm-right text-center">
+            <Button color="danger" className="mt-3">Remove settings and go back</Button>
+          </div>
+        </Alert>
         {be_error ? <Alert color="danger">Error!{be_error}</Alert> : null}
         {success ? <Alert color="success">Profile has been updated!</Alert> : null}
         <Row>
@@ -236,8 +256,8 @@ class Profile extends Component {
                   }
                 />
               </FormGroup>
-              <Button onClick={this.handleSubmit} className="mt-3">
-                Update
+              <Button onClick={this.checkEmailExisting} className="mt-3" color="success">
+                Create profile
               </Button>
             </Form>
           </Col>
@@ -315,10 +335,10 @@ class Profile extends Component {
                   checked={user ? user.publicProfile : false}
                 />
                 <Label for="publicProfile" check>
-                  My profile is completely public
+                  My profile is public
                 </Label>
               </FormGroup>
-              <Collapse isOpen={user && !user.publicProfile} className="ml-3 mt-2 font-weight-normal">
+              <Collapse isOpen={user && !user.publicProfile}>
                 <FormGroup check>
                   <Input
                     type="checkbox"
@@ -362,4 +382,4 @@ const mapStateToProps = state => {
   return state
 }
 
-export default withRouter(connect(mapStateToProps)(Profile))
+export default withRouter(connect(mapStateToProps)(RegisterCompletion))

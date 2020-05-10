@@ -2,10 +2,20 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import MainNavigation from '../components/Navigation/MainNavigation'
-import { synchronize } from '../components/Auth'
+import { getUser, synchronize } from '../components/Auth'
+import { REGISTER_COMPLETION } from '../constants/routes'
 
 class MainLayout extends Component {
   componentDidMount() {
+    if (
+      getUser() &&
+      getUser().email === '' &&
+      window.location.pathname !== REGISTER_COMPLETION
+    ) {
+      this.props.history.push(REGISTER_COMPLETION)
+    } else if (window.location.pathname === REGISTER_COMPLETION) {
+      this.props.history.push('/dashboard')
+    }
     synchronize()
   }
 

@@ -6,6 +6,7 @@ import {Container, Row} from 'reactstrap';
 import { BACKEND_URL } from '../../configuration/api'
 import { authHeader } from '../../components/Auth'
 import UserCard from './UserCard'
+import {isVisibleUser} from "../../components/Auth/userFunction";
 
 const PER_PAGE = 18
 
@@ -26,7 +27,13 @@ const MainPage = props => {
       })
       .then(data => {
         if (data['@graph'].length > 0) {
-          setUsers(data['@graph'])
+          const userData = []
+          data['@graph'].reverse().map(item => {
+            if (isVisibleUser(item)) {
+              userData.push(item)
+            }
+          })
+          setUsers(userData)
         }
       })
   }
