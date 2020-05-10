@@ -15,7 +15,7 @@ const MainPage = props => {
   const [page, setPage] = useState(0)
 
   function fetchUsers() {
-    fetch(`${BACKEND_URL}/data/user?publicProfile=1&_orderBy=createdAt`, {
+    fetch(`${BACKEND_URL}/data/user?_orderBy=createdAt`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',

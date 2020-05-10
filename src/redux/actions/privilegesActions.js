@@ -9,3 +9,7 @@ export const setCourseInstancePrivileges = item => ({
   type: PRIV_ACTIONS.SET_COURSE_INSTANCE_PRIV,
   item,
 })
+
+export const setCourseInstanceInstructor = () => ({
+  type: PRIV_ACTIONS.SET_CI_INSTRUCTOR,
+})

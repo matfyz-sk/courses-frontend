@@ -1,4 +1,4 @@
-import { PRIV_ACTIONS } from '../types/privilegesTypes'
+import { PRIV_ACTIONS } from '../types'
 import { getUserInCourseType } from '../../components/Auth'
 
 const initialState = {
@@ -17,6 +17,11 @@ export default function privilegesReducer(state = initialState, action) {
       return {
         ...state,
         inCourseInstance: getUserInCourseType(action.item.course_id),
+      }
+    case PRIV_ACTIONS.SET_CI_INSTRUCTOR:
+      return {
+        ...state,
+        inCourseInstance: 'instructor',
       }
     default:
       return state

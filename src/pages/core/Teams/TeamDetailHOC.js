@@ -4,8 +4,11 @@ import { BACKEND_URL } from '../../../configuration/api'
 import { authHeader } from '../../../components/Auth'
 
 const withTeamHandler = Component => props => {
-  const { privilegesReducer } = props
-  if (privilegesReducer.inCourseInstance === 'visitor') {
+  const { privilegesReducer, courseInstanceReducer } = props
+  if (
+    courseInstanceReducer.courseInstance !== null &&
+    privilegesReducer.inCourseInstance === 'visitor'
+  ) {
     return <Page404 />
   }
   const [team, setTeam] = useState({})
@@ -64,27 +67,27 @@ const withTeamHandler = Component => props => {
     }, [])
   }
 
-  return (
-    <>
-      {resp === 200 ? (
-        <Component
-          {...props}
-          create={create && !is_member}
-          team={team}
-          users={users}
-          isAdmin={privilegesReducer.inCourseInstance !== 'student'}
-          course_id={course_id}
-          privileges={
-            privilegesReducer.inGlobal === 'admin'
-              ? 'instructor'
-              : privilegesReducer.inCourseInstance
-          }
-        />
-      ) : (
-        <Page404 />
-      )}
-    </>
-  )
+  if (resp === 200) {
+    return (
+      <Component
+        {...props}
+        create={create && !is_member}
+        team={team}
+        users={users}
+        isAdmin={privilegesReducer.inCourseInstance !== 'student'}
+        course_id={course_id}
+        privileges={
+          privilegesReducer.inGlobal === 'admin'
+            ? 'instructor'
+            : privilegesReducer.inCourseInstance
+        }
+      />
+    )
+  }
+  if (resp === 404) {
+    return <Page404 />
+  }
+  return null
 }
 
 export default withTeamHandler

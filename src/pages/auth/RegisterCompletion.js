@@ -15,7 +15,13 @@ import {
   Row,
 } from 'reactstrap'
 import { emailValidator, textValidator } from '../../functions/validators'
-import { authHeader, getUser, getUserID, setUserProfile} from '../../components/Auth';
+import {
+  authHeader,
+  getUser,
+  getUserID,
+  logout,
+  setUserProfile,
+} from '../../components/Auth'
 import { BACKEND_URL } from '../../configuration/api'
 
 class RegisterCompletion extends Component {
@@ -26,6 +32,7 @@ class RegisterCompletion extends Component {
     this.handleInputChange = this.handleInputChange.bind(this)
     this.handleToggleNickException = this.handleToggleNickException.bind(this)
     this.checkEmailExisting = this.checkEmailExisting.bind(this)
+    this.removeAccount = this.removeAccount.bind(this)
     this.state = {
       user: { ...getUser(), description: '' },
       errors: {},
@@ -35,7 +42,7 @@ class RegisterCompletion extends Component {
   }
 
   componentDidMount() {
-    document.getElementsByClassName('main-nav')[0].style.display = 'none'
+    document.getElementsByClassName('main-nav')[0].style.opacity = 0
     document.addEventListener('keyup', event => {
       if (event.keyCode === 13) {
         event.preventDefault()
@@ -101,7 +108,7 @@ class RegisterCompletion extends Component {
       })
       .then(data => {
         setUserProfile(body)
-        document.getElementsByClassName('main-nav')[0].style.display = 'block'
+        document.getElementsByClassName('main-nav')[0].style.opacity = 1
         this.props.history.push('/dashboard')
       })
 
@@ -140,13 +147,31 @@ class RegisterCompletion extends Component {
     this.setState({ user })
   }
 
+  removeAccount() {
+    fetch(`${BACKEND_URL}/data/user/${getUserID()}`, {
+      method: 'DELETE',
+      headers: authHeader(),
+      mode: 'cors',
+      credentials: 'omit',
+    })
+      .then(response => {
+        if (!response.ok) throw new Error(response)
+        else return response.json()
+      })
+      .then(data => {
+        logout()
+        document.getElementsByClassName('main-nav')[0].style.opacity = 1
+        this.props.history.push('/')
+      })
+  }
+
   render() {
     const { user, errors, be_error, success } = this.state
     return (
       <Container className="mb-5">
         <Row>
           <Col xs={12}>
-            <h1 className="mt-5">This account is new!</h1>
+            <h1>This account is new!</h1>
             <h2 className="mb-5">Fill your profile and set your privacy.</h2>
           </Col>
         </Row>
@@ -154,7 +179,7 @@ class RegisterCompletion extends Component {
           If your <b>already have account in this system</b> and you <b>dont want to create new one</b>, remove this settings and go back to login!
           <br />
           <div className="text-sm-right text-center">
-            <Button color="danger" className="mt-3">Remove settings and go back</Button>
+            <Button color="danger" className="mt-3" onClick={()=>this.removeAccount()}>Remove settings and go back</Button>
           </div>
         </Alert>
         {be_error ? <Alert color="danger">Error!{be_error}</Alert> : null}

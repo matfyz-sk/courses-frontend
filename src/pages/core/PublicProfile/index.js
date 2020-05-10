@@ -18,10 +18,10 @@ import withPublic from './withPublic'
 import { showUserName } from '../../../components/Auth/userFunction'
 import PrivateField from './PrivateField'
 import EmptyField from './EmptyField'
-import { COURSE_ID } from '../../../constants/routes'
+import { INFO_PAGE } from '../../../constants/routes'
 import './assets/style.scss'
 import { redirect } from '../../../constants/redirect'
-import {getShortID} from "../../../helperFunctions";
+import { getShortID } from '../../../helperFunctions'
 
 const PublicProfile = ({
   user,
@@ -115,7 +115,7 @@ const ShowList = ({ list, ...props }) => {
         <ListGroupItem key={`list-${i}`}>
           <ListGroupItemHeading>
             <Link
-              to={redirect(COURSE_ID, [
+              to={redirect(INFO_PAGE, [
                 { key: 'course_id', value: getShortID(list[i]['@id']) },
               ])}
             >

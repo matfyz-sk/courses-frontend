@@ -23,7 +23,7 @@ import { BACKEND_URL } from '../../../configuration/api'
 import { redirect } from '../../../constants/redirect'
 import withTeamHandler from './TeamDetailHOC'
 import { getShortID } from '../../../helperFunctions'
-import { showUserName } from '../../../components/Auth/userFunction'
+import {isVisibleUser, showUserName} from '../../../components/Auth/userFunction';
 
 class TeamsDetail extends Component {
   constructor(props) {
@@ -354,7 +354,18 @@ class TeamsDetail extends Component {
             </td>
             <td>{action}</td>
             <td>
-              <Link to="/courses/detail/students/detail">DETAIL</Link>
+              {isVisibleUser(users[i].hasUser[0]) ? (
+                <Link
+                  to={redirect(ROUTES.PUBLIC_PROFILE, [
+                    {
+                      key: 'user_id',
+                      value: getShortID(users[i].hasUser[0]['@id']),
+                    },
+                  ])}
+                >
+                  DETAIL
+                </Link>
+              ) : null}
             </td>
           </tr>
         )
