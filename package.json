@@ -14,6 +14,7 @@
     "moment": "^2.24.0",
     "node-sass": "^4.11.0",
     "prop-types": "^15.7.2",
+    "rc-slider": "^9.2.4",
     "react": "^16.13.1",
     "react-beautiful-dnd": "^12.2.0",
     "react-compound-slider": "^1.2.1",

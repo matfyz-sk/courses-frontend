@@ -111,7 +111,7 @@ export default class InstructorAssignmentView extends Component {
                 <td>
                   <Button
                     color="success"
-                    onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/${getShortID(submission['@id'])}/0`)}
+                    onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/${getShortID(submission['@id'])}/submission`)}
                     >
                     {submission.teacherRating ? 'View' : 'View/Score' }
                   </Button>

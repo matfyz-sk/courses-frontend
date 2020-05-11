@@ -3,8 +3,8 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, NavItem, NavLink, N
 import classnames from 'classnames';
 import moment from 'moment';
 import { connect } from "react-redux";
-import { addAssignment } from '../restCalls';
-import { inputToTimestamp, getResponseBody, axiosGetEntities, axiosAddEntity, getIRIFromAddResponse } from '../../../helperFunctions';
+import { addAssignment } from '../reusableFunctions';
+import { inputToTimestamp, getResponseBody, axiosGetEntities, axiosAddEntity, getIRIFromAddResponse } from 'helperFunctions';
 
 import Info from './0-info';
 import Submission from './1-submission';
@@ -323,12 +323,6 @@ class ModalAddAssignment extends Component {
               </NavItem>
             }
             </Nav>
-            <Alert color="primary" isOpen={!this.state.formLoaded}>
-              Data is loading!
-            </Alert>
-            <Alert color="primary" isOpen={this.state.saving}>
-              Creating assignment, please wait!
-            </Alert>
             { this.state.formLoaded &&
               <TabContent activeTab={this.state.activeTab}>
               <TabPane tabId="1">
@@ -389,6 +383,12 @@ class ModalAddAssignment extends Component {
               </TabPane>
             </TabContent>
           }
+          <Alert color="primary" isOpen={!this.state.formLoaded}>
+            Data is loading!
+          </Alert>
+          <Alert color="primary" isOpen={this.state.saving}>
+            Creating assignment, please wait!
+          </Alert>
           </ModalBody>
           <ModalFooter>
             <span className="mr-auto">

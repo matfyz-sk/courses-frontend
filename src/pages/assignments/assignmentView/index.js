@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Collapse, CardBody, Card, Button, Alert, Table } from 'reactstrap';
 import { connect } from "react-redux";
-import { inputToTimestamp, afterNow, axiosDeleteEntity, getShortID } from '../../../helperFunctions';
+import { inputToTimestamp, afterNow, axiosDeleteEntity, getShortID } from 'helperFunctions';
 import InstructorAssignmentView from './instructorView';
 import StudentAssignmentView from './studentView';
 import classnames from 'classnames';
@@ -57,13 +57,19 @@ class AssignmentView extends Component{
       <div className="assignmentViewContainer center-ver">
         <div className="row">
           <h3 className={classnames({'greyed-out': !this.getDefaultOpenState()})}>{assignment.name}</h3>
-          <Button outline color="danger" className="ml-auto center-hor p-1"
+          { this.props.isInstructor &&
+          <Button
+            outline
+            color="danger"
+            className="ml-auto center-hor p-1"
             style={{width:34}}
             onClick={this.deleteAssignment.bind(this)}
             >
             <i className="fa fa-trash" />
           </Button>
+          }
           <Button color="link"
+            className={classnames({ 'ml-auto': !this.props.isInstructor })}
             onClick={()=>this.setState({opened:!this.state.opened})}
             style={ this.state.opened? {marginLeft:'0.35em'} : {} }
             >
@@ -85,11 +91,11 @@ class AssignmentView extends Component{
   }
 }
 
-const mapStateToProps = ({courseInstanceReducer, authReducer}) => {
-  const { courseInstance } = courseInstanceReducer;
+const mapStateToProps = ({assignCourseInstanceReducer, authReducer}) => {
+  const { courseInstance } = assignCourseInstanceReducer;
   const { user } = authReducer;
   return {
-    isInstructor: courseInstance !== null && user !== null && courseInstance.hasInstructor.some((instructor) => instructor['@id'] === user.fullURI)
+    isInstructor: courseInstance.hasInstructor.some((instructor) => instructor['@id'] === user.fullURI)
   };
 };
 
