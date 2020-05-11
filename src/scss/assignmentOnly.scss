@@ -1,0 +1,16 @@
+.form-control:focus {
+  border-color: #2ea22e;
+  box-shadow: 0 0 0 0.2rem rgba(29, 102, 29, 0.25);
+}
+
+.card-header {
+  background-color: #c9ecc866;
+}
+
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+  border-color: #c9ecc8 #c9ecc8 #fff;
+}
+
+.nav-tabs, .modal-header, .modal-footer, .card {
+  border-color: #c9ecc8;
+}

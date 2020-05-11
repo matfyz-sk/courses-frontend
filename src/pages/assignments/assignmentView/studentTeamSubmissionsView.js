@@ -48,16 +48,16 @@ export default class StudentTeamSubmissionsView extends Component {
         </td>
         { periodHappening(this.props.assignment.teamReviewPeriod) &&
           <td className="center-cell">
-            <Button color="success" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/team/${getShortID(team['@id'])}/submission/3`)}>Review team</Button>
+            <Button color="success" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/team/${getShortID(team['@id'])}/submission/teamReview`)}>Review team</Button>
           </td>
         }
         { periodHasEnded(this.props.assignment.teamReviewPeriod) &&
           <td className="center-cell">
-            <Button color="success" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/team/${getShortID(team['@id'])}/submission/3`)}>Team results</Button>
+            <Button color="success" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/team/${getShortID(team['@id'])}/submission/teamReview`)}>Team results</Button>
           </td>
         }
         <td>
-        <Button color="success" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/team/${getShortID(team['@id'])}/submission/0`)}>Update</Button>
+        <Button color="success" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/team/${getShortID(team['@id'])}/submission/submission`)}>Update</Button>
         </td>
         </tr>
       )}

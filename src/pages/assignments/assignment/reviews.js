@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Label } from 'reactstrap';
-import {randomSentence} from '../../../helperFunctions';
+import {randomSentence} from 'helperFunctions';
 export default class TextTeview extends Component {
   constructor(props){
     super(props);

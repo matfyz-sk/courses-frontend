@@ -3,7 +3,7 @@ import { Button, FormGroup, Label, Input, Table, Popover, PopoverHeader, Popover
 import CKEditor from 'ckeditor4-react';
 import moment from 'moment';
 
-import ErrorMessage from '../../../components/error';
+import ErrorMessage from 'components/error';
 import AddNewMaterial from './material/newMaterial';
 import AddExistingMaterial from './material/existingMaterial';
 

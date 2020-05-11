@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormGroup, Label, Input, FormText } from 'reactstrap';
 import CKEditor from 'ckeditor4-react';
-import ErrorMessage from '../../components/error';
+import ErrorMessage from 'components/error';
 
 export const generateField = (field,state, onChange) => {
   let onChangeWithTaget=(event)=>{

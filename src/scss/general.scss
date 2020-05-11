@@ -164,7 +164,7 @@ label {
 .pagination {display: inline-flex}
 .pagination * {cursor: pointer}
 .page-item.active .page-link {
-  background-color: $green
+  background-color: $green;
 }
 
 .rounded-image {
@@ -174,4 +174,19 @@ label {
   background-size: cover;
   background-repeat: no-repeat;
   border-radius: 50%;
+}
+
+.custom-slider{
+    padding: 10px 10px;
+    border: solid 1px #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.rc-slider-track{
+  background-color: #1D661D !important;
+}
+
+.rc-slider-handle{
+  border-color: #1D661D !important;
 }
