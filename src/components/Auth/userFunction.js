@@ -2,13 +2,10 @@ import { getShortID } from '../../helperFunctions'
 import {getUser, getUserID} from './index';
 
 export function showUserName(user, privilege) {
-  if (privilege.inGlobal === 'admin') {
-    return `${user.firstName} ${user.lastName} (${user.nickname ? user.nickname : ''})`
-  }
   if (getShortID(user['@id']) === getUserID() || !user.useNickName) {
     return `${user.firstName} ${user.lastName}`
   }
-  if (privilege.inCourseInstance === 'instructor') {
+  if (privilege.inCourseInstance === 'instructor' || privilege.inGlobal === 'admin') {
     return `${user.firstName} ${user.lastName} ${user.useNickName && user.nickname.length > 0 ? `(${user.nickname})` : ''}`
   }
   if (user.useNickName) {

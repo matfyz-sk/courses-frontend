@@ -2,7 +2,7 @@ import { PRIV_ACTIONS } from '../types'
 import { getUserInCourseType } from '../../components/Auth'
 
 const initialState = {
-  inGlobal: 'student',
+  inGlobal: 'visitor',
   inCourseInstance: 'visitor',
 }
 
@@ -22,6 +22,12 @@ export default function privilegesReducer(state = initialState, action) {
       return {
         ...state,
         inCourseInstance: 'instructor',
+      }
+    case PRIV_ACTIONS.RESET_PRIVILEGES:
+      return {
+        ...state,
+        inGlobal: 'visitor',
+        inCourseInstance: 'visitor',
       }
     default:
       return state

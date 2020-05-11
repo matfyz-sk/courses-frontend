@@ -13,3 +13,7 @@ export const setCourseInstancePrivileges = item => ({
 export const setCourseInstanceInstructor = () => ({
   type: PRIV_ACTIONS.SET_CI_INSTRUCTOR,
 })
+
+export const resetPrivileges = () => ({
+  type: PRIV_ACTIONS.RESET_PRIVILEGES,
+})
