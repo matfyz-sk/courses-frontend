@@ -53,7 +53,17 @@ export const htmlFixNewLines = (text) => {
   return text.replace(/(?:\r\n|\r|\n)/g,'<br>');
 }
 
+export const toSelectInput = ( arr, label = 'name', id = '@id' ) => {
+  return arr.map((item)=>{
+    return {
+      ...item,
+      value: item[id],
+      label: item[label]
+    }
+  })
+}
 
+// AXIOS helpers
 export const axiosRequest = (method, url, data) => {
   return axios
     .request({
@@ -126,6 +136,10 @@ export const shuffleArray = (arr) => {
         [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;
+}
+
+export const periodStarted = (period) => {
+	return !afterNow(period.openTime)
 }
 
 export const periodHappening = (period) => {

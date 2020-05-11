@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { Alert } from 'reactstrap';
+import { Alert, Button } from 'reactstrap';
 
 import AssignmentView from './assignmentView';
 import AddAssignment from './addAssignment';
-import { getResponseBody, inputToTimestamp, getShortID, axiosGetEntities } from '../../helperFunctions';
-import { assignmentsGetStudentTeams } from '../../redux/actions';
+import { getResponseBody, inputToTimestamp, getShortID, axiosGetEntities, axiosUpdateEntity, afterNow } from 'helperFunctions';
+import { assignmentsGetStudentTeams, assignmentsGetCourseInstance } from 'redux/actions';
+import { getAssignmentPeriods, assignPeriods } from './reusableFunctions';
 
 class Assignments extends Component{
   constructor(props){
@@ -14,52 +15,25 @@ class Assignments extends Component{
       assignments:[],
       loadingAssignments:true,
     }
+    this.getCourseInstance();
     this.refreshAssignments.bind(this);
+  }
+
+  getCourseInstance(){
+    if(this.props.courseInstanceLoaded && !this.props.courseInstanceLoading && getShortID(this.props.courseInstance['@id']) === this.props.match.params.courseInstanceID){
+      return;
+    }
+    this.props.assignmentsGetCourseInstance(this.props.match.params.courseInstanceID)
   }
 
   componentWillReceiveProps(props){
     if(
       (props.user!== null && this.props.user === null) ||
-      (props.courseInstance!== null && this.props.courseInstance === null) ||
-      (props.courseInstance!== null && this.props.courseInstance !== null && props.courseInstance['@id'] !== this.props.courseInstance['@id'] )
+      (props.courseInstance !== null && this.props.courseInstance === null) ||
+      (props.courseInstance !== null && this.props.courseInstance !== null && props.courseInstance['@id'] !== this.props.courseInstance['@id'] )
     ){
       this.refreshAssignments(props);
     }
-  }
-
-  findPeriod(oldPeriod, periods){
-    return periods.find( (period) => period['@id'] === oldPeriod[0]['@id'] )
-  }
-
-  assignPeriods(originalAssignment, periods){
-    let assignment = {
-      ...originalAssignment,
-      initialSubmissionPeriod: this.findPeriod( originalAssignment.initialSubmissionPeriod, periods )
-    }
-    if(assignment.submissionImprovedSubmission){
-      assignment.improvedSubmissionPeriod = this.findPeriod( originalAssignment.improvedSubmissionPeriod, periods );
-    }
-    if(!assignment.reviewsDisabled){
-      assignment.peerReviewPeriod = this.findPeriod( originalAssignment.peerReviewPeriod, periods );
-    }
-    if(!assignment.teamReviewsDisabled && !assignment.teamsDisabled){
-      assignment.teamReviewPeriod = this.findPeriod( originalAssignment.teamReviewPeriod, periods );
-    }
-    return assignment;
-  }
-
-  getAssignmentPeriods(assignment){
-    let periods = [...assignment.initialSubmissionPeriod];
-    if(assignment.submissionImprovedSubmission){
-      periods.push(...assignment.improvedSubmissionPeriod);
-    }
-    if(!assignment.reviewsDisabled){
-      periods.push(...assignment.peerReviewPeriod);
-    }
-    if(!assignment.teamReviewsDisabled && !assignment.teamsDisabled){
-      periods.push(...assignment.teamReviewPeriod);
-    }
-    return periods.map((period) => period['@id'] );
   }
 
   assignSubmissions(assignments, submissions){
@@ -69,20 +43,21 @@ class Assignments extends Component{
     }))
   }
 
+
   refreshAssignments(props){
     if(props.courseInstance !== null && props.user !== null){
       //?courseInstance=${props.courseInstance['@id']}
       //console.log(props.courseInstance['@id']);
-      axiosGetEntities(`assignment?courseInstance=${getShortID(props.courseInstance['@id'])}&_join=ofAssignment`).then((response)=>{
+      axiosGetEntities(`assignment?courseInstance=${getShortID(props.courseInstance['@id'])}`).then((response)=>{
         //console.log(response);
         if(!response.failed){
-          let assignments = getResponseBody(response);
-          let periodsIDs = assignments.map(this.getAssignmentPeriods).reduce(
+          let assignments = getResponseBody(response).filter((result) => result['@type'].endsWith('ontology#Assignment') );
+          let periodsIDs = assignments.map(getAssignmentPeriods).reduce(
             (acc,value)=>{
               return acc.concat(value)
             },[]
           );
-          if(this.props.courseInstance.hasInstructor.some((instructor) => instructor['@id'] === this.props.user.fullURI )){
+          if(props.isInstructor ){
             let axiosPeriods = periodsIDs.map((period) => axiosGetEntities(`assignmentPeriod/${getShortID(period)}`) );
             let axiosSubmissions = assignments.map((assignment) => axiosGetEntities(`submission?ofAssignment=${getShortID(assignment['@id'])}_join=submittedByStudent,submittedByTeam`) );
             Promise.all([
@@ -92,7 +67,7 @@ class Assignments extends Component{
               let periods = periodsResponses.map((response) => getResponseBody(response)[0]);
               let submissions = submissionsResponses.map((response) => getResponseBody(response));
               assignments = this.assignSubmissions( assignments, submissions );
-              assignments = assignments.map( (assignment) => this.assignPeriods(assignment, periods) )
+              assignments = assignments.map( (assignment) => assignPeriods(assignment, periods) )
               assignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
               this.setState({ assignments, loadingAssignments: false })
             })
@@ -100,7 +75,7 @@ class Assignments extends Component{
             this.props.assignmentsGetStudentTeams(props.user.fullURI, props.courseInstance['@id'] );
             Promise.all(periodsIDs.map((period) => axiosGetEntities(`assignmentPeriod/${getShortID(period)}`) )).then((responses)=>{
               let periods = responses.map((response) => getResponseBody(response)[0]);
-              assignments = assignments.map( (assignment) => this.assignPeriods(assignment, periods) );
+              assignments = assignments.map( (assignment) => assignPeriods(assignment, periods) );
               assignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
               this.setState({ assignments, loadingAssignments: false })
             })
@@ -111,34 +86,37 @@ class Assignments extends Component{
   }
 
   updateAssignment(assignmentID){
-    if(this.props.courseInstance !== null){
-      axiosGetEntities(`assignment/${getShortID(assignmentID)}`).then((response)=>{
-        if(!response.failed){
-          let assignment = getResponseBody(response)[0];
-          let periodsIDs = this.getAssignmentPeriods(assignment);
-          Promise.all([
-            Promise.all(periodsIDs.map((period) => axiosGetEntities(`assignmentPeriod/${getShortID(period)}`) )),
-            axiosGetEntities(`submission?ofAssignment=${assignmentID}_join=submittedByStudent,submittedByTeam`)
-          ]).then(([periodsResponses, submissionsResponse])=>{
-            let periods = periodsResponses.map((response) => getResponseBody(response)[0]);
-            assignment.submissions = getResponseBody(submissionsResponse);
-            let assignments = [this.assignPeriods(assignment, periods)].concat(this.state.assignments.filter((assignment) => assignment['@id'] !== assignmentID ));
-            assignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
-            this.setState({ assignments })
-          })
-        }
-      })
-    }
+    axiosGetEntities(`assignment/${getShortID(assignmentID)}`).then((response)=>{
+      if(!response.failed){
+        let assignment = getResponseBody(response)[0];
+        let periodsIDs = getAssignmentPeriods(assignment);
+        Promise.all([
+          Promise.all(periodsIDs.map((period) => axiosGetEntities(`assignmentPeriod/${getShortID(period)}`) )),
+          axiosGetEntities(`submission?ofAssignment=${assignmentID}_join=submittedByStudent,submittedByTeam`)
+        ]).then(([periodsResponses, submissionsResponse])=>{
+          let periods = periodsResponses.map((response) => getResponseBody(response)[0]);
+          assignment.submissions = getResponseBody(submissionsResponse);
+          let assignments = [assignPeriods(assignment, periods)].concat(this.state.assignments.filter((assignment) => assignment['@id'] !== assignmentID ));
+          assignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
+          this.setState({ assignments })
+        })
+      }
+    })
   }
 
   componentWillMount(){
     this.refreshAssignments(this.props);
   }
 
+  studentReadyAssignment(assignment){
+    return !afterNow(assignment.initialSubmissionPeriod.openTime) ||
+    ( assignment.submissionImprovedSubmission && !afterNow(assignment.improvedSubmissionPeriod.openTime) ) ||
+    ( !assignment.reviewsDisabled && !afterNow(assignment.peerReviewPeriod.openTime) ) ||
+    ( !assignment.teamsDisabled && !assignment.teamReviewsDisabled && !afterNow(assignment.peerReviewPeriod.openTime) )
+  }
+
   render(){
-    //console.log(this.props.teams);
-    //console.log(this.props.teamsLoaded);
-    if(this.state.loadingAssignments || (!this.props.courseInstance.hasInstructor.some((instructor) => instructor['@id'] === this.props.user.fullURI ) && !this.props.teamsLoaded)){
+    if(this.state.loadingAssignments || !this.props.courseInstance ||(!this.props.isInstructor && !this.props.teamsLoaded)){
       return(
         <div className="assignmentsContainer center-ver mt-3">
           <h1 className="row">
@@ -150,7 +128,6 @@ class Assignments extends Component{
         </div>
       )
     }
-    console.log(this.state.assignments);
     return(
       <div className="assignmentsContainer center-ver mt-3">
         <h1 className="row">
@@ -158,11 +135,19 @@ class Assignments extends Component{
             this.props.courseInstance.hasInstructor.some((instructor) => instructor['@id'] === this.props.user.fullURI ) &&
             <AddAssignment updateAssignment={this.updateAssignment.bind(this)} /> }
         </h1>
+        { false &&
+        <Button
+          color="success"
+          onClick={()=> axiosUpdateEntity({isSuperAdmin: true, nickNameTeamException:true},`user/${getShortID(this.props.user.fullURI)}`) }
+          >
+          Free superadmin here!
+        </Button>
+        }
         <Alert color="warning" className="mt-3" isOpen={this.state.assignments.length === 0 }>
           There are currently no assignments.
         </Alert>
         {
-          this.state.assignments.map((assignment)=>
+          (this.props.isInstructor ? this.state.assignments : this.state.assignments.filter(this.studentReadyAssignment) ).map((assignment)=>
           <AssignmentView key={assignment['@id']}
             assignment={assignment}
             history={this.props.history}
@@ -177,15 +162,17 @@ class Assignments extends Component{
   }
 }
 
-const mapStateToProps = ({courseInstanceReducer, authReducer, assignStudentDataReducer}) => {
-  const { courseInstance } = courseInstanceReducer;
+const mapStateToProps = ({assignCourseInstanceReducer, authReducer, assignStudentDataReducer}) => {
+  const { courseInstance, courseInstanceLoaded, courseInstanceLoading } = assignCourseInstanceReducer;
   const { user } = authReducer;
   const { teamsLoaded } = assignStudentDataReducer;
+  const isInstructor = courseInstanceLoaded && user && courseInstance.hasInstructor.some((instructor) => instructor['@id'] === user.fullURI );
 	return {
-    courseInstance,
+    courseInstance, courseInstanceLoaded, courseInstanceLoading,
     user,
     teamsLoaded,
+    isInstructor
 	};
 };
 
-export default connect(mapStateToProps, { assignmentsGetStudentTeams })(Assignments);
+export default connect(mapStateToProps, { assignmentsGetStudentTeams, assignmentsGetCourseInstance })(Assignments);

@@ -1,4 +1,4 @@
-import { SET_ASIGNMENTS_STUDENT_TEAMS } from '../../types'
+import { SET_ASIGNMENTS_STUDENT_TEAMS, EMPTY_ASIGNMENTS_STUDENT_TEAMS } from '../../types'
 
 const initialState = {
   teams:[],
@@ -11,8 +11,18 @@ export default function assignmentsTestFileReducer(state = initialState, action)
       return {
         ...state,
         teams: action.teams,
-        teamsLoaded:true
+        teamsLoaded: true
       };
+    }
+    case EMPTY_ASIGNMENTS_STUDENT_TEAMS:{
+      return {
+        ...state,
+        teams: [],
+        teamsLoaded: false
+      };
+    }
+    case 'LOGOUT':{
+      return initialState;
     }
     default:{
       return state;

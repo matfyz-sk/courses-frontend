@@ -104,7 +104,7 @@ class StudentAssignmentView extends Component {
         <div>
           <Label className="mb-0 pt-0">Submission deadline: </Label>
           <span>{' ' + timestampToString(assignment.initialSubmissionPeriod.deadline)}</span>
-          <Button outline className="ml-2 mb-2 p-1" color="primary" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/0`)}>
+          <Button outline className="ml-2 mb-2 p-1" color="primary" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/submission`)}>
             {this.state.initialSubmissions.length === 0 ? 'Submit' : 'Update' }
           </Button>
         </div>
@@ -114,7 +114,7 @@ class StudentAssignmentView extends Component {
         <div>
           <Label className="mb-0 pt-0">Improved submission deadline: </Label>
           <span>{' ' + timestampToString(assignment.improvedSubmissionPeriod.deadline)}</span>
-          <Button outline className="ml-2 mb-2 p-1" color="primary" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/0`)}>
+          <Button outline className="ml-2 mb-2 p-1" color="primary" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/submission`)}>
             {this.state.improvedSubmissions.length === 0 ? 'Submit' : 'Update' }
           </Button>
         </div>
@@ -131,13 +131,13 @@ class StudentAssignmentView extends Component {
         <div>
           <Label className="mb-0 pt-0">Team review deadline: </Label>
           <span>{' ' + timestampToString(assignment.teamReviewPeriod.deadline)}</span>
-          <Button outline className="ml-2 mb-2 p-1" color="primary" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/0`)}>Review</Button>
+          <Button outline className="ml-2 mb-2 p-1" color="primary" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/teamReview`)}>Review team</Button>
         </div>
       }
       <h5>Your submissions</h5>
       <Alert color="primary" className="row" isOpen={!this.state.submissionsLoaded||!this.state.reviewsLoaded}>Loading submissions...</Alert>
       <Alert color="warning" className="row" isOpen={this.state.initialSubmissions.length === 0 && this.state.improvedSubmissions.length === 0}>
-        <div className="center-hor">No submissions yet!</div> <Button className="ml-auto" color="success" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/submission/0`)}>Submit</Button>
+        <div className="center-hor">No submissions yet!</div> <Button className="ml-auto" color="success" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/submission/submission`)}>Submit</Button>
       </Alert>
 
       { !assignment.teamsDisabled && ( this.state.initialSubmissions !== 0 || this.state.improvedSubmissions !== 0 ) &&
@@ -178,7 +178,7 @@ class StudentAssignmentView extends Component {
                     <th>
                       <Button
                         color={ toReview.review ? "primary" : "success" }
-                        onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/review/submission/${getShortID(toReview.submission[0])}/1`)}
+                        onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/review/submission/${getShortID(toReview.submission[0])}/reviews`)}
                         >
                         { toReview.review ? 'Update review':'Review'}
                       </Button>

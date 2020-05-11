@@ -31,7 +31,7 @@ export default class StudentTeamSubmissionsView extends Component {
           </td>
         }
         <td>
-        <Button color={ !canUpdate && isOpened ? "success" : "primary"} onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/submission/0`)}>{canUpdate ? 'Update' : (isOpened? 'Submit' : 'View') }</Button>
+        <Button color={ !canUpdate && isOpened ? "success" : "primary"} onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/submission/submission`)}>{canUpdate ? 'Update' : (isOpened? 'Submit' : 'View') }</Button>
       </td>
         </tr>
       </tbody>

@@ -4,7 +4,7 @@ import moment from 'moment';
 import AddNewQuestion from './question/newQuestion';
 import AddExistingQuestion from './question/existingQuestion';
 
-import ErrorMessage from '../../../components/error';
+import ErrorMessage from 'components/error';
 
 
 export default class Reviews extends Component {
