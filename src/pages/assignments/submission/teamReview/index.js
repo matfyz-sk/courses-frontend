@@ -66,7 +66,7 @@ class TeamReview extends Component {
     if( this.submissionID === null ){
       return;
     }
-    axiosGetEntities(`teamReview?reviewedStudent=${this.props.user.id}&ofSubmission=${this.submissionID}`).then((response)=>{
+    axiosGetEntities(`teamReview?reviewedStudent=${this.props.user.id}&ofSubmission=${getShortID(this.submissionID)}`).then((response)=>{
       let reviewsOfMe = getResponseBody(response);
       this.setState( { reviewsOfMe, reviewsOfMeLoaded: true });
     })
@@ -120,7 +120,7 @@ class TeamReview extends Component {
     if( this.submissionID === null ){
       return;
     }
-    axiosGetEntities(`teamReview?ofSubmission=${this.submissionID}`).then((response)=>{
+    axiosGetEntities(`teamReview?ofSubmission=${getShortID(this.submissionID)}`).then((response)=>{
       let allReviews = getResponseBody(response);
       this.setState( { allReviews, allReviewsLoaded: true },this.prepareAllReviews );
     })

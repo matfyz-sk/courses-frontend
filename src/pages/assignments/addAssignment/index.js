@@ -13,6 +13,11 @@ import Teams from './3-teams';
 import Reviews from './4-reviews';
 import TeamReviews from './5-teamReviews';
 
+/*
+ak je teamovy review je teamove
+
+*/
+
 const defaultForm={
   info:{
     name:'Test assignment',

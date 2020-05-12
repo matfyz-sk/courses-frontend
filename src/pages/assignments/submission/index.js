@@ -11,10 +11,10 @@ import { teamSelectStyle } from '../selectStyle';
 
 import Submission from './submission';
 import CodeReview from './codeReview';
-import Reviews from './reviews';
+import Reviews from './peerReview';
 import TeamReview from './teamReview';
 
-class Assignment extends Component{
+class SubmissionContainer extends Component{
   constructor(props){
     super(props);
     this.state={
@@ -43,7 +43,7 @@ class Assignment extends Component{
       props.user !== null &&
       props.courseInstanceLoaded &&
       this.state.assignmentLoaded &&
-      this.state.settings.myAssignment &&
+      !props.isInstructor &&
       this.state.settings.teamAssignment
     ){
       props.assignmentsGetStudentTeams(props.user.fullURI, props.courseInstance['@id'] );
@@ -62,10 +62,11 @@ class Assignment extends Component{
         let periods = periodResponses.map((response) => getResponseBody(response)[0]);
         assignment = assignPeriods(assignment, periods);
         const settings = this.getAssignmentSettings(assignment);
-        if( settings.myAssignment && settings.teamAssignment && this.props.courseInstanceLoaded && this.props.user !== null ){
+        if( !this.props.isInstructor && settings.teamAssignment && this.props.courseInstanceLoaded && this.props.user !== null ){
           this.props.assignmentsGetStudentTeams(this.props.user.fullURI, this.props.courseInstance['@id'] );
         }
         this.refreshSubmissions(settings,assignment, this.props);
+        console.log(assignment);
         this.setState({ assignment, settings, assignmentLoaded: true })
       })
     })
@@ -77,7 +78,7 @@ class Assignment extends Component{
     const peerReviewEnabled = !assignment.reviewsDisabled;
     const myAssignment = !this.props.match.params.targetID;
     const isInstructor = this.props.isInstructor;
-    const peerReview = !isInstructor && this.props.match.params.targetID !== undefined;
+    const peerReview = peerReviewEnabled && !isInstructor && this.props.match.params.targetID !== undefined;
     return {
       teamAssignment,
       teamReviewEnabled,
@@ -144,7 +145,10 @@ class Assignment extends Component{
   render(){
     const settings = this.state.settings;
     const assignment = this.state.assignment;
-    let loading = !this.state.assignmentLoaded || !this.state.submissionsLoaded || this.props.courseInstanceLoading || (settings.myAssignment && settings.teamAssignment && !this.props.teamsLoaded);
+    let loading = !this.state.assignmentLoaded ||
+      !this.state.submissionsLoaded ||
+      this.props.courseInstanceLoading ||
+      (!settings.isInstructor && settings.teamAssignment && !this.props.teamsLoaded);
     if( loading ){
       return(
         <div className="assignmentContainer center-ver mt-3">
@@ -156,7 +160,7 @@ class Assignment extends Component{
               <h4 className="center-hor ml-5 mr-auto">
                 {"Loading..."}
               </h4>
-              { this.props.teamsLoaded && this.props.match.params.teamID === undefined &&
+              { this.props.teamsLoaded && settings.myAssignment && this.props.match.params.teamID === undefined &&
                 <Select
                   styles={teamSelectStyle}
                   value={toSelectInput(this.props.teams,'name','@id').find((team) => getShortID(team.value) === this.props.match.params.teamID )}
@@ -182,6 +186,7 @@ class Assignment extends Component{
         </div>
       )
     }
+
     return(
       <div className="assignmentContainer center-ver mt-3">
         <Card className="assignmentsContainer center-ver">
@@ -276,6 +281,9 @@ class Assignment extends Component{
                   <Reviews
                     history={this.props.history}
                     match={this.props.match}
+                    assignment={this.state.assignment}
+                    settings={this.state.settings}
+                    initialSubmission={this.state.initialSubmission}
                     />
                 </TabPane>
               }
@@ -328,4 +336,4 @@ const mapStateToProps = ({assignCourseInstanceReducer, authReducer, assignStuden
   };
 };
 
-export default connect(mapStateToProps, { assignmentsGetStudentTeams, assignmentsEmptyStudentTeams, assignmentsGetCourseInstance })(Assignment);
+export default connect(mapStateToProps, { assignmentsGetStudentTeams, assignmentsEmptyStudentTeams, assignmentsGetCourseInstance })(SubmissionContainer);
