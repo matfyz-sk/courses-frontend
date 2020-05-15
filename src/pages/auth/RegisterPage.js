@@ -10,6 +10,7 @@ import {
   Collapse,
   FormFeedback,
   Alert,
+  Container,
 } from 'reactstrap';
 import {
   emailValidator,
@@ -162,7 +163,7 @@ export default class RegisterPage extends Component {
       be_error,
     } = this.state;
     return (
-      <>
+      <Container  className="mb-5">
         <h1 className="mb-5">Register profile</h1>
         {be_error ? <Alert color="danger">Error! {be_error}</Alert> : null}
         <Row>
@@ -178,7 +179,7 @@ export default class RegisterPage extends Component {
                       type="text"
                       name="first_name"
                       id="first_name"
-                      placeholder="Nora"
+                      placeholder="My first name"
                       value={user.first_name}
                       onChange={this.handleInputChange}
                       autoComplete="first_name"
@@ -201,7 +202,7 @@ export default class RegisterPage extends Component {
                       type="text"
                       name="last_name"
                       id="last_name"
-                      placeholder="Mojsejova"
+                      placeholder="My last name"
                       value={user.last_name}
                       onChange={this.handleInputChange}
                       autoComplete="last_name"
@@ -226,7 +227,7 @@ export default class RegisterPage extends Component {
                       type="email"
                       name="email"
                       id="email"
-                      placeholder="nora@example.com"
+                      placeholder="name@domain.com"
                       value={user.email}
                       onChange={this.handleInputChange}
                       autoComplete="email"
@@ -411,7 +412,7 @@ export default class RegisterPage extends Component {
             </Form>
           </Col>
         </Row>
-      </>
+      </Container>
     );
   }
 }

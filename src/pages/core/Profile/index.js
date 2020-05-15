@@ -152,7 +152,7 @@ class Profile extends Component {
                       type="text"
                       name="firstName"
                       id="firstName"
-                      placeholder="Nora"
+                      placeholder="My first name"
                       value={user ? user.firstName : ''}
                       onChange={this.handleInputChange}
                       autoComplete="firstName"
@@ -177,7 +177,7 @@ class Profile extends Component {
                       type="text"
                       name="lastName"
                       id="lastName"
-                      placeholder="Mojsejova"
+                      placeholder="My last name"
                       value={user ? user.lastName : ''}
                       onChange={this.handleInputChange}
                       autoComplete="lastName"
@@ -204,7 +204,7 @@ class Profile extends Component {
                       type="email"
                       name="email"
                       id="email"
-                      placeholder="nora@example.com"
+                      placeholder="name@domain.com"
                       value={user ? user.email : ''}
                       onChange={this.handleInputChange}
                       autoComplete="email"

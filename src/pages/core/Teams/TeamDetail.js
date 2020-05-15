@@ -344,7 +344,11 @@ class TeamsDetail extends Component {
         }
         render_members.push(
           <tr key={`users-${i}`}>
-            <th scope="row">{showUserName(user, privilegesReducer)}</th>
+            <th scope="row">{
+              (canEdit || isAdmin) && user.nickNameTeamException && users[i].approved ?
+                `${user.firstName} ${user.lastName}`
+                : showUserName(user, privilegesReducer)
+              }</th>
             <td>
               <h5>
                 <Badge color={users[i].approved ? 'success' : 'danger'}>

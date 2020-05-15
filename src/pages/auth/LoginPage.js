@@ -9,7 +9,8 @@ import {
   Input,
   FormFeedback,
   Alert,
-} from 'reactstrap';
+  Container,
+} from 'reactstrap'
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { emailValidator, passwordValidator } from '../../functions/validators';
@@ -104,7 +105,7 @@ class LoginPage extends Component {
   render() {
     const { email, password, errors, beError } = this.state;
     return (
-      <>
+      <Container className="mb-5">
         <h1 className="mb-5">Login page</h1>
         {beError ? <Alert color="danger">Error! { beError } </Alert> : null}
         <Row>
@@ -118,7 +119,7 @@ class LoginPage extends Component {
                       type="email"
                       name="email"
                       id="email"
-                      placeholder="nora@example.com"
+                      placeholder="name@domain.com"
                       value={email}
                       onChange={this.handleInputChange}
                       autoComplete="email"
@@ -161,7 +162,7 @@ class LoginPage extends Component {
             <GithubAuth />
           </Col>
         </Row>
-      </>
+      </Container>
     );
   }
 }
