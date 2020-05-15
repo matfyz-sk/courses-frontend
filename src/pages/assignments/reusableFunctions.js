@@ -1,4 +1,4 @@
-import { inputToTimestamp, getIRIFromAddResponse, axiosAddEntity } from '../../helperFunctions';
+import { inputToTimestamp, getIRIFromAddResponse, axiosAddEntity } from 'helperFunctions';
 
 export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) => {
 
@@ -60,6 +60,7 @@ export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) =
     extraTime: newAssignment.submission.extraTime,
     startDate: newAssignment.submission.openTime,
     endDate: newAssignment.submission.deadline,
+    courseInstance: courseInstanceID,
   }, 'assignmentPeriod' ));
 
   if(assignmentData.submissionImprovedSubmission){
@@ -69,6 +70,7 @@ export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) =
       extraTime: newAssignment.submission.improvedExtraTime,
       startDate: newAssignment.submission.improvedOpenTime,
       endDate: newAssignment.submission.improvedDeadline,
+      courseInstance: courseInstanceID,
     }, 'assignmentPeriod' ));
   }
 
@@ -79,12 +81,14 @@ export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) =
       extraTime: newAssignment.reviews.extraTime,
       startDate: newAssignment.reviews.openTime,
       endDate: newAssignment.reviews.deadline,
+      courseInstance: courseInstanceID,
     }, 'assignmentPeriod' ));
     assignmentData = {
       ...assignmentData,
       reviewsPerSubmission: parseInt(newAssignment.reviews.reviewsPerSubmission),
       reviewedByTeam: newAssignment.reviews.reviewedByTeam,
       reviewsVisibility: newAssignment.reviews.visibility,
+      courseInstance: courseInstanceID,
     }
   }
 
@@ -95,6 +99,7 @@ export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) =
       extraTime: newAssignment.teamReviews.extraTime,
       startDate: newAssignment.teamReviews.openTime,
       endDate: newAssignment.teamReviews.deadline,
+      courseInstance: courseInstanceID,
     }, 'assignmentPeriod' ));
   }
 
@@ -145,4 +150,39 @@ export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) =
     console.log(assignmentData);
     return axiosAddEntity( assignmentData, 'assignment' ).then(afterFunction);
   })
+}
+
+export const getAssignmentPeriods = (assignment) => {
+  let periods = [...assignment.initialSubmissionPeriod];
+  if(assignment.submissionImprovedSubmission){
+    periods.push(...assignment.improvedSubmissionPeriod);
+  }
+  if(!assignment.reviewsDisabled){
+    periods.push(...assignment.peerReviewPeriod);
+  }
+  if(!assignment.teamReviewsDisabled && !assignment.teamsDisabled){
+    periods.push(...assignment.teamReviewPeriod);
+  }
+  return periods.map((period) => period['@id'] );
+}
+
+export const findPeriod = (oldPeriod, periods) => {
+  return periods.find( (period) => period['@id'] === oldPeriod[0]['@id'] )
+}
+
+export const assignPeriods = (originalAssignment, periods) => {
+  let assignment = {
+    ...originalAssignment,
+    initialSubmissionPeriod: findPeriod( originalAssignment.initialSubmissionPeriod, periods )
+  }
+  if(assignment.submissionImprovedSubmission){
+    assignment.improvedSubmissionPeriod = findPeriod( originalAssignment.improvedSubmissionPeriod, periods );
+  }
+  if(!assignment.reviewsDisabled){
+    assignment.peerReviewPeriod = findPeriod( originalAssignment.peerReviewPeriod, periods );
+  }
+  if(!assignment.teamReviewsDisabled && !assignment.teamsDisabled){
+    assignment.teamReviewPeriod = findPeriod( originalAssignment.teamReviewPeriod, periods );
+  }
+  return assignment;
 }

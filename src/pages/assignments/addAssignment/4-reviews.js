@@ -4,7 +4,7 @@ import moment from 'moment';
 import AddNewQuestion from './question/newQuestion';
 import AddExistingQuestion from './question/existingQuestion';
 
-import ErrorMessage from '../../../components/error';
+import ErrorMessage from 'components/error';
 
 
 export default class Reviews extends Component {
@@ -71,7 +71,7 @@ export default class Reviews extends Component {
             <Label style={{paddingRight:5}}>Reviewed by:</Label>
             <FormGroup check>
               <Label check>
-                <Input type="radio" name="reviewedByTeam" checked={this.props.data.reviewedByTeam===true} onChange={(e)=>{this.setData('reviewedByTeam',true)}} disabled={this.props.data.disabled}/>{' '}
+                <Input type="radio" name="reviewedByTeam" checked={this.props.data.reviewedByTeam===true} onChange={(e)=>{this.setData('reviewedByTeam',true)}} disabled={this.props.data.disabled || this.props.teamsDisabled}/>{' '}
                 Team
               </Label>
             </FormGroup>

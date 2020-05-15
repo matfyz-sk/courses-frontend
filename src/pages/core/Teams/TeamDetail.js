@@ -13,16 +13,17 @@ import {
   Input,
   FormGroup,
   Alert,
+  Form,
 } from 'reactstrap'
 import { Link, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { store } from '../../../index'
-import { fetchTeam, fetchTeamInstance } from '../../../redux/actions'
 import * as ROUTES from '../../../constants/routes'
-import { formatDate, idFromURL } from '../../../functions/global'
 import { authHeader, getUser, getUserID } from '../../../components/Auth'
 import { BACKEND_URL } from '../../../configuration/api'
 import { redirect } from '../../../constants/redirect'
+import withTeamHandler from './TeamDetailHOC'
+import { getShortID } from '../../../helperFunctions'
+import {isVisibleUser, showUserName} from '../../../components/Auth/userFunction';
 
 class TeamsDetail extends Component {
   constructor(props) {
@@ -31,32 +32,21 @@ class TeamsDetail extends Component {
     this.handleCreateTeam = this.handleCreateTeam.bind(this)
     this.handleInputChange = this.handleInputChange.bind(this)
     this.appendUserToTeam = this.appendUserToTeam.bind(this)
+    this.searchFetch = this.searchFetch.bind(this)
+    this.searchUser = this.searchUser.bind(this)
     this.state = {
       isOpen: [false, false],
-      course_id: this.props.match.params.course_id ?? null,
-      team_id: this.props.match.params.team_id ?? null,
-      teamInstance_id: this.props.match.params.teamInstance_id ?? null,
-      canCreate: false,
       form: {
         name: '',
       },
+      search: '',
       error: null,
-    }
-  }
-
-  componentDidMount() {
-    const { team_id, teamInstance_id } = this.state
-    store.dispatch(fetchTeam(team_id))
-    if (!teamInstance_id) {
-      this.setState({ canCreate: true })
-    } else {
-      store.dispatch(fetchTeamInstance(teamInstance_id))
     }
   }
 
   handleOpen(index) {
     const { isOpen } = this.state
-    const is_opened = this.state.isOpen[index]
+    const is_opened = isOpen[index]
     for (let i = 0; i < isOpen.length; i++) {
       isOpen[i] = false
     }
@@ -76,9 +66,10 @@ class TeamsDetail extends Component {
   }
 
   handleCreateTeam() {
-    const { form, canCreate, course_id, team_id } = this.state
-    const { team } = this.props.teamReducer
-    if (!canCreate) {
+    const { form } = this.state
+    const { create, courseInstanceReducer } = this.props
+    const course = courseInstanceReducer.courseInstance
+    if (!create) {
       this.setState({
         error: 'You cannot create team!',
       })
@@ -89,11 +80,9 @@ class TeamsDetail extends Component {
     } else {
       const post = {
         name: form.name,
-        instanceOf: team['@id'],
-        approved: false,
-        notApprovedDescription: '',
+        courseInstance: course['@id'],
       }
-      fetch(`${BACKEND_URL}/data/teamInstance`, {
+      fetch(`${BACKEND_URL}/data/team`, {
         method: 'POST',
         headers: authHeader(),
         mode: 'cors',
@@ -107,15 +96,7 @@ class TeamsDetail extends Component {
         .then(data => {
           if (data.status) {
             const { iri } = data.resource
-            const teamInstance_id = idFromURL(iri)
-            this.props.history.push(
-              redirect(ROUTES.COURSE_TEAMS_DETAIL, [
-                { key: 'course_id', value: course_id },
-                { key: 'team_id', value: team_id },
-                { key: 'teamInstance_id', value: teamInstance_id },
-              ])
-            )
-            this.appendUserToTeam(getUserID(), iri)
+            this.appendUserToTeam(iri, getUser().fullURI, true)
           } else {
             this.setState({
               error:
@@ -126,9 +107,147 @@ class TeamsDetail extends Component {
     }
   }
 
-  appendUserToTeam(user_id, teamInstance_id) {
-    fetch(`${BACKEND_URL}/data/user/${user_id}`, {
-      method: 'GET',
+  appendUserToTeam(iri, user, approved = false, fillRequest = true) {
+    const { course_id, history } = this.props
+    const post = {
+      approved,
+      instanceOf: iri,
+      hasUser: user,
+      requestFrom: fillRequest ? getUser().fullURI : null,
+    }
+    fetch(`${BACKEND_URL}/data/teamInstance`, {
+      method: 'POST',
+      headers: authHeader(),
+      mode: 'cors',
+      credentials: 'omit',
+      body: JSON.stringify(post),
+    })
+      .then(response => {
+        if (!response.ok) throw new Error(response)
+        else return response.json()
+      })
+      .then(data => {
+        if (data.status) {
+          history.push(
+            redirect(ROUTES.COURSE_TEAM_DETAIL, [
+              { key: 'course_id', value: course_id },
+              { key: 'team_id', value: getShortID(iri) },
+            ])
+          )
+        } else {
+          this.setState({
+            error:
+              'Error has occured during saving process. Please, try again.',
+          })
+        }
+      })
+  }
+
+  searchUser() {
+    const { search } = this.state
+    const params = ['email', 'nickname']
+    const i = 0
+    if (search.length < 3) {
+      this.setState({ error: 'Minimal string length is 3' })
+      return
+    }
+    if (
+      search.toLowerCase() === getUser().email.toLowerCase() ||
+      search.toLowerCase() === getUser().nickname.toLowerCase()
+    ) {
+      this.setState({ error: 'You cannot add yourself!' })
+      return
+    }
+    this.searchFetch(params, i, search)
+  }
+
+  searchFetch(params, i, search) {
+    const { course_id } = this.props
+    if (i < params.length) {
+      fetch(
+        `${BACKEND_URL}/data/user?${params[i]}=${search}&studentOf=${course_id}`,
+        {
+          method: 'GET',
+          headers: authHeader(),
+          mode: 'cors',
+          credentials: 'omit',
+        }
+      )
+        .then(response => {
+          if (!response.ok) throw new Error(response)
+          else return response.json()
+        })
+        .then(data => {
+          if (data['@graph'].length > 0) {
+            const { team } = this.props
+            this.appendUserToTeam(team['@id'], data['@graph'][0]['@id'])
+            return true
+          }
+          return this.searchFetch(params, i + 1, search)
+        })
+    } else {
+      this.setState({ error: 'User was not found!' })
+    }
+    return false
+  }
+
+  approveMember(user) {
+    const { history, course_id, team } = this.props
+    fetch(`${BACKEND_URL}/data/teamInstance/${getShortID(user['@id'])}`, {
+      method: 'PATCH',
+      headers: authHeader(),
+      mode: 'cors',
+      credentials: 'omit',
+      body: JSON.stringify({ approved: true }),
+    })
+      .then(response => {
+        if (!response.ok) throw new Error(response)
+        else return response.json()
+      })
+      .then(data => {
+        if (data.status) {
+          history.push(
+            redirect(ROUTES.COURSE_TEAM_DETAIL, [
+              { key: 'course_id', value: course_id },
+              { key: 'team_id', value: getShortID(team['@id']) },
+            ])
+          )
+        }
+      })
+  }
+
+  removeMember(user) {
+    const { users } = this.props
+    if (users.length === 1 || !this.verifyRemoveUser(users, user)) {
+      this.removeTeam()
+    } else {
+      this.fetchRemoveUser(user)
+    }
+  }
+
+  verifyRemoveUser(users, user) {
+    let count = 0
+    if (!user.approved) {
+      return true
+    }
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].approved) {
+        count += 1
+      }
+    }
+    if (count - 1 === 0) {
+      return false
+    }
+    return true
+  }
+
+  removeTeam() {
+    const { history, course_id, team, users } = this.props
+    for (let i = 0; i < users.length; i++) {
+      this.fetchRemoveUser(users[i], false)
+    }
+    fetch(`${BACKEND_URL}/data/team/${getShortID(team['@id'])}`, {
+      method: 'DELETE',
       headers: authHeader(),
       mode: 'cors',
       credentials: 'omit',
@@ -138,61 +257,115 @@ class TeamsDetail extends Component {
         else return response.json()
       })
       .then(data => {
-        if (data && data['@graph'].length > 0) {
-          const user = data['@graph'][0]
-          const members = user.memberOf.map(item => item['@id'])
-          if (members.includes(teamInstance_id)) {
-            this.setState({ error: 'User is already in this team.' })
-            return
-          }
-          else {
-            members.push(teamInstance_id)
-          }
-          const post = {
-            memberOf: members,
-          }
-          fetch(`${BACKEND_URL}/data/user/${user_id}`, {
-            method: 'PATCH',
-            headers: authHeader(),
-            mode: 'cors',
-            credentials: 'omit',
-            body: JSON.stringify(post),
-          })
-            .then(response => {
-              if (!response.ok) throw new Error(response)
-              else return response.json()
-            })
-            .then(data2 => {
-              console.log(data2)
-            })
+        if (data.status) {
+          history.push(
+            redirect(ROUTES.COURSE_TEAMS, [
+              { key: 'course_id', value: course_id },
+            ])
+          )
         }
-        else {
-          this.setState({ error: 'User not found.' })
+      })
+  }
+
+  fetchRemoveUser(user, rerender = true) {
+    const { history, course_id, team } = this.props
+    fetch(`${BACKEND_URL}/data/teamInstance/${getShortID(user['@id'])}`, {
+      method: 'DELETE',
+      headers: authHeader(),
+      mode: 'cors',
+      credentials: 'omit',
+    })
+      .then(response => {
+        if (!response.ok) throw new Error(response)
+        else return response.json()
+      })
+      .then(data => {
+        if (data.status) {
+          if (rerender) {
+            history.push(
+              redirect(ROUTES.COURSE_TEAM_DETAIL, [
+                { key: 'course_id', value: course_id },
+                { key: 'team_id', value: getShortID(team['@id']) },
+              ])
+            )
+          }
         }
       })
   }
 
   render() {
-    const { isOpen, canCreate, form, error } = this.state
-    const { team } = this.props.teamReducer
-    const { teamInstance } = this.props.teamInstanceReducer
-    let { users } = this.props.teamInstanceReducer
+    const { isOpen, form, error } = this.state
+    const { team, users, create, privileges, isAdmin, privilegesReducer } = this.props
 
     const render_members = []
-
+    let canEdit = false
+    let isMember = false
     if (users) {
       for (let i = 0; i < users.length; i++) {
+        if (getShortID(users[i].hasUser[0]['@id']) === getUserID()) {
+          isMember = true
+        }
+        if (
+          users[i].approved &&
+          getShortID(users[i].hasUser[0]['@id']) === getUserID()
+        ) {
+          canEdit = true
+        }
+      }
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i].hasUser[0]
+        const action = []
+        if (canEdit || isAdmin) {
+          action.push(
+            <Button
+              color="danger"
+              size="sm"
+              title="Remove from team"
+              onClick={() => this.removeMember(users[i])}
+              key={`remove-${i}`}
+            >
+              &#215;
+            </Button>
+          )
+        }
+        if ((canEdit || isAdmin) && !users[i].approved) {
+          action.push(
+            <Button
+              color="success"
+              onClick={() => this.approveMember(users[i])}
+              size="sm"
+              className="ml-1"
+              title="Approve member"
+              key={`approve-${i}`}
+            >
+              &#10003;
+            </Button>
+          )
+        }
         render_members.push(
           <tr key={`users-${i}`}>
-            <th scope="row">
-              {`${users[i].firstName} ${users[i].lastName} ${
-                teamInstance && teamInstance.createdBy === users[i]['@id']
-                  ? '(owner)'
-                  : ''
-              }`}
-            </th>
+            <th scope="row">{showUserName(user, privilegesReducer)}</th>
             <td>
-              <Link to="/courses/detail/students/detail">DETAIL</Link>
+              <h5>
+                <Badge color={users[i].approved ? 'success' : 'danger'}>
+                  {users[i].approved ? 'approved' : 'not approved'}
+                </Badge>
+              </h5>
+            </td>
+            <td>{action}</td>
+            <td>
+              {isVisibleUser(users[i].hasUser[0]) ? (
+                <Link
+                  to={redirect(ROUTES.PUBLIC_PROFILE, [
+                    {
+                      key: 'user_id',
+                      value: getShortID(users[i].hasUser[0]['@id']),
+                    },
+                  ])}
+                >
+                  DETAIL
+                </Link>
+              ) : null}
             </td>
           </tr>
         )
@@ -200,7 +373,7 @@ class TeamsDetail extends Component {
     }
 
     let renderCreateForm = null
-    if (canCreate) {
+    if (create) {
       renderCreateForm = (
         <div className="mb-3">
           <FormGroup>
@@ -228,51 +401,70 @@ class TeamsDetail extends Component {
       <Container>
         <Row>
           <Col xs={12}>
-            <h1>{canCreate ? 'New team ' : (teamInstance ? `Team ${teamInstance.name}` : '')}</h1>
-            <h2>{team ? `for group ${team.name}` : null}</h2>
+            {canEdit || isAdmin ? (
+              <Button
+                color="danger"
+                size="sm"
+                className="float-right"
+                onClick={() => this.removeTeam()}
+              >
+                Remove team
+              </Button>
+            ) : null}
+            <h1>{create ? 'New team' : `Team ${team.name}`}</h1>
           </Col>
         </Row>
         <Row>
           <Col xs={12} sm={6} className="mt-4" key="members">
             {error ? <Alert color="danger">{error}</Alert> : ''}
             {renderCreateForm}
-            <Table hover>
+            <Table hover responsive>
               <thead>
                 <tr>
                   <th>Name</th>
+                  <th>Status</th>
+                  <th> </th>
                   <th> </th>
                 </tr>
               </thead>
               <tbody>{render_members}</tbody>
             </Table>
+            {canEdit || isAdmin ? (
+              <Form className="mt-5">
+                <Input
+                  type="text"
+                  name="insert_request"
+                  id="insert_request"
+                  placeholder="email or nickName"
+                  onChange={e => this.setState({ search: e.target.value })}
+                />
+                <Button
+                  type="button"
+                  className="mt-3"
+                  onClick={this.searchUser}
+                >
+                  Send request
+                </Button>
+              </Form>
+            ) : !isMember ? (
+              <Button
+                type="button"
+                className="mt-3"
+                onClick={() =>
+                  this.appendUserToTeam(
+                    team['@id'],
+                    getUser().fullURI,
+                    false,
+                    false
+                  )
+                }
+              >
+                Ask for join
+              </Button>
+            ) : null}
           </Col>
-          <Col xs={12} sm={6} className="mt-5" key="data">
-            <Table borderless size="sm">
-              <thead>
-                <tr colSpan="2">
-                  <th>Team criteria</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr key="dateFrom">
-                  <td>Date from</td>
-                  <td>{team ? formatDate(team.dateFrom) : '-'}</td>
-                </tr>
-                <tr key="dateTo">
-                  <td>Date to</td>
-                  <td>{team ? formatDate(team.dateTo) : '-'}</td>
-                </tr>
-                <tr key="range">
-                  <td>Range</td>
-                  <td>
-                    {team
-                      ? `${team.minUsers} - ${team.maxUsers} students`
-                      : null}
-                  </td>
-                </tr>
-              </tbody>
-            </Table>
 
+          <Col xs={12} sm={6} className="mt-3" key="data">
             <p>
               <b>Points</b>
             </p>
@@ -385,4 +577,6 @@ const mapStateToProps = state => {
   return state
 }
 
-export default withRouter(connect(mapStateToProps)(TeamsDetail))
+export default withRouter(
+  connect(mapStateToProps)(withTeamHandler(TeamsDetail))
+)

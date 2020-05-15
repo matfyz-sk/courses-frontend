@@ -1,6 +1,11 @@
 import React from 'react'
 import { store } from '../../index'
 import { setToken, setUser, logoutRedux } from '../../redux/actions/authActions'
+import { getShortID } from '../../helperFunctions'
+import {
+  resetPrivileges,
+  setGlobalPrivileges,
+} from '../../redux/actions/privilegesActions'
 
 /**
  * Store data to storage and redux
@@ -14,6 +19,11 @@ export function registerData(_token, user) {
     store.dispatch(setUser({ name: 'user', value: user }))
     localStorage.setItem('_token', _token)
     localStorage.setItem('user', JSON.stringify(user))
+    if(user.isSuperAdmin) {
+      store.dispatch(setGlobalPrivileges('admin'))
+    } else {
+      store.dispatch(setGlobalPrivileges('user'))
+    }
     return true
   }
   return false
@@ -41,12 +51,18 @@ export function synchronize() {
   if (token && user) {
     store.dispatch(setToken({ name: '_token', value: token }))
     store.dispatch(setUser({ name: 'user', value: user }))
+    if (user.isSuperAdmin) {
+      store.dispatch(setGlobalPrivileges('admin'))
+    } else {
+      store.dispatch(setGlobalPrivileges('user'))
+    }
     return true
   }
   return false
 }
 
 export function logout() {
+  store.dispatch(resetPrivileges())
   store.dispatch(logoutRedux())
   localStorage.clear()
   return true
@@ -137,6 +153,9 @@ export function authHeader() {
 
 export function getUserInCourseType(course_id) {
   const user = getUser()
+  if (user.isSuperAdmin) {
+    return 'instructor'
+  }
   if (!course_id) {
     return 'visitor'
   }
@@ -144,14 +163,9 @@ export function getUserInCourseType(course_id) {
     return 'visitor'
   }
   for (let i = 0; i < user.studentOf.length; i++) {
-    if (user.studentOf[i]['@id'] === course_id) {
+    if (getShortID(user.studentOf[i]['@id']) === course_id) {
       return 'student'
     }
   }
-  // for (let i = 0; i < user.instructorOf.length; i++) {
-  //   if (user.instructorOf[i]['@id'] === course_id) {
-  //     return 'instructor'
-  //   }
-  // }
   return 'visitor'
 }

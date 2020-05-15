@@ -22,6 +22,7 @@ const AuthOnlyMenu = props => {
               src={DashboardIcon}
               alt="dashboard-icon"
               className="h-100"
+              style={{ padding: 3 }}
             />
           </div>
           <div className="d-none d-md-inline-block">Dashboard</div>

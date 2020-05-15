@@ -81,7 +81,7 @@ class Profile extends Component {
     if (this.validation()) {
       const { user } = this.state
       const updatedAttrs = [
-        'firstName', 'lastName', 'description', 'email', 'description',
+        'firstName', 'lastName', 'description', 'email',
         'nickname', 'useNickName', 'nickNameTeamException', 'allowContact', 'publicProfile', 'showBadges', 'showCourses'
       ]
       const body = {}
@@ -315,10 +315,10 @@ class Profile extends Component {
                   checked={user ? user.publicProfile : false}
                 />
                 <Label for="publicProfile" check>
-                  My profile is public
+                  My profile is completely public
                 </Label>
               </FormGroup>
-              <Collapse isOpen={user && !user.publicProfile}>
+              <Collapse isOpen={user && !user.publicProfile} className="ml-3 mt-2 font-weight-normal">
                 <FormGroup check>
                   <Input
                     type="checkbox"

@@ -9,6 +9,7 @@ import QuizRoutes from '../pages/quiz/routes'
 import AuthRoutes from '../pages/auth/routes'
 import * as ROUTES from '../constants/routes'
 import Page401 from '../pages/errors/Page401'
+import PublicProfile from '../pages/core/PublicProfile'
 
 const Router = () => (
   <BrowserRouter>
@@ -28,6 +29,7 @@ const Router = () => (
             path={ROUTES.NOT_FOUND}
             component={Page404}
           />
+          <Route key="/profile" exact path={ROUTES.PUBLIC_PROFILE} component={PublicProfile} />
           <Route key="/" exact path="/" component={MainPage} />
           <Route key="404" component={Page404} />
         </Switch>

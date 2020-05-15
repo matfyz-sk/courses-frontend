@@ -11,7 +11,7 @@ export function textValidator(value, from, to) {
   return { result: true, msg: '' }
 }
 
-export function passwordValidator(value, from = 8) {
+export function passwordValidator(value, from = 6) {
   if (value.length === 0) {
     return { result: null, msg: 'This input is required.' }
   }

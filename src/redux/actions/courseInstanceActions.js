@@ -1,7 +1,9 @@
 import { SET_COURSE_INSTANCE, CLEAR_COURSE_INSTANCE } from '../types'
-import { authHeader } from '../../components/Auth'
+import {authHeader, getUser, getUserID} from '../../components/Auth';
 import { BASE_URL, COURSE_INSTANCE_URL } from '../../pages/core/constants'
 import { NOT_FOUND } from '../../constants/routes'
+import {getShortID} from "../../helperFunctions";
+import {setCourseInstanceInstructor, setCourseInstancePrivileges} from "./privilegesActions";
 
 export const setCourseInstance = item => ({
   type: SET_COURSE_INSTANCE,
@@ -32,6 +34,18 @@ export const fetchCourseInstance = (history, course_id) => {
         if (data['@graph'].length > 0) {
           const course = data['@graph'][0]
           dispatch(setCourseInstance(course))
+          let hasPrivilege = false
+          if (getUser() && course.hasInstructor) {
+            for (let i = 0; i < course.hasInstructor.length; i++) {
+              if (getShortID(course.hasInstructor[i]['@id']) === getUserID()) {
+                dispatch(setCourseInstanceInstructor())
+                hasPrivilege = true
+              }
+            }
+          }
+          if (!hasPrivilege) {
+            dispatch(setCourseInstancePrivileges({ course_id }))
+          }
         } else {
           history.push(NOT_FOUND)
         }

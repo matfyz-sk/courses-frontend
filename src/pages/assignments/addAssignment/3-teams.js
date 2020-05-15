@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { FormGroup, Label, Input } from 'reactstrap';
-import ErrorMessage from '../../../components/error';
+import ErrorMessage from 'components/error';
 
 export default class Teams extends Component {
   constructor(props){
@@ -21,7 +21,7 @@ export default class Teams extends Component {
         <div>
           <FormGroup check>
           <Label check>
-            <Input type="checkbox" checked={this.props.data.disabled} onChange={()=>this.setData('disabled',!this.props.data.disabled)} /> {' '}
+            <Input type="checkbox" checked={this.props.data.disabled} onChange={()=>this.props.setTeamsDisabled(!this.props.data.disabled)} /> {' '}
             Disabled
           </Label>
         </FormGroup>

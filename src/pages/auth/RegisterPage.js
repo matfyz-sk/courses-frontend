@@ -373,10 +373,10 @@ export default class RegisterPage extends Component {
                   checked={privacy.public_profile}
                 />
                 <Label for="public_profile" check>
-                  My profile is public
+                  My profile is completely public
                 </Label>
               </FormGroup>
-              <Collapse isOpen={!privacy.public_profile}>
+              <Collapse isOpen={!privacy.public_profile} className="ml-3 mt-2 font-weight-normal">
                 <FormGroup check>
                   <Input
                     type="checkbox"

@@ -3,8 +3,8 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, NavItem, NavLink, N
 import classnames from 'classnames';
 import moment from 'moment';
 import { connect } from "react-redux";
-import { addAssignment } from '../restCalls';
-import { inputToTimestamp, getResponseBody, axiosGetEntities, axiosAddEntity, getIRIFromAddResponse } from '../../../helperFunctions';
+import { addAssignment } from '../reusableFunctions';
+import { inputToTimestamp, getResponseBody, axiosGetEntities, axiosAddEntity, getIRIFromAddResponse } from 'helperFunctions';
 
 import Info from './0-info';
 import Submission from './1-submission';
@@ -323,12 +323,6 @@ class ModalAddAssignment extends Component {
               </NavItem>
             }
             </Nav>
-            <Alert color="primary" isOpen={!this.state.formLoaded}>
-              Data is loading!
-            </Alert>
-            <Alert color="primary" isOpen={this.state.saving}>
-              Creating assignment, please wait!
-            </Alert>
             { this.state.formLoaded &&
               <TabContent activeTab={this.state.activeTab}>
               <TabPane tabId="1">
@@ -352,13 +346,25 @@ class ModalAddAssignment extends Component {
                     }else{
                       this.setState({submission:{...this.state.submission,anonymousSubmission}});
                     }
-                  }} />
+                  }}
+                  />
               </TabPane>
               <TabPane tabId="3">
                 <Fields data={this.state.fields} showErrors={this.state.showErrors} setData={(fields)=>{this.setState({fields})}} />
               </TabPane>
               <TabPane tabId="4">
-                <Teams data={this.state.teams} showErrors={this.state.showErrors} setData={(teams)=>{this.setState({teams})}} />
+                <Teams
+                  data={this.state.teams}
+                  showErrors={this.state.showErrors}
+                  setData={(teams)=>{this.setState({teams})}}
+                  setTeamsDisabled={(disabled)=>{
+                      if(disabled && this.state.reviews.reviewedByTeam){
+                      this.setState({teams:{...this.state.teams,disabled},reviews:{...this.state.reviews,reviewedByTeam:false}});
+                    }else{
+                      this.setState({teams:{...this.state.teams,disabled}});
+                    }
+                  }}
+                  />
               </TabPane>
               <TabPane tabId="5">
                 <Reviews
@@ -368,6 +374,7 @@ class ModalAddAssignment extends Component {
                   deleteQuestion={ this.deleteQuestion.bind(this) }
                   showErrors={this.state.showErrors}
                   openDisabled={this.state.submission.anonymousSubmission}
+                  teamsDisabled={this.state.teams.disabled}
                   setData={(reviews)=>{this.setState({reviews})}}
                   />
               </TabPane>
@@ -376,6 +383,12 @@ class ModalAddAssignment extends Component {
               </TabPane>
             </TabContent>
           }
+          <Alert color="primary" isOpen={!this.state.formLoaded}>
+            Data is loading!
+          </Alert>
+          <Alert color="primary" isOpen={this.state.saving}>
+            Creating assignment, please wait!
+          </Alert>
           </ModalBody>
           <ModalFooter>
             <span className="mr-auto">

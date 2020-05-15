@@ -3,7 +3,7 @@ import { Button, FormGroup, Label, Input, Table, Popover, PopoverHeader, Popover
 import CKEditor from 'ckeditor4-react';
 import moment from 'moment';
 
-import ErrorMessage from '../../../components/error';
+import ErrorMessage from 'components/error';
 import AddNewMaterial from './material/newMaterial';
 import AddExistingMaterial from './material/existingMaterial';
 
@@ -55,8 +55,6 @@ export default class TextReview extends Component {
           </FormGroup>
           <FormGroup>
             <Label for="submission-add-desc">Short description</Label>
-              {console.log(this.props.data.shortDescription)}
-              {console.log(typeof this.props.data.shortDescription)}
               <CKEditor
                 onBeforeLoad={ ( CKEDITOR ) => ( CKEDITOR.disableAutoInline = true ) }
                 id="submission-add-desc"

@@ -30,8 +30,8 @@ class CourseLayout extends Component {
       this.setState({ course_id })
       const { course } = this.props
       if (!course || idFromURL(course['@id']) !== course_id) {
-        this.props.fetchCourseInstance(this.props.history, course_id)
         store.dispatch(setCourseInstancePrivileges({ course_id }))
+        this.props.fetchCourseInstance(this.props.history, course_id)
       }
     }
   }
