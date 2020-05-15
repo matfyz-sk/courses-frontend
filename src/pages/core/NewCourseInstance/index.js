@@ -65,7 +65,7 @@ class NewCourseInstance extends React.Component {
     return (
       <div>
         <Container>
-          <Card>
+          <Card className="event-card">
             <CardHeader className="event-card-header">
               New Course Instance for Course
               {course && ` "${course.name}"`}

@@ -78,8 +78,8 @@ class EditCourse extends React.Component {
     return (
       <div>
         <Container className="container-view">
-          <Card>
-            <CardHeader className="event-card-header">Edit Course</CardHeader>
+          <Card className="event-card">
+            <CardHeader className="event-card-header event-card">Edit Course</CardHeader>
             <CardBody className="form-cardbody">
               <CourseForm typeOfForm="Edit" {...course} />
             </CardBody>

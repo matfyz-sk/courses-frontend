@@ -257,7 +257,7 @@ class CreateTimeline extends React.Component {
               {saved && (
                 <Alert color="secondary">Event saved successfully!</Alert>
               )}
-              <Card>
+              <Card className="event-card">
                 <CardHeader className="event-card-header">
                   {event ? 'Edit Block' : 'New Event'}
                 </CardHeader>
@@ -273,7 +273,7 @@ class CreateTimeline extends React.Component {
                     <EventForm
                       typeOfForm="Create"
                       {...INITIAL_EVENT_STATE}
-                      options={['Block', 'Lab', 'Lecture']}
+                      options={['Block', 'Lab', 'Lecture', 'OralExam', 'TestTake']}
                       callBack={this.setSavedAlert}
                     />
                   )}

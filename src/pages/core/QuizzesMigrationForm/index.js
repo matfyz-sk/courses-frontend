@@ -18,8 +18,7 @@ export const QuizzesMigrationForm = ({ navigation }) => {
               checked
               disabled
             />{' '}
-            I don't want to migrate any quizzes right now. (I might not have a
-            choice.)
+            I don't want to migrate any quizzes right now.
           </Label>
         </FormGroup>
         <div className="button-container-migrations">

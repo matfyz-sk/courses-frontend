@@ -15,10 +15,14 @@
   margin-bottom: 2px;
 
   border: none;
-  padding: 4px 10px;
+
   display: flex;
   align-items: center;
   cursor: pointer;
+}
+
+.block-menu-item.list-group-item {
+  padding: 4px 10px;
 }
 
 .block-menu-item-active {
@@ -167,6 +171,14 @@ a.active-scrolllink-item {
   display: flex;
   flex-direction: row;
   margin-top: 30px;
+}
+
+.event-card-header.card-header, .event-card-header-flex.card-header, .course-card-header.card-header {
+  background-color: rgba(0,0,0,.03);
+}
+
+.event-card.card {
+  border-color: rgba(0,0,0,.125);
 }
 
 @media only screen and (max-width: 700px) {

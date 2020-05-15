@@ -38,13 +38,13 @@ class NewEvent extends React.Component {
     return (
       <div>
         <Container className="container-view">
-          <Card>
+          <Card className="event-card">
             <CardHeader className="event-card-header">New Event</CardHeader>
             <CardBody className="form-cardbody">
               <EventForm
                 typeOfForm="Create"
                 {...INITIAL_EVENT_STATE}
-                options={['Block', 'Lab', 'Lecture']}
+                options={['Block', 'Lab', 'Lecture', 'OralExam', 'TestTake']}
                 callBack={this.setRedirect}
               />
             </CardBody>

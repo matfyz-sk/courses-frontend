@@ -31,7 +31,7 @@ class ModalCreateEvent extends React.Component {
     return (
       <div>
         <Button onClick={this.toggle} className="new-session-button">
-          New Session
+          New Subevent
         </Button>
         <Modal
           isOpen={this.state.modal}
@@ -42,7 +42,7 @@ class ModalCreateEvent extends React.Component {
             <EventForm
               typeOfForm="Create"
               {...INITIAL_EVENT_STATE}
-              options={['Lab', 'Lecture']}
+              options={['Lab', 'Lecture', 'OralExam', 'TestTake']}
               callBack={this.callback}
               startDate={from}
               endDate={to}

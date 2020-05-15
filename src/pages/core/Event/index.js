@@ -5,7 +5,8 @@ import {
   CardSubtitle,
   CardHeader,
   CardBody,
-  Table, Alert,
+  Table,
+  Alert,
 } from 'reactstrap'
 import { connect } from 'react-redux'
 import { NavLink, Redirect } from 'react-router-dom'
@@ -19,10 +20,10 @@ import {
 } from '../Helper'
 import {
   BASE_URL,
-  COURSE_URL,
   EVENT_URL,
   INITIAL_EVENT_STATE,
   SESSIONS,
+  TASKS_EXAMS,
 } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
@@ -48,7 +49,7 @@ class Event extends React.Component {
 
     const { user, courseInstance } = this.props
 
-    if(courseInstance && user && getInstructorRights(user, courseInstance)) {
+    if (courseInstance && user && getInstructorRights(user, courseInstance)) {
       this.setState({
         hasAccess: true,
       })
@@ -118,8 +119,11 @@ class Event extends React.Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { user, courseInstance } = this.props
-    if(prevProps.user !== user || prevProps.courseInstance !== courseInstance) {
-      if(courseInstance && user && getInstructorRights(user, courseInstance)) {
+    if (
+      prevProps.user !== user ||
+      prevProps.courseInstance !== courseInstance
+    ) {
+      if (courseInstance && user && getInstructorRights(user, courseInstance)) {
         this.setState({
           hasAccess: true,
         })
@@ -167,17 +171,20 @@ const EventCard = ({ event, isAdmin, detail }) => (
           {event.name} ({event.type})
         </div>
       </NavLink>
-      {isAdmin && (SESSIONS.includes(event.type) || event.type === 'Block') && (
-        <NavLink
-          to={redirect(ROUTES.EDIT_EVENT_ID, [
-            { key: 'course_id', value: getShortId(event.courseInstance) },
-            { key: 'event_id', value: event.id },
-          ])}
-          className="edit-delete-buttons"
-        >
-          Edit
-        </NavLink>
-      )}
+      {isAdmin &&
+        (SESSIONS.includes(event.type) ||
+          TASKS_EXAMS.includes(event.type) ||
+          event.type === 'Block') && (
+          <NavLink
+            to={redirect(ROUTES.EDIT_EVENT_ID, [
+              { key: 'course_id', value: getShortId(event.courseInstance) },
+              { key: 'event_id', value: event.id },
+            ])}
+            className="edit-delete-buttons"
+          >
+            Edit
+          </NavLink>
+        )}
     </CardHeader>
     <CardBody>
       <div className="event-dates-container">
@@ -220,7 +227,9 @@ const EventCard = ({ event, isAdmin, detail }) => (
       )}
       {event.materials && event.materials.length > 0 && (
         <>
-          <CardSubtitle className="event-card-table-subtitle">Materials</CardSubtitle>
+          <CardSubtitle className="event-card-table-subtitle">
+            Materials
+          </CardSubtitle>
           <Table key={event.id} className="materials-table">
             <tbody>
               {event.materials.map(material => (

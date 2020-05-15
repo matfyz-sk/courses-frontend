@@ -377,7 +377,7 @@ class EventForm extends Component {
               id="type"
               type="select"
               name="type"
-              value={options[0]}
+              value={type}
               onChange={this.onChange}
             >
               {options.map(option => (
