@@ -5,7 +5,6 @@ import ErrorMessage from 'components/error';
 
 export default class Questionare extends Component {
   render(){
-    console.log(this.props.questionare);
     return(
       <>
       {this.props.questionare.map((question, index) =>

@@ -3,7 +3,8 @@ import { connect } from "react-redux";
 import { Alert, Button } from 'reactstrap';
 
 import AssignmentView from './assignmentView';
-import AddAssignment from './addAssignment';
+import AddAssignment from './assignment/add';
+import EditAssignment from './assignment/edit';
 import { getResponseBody, inputToTimestamp, getShortID, axiosGetEntities, axiosUpdateEntity, afterNow } from 'helperFunctions';
 import { assignmentsGetStudentTeams, assignmentsGetCourseInstance } from 'redux/actions';
 import { getAssignmentPeriods, assignPeriods } from './reusableFunctions';
@@ -46,10 +47,7 @@ class Assignments extends Component{
 
   refreshAssignments(props){
     if(props.courseInstance !== null && props.user !== null){
-      //?courseInstance=${props.courseInstance['@id']}
-      //console.log(props.courseInstance['@id']);
       axiosGetEntities(`assignment?courseInstance=${getShortID(props.courseInstance['@id'])}`).then((response)=>{
-        //console.log(response);
         if(!response.failed){
           let assignments = getResponseBody(response).filter((result) => result['@type'].endsWith('ontology#Assignment') );
           let periodsIDs = assignments.map(getAssignmentPeriods).reduce(
@@ -59,7 +57,7 @@ class Assignments extends Component{
           );
           if(props.isInstructor ){
             let axiosPeriods = periodsIDs.map((period) => axiosGetEntities(`assignmentPeriod/${getShortID(period)}`) );
-            let axiosSubmissions = assignments.map((assignment) => axiosGetEntities(`submission?ofAssignment=${getShortID(assignment['@id'])}_join=submittedByStudent,submittedByTeam`) );
+            let axiosSubmissions = assignments.map((assignment) => axiosGetEntities(`submission?ofAssignment=${getShortID(assignment['@id'])}&_join=submittedByStudent,submittedByTeam`) );
             Promise.all([
               Promise.all(axiosPeriods),
               Promise.all(axiosSubmissions),
@@ -92,7 +90,7 @@ class Assignments extends Component{
         let periodsIDs = getAssignmentPeriods(assignment);
         Promise.all([
           Promise.all(periodsIDs.map((period) => axiosGetEntities(`assignmentPeriod/${getShortID(period)}`) )),
-          axiosGetEntities(`submission?ofAssignment=${assignmentID}_join=submittedByStudent,submittedByTeam`)
+          axiosGetEntities(`submission?ofAssignment=${getShortID(assignmentID)}&_join=submittedByStudent,submittedByTeam`)
         ]).then(([periodsResponses, submissionsResponse])=>{
           let periods = periodsResponses.map((response) => getResponseBody(response)[0]);
           assignment.submissions = getResponseBody(submissionsResponse);
@@ -135,14 +133,7 @@ class Assignments extends Component{
             this.props.courseInstance.hasInstructor.some((instructor) => instructor['@id'] === this.props.user.fullURI ) &&
             <AddAssignment updateAssignment={this.updateAssignment.bind(this)} /> }
         </h1>
-        { false &&
-        <Button
-          color="success"
-          onClick={()=> axiosUpdateEntity({isSuperAdmin: true, nickNameTeamException:true},`user/${getShortID(this.props.user.fullURI)}`) }
-          >
-          Free superadmin here!
-        </Button>
-        }
+
         <Alert color="warning" className="mt-3" isOpen={this.state.assignments.length === 0 }>
           There are currently no assignments.
         </Alert>
@@ -151,6 +142,7 @@ class Assignments extends Component{
           <AssignmentView key={assignment['@id']}
             assignment={assignment}
             history={this.props.history}
+            updateAssignment={this.updateAssignment.bind(this)}
             removeAssignment={()=>{
               let newAssignments = this.state.assignments.filter((assignment2) => assignment2['@id'] !== assignment['@id'] )
               this.setState({ assignments: newAssignments })

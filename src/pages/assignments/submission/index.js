@@ -24,6 +24,7 @@ class SubmissionContainer extends Component{
       initialSubmission: null,
       improvedSubmission: null,
       submissionsLoaded: false,
+      toReview: null,
 
       settings: null,
       error: '',
@@ -65,8 +66,7 @@ class SubmissionContainer extends Component{
         if( !this.props.isInstructor && settings.teamAssignment && this.props.courseInstanceLoaded && this.props.user !== null ){
           this.props.assignmentsGetStudentTeams(this.props.user.fullURI, this.props.courseInstance['@id'] );
         }
-        this.refreshSubmissions(settings,assignment, this.props);
-        console.log(assignment);
+        this.refreshSubmissions(settings, assignment, this.props);
         this.setState({ assignment, settings, assignmentLoaded: true })
       })
     })
@@ -76,9 +76,9 @@ class SubmissionContainer extends Component{
     const teamAssignment = !assignment.teamsDisabled;
     const teamReviewEnabled = teamAssignment && !assignment.teamReviewsDisabled;
     const peerReviewEnabled = !assignment.reviewsDisabled;
-    const myAssignment = !this.props.match.params.targetID;
+    const myAssignment = !this.props.match.params.targetID && !this.props.match.params.toReviewID;
     const isInstructor = this.props.isInstructor;
-    const peerReview = peerReviewEnabled && !isInstructor && this.props.match.params.targetID !== undefined;
+    const peerReview = peerReviewEnabled && this.props.match.params.toReviewID !== undefined;
     return {
       teamAssignment,
       teamReviewEnabled,
@@ -89,26 +89,45 @@ class SubmissionContainer extends Component{
     }
   }
 
-  refreshSubmissions(settings, assignment, props){
-    if(props.user === null){
-      return;
-    }
+  getID(settings, props){
     let ID = null;
     if(settings.myAssignment && settings.teamAssignment && props.match.params.teamID ){
       ID = props.match.params.teamID;
     }else if(settings.myAssignment && !settings.teamAssignment){
       ID = props.user.id;
-    }else if((settings.isInstructor || settings.peerReview) && props.match.params.targetID){
+    }else if(settings.isInstructor && props.match.params.targetID){
       ID = props.match.params.targetID;
     }
+    return ID;
+  }
+
+  refreshSubmissions(settings, assignment, props){
+    if(props.user === null){
+      return;
+    }
+    if(settings.peerReview && props.match.params.toReviewID){
+      axiosGetEntities(`toReview/${props.match.params.toReviewID}?_join=submission`).then((response)=>{
+        const toReview = getResponseBody(response)[0];
+        const initialSubmission = toReview.submission.length > 0 ? toReview.submission[0] : null;
+        const improvedSubmission = null;
+        this.setState({
+          toReview: toReview,
+          submissionsLoaded: true,
+          initialSubmission: initialSubmission !== undefined ? initialSubmission : null,
+          improvedSubmission: improvedSubmission !== undefined ? improvedSubmission : null,
+        })
+      })
+      return;
+    }
+    const ID = this.getID(settings,props);
     if(ID === null){
       this.setState({error:'Please select your team.', errorShow:true})
       return;
     }
-    axiosGetEntities(`submission?${settings.teamAssignment ? 'submittedByTeam': 'submittedByStudent'}=${ID}_join=submittedField`).then((response) => {
-      let submissions = getResponseBody(response);
-      let initialSubmission = submissions.find( (submission) => !submission.isImproved );
-      let improvedSubmission = submissions.find( (submission) => submission.isImproved );
+    axiosGetEntities(`submission?${settings.teamAssignment ? 'submittedByTeam': 'submittedByStudent'}=${ID}&ofAssignment=${getShortID(assignment['@id'])}&_join=submittedField`).then((response) => {
+      const submissions = getResponseBody(response);
+      const initialSubmission = submissions.find( (submission) => !submission.isImproved );
+      const improvedSubmission = submissions.find( (submission) => submission.isImproved );
       this.setState({
         submissionsLoaded: true,
         initialSubmission: initialSubmission !== undefined ? initialSubmission : null,
@@ -160,7 +179,7 @@ class SubmissionContainer extends Component{
               <h4 className="center-hor ml-5 mr-auto">
                 {"Loading..."}
               </h4>
-              { this.props.teamsLoaded && settings.myAssignment && this.props.match.params.teamID === undefined &&
+              { this.props.teamsLoaded && settings !==null && settings.myAssignment && this.props.match.params.teamID === undefined &&
                 <Select
                   styles={teamSelectStyle}
                   value={toSelectInput(this.props.teams,'name','@id').find((team) => getShortID(team.value) === this.props.match.params.teamID )}
@@ -268,6 +287,11 @@ class SubmissionContainer extends Component{
             <TabContent activeTab={this.state.tabID}>
               <TabPane tabId={'submission'}>
                 <Submission
+                  assignment={this.state.assignment}
+                  settings={this.state.settings}
+                  initialSubmission={this.state.initialSubmission}
+                  improvedSubmission={this.state.improvedSubmission}
+                  refreshAssignment={this.refreshAssignment.bind(this)}
                   history={this.props.history}
                   match={this.props.match}
                   />
@@ -283,6 +307,7 @@ class SubmissionContainer extends Component{
                     match={this.props.match}
                     assignment={this.state.assignment}
                     settings={this.state.settings}
+                    toReview={this.state.toReview}
                     initialSubmission={this.state.initialSubmission}
                     />
                 </TabPane>

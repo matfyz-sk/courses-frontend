@@ -5,6 +5,7 @@ import moment from 'moment';
 import { connect } from "react-redux";
 import { addAssignment } from '../reusableFunctions';
 import { inputToTimestamp, getResponseBody, axiosGetEntities, axiosAddEntity, getIRIFromAddResponse } from 'helperFunctions';
+import { infoOK, fieldsOK, submissionOK, teamsOK, reviewsOK, teamReviewsOK, getRealDeadline } from './verify';
 
 import Info from './0-info';
 import Submission from './1-submission';
@@ -13,32 +14,24 @@ import Teams from './3-teams';
 import Reviews from './4-reviews';
 import TeamReviews from './5-teamReviews';
 
-/*
-ak je teamovy review je teamove
-
-*/
-
 const defaultForm={
   info:{
-    name:'Test assignment',
-    description: "<p>Full description</p>",
-    shortDescription: `<p>Short <strong>description</strong> asdadsdasdsdasad</p>`,
+    name:'',
+    description: "",
+    shortDescription: ``,
     hasMaterial:[],
   },
   fields:{
-    fields:[
-      {id:0,title:'Nazov riesenia',description:'Nazvy riesenie',type:{label:'input',value:'input'}},
-      {id:1,title:'Popis riesenia',description:'Popis riesenie',type:{label:'text area',value:'text area'}},
-    ],
+    fields:[],
   },
   submission:{
     anonymousSubmission: false,
-    openTime: "2020-05-04T23:59",
-    deadline: "2020-05-11T23:59",
+    openTime: "",
+    deadline: "",
     extraTime: 15,
     improvedSubmission: false,
-    improvedOpenTime: "2020-05-12T23:00",
-    improvedDeadline: "2020-05-13T23:00",
+    improvedOpenTime: "",
+    improvedDeadline: "",
     improvedExtraTime:15
   },
   teams:{
@@ -50,8 +43,8 @@ const defaultForm={
   },
   reviews:{
     disabled:false,
-    openTime: "2020-01-10T10:10",
-    deadline: "2020-05-12T10:10",
+    openTime: "",
+    deadline: "",
     extraTime:15,
     reviewsPerSubmission:3,
     reviewedByTeam:true,
@@ -60,8 +53,8 @@ const defaultForm={
   },
   teamReviews:{
     disabled:false,
-    openTime: "2020-05-04T10:10",
-    deadline: "2020-05-10T10:10",
+    openTime: "",
+    deadline: "",
     extraTime:15
   }
 }
@@ -82,12 +75,11 @@ class ModalAddAssignment extends Component {
     this.newID = 0;
     this.toggle.bind(this);
     this.canSave.bind(this);
-    this.infoOK.bind(this);
-    this.submissionOK.bind(this);
-    this.teamsOK.bind(this);
-    this.reviewsOK.bind(this);
-    this.teamReviewsOK.bind(this);
-    axiosGetEntities('AssignmentPeriod')
+    infoOK.bind(this);
+    submissionOK.bind(this);
+    teamsOK.bind(this);
+    reviewsOK.bind(this);
+    teamReviewsOK.bind(this);
   }
 
   getNewID(){
@@ -148,7 +140,7 @@ class ModalAddAssignment extends Component {
         this.setState({
           formLoaded: true,
           allQuestions: questions.response.data['@graph'].map((question)=>({...question, new:false })),
-          allMaterials: materials.response.data['@graph'].map((material)=>({...material, new:false })),
+          allMaterials: materials.response.data['@graph'].filter( (material) => material.URL !== undefined ).map((material)=>({...material, new:false })),
         });
       })
     }
@@ -165,81 +157,12 @@ class ModalAddAssignment extends Component {
   }
 
   canSave(){
-    return this.infoOK(this.state.info) &&
-      this.fieldsOK(this.state.fields) &&
-      this.submissionOK(this.state.submission) &&
-      this.teamsOK(this.state.teams) &&
-      this.reviewsOK(this.state.reviews) &&
-      this.teamReviewsOK(this.state.teams, this.state.teamReviews)
-  }
-
-  infoOK(info){
-    return info.name.length>4
-  }
-
-  fieldsOK(fields){
-    return fields.fields.length>0
-  }
-
-  submissionOK(submission){
-    let openTime = moment(submission.openTime).unix();
-    let deadline = moment(submission.deadline).unix();
-    let improvedOpenTime = moment(submission.improvedOpenTime).unix();
-    let improvedDeadline = moment(submission.improvedDeadline).unix();
-    let realCloseTime = parseInt(submission.extraTime);
-    if(isNaN(realCloseTime)){
-      realCloseTime=0;
-    }
-    realCloseTime = realCloseTime*60;
-    if(!isNaN(deadline)){
-      realCloseTime += deadline;
-    }
-    return !isNaN(openTime) &&
-      !isNaN(deadline) &&
-      openTime <= deadline &&
-      !isNaN(parseInt(submission.extraTime)) &&
-      parseInt(submission.extraTime)>=0 &&
-      (!submission.improvedSubmission||(
-        !isNaN(improvedOpenTime) &&
-        !isNaN(improvedDeadline) &&
-        improvedOpenTime <= improvedDeadline &&
-        !isNaN(parseInt(submission.improvedExtraTime)) &&
-        parseInt(submission.improvedExtraTime)>=0 &&
-        realCloseTime <= improvedOpenTime
-      ))
-  }
-
-  teamsOK(teams){
-    return teams.disabled||(
-      !isNaN(parseInt(teams.minimumInTeam)) &&
-      !isNaN(parseInt(teams.maximumInTeam)) &&
-      parseInt(teams.minimumInTeam) <= parseInt(teams.maximumInTeam) &&
-      parseInt(teams.minimumInTeam) >= 2
-    )
-  }
-
-  reviewsOK(reviews){
-    let openTime = moment(reviews.openTime).unix();
-    let deadline = moment(reviews.deadline).unix();
-    return reviews.disabled||(
-      reviews.questions.length>0 &&
-      !isNaN(openTime) &&
-      !isNaN(deadline) &&
-      openTime <= deadline &&
-      parseInt(reviews.extraTime)>=0&&
-      parseInt(reviews.reviewsPerSubmission)>=1
-    );
-  }
-
-  teamReviewsOK(teams,teamReviews){
-    let openTime = moment(teamReviews.openTime).unix();
-    let deadline = moment(teamReviews.deadline).unix();
-    return teams.disabled||teamReviews.disabled||(
-      !isNaN(openTime) &&
-      !isNaN(deadline) &&
-      openTime <= deadline &&
-      parseInt(teamReviews.extraTime) >=0
-    );
+    return infoOK(this.state.info) &&
+      fieldsOK(this.state.fields) &&
+      submissionOK(this.state.submission) &&
+      teamsOK(this.state.teams) &&
+      reviewsOK(this.state.reviews, getRealDeadline( this.state.submission ) ) &&
+      teamReviewsOK(this.state.teams, this.state.teamReviews, getRealDeadline( this.state.submission ) )
   }
 
   submitAssignment(){
@@ -279,7 +202,7 @@ class ModalAddAssignment extends Component {
             <Nav tabs className="b-0">
               <NavItem>
                 <NavLink
-                  className={classnames({ active: this.state.activeTab === '1',hasError:!this.infoOK(this.state.info)}, "clickable")}
+                  className={classnames({ active: this.state.activeTab === '1',hasError:!infoOK(this.state.info)}, "clickable")}
                   onClick={() => { this.setState({activeTab:'1'}) }}
                 >
                   Info
@@ -287,7 +210,7 @@ class ModalAddAssignment extends Component {
               </NavItem>
               <NavItem>
                 <NavLink
-                  className={classnames({ active: this.state.activeTab === '2',hasError:!this.submissionOK(this.state.submission)}, "clickable")}
+                  className={classnames({ active: this.state.activeTab === '2',hasError:!submissionOK(this.state.submission)}, "clickable")}
                   onClick={() => { this.setState({activeTab:'2'}) }}
                   >
                   Submission
@@ -295,7 +218,7 @@ class ModalAddAssignment extends Component {
               </NavItem>
               <NavItem>
                 <NavLink
-                  className={classnames({ active: this.state.activeTab === '3',hasError:!this.fieldsOK(this.state.fields)}, "clickable")}
+                  className={classnames({ active: this.state.activeTab === '3',hasError:!fieldsOK(this.state.fields)}, "clickable")}
                   onClick={() => { this.setState({activeTab:'3'}) }}
                 >
                   Fields
@@ -303,7 +226,7 @@ class ModalAddAssignment extends Component {
               </NavItem>
               <NavItem>
                 <NavLink
-                  className={classnames({ active: this.state.activeTab === '4',hasError:!this.teamsOK(this.state.teams)}, "clickable")}
+                  className={classnames({ active: this.state.activeTab === '4',hasError:!teamsOK(this.state.teams)}, "clickable")}
                   onClick={() => { this.setState({activeTab:'4'}) }}
                 >
                   Teams
@@ -311,7 +234,7 @@ class ModalAddAssignment extends Component {
               </NavItem>
               <NavItem>
                 <NavLink
-                  className={classnames({ active: this.state.activeTab === '5',hasError:!this.reviewsOK(this.state.reviews)}, "clickable")}
+                  className={classnames({ active: this.state.activeTab === '5',hasError:!reviewsOK(this.state.reviews,getRealDeadline( this.state.submission ))}, "clickable")}
                   onClick={() => { this.setState({activeTab:'5'}) }}
                 >
                   Reviews
@@ -320,7 +243,7 @@ class ModalAddAssignment extends Component {
               {
                 !this.state.teams.disabled && <NavItem>
                 <NavLink
-                  className={classnames({ active: this.state.activeTab === '6',hasError:!this.teamReviewsOK(this.state.teams,this.state.teamReviews)}, "clickable")}
+                  className={classnames({ active: this.state.activeTab === '6',hasError:!teamReviewsOK(this.state.teams,this.state.teamReviews, getRealDeadline( this.state.submission ))}, "clickable")}
                   onClick={() => { this.setState({activeTab:'6'}) }}
                 >
                   Team Reviews
@@ -345,6 +268,7 @@ class ModalAddAssignment extends Component {
                   data={this.state.submission}
                   showErrors={this.state.showErrors}
                   setData={(submission)=>{this.setState({submission})}}
+                  initialDeadline={ getRealDeadline(this.state.submission) }
                   setSubmissionAnonymous={(anonymousSubmission)=>{
                     if(anonymousSubmission && this.state.reviews.visibility==='open'){
                       this.setState({submission:{...this.state.submission,anonymousSubmission},reviews:{...this.state.reviews,visibility:'blind'}});
@@ -363,11 +287,7 @@ class ModalAddAssignment extends Component {
                   showErrors={this.state.showErrors}
                   setData={(teams)=>{this.setState({teams})}}
                   setTeamsDisabled={(disabled)=>{
-                      if(disabled && this.state.reviews.reviewedByTeam){
-                      this.setState({teams:{...this.state.teams,disabled},reviews:{...this.state.reviews,reviewedByTeam:false}});
-                    }else{
-                      this.setState({teams:{...this.state.teams,disabled}});
-                    }
+                    this.setState({ teams: { ...this.state.teams, disabled },reviews: { ...this.state.reviews, reviewedByTeam: !disabled } });
                   }}
                   />
               </TabPane>
@@ -380,11 +300,17 @@ class ModalAddAssignment extends Component {
                   showErrors={this.state.showErrors}
                   openDisabled={this.state.submission.anonymousSubmission}
                   teamsDisabled={this.state.teams.disabled}
+                  initialDeadline={ getRealDeadline(this.state.submission) }
                   setData={(reviews)=>{this.setState({reviews})}}
                   />
               </TabPane>
               <TabPane tabId="6">
-                <TeamReviews data={this.state.teamReviews} showErrors={this.state.showErrors} setData={(teamReviews)=>{this.setState({teamReviews})}}/>
+                <TeamReviews
+                  data={this.state.teamReviews}
+                  showErrors={this.state.showErrors}
+                  setData={(teamReviews)=>{this.setState({teamReviews})}}
+                  initialDeadline={ getRealDeadline(this.state.submission) }
+                  />
               </TabPane>
             </TabContent>
           }

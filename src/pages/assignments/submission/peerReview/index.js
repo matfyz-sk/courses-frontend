@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Label, Alert } from 'reactstrap';
 import { connect } from "react-redux";
 import Questionare from './questionare';
+import Answers from './answers';
 
 import { axiosGetEntities, axiosAddEntity, axiosUpdateEntity, getShortID, getResponseBody, periodHappening, periodHasEnded, periodStarted, getIRIFromAddResponse } from 'helperFunctions';
 
@@ -49,18 +50,21 @@ class PeerReview extends Component {
     })
   }
 
-  fetchStudentsAnswers(){
+  fetchMyReview(){
     if(
       this.submissionID === null ||
-      (this.props.assignment.reviewedByTeam && !this.props.teams.some( (team) => getShortID(team['@id']) === this.props.match.params.teamID ))
+      this.props.toReview === null ||
+      (this.props.assignment.reviewedByTeam && !this.props.teams.some( (team) => team['@id'] === this.props.toReview.team[0]['@id'] ))
     ){
       return;
     }
-    let peerReviewCondition = `reviewedByStudent=${getShortID(this.props.user.fullURI)}`;
+    let peerReviewCondition = ""
     if(this.props.assignment.reviewedByTeam){
-      peerReviewCondition = `reviewedByTeam=${this.props.match.params.teamID}`;
+      peerReviewCondition = `reviewedByTeam=${getShortID(this.props.toReview.team[0]['@id'])}`;
+    }else{
+      peerReviewCondition = `reviewedByStudent=${getShortID(this.props.toReview.student[0]['@id'])}`;
     }
-    axiosGetEntities(`peerReview?ofSubmission=${getShortID(this.submissionID)}&${peerReviewCondition}_join=hasQuestionAnswer`).then((response)=>{
+    axiosGetEntities(`peerReview?ofSubmission=${getShortID(this.submissionID)}&${peerReviewCondition}&_join=hasQuestionAnswer`).then((response)=>{
       let review = getResponseBody(response);
       this.setState({ myReview: ( review.length === 0 ? null : review[0] ), myReviewLoaded: true }, this.loadForm.bind(this));
     })
@@ -100,10 +104,10 @@ class PeerReview extends Component {
     if( this.submissionID === null ){
       return;
     }
-    axiosGetEntities(`peerReview?ofSubmission=${getShortID(this.submissionID)}_join=hasQuestionAnswer`).then((response)=>{
+    axiosGetEntities(`peerReview?ofSubmission=${getShortID(this.submissionID)}&_join=hasQuestionAnswer`).then((response)=>{
       let reviews = getResponseBody(response);
       if (this.props.assignment.reviewsVisibility === "open" || this.props.settings.isInstructor){
-        if( this.props.assigned.reviewedByTeam ){
+        if( this.props.assignment.reviewedByTeam ){
           //get team
           let axiosTeams = reviews.map( (review) => axiosGetEntities(`team/${getShortID(review.reviewedByTeam[0]['@id'])}` ))
           Promise.all(axiosTeams).then( (responses) => {
@@ -144,7 +148,7 @@ class PeerReview extends Component {
     const answers = reviews.map( (review) => {
       return review.hasQuestionAnswer.map( (answer) => ({
         ...answer,
-        review,
+        review
       }))
     }).reduce(
       (acc,value)=>{
@@ -168,10 +172,10 @@ class PeerReview extends Component {
   componentWillMount(){
     if( periodHappening(this.props.assignment.peerReviewPeriod) && this.props.settings.peerReview ){ //student hodnoti niekoho
       this.fetchQuestions();
-      this.fetchStudentsAnswers();
+      this.fetchMyReview();
     }else if((this.props.settings.myAssignment || this.props.settings.isInstructor) && periodHasEnded(this.props.assignment.peerReviewPeriod)){ //instruktor alebo niekto pozera vysledky
+      this.fetchQuestions();
       this.fetchAnswers();
-      this.fetchStudentsAnswers();
     }
   }
 
@@ -201,7 +205,7 @@ class PeerReview extends Component {
           hasQuestionAnswer:[...existingReviews.map((review)=>review['@id']),...newIDs ],
         },`peerReview/${this.state.myReview['@id']}`).then( (response) => {
           this.setState({ saving: false })
-          this.fetchStudentsAnswers();
+          this.fetchMyReview();
         })
       }else{
         let newPeerReview = {
@@ -216,7 +220,7 @@ class PeerReview extends Component {
         }
         axiosAddEntity(newPeerReview,'peerReview').then( (response) => {
           this.setState({ saving: false })
-          this.fetchStudentsAnswers();
+          this.fetchMyReview();
         })
       }
     })
@@ -271,12 +275,11 @@ class PeerReview extends Component {
         </Alert>
       )
     }
-
-    const loading = (periodHappening(this.props.assignment.peerReviewPeriod) && this.props.settings.peerReview && !this.state.questionareLoaded) ||
+    const loading = (this.props.settings.peerReview && periodHappening(this.props.assignment.peerReviewPeriod) && !this.state.questionareLoaded) ||
     (
       (this.props.settings.myAssignment || this.props.settings.isInstructor) &&
       periodHasEnded(this.props.assignment.peerReviewPeriod) &&
-      (!this.state.questionsLoaded || this.stat.answersLoaded)
+      (!this.state.questionsLoaded || !this.state.answersLoaded)
     );
     if( loading ){
       return (
@@ -296,38 +299,15 @@ class PeerReview extends Component {
             submit={this.submit.bind(this)}
             />
         }
+        { (this.props.settings.myAssignment || this.props.settings.isInstructor) &&
+          periodHasEnded(this.props.assignment.peerReviewPeriod) &&
+          <Answers
+            questionsWithAnswers = { this.getQuestionAnswers() }
+            nameVisible={ this.props.assignment.reviewsVisibility === "open" || this.props.settings.isInstructor }
+            />
+        }
       </div>
     )
-    return(
-
-      <div>
-        <div>
-          {
-            [1,2,3,4].map((question)=>
-            <div className="bottomSeparator" key={question}>
-              <Label className="bold">Question {question}</Label>
-              {
-                [1,2,3].map((answer)=>
-                <div className="row" key={answer}>
-                  <label className="bolder italic">
-                    Answer {answer}:
-                  </label>
-                  <div>
-                    {randomSentence()}
-                  </div>
-              </div>
-            )}
-          </div>
-        )}
-        <div>
-          <h4>Teachers review</h4>
-          <div>
-            {randomSentence()}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
 }
 }
 const mapStateToProps = ({ authReducer, assignStudentDataReducer }) => {

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { FormGroup, Label, Input, Button, Table, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
+import { timestampToInput, timestampToString } from 'helperFunctions';
 import moment from 'moment';
 import AddNewQuestion from './question/newQuestion';
 import AddExistingQuestion from './question/existingQuestion';
@@ -44,9 +45,11 @@ export default class Reviews extends Component {
         <hr/>
         <FormGroup>
           <Label htmlFor="submission-add-openTime" >Open time</Label>
+          <Button className="ml-2 mb-2 p-1" color="primary" disabled={ this.props.initialDeadline === null } onClick={()=>{ this.setData('openTime', timestampToInput(this.props.initialDeadline) ) }}><i className="fa fa-copy clickable" />Copy initial deadline</Button>
           <Input id="submission-add-openTime" type="datetime-local" value={this.props.data.openTime} onChange={(e)=>{this.setData('openTime',e.target.value)}} disabled={this.props.data.disabled}/>
         </FormGroup>
         <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.openTime===''} message="You must pick an open time!" />
+          <ErrorMessage show={this.props.showErrors && this.props.data.openTime!=='' && this.props.initialDeadline !== null && this.props.initialDeadline > moment(this.props.data.openTime).unix()} message={`Open time must be after intial submission deadline! (${timestampToString(this.props.initialDeadline)})`} />
         <FormGroup>
           <Label htmlFor="submission-add-deadline" >Deadline</Label>
           <Button className="ml-2 mb-2 p-1" color="primary" onClick={()=>{ this.setData('deadline', this.props.data.openTime ) }}><i className="fa fa-copy clickable" />Copy open time</Button>
@@ -77,7 +80,7 @@ export default class Reviews extends Component {
             </FormGroup>
             <FormGroup check>
               <Label check>
-                <Input type="radio" name="reviewedByTeam" checked={this.props.data.reviewedByTeam===false} onChange={(e)=>{this.setData('reviewedByTeam',false)}} disabled={this.props.data.disabled}/>{' '}
+                <Input type="radio" name="reviewedByTeam" checked={this.props.data.reviewedByTeam===false} onChange={(e)=>{this.setData('reviewedByTeam',false)}} disabled={this.props.data.disabled || !this.props.teamsDisabled}/>{' '}
                 Individual
               </Label>
             </FormGroup>

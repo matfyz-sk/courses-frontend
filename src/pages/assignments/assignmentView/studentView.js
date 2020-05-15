@@ -20,9 +20,9 @@ class StudentAssignmentView extends Component {
   getSubmissions(){
     let axiosSubmissions = [];
     if(this.props.assignment.teamsDisabled){
-      axiosSubmissions.push(axiosGetEntities(`submission?ofAssignment${getShortID(this.props.assignment['@id'])}&submittedByStudent=${getShortID(this.props.user.fullURI)}`));
+      axiosSubmissions.push(axiosGetEntities(`submission?ofAssignment=${getShortID(this.props.assignment['@id'])}&submittedByStudent=${getShortID(this.props.user.fullURI)}`));
     }else{
-      axiosSubmissions = this.props.teams.map((team)=> axiosGetEntities(`submission?ofAssignment${getShortID(this.props.assignment['@id'])}&submittedByTeam=${getShortID(team['@id'])}`))
+      axiosSubmissions = this.props.teams.map((team)=> axiosGetEntities(`submission?ofAssignment=${getShortID(this.props.assignment['@id'])}&submittedByTeam=${getShortID(team['@id'])}`))
     }
     Promise.all(axiosSubmissions).then((responses)=>{
       let submissions = responses.map((response) => getResponseBody(response) ).reduce(
@@ -37,15 +37,16 @@ class StudentAssignmentView extends Component {
   }
 
   getReviews(){
-    if(this.props.assignment.reviewsDisabled){
+    const assignment = this.props.assignment;
+    if(assignment.reviewsDisabled){
       this.setState({ reviewsLoaded: true })
       return;
     }
     let axiosToReviews = [];
-    if(this.props.assignment.teamsDisabled){
-      axiosToReviews.push(axiosGetEntities(`toReview?&student=${getShortID(this.props.user.fullURI)}&_join=student`));
+    if(assignment.teamsDisabled){
+      axiosToReviews.push(axiosGetEntities(`toReview?&student=${getShortID(this.props.user.fullURI)}&_join=submission`));
     }else{
-      axiosToReviews = this.props.teams.map((team)=> axiosGetEntities(`toReview?team=${getShortID(team['@id'])}&_join=team`))
+      axiosToReviews = this.props.teams.map((team)=> axiosGetEntities(`toReview?team=${getShortID(team['@id'])}&_join=submission`))
     }
     Promise.all(axiosToReviews).then((responses)=>{
       let toReviews = responses.map((response) => getResponseBody(response) ).reduce(
@@ -53,28 +54,48 @@ class StudentAssignmentView extends Component {
           return acc.concat(value)
         },[]
       );
-      let axiosReviews = [];
-      if(this.props.assignment.teamsDisabled){
-        axiosReviews = toReviews.map((toReview)=> axiosGetEntities(`peerReview?reviewedByStudent=${getShortID(this.props.user.fullURI)}&ofSubmission=${getShortID(toReview.submission[0])}`))
-      }else{
-        axiosReviews = toReviews.map((toReview)=> axiosGetEntities(`peerReview?reviewedByTeam=${getShortID(toReview.team['@id'])}&ofSubmission=${getShortID(toReview.submission[0])}`))
-      }
-      Promise.all(axiosReviews).then((responses)=>{
-        let reviews = responses.map((response)=> getResponseBody(response)).reduce(
-          (acc,value)=>{
-            return acc.concat(value)
-          },[]
-        );
-        toReviews = this.assignReviews(toReviews, reviews);
-        this.setState({ toReviews, reviewsLoaded: true })
-      })
+        let axiosReviews = [];
+        let axiosCreators = [];
+        if(assignment.teamsDisabled){
+          axiosReviews = toReviews.map((toReview)=> axiosGetEntities(`peerReview?reviewedByStudent=${getShortID(this.props.user.fullURI)}&ofSubmission=${getShortID(toReview.submission[0]['@id'])}`))
+          axiosCreators = toReviews.map((toReview)=> axiosGetEntities(`user/${getShortID(toReview.submission[0].submittedByStudent)}`))
+        }else{
+          axiosReviews = toReviews.map((toReview)=> axiosGetEntities(`peerReview?reviewedByTeam=${getShortID(toReview.team[0]['@id'])}&ofSubmission=${getShortID(toReview.submission[0]['@id'])}`))
+          axiosCreators = toReviews.map((toReview)=> axiosGetEntities(`team/${getShortID(toReview.submission[0].submittedByTeam)}`))
+        }
+        Promise.all([
+          Promise.all(axiosReviews),
+          Promise.all(axiosCreators),
+        ]).then(([reviewsResponses,creatorsResponses])=>{
+          let reviews = reviewsResponses.map((response)=> getResponseBody(response)).reduce(
+            (acc,value)=>{
+              return acc.concat(value)
+            },[]
+          );
+          let creators = creatorsResponses.map((response)=> getResponseBody(response)).reduce(
+            (acc,value)=>{
+              return acc.concat(value)
+            },[]
+          );
+
+          toReviews = this.assignReviews(toReviews, reviews, creators, assignment.teamsDisabled);
+          this.setState({ toReviews, reviewsLoaded: true })
+        })
     })
   }
 
-  assignReviews(toReviews, reviews){
+  getCreatorsName( creators, toReview, individual ){
+    if(individual){
+      return getStudentName(creators.find((creator) => creator['@id'] === toReview.submission[0].submittedByStudent))
+    }
+    return creators.find((creator) => creator['@id'] === toReview.submission[0].submittedByTeam).name
+  }
+
+  assignReviews(toReviews, reviews, creators, individual){
     return toReviews.map((toReviewItem)=>({
       ...toReviewItem,
-      review: reviews.find((review) => review.ofSubmission[0] === toReviewItem.submission[0])
+      review: reviews.find((review) => review.ofSubmission[0]['@id'] === toReviewItem.submission[0]['@id']),
+      name: this.getCreatorsName( creators, toReviewItem, individual )
     }))
   }
 
@@ -104,7 +125,7 @@ class StudentAssignmentView extends Component {
         <div>
           <Label className="mb-0 pt-0">Submission deadline: </Label>
           <span>{' ' + timestampToString(assignment.initialSubmissionPeriod.deadline)}</span>
-          <Button outline className="ml-2 mb-2 p-1" color="primary" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/submission`)}>
+          <Button outline className="ml-2 mb-2 p-1" color={this.state.initialSubmissions.length === 0 ? 'success' : 'primary' } onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/submission`)}>
             {this.state.initialSubmissions.length === 0 ? 'Submit' : 'Update' }
           </Button>
         </div>
@@ -114,7 +135,7 @@ class StudentAssignmentView extends Component {
         <div>
           <Label className="mb-0 pt-0">Improved submission deadline: </Label>
           <span>{' ' + timestampToString(assignment.improvedSubmissionPeriod.deadline)}</span>
-          <Button outline className="ml-2 mb-2 p-1" color="primary" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/submission`)}>
+          <Button outline className="ml-2 mb-2 p-1" color={this.state.improvedSubmissions.length === 0 ? 'success' : 'primary' } onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/submission`)}>
             {this.state.improvedSubmissions.length === 0 ? 'Submit' : 'Update' }
           </Button>
         </div>
@@ -160,29 +181,33 @@ class StudentAssignmentView extends Component {
       }
       {
         !assignment.reviewsDisabled && assignment.hasAssignedReviews && !afterNow(assignment.peerReviewPeriod.openTime) &&
-        <div>
+        <div style={{display:'table'}}>
           <h5>You should review</h5>
             <Table>
               <thead>
                 <tr>
-                  { assignment.reviewsVisibility === 'open' && <th>Reviewing</th> }
+                  { ['blind','open'].includes(assignment.reviewsVisibility) && <th>Reviewing</th> }
                   <th width="150" className="center-cell">Was reviewed</th>
-                  <th></th>
+                  <th width="150"></th>
                 </tr>
               </thead>
               <tbody>
                 { this.state.toReviews.map((toReview)=>
-                  <tr>
-                    { assignment.reviewsVisibility === 'open' && <td>{ !assignment.teamsDisabled && !assignment.reviewedByTeam ? toReview.team.name : getStudentName(toReview.student)}</td> }
-                    <th className="center-cell">{ toReview.review !== undefined ? <i className="fa fa-check green-color" /> : <i className="fa fa-times red-color" /> }</th>
-                    <th>
+                  <tr key={toReview['@id']}>
+                    { ['blind','open'].includes(assignment.reviewsVisibility) &&
+                      <td>
+                      { toReview.name }
+                      </td>
+                    }
+                    <td className="center-cell">{ toReview.review !== undefined ? <i className="fa fa-check green-color" /> : <i className="fa fa-times red-color" /> }</td>
+                    <td>
                       <Button
                         color={ toReview.review ? "primary" : "success" }
-                        onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/review/submission/${getShortID(toReview.submission[0])}/reviews`)}
+                        onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/review/${getShortID(toReview['@id'])}/reviews`)}
                         >
                         { toReview.review ? 'Update review':'Review'}
                       </Button>
-                    </th>
+                    </td>
                   </tr>
                 )}
               </tbody>

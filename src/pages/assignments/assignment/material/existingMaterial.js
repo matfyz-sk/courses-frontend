@@ -49,7 +49,7 @@ export default class AddMaterial extends Component{
               ).map((material) =>
               <tr key={material['@id']}>
                 <td>{ material.name }</td>
-                <td><a href={material.URL} target="_blank" without rel="noopener noreferrer">
+                <td><a href={material.URL} target="_blank" without="true" rel="noopener noreferrer">
                   { material.URL && (material.URL.substring(0,50) + (material.URL.length > 50 ? '...' : '')) }
                 </a></td>
                 <td style={{ textAlign: 'center' }}>{ material.new ? <i className="fa fa-check green-color" /> : <i className="fa fa-times light-red-color" /> }</td>

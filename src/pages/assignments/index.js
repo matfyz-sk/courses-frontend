@@ -13,8 +13,7 @@ export default class Navigation extends Component{
 
         <Route exact path='/courses/:courseInstanceID/assignments/assignment/:assignmentID/submission/:tabID' component={Submission} /> {/*moj assignment, povinny vyber teamu*/}
         <Route exact path='/courses/:courseInstanceID/assignments/assignment/:assignmentID/team/:teamID/submission/:tabID' component={Submission} /> {/*nastavi team*/}
-          <Route exact path='/courses/:courseInstanceID/assignments/assignment/:assignmentID/review/team/:teamID/:targetID/:tabID' component={Submission} /> {/*team hodnoti cudzi kod*/}
-          <Route exact path='/courses/:courseInstanceID/assignments/assignment/:assignmentID/review/:targetID/:tabID' component={Submission} /> {/*student hodnoti cudzi kod*/}
+        <Route exact path='/courses/:courseInstanceID/assignments/assignment/:assignmentID/review/:toReviewID/:tabID' component={Submission} /> {/*team alebo student hodnoti cudzi kod*/}
         <Route exact path='/courses/:courseInstanceID/assignments/assignment/:assignmentID/:targetID/:tabID' component={Submission} /> {/*instructor, pozera niekoho*/}
       </Switch>
     )
