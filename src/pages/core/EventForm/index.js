@@ -61,10 +61,10 @@ class EventForm extends Component {
       match: { params },
     } = this.props
 
-    this.setState({ ...this.props, courseId: params.course_id })
-
     const { options } = this.props
     this.setState({ type: options[0] })
+
+    this.setState({ ...this.props, courseId: params.course_id })
 
     this.getSubEvents()
 
@@ -106,6 +106,8 @@ class EventForm extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.name !== this.props.name) {
+      //console.log(this.props)
+
       this.setState({ ...this.props })
     }
     if (
@@ -198,9 +200,12 @@ class EventForm extends Component {
       `http://www.courses.matfyz.sk/data${COURSE_URL}/${courseId}`,
     ]
 
-    const hasInstructor = instructors.map(instructor => {
-      return instructor.fullId
-    })
+    //console.log(instructors)
+    const hasInstructor = Array.isArray(instructors)
+      ? instructors.map(instructor => {
+          return instructor.fullId
+        })
+      : [instructors]
 
     const usedMaterials = uses.map(doc => {
       return doc.fullId
@@ -215,11 +220,11 @@ class EventForm extends Component {
 
     let method = 'patch'
     const data = {
-      name,
-      description,
+      name: name.split('"').join("'"),
+      description: description.split('"').join("'").split('\n').join(''),
       startDate,
       endDate,
-      location: place,
+      location: place.split('"').join("'"),
       uses: usedMaterials,
       recommends: recommendedMaterials,
     }
@@ -243,6 +248,7 @@ class EventForm extends Component {
     axiosRequest(method, JSON.stringify(data), url)
       .then(response => {
         if (response && response.status === 200) {
+          console.log(typeOfForm)
           if (typeOfForm === 'Edit') {
             callBack(id)
           } else {
@@ -359,7 +365,7 @@ class EventForm extends Component {
         <Form onSubmit={this.onSubmit}>
           <FormGroup className="new-event-formGroup">
             <Label for="name" className="new-event-label">
-              Name
+              Name *
             </Label>
             <Input
               name="name"
@@ -381,7 +387,9 @@ class EventForm extends Component {
               onChange={this.onChange}
             >
               {options.map(option => (
-                <option value={option} key={option}>{option}</option>
+                <option value={option} key={option}>
+                  {option}
+                </option>
               ))}
             </Input>
           </FormGroup>
@@ -434,7 +442,7 @@ class EventForm extends Component {
           </FormGroup>
           <FormGroup className="new-event-formGroup">
             <Label for="description" className="new-event-label">
-              Description
+              Description *
             </Label>
             <Input
               name="description"
@@ -524,6 +532,7 @@ class EventForm extends Component {
               from={startDate}
               to={endDate}
               typeOfForm={typeOfForm}
+              callBack={this.getSubEvents}
             />
           )}
 
@@ -581,14 +590,14 @@ class EventForm extends Component {
   }
 }
 
-const SubEvents = ({ sessions, tasks, from, to, typeOfForm }) => (
+const SubEvents = ({ sessions, tasks, from, to, typeOfForm, callBack }) => (
   <div className="sessions-tasks-container">
     <div className="subevents-col-left">
       <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
       <SubEventList events={sessions} />
       {typeOfForm === 'Edit' && (
         <div className="button-container">
-          <ModalCreateEvent from={from} to={to} />
+          <ModalCreateEvent from={from} to={to} callBack={callBack} />
         </div>
       )}
     </div>

@@ -9,7 +9,7 @@ export const axiosRequest = (method, data, url) => {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${getToken()}`,
+        Authorization: getToken() ? `Bearer ${getToken()}` : '',
       },
       data,
     })

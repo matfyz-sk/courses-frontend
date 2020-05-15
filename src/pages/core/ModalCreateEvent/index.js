@@ -23,6 +23,7 @@ class ModalCreateEvent extends React.Component {
     this.setState({
       modal: false,
     })
+    this.props.callBack()
   }
 
   render() {
@@ -37,7 +38,7 @@ class ModalCreateEvent extends React.Component {
           isOpen={this.state.modal}
           toggle={this.toggle}
         >
-          <ModalHeader toggle={this.toggle}>New Session</ModalHeader>
+          <ModalHeader toggle={this.toggle}>New Subevent</ModalHeader>
           <ModalBody>
             <EventForm
               typeOfForm="Create"

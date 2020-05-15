@@ -273,7 +273,13 @@ class CreateTimeline extends React.Component {
                     <EventForm
                       typeOfForm="Create"
                       {...INITIAL_EVENT_STATE}
-                      options={['Block', 'Lab', 'Lecture', 'OralExam', 'TestTake']}
+                      options={[
+                        'Block',
+                        'Lab',
+                        'Lecture',
+                        'OralExam',
+                        'TestTake',
+                      ]}
                       callBack={this.setSavedAlert}
                     />
                   )}

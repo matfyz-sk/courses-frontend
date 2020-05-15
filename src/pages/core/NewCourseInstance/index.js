@@ -21,10 +21,6 @@ class NewCourseInstance extends React.Component {
       match: { params },
     } = this.props
 
-    this.setState({
-      courseId: params.course_id,
-    })
-
     const url = `${BASE_URL + COURSE_URL}/${params.course_id}`
 
     axiosRequest('get', null, url).then(response => {
@@ -48,10 +44,8 @@ class NewCourseInstance extends React.Component {
   }
 
   setRedirect = id => {
-    const { courseId } = this.state
-
     this.setState({
-      redirect: `/courses/${courseId}/event/${id}`,
+      redirect: `/courses/${id}/event/${id}`,
     })
   }
 

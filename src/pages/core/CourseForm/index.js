@@ -108,9 +108,9 @@ class CourseForm extends Component {
     axiosRequest(
       method,
       JSON.stringify({
-        name,
-        description,
-        abbreviation,
+        name: name.split('"').join("'"),
+        description: description.split('"').join("'").split('\n').join(''),
+        abbreviation: abbreviation.split('"').join("'"),
         hasPrerequisite,
         hasAdmin,
       }),
@@ -195,7 +195,7 @@ class CourseForm extends Component {
         <Form className="new-course-form" onSubmit={this.onSubmit}>
           <FormGroup>
             <Label for="name" className="form-label-subtitle">
-              Name
+              Name *
             </Label>
             <Input
               name="name"
@@ -206,7 +206,7 @@ class CourseForm extends Component {
               className="form-input"
             />
             <Label for="abbreviation" className="form-label-subtitle">
-              Abbreviation
+              Abbreviation *
             </Label>
             <Input
               name="abbreviation"
@@ -217,7 +217,7 @@ class CourseForm extends Component {
               className="form-input"
             />
             <Label for="description" className="form-label-subtitle">
-              Description
+              Description *
             </Label>
             <Input
               name="description"
