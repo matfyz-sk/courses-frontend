@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Alert, Table,Button } from 'reactstrap';
-import { getShortID, timestampToString, afterNow, addMinutesToDate, shuffleArray, axiosUpdateEntity, axiosAddEntity } from '../../../helperFunctions';
+import { getShortID, timestampToString, afterNow, addMinutesToUnix, shuffleArray, axiosUpdateEntity, axiosAddEntity, getStudentName, axiosGetEntities, periodHasEnded } from '../../../helperFunctions';
 import classnames from 'classnames';
 
 export default class InstructorAssignmentView extends Component {
@@ -17,26 +17,31 @@ export default class InstructorAssignmentView extends Component {
   }
 
   afterNow(date, extraMinutes){
-    return afterNow(addMinutesToDate(new Date(date), extraMinutes).getTime())
+    return afterNow(addMinutesToUnix(date, extraMinutes))
   }
 
   assignReviews(){
+
     //review  - individual
     const assignment = this.props.assignment;
+    let submissions = assignment.submissions.filter((submission)=> !submission.isImproved);
     let howMany = assignment.reviewsPerSubmission;
-    if(assignment.submissions.length < 2){
-      window.confirm(`You can't have peer review with only ${assignment.submissions.length} submissions`);
+    if(submissions.length < 2){
+      window.confirm(`You can't have peer review with less than 2 submissions (there are ${submissions.length}) submissions.`);
       return;
     }
-    if( assignment.submissions.length - 1 < howMany ){
-      if(!window.confirm(`There are not enought submissions to have ${howMany} reviews per submission. Maximum you can have is ${assignment.submissions.length - 1}, in which case everybody reviews everybody. Is this ok? `)){
+    if(submissions.length - 1 >= howMany && !window.confirm(` Everything looks fine! Proceed sending peer review requests?`)){
+      return;
+    }
+    if( submissions.length - 1 < howMany ){
+      if(!window.confirm(`There are not enought submissions to have ${howMany} reviews per submission. Maximum you can have is ${submissions.length - 1}, in which case everybody reviews everybody. Is this ok? `)){
         return;
       }else{
-        howMany = assignment.submissions.length - 1;
+        howMany = submissions.length - 1;
       }
     }
     this.setState({assigningReviews: true });
-    let submissions = shuffleArray(assignment.submissions);
+    submissions = shuffleArray(submissions);
     let toReviews = [];
     if(assignment.teamsDisabled){
       submissions.forEach((submission,index)=>{
@@ -44,7 +49,7 @@ export default class InstructorAssignmentView extends Component {
           let submissionToReview = submissions[(index + count) % (submissions.length)];
           toReviews.push({
             submission: submissionToReview['@id'],
-            student: submission.submittedByStudent
+            student: submission.submittedByStudent[0]['@id']
           })
         }
       })
@@ -54,22 +59,50 @@ export default class InstructorAssignmentView extends Component {
           let submissionToReview = submissions[(index + count) % (submissions.length)];
           toReviews.push({
             submission: submissionToReview['@id'],
-            team: submission.submittedByTeam
+            team: submission.submittedByTeam[0]['@id']
           })
         }
       })
     }
     Promise.all([toReviews.map((toReview) => axiosAddEntity( toReview,'toReview') )]).then((responses)=>{
       if(responses.every((response)=>!response.failed)){
-        axiosUpdateEntity({hasAssignedReviews:true},`assingment/${getShortID(this.props.assignment['@id'])}`)
+        axiosUpdateEntity({hasAssignedReviews:true},`assignment/${getShortID(this.props.assignment['@id'])}`).then((response)=>{
+          this.props.updateAssignment(assignment['@id']);
+        })
       }
     })
     this.setState({ assigningReviews: false, assigningSuccess: true })
   }
 
+  getSubmittedBy(submission){
+    if(submission.submittedByStudent.length > 0){
+      return getStudentName(submission.submittedByStudent[0])
+    }
+    return submission.submittedByTeam[0].name
+  }
+
+  groupSubmissions(submissions, individualGrouping){
+    let groupedSubmissions = [];
+    submissions.forEach((submission)=>{
+      const id = individualGrouping ? submission.submittedByStudent[0]['@id'] : submission.submittedByTeam[0]['@id'];
+      const index = groupedSubmissions.findIndex( (gSubmission) => gSubmission.id === id )
+      if(index === -1){
+        groupedSubmissions.push({
+          id,
+          name: this.getSubmittedBy( submission ),
+          submissions: [submission],
+        })
+      }else{
+        groupedSubmissions[index].submissions.push(submission)
+      }
+    })
+    return groupedSubmissions;
+  }
+
   render() {
     const assignment = this.props.assignment;
-    const canAssignReviews = !this.afterNow(assignment.initialSubmissionPeriod.deadline, assignment.initialSubmissionPeriod.extraTime) && !assignment.reviewsDisabled && !assignment.hasAssignedReviews && !this.state.assigningSuccess;
+    const submissions = this.groupSubmissions(assignment.submissions, assignment.teamsDisabled );
+    const canAssignReviews = !this.afterNow(assignment.initialSubmissionPeriod.deadline, assignment.initialSubmissionPeriod.extraTime) && !assignment.reviewsDisabled && !assignment.hasAssignedReviews /*&& !this.state.assigningSuccess*/;
     const canBeRated = !this.afterNow(assignment.initialSubmissionPeriod.deadline, assignment.initialSubmissionPeriod.extraTime) &&
     (!assignment.submissionImprovedSubmission || !this.afterNow(assignment.improvedSubmissionPeriod.deadline, assignment.improvedSubmissionPeriod.extraTime) )
     return (
@@ -79,43 +112,44 @@ export default class InstructorAssignmentView extends Component {
         Please wait and don't close this window.
       </Alert>
       <Alert color="success" className="m-t-3" isOpen={this.state.assigningSuccess}>
-        Assingments successfully assigned!
+        Peer Reviews successfully assigned!
       </Alert>
       <h5>Submissions by {assignment.teamsDisabled ? 'students' : 'teams'}</h5>
-      {
-        assignment.submissions.length === 0 &&
-        <Alert color="warning" className="m-t-3">
-          No submissions yet...
-        </Alert>
-      }
-      { assignment.submissions.length > 0 &&
+      <Alert color="warning" className="m-t-3" isOpen={submissions.length === 0} >
+        No submissions yet...
+      </Alert>
+      <Alert color="warning" className="m-t-3 small-alert" isOpen={ !periodHasEnded(assignment.initialSubmissionPeriod) } >
+        Initial submission must finish before you can view submissions
+      </Alert>
+      { submissions.length > 0 &&
         <Table>
           <thead>
             <tr>
               <th>{assignment.teamsDisabled ? 'Student' : 'Team'}</th>
               { canBeRated && <th width="20">Rated</th> }
-              <th width="20"></th>
+              { periodHasEnded(assignment.initialSubmissionPeriod) && <th width="20"></th> }
             </tr>
           </thead>
           <tbody>
-            {assignment.submissions.map((submission)=>
-              <tr key={submission['@id']}>
-                <td>
-                  {assignment.teamsDisabled ? (submission.submittedByStudent[0].firstName + ' ' + submission.submittedByStudent[0].lastName) : submission.submittedByTeam.name }
-                </td>
+            {submissions.map((submission)=>
+              <tr key={submission.id}>
+                <td>{submission.name}</td>
                 { canBeRated &&
                   <td style={{ textAlign: 'center' }}>
-                    { submission.teacherRating ? <i className="fa fa-check green-color" /> : <i className="fa fa-times red-color" /> }
+                    { submission.submissions.some((submission) => submission.teacherRating !== undefined ) ? <i className="fa fa-check green-color" /> : <i className="fa fa-times red-color" /> }
                   </td>
                 }
-                <td>
-                  <Button
-                    color="success"
-                    onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/${getShortID(submission['@id'])}/submission`)}
-                    >
-                    {submission.teacherRating ? 'View' : 'View/Score' }
-                  </Button>
-                </td>
+                {
+                  periodHasEnded(assignment.initialSubmissionPeriod) &&
+                  <td>
+                    <Button
+                      color="success"
+                      onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/${getShortID(submission.id)}/submission`)}
+                      >
+                      {(submission.submissions.some((submission) => submission.teacherRating !== undefined ) || !canBeRated) ? 'View' : 'Score' }
+                    </Button>
+                  </td>
+                }
               </tr>
             )}
           </tbody>

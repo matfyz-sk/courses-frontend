@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { FormGroup, Label, Input, Button } from 'reactstrap';
 import moment from 'moment';
+import { timestampToInput } from 'helperFunctions';
+import { getRealDeadline } from './verify';
 import ErrorMessage from 'components/error';
 
 export default class PeerReview extends Component {
@@ -13,19 +15,6 @@ export default class PeerReview extends Component {
     let newData={...this.props.data};
     newData[parameter]=value;
     this.props.setData(newData);
-  }
-
-  getRealCloseTime(data){
-    let deadline = moment(data.deadline).unix();
-    let realCloseTime = parseInt(data.extraTime);
-    if(isNaN(realCloseTime)){
-      realCloseTime=0;
-    }
-    realCloseTime = realCloseTime*60;
-    if(!isNaN(deadline)){
-      realCloseTime += deadline;
-    }
-    return realCloseTime;
   }
 
   render(){
@@ -68,10 +57,11 @@ export default class PeerReview extends Component {
         {this.props.data.improvedSubmission && <div className="flex-clumn ml-2" style={{width:'50%'}}>
           <FormGroup>
             <Label htmlFor="submission-add-improvedOpenTime">Open time</Label>
+            <Button className="ml-2 mb-2 p-1" color="primary" disabled={ this.props.initialDeadline === null } onClick={()=>{ this.setData('improvedOpenTime', timestampToInput(this.props.initialDeadline) ) }}><i className="fa fa-copy clickable" />Copy initial deadline</Button>
             <Input id="submission-add-improvedOpenTime" type="datetime-local" value={this.props.data.improvedOpenTime} onChange={(e)=>this.setData('improvedOpenTime',e.target.value)}/>
           </FormGroup>
           <ErrorMessage show={this.props.showErrors && this.props.data.improvedOpenTime===''} message="You must pick an open time!" />
-          <ErrorMessage show={this.props.showErrors && this.props.data.improvedOpenTime!=='' && this.getRealCloseTime(this.props.data) > moment(this.props.data.improvedOpenTime).unix()} message="Improved open time must be after deadline!" />
+          <ErrorMessage show={this.props.showErrors && this.props.data.improvedOpenTime!=='' && this.props.initialDeadline !== null && this.props.initialDeadline > moment(this.props.data.improvedOpenTime).unix()} message="Improved open time must be after intial deadline!" />
           <FormGroup>
             <Label htmlFor="submission-add-improvedDeadline">Deadline</Label>
             <Button className="ml-2 mb-2 p-1" color="primary" onClick={()=>{ this.setData('improvedDeadline', this.props.data.improvedOpenTime ) }}><i className="fa fa-copy clickable" />Copy open time</Button>

@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { Collapse, CardBody, Card, Button, Alert, Table } from 'reactstrap';
 import { connect } from "react-redux";
-import { inputToTimestamp, afterNow, axiosDeleteEntity, getShortID } from 'helperFunctions';
+import classnames from 'classnames';
+import { inputToTimestamp, afterNow, axiosDeleteEntity, getShortID, htmlFixNewLines } from 'helperFunctions';
+
 import InstructorAssignmentView from './instructorView';
 import StudentAssignmentView from './studentView';
-import classnames from 'classnames';
+import EditAssignment from '../assignment/edit';
 
 class AssignmentView extends Component{
   constructor(props){
@@ -16,12 +18,37 @@ class AssignmentView extends Component{
     this.getDefaultOpenState.bind(this);
   }
 
+  groupSubmissions(submissions, individualGrouping){
+    let groupedSubmissions = [];
+    submissions.forEach((submission)=>{
+      const id = individualGrouping ? submission.submittedByStudent[0]['@id'] : submission.submittedByTeam[0]['@id'];
+      const index = groupedSubmissions.findIndex( (gSubmission) => gSubmission.id === id )
+      if(index === -1){
+        groupedSubmissions.push({
+          id,
+          submissions: [submission],
+        })
+      }else{
+        groupedSubmissions[index].submissions.push(submission)
+      }
+    })
+    return groupedSubmissions;
+  }
+
+  instructorWillRate(){
+    if(!this.props.isInstructor){
+      return false;
+    }
+    let groupedSubmissions = this.groupSubmissions(this.props.assignment.submissions, this.props.assignment.teamsDisabled );
+    return  groupedSubmissions.some((group) => !group.submissions.some( (submission) => submission.teacherRating !== undefined ) )
+  }
+
   getDefaultOpenState(){
     return afterNow(this.props.assignment.initialSubmissionPeriod.deadline) ||
     ( this.props.assignment.submissionImprovedSubmission && afterNow(this.props.assignment.improvedSubmissionPeriod.deadline)) ||
     ( !this.props.assignment.reviewsDisabled && afterNow(this.props.assignment.peerReviewPeriod.deadline)) ||
     ( !this.props.assignment.teamReviewsDisabled && !this.props.assignment.teamsDisabled && afterNow(this.props.assignment.teamReviewPeriod.deadline))||
-    ( this.props.isInstructor && this.props.assignment.submissions.some((submission)=>!submission.rating) ) //bud prebiehaju alebo ich treba ohodnotit
+    ( this.instructorWillRate() ) //bud prebiehaju alebo ich treba ohodnotit
   }
 
   deleteAssignment(){
@@ -58,10 +85,13 @@ class AssignmentView extends Component{
         <div className="row">
           <h3 className={classnames({'greyed-out': !this.getDefaultOpenState()})}>{assignment.name}</h3>
           { this.props.isInstructor &&
+            <EditAssignment updateAssignment={this.props.updateAssignment} assignment={assignment} />
+          }
+          { this.props.isInstructor &&
           <Button
             outline
             color="danger"
-            className="ml-auto center-hor p-1"
+            className="ml-1 center-hor p-1"
             style={{width:34}}
             onClick={this.deleteAssignment.bind(this)}
             >
@@ -79,9 +109,9 @@ class AssignmentView extends Component{
         <Collapse isOpen={this.state.opened}>
           <Card>
             <CardBody>
-              <div dangerouslySetInnerHTML ={{__html:assignment.shortDescription}} />
+              <div dangerouslySetInnerHTML ={{__html: assignment.shortDescription }} />
               <h5>{assignment.teamsDisabled ? 'Individual' : 'Team based'}</h5>
-              { this.props.isInstructor && <InstructorAssignmentView history={this.props.history} assignment={assignment} /> }
+              { this.props.isInstructor && <InstructorAssignmentView history={this.props.history} updateAssignment={this.props.updateAssignment} assignment={assignment} /> }
               { !this.props.isInstructor && <StudentAssignmentView history={this.props.history} assignment={assignment} /> }
             </CardBody>
           </Card>

@@ -149,7 +149,7 @@ export default class TextReview extends Component {
                 {this.props.data.hasMaterial.map((material)=>
                   <tr key={material['@id']}>
                     <td>{ material.name }</td>
-                    <td><a href={material.URL} target="_blank" without rel="noopener noreferrer">{ material.URL }</a></td>
+                    <td><a href={material.URL} target="_blank" without="true" rel="noopener noreferrer">{ material.URL }</a></td>
                     <td style={{ textAlign: 'center' }}>{ material.new ? <i className="fa fa-check green-color" /> : <i className="fa fa-times light-red-color" /> }</td>
                     <td>
                       <Button size="sm" color=""  className="center-ver" onClick={()=>this.deleteMaterial(material)}>

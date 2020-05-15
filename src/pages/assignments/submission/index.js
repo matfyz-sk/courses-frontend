@@ -11,10 +11,10 @@ import { teamSelectStyle } from '../selectStyle';
 
 import Submission from './submission';
 import CodeReview from './codeReview';
-import Reviews from './reviews';
+import Reviews from './peerReview';
 import TeamReview from './teamReview';
 
-class Assignment extends Component{
+class SubmissionContainer extends Component{
   constructor(props){
     super(props);
     this.state={
@@ -24,6 +24,7 @@ class Assignment extends Component{
       initialSubmission: null,
       improvedSubmission: null,
       submissionsLoaded: false,
+      toReview: null,
 
       settings: null,
       error: '',
@@ -43,7 +44,7 @@ class Assignment extends Component{
       props.user !== null &&
       props.courseInstanceLoaded &&
       this.state.assignmentLoaded &&
-      this.state.settings.myAssignment &&
+      !props.isInstructor &&
       this.state.settings.teamAssignment
     ){
       props.assignmentsGetStudentTeams(props.user.fullURI, props.courseInstance['@id'] );
@@ -62,10 +63,10 @@ class Assignment extends Component{
         let periods = periodResponses.map((response) => getResponseBody(response)[0]);
         assignment = assignPeriods(assignment, periods);
         const settings = this.getAssignmentSettings(assignment);
-        if( settings.myAssignment && settings.teamAssignment && this.props.courseInstanceLoaded && this.props.user !== null ){
+        if( !this.props.isInstructor && settings.teamAssignment && this.props.courseInstanceLoaded && this.props.user !== null ){
           this.props.assignmentsGetStudentTeams(this.props.user.fullURI, this.props.courseInstance['@id'] );
         }
-        this.refreshSubmissions(settings,assignment, this.props);
+        this.refreshSubmissions(settings, assignment, this.props);
         this.setState({ assignment, settings, assignmentLoaded: true })
       })
     })
@@ -75,9 +76,9 @@ class Assignment extends Component{
     const teamAssignment = !assignment.teamsDisabled;
     const teamReviewEnabled = teamAssignment && !assignment.teamReviewsDisabled;
     const peerReviewEnabled = !assignment.reviewsDisabled;
-    const myAssignment = !this.props.match.params.targetID;
+    const myAssignment = !this.props.match.params.targetID && !this.props.match.params.toReviewID;
     const isInstructor = this.props.isInstructor;
-    const peerReview = !isInstructor && this.props.match.params.targetID !== undefined;
+    const peerReview = peerReviewEnabled && this.props.match.params.toReviewID !== undefined;
     return {
       teamAssignment,
       teamReviewEnabled,
@@ -88,26 +89,45 @@ class Assignment extends Component{
     }
   }
 
-  refreshSubmissions(settings, assignment, props){
-    if(props.user === null){
-      return;
-    }
+  getID(settings, props){
     let ID = null;
     if(settings.myAssignment && settings.teamAssignment && props.match.params.teamID ){
       ID = props.match.params.teamID;
     }else if(settings.myAssignment && !settings.teamAssignment){
       ID = props.user.id;
-    }else if((settings.isInstructor || settings.peerReview) && props.match.params.targetID){
+    }else if(settings.isInstructor && props.match.params.targetID){
       ID = props.match.params.targetID;
     }
+    return ID;
+  }
+
+  refreshSubmissions(settings, assignment, props){
+    if(props.user === null){
+      return;
+    }
+    if(settings.peerReview && props.match.params.toReviewID){
+      axiosGetEntities(`toReview/${props.match.params.toReviewID}?_join=submission`).then((response)=>{
+        const toReview = getResponseBody(response)[0];
+        const initialSubmission = toReview.submission.length > 0 ? toReview.submission[0] : null;
+        const improvedSubmission = null;
+        this.setState({
+          toReview: toReview,
+          submissionsLoaded: true,
+          initialSubmission: initialSubmission !== undefined ? initialSubmission : null,
+          improvedSubmission: improvedSubmission !== undefined ? improvedSubmission : null,
+        })
+      })
+      return;
+    }
+    const ID = this.getID(settings,props);
     if(ID === null){
       this.setState({error:'Please select your team.', errorShow:true})
       return;
     }
-    axiosGetEntities(`submission?${settings.teamAssignment ? 'submittedByTeam': 'submittedByStudent'}=${ID}_join=submittedField`).then((response) => {
-      let submissions = getResponseBody(response);
-      let initialSubmission = submissions.find( (submission) => !submission.isImproved );
-      let improvedSubmission = submissions.find( (submission) => submission.isImproved );
+    axiosGetEntities(`submission?${settings.teamAssignment ? 'submittedByTeam': 'submittedByStudent'}=${ID}&ofAssignment=${getShortID(assignment['@id'])}&_join=submittedField`).then((response) => {
+      const submissions = getResponseBody(response);
+      const initialSubmission = submissions.find( (submission) => !submission.isImproved );
+      const improvedSubmission = submissions.find( (submission) => submission.isImproved );
       this.setState({
         submissionsLoaded: true,
         initialSubmission: initialSubmission !== undefined ? initialSubmission : null,
@@ -144,7 +164,10 @@ class Assignment extends Component{
   render(){
     const settings = this.state.settings;
     const assignment = this.state.assignment;
-    let loading = !this.state.assignmentLoaded || !this.state.submissionsLoaded || this.props.courseInstanceLoading || (settings.myAssignment && settings.teamAssignment && !this.props.teamsLoaded);
+    let loading = !this.state.assignmentLoaded ||
+      !this.state.submissionsLoaded ||
+      this.props.courseInstanceLoading ||
+      (!settings.isInstructor && settings.teamAssignment && !this.props.teamsLoaded);
     if( loading ){
       return(
         <div className="assignmentContainer center-ver mt-3">
@@ -156,7 +179,7 @@ class Assignment extends Component{
               <h4 className="center-hor ml-5 mr-auto">
                 {"Loading..."}
               </h4>
-              { this.props.teamsLoaded && this.props.match.params.teamID === undefined &&
+              { this.props.teamsLoaded && settings !==null && settings.myAssignment && this.props.match.params.teamID === undefined &&
                 <Select
                   styles={teamSelectStyle}
                   value={toSelectInput(this.props.teams,'name','@id').find((team) => getShortID(team.value) === this.props.match.params.teamID )}
@@ -182,6 +205,7 @@ class Assignment extends Component{
         </div>
       )
     }
+
     return(
       <div className="assignmentContainer center-ver mt-3">
         <Card className="assignmentsContainer center-ver">
@@ -263,6 +287,11 @@ class Assignment extends Component{
             <TabContent activeTab={this.state.tabID}>
               <TabPane tabId={'submission'}>
                 <Submission
+                  assignment={this.state.assignment}
+                  settings={this.state.settings}
+                  initialSubmission={this.state.initialSubmission}
+                  improvedSubmission={this.state.improvedSubmission}
+                  refreshAssignment={this.refreshAssignment.bind(this)}
                   history={this.props.history}
                   match={this.props.match}
                   />
@@ -276,6 +305,10 @@ class Assignment extends Component{
                   <Reviews
                     history={this.props.history}
                     match={this.props.match}
+                    assignment={this.state.assignment}
+                    settings={this.state.settings}
+                    toReview={this.state.toReview}
+                    initialSubmission={this.state.initialSubmission}
                     />
                 </TabPane>
               }
@@ -328,4 +361,4 @@ const mapStateToProps = ({assignCourseInstanceReducer, authReducer, assignStuden
   };
 };
 
-export default connect(mapStateToProps, { assignmentsGetStudentTeams, assignmentsEmptyStudentTeams, assignmentsGetCourseInstance })(Assignment);
+export default connect(mapStateToProps, { assignmentsGetStudentTeams, assignmentsEmptyStudentTeams, assignmentsGetCourseInstance })(SubmissionContainer);

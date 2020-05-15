@@ -27,7 +27,7 @@ export default class CustomSlider extends Component {
   }
   render(){
     return (
-      <div className="custom-slider">
+      <div className={this.props.className ? ('custom-slider ' + this.props.className) : 'custom-slider'}>
         <Slider min={this.props.min} max={this.props.max} defaultValue={this.props.value} value={this.props.value} onChange={this.props.onChange} handle={this.handle.bind(this)} />
       </div>
     )

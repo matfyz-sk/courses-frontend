@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from "react-redux";
 import { CardBody, Card, Button, FormGroup, Label, Input, Collapse,ListGroup, ListGroupItem, FormText, Alert } from 'reactstrap';
 
-import { axiosGetEntities, axiosAddEntity, axiosUpdateEntity, getResponseBody, getShortID, periodHappening, periodHasEnded, periodStarted } from 'helperFunctions'
+import { axiosGetEntities, axiosAddEntity, axiosUpdateEntity, getResponseBody, getShortID, periodHappening, periodHasEnded, periodStarted, prepareMultiline } from 'helperFunctions'
 
 import OneReview from './oneReview';
 import InstructorTeamReviewDetails from './instructorDetailView';
@@ -49,8 +49,8 @@ class TeamReview extends Component {
   }
 
   fetchTeammates(){
-    axiosGetEntities(`teamInstance?instanceOf=${this.props.match.params.teamID}&approved=true&_join=hasUser`).then((response)=>{
-      let teammates = getResponseBody(response).filter((member) => member['@id'] !== this.props.user.fullURI );
+    axiosGetEntities(`teamInstance?instanceOf=${ this.props.settings.isInstructor ? this.props.match.params.targetID : this.props.match.params.teamID}&approved=true&_join=hasUser`).then((response)=>{
+      let teammates = getResponseBody(response).filter((member) => member.hasUser[0]['@id'] !== this.props.user.fullURI );
       teammates = teammates.map( (teammate) => teammate.hasUser[0] );
       let afterTeammatesUpdate = () => {};
       if(this.props.settings.isInstructor){
@@ -66,7 +66,7 @@ class TeamReview extends Component {
     if( this.submissionID === null ){
       return;
     }
-    axiosGetEntities(`teamReview?reviewedStudent=${this.props.user.id}&ofSubmission=${this.submissionID}`).then((response)=>{
+    axiosGetEntities(`teamReview?reviewedStudent=${this.props.user.id}&ofSubmission=${getShortID(this.submissionID)}`).then((response)=>{
       let reviewsOfMe = getResponseBody(response);
       this.setState( { reviewsOfMe, reviewsOfMeLoaded: true });
     })
@@ -76,7 +76,7 @@ class TeamReview extends Component {
     if( this.submissionID === null ){
       return;
     }
-    axiosGetEntities(`teamReview?creator=${this.props.user.id}&ofSubmission=${getShortID(this.submissionID)}`).then((response)=>{
+    axiosGetEntities(`teamReview?ofSubmission=${getShortID(this.submissionID)}&createdBy=${this.props.user.id}`).then((response)=>{
       let myReviews = getResponseBody(response);
       this.setState( { myReviews, myReviewsLoaded: true }, this.prepareReviews );
     })
@@ -100,7 +100,7 @@ class TeamReview extends Component {
     })
     //load previous
     this.state.myReviews.forEach((existingReview) =>{
-      let index = reviews.findIndex( (review) => review.id === existingReview.reviewedStudent[0] );
+      let index = reviews.findIndex( (review) => review.id === existingReview.reviewedStudent[0]['@id'] );
       if( index !== -1 ){
         reviews[index] = {
           percentage: existingReview.percentage,
@@ -120,7 +120,7 @@ class TeamReview extends Component {
     if( this.submissionID === null ){
       return;
     }
-    axiosGetEntities(`teamReview?ofSubmission=${this.submissionID}`).then((response)=>{
+    axiosGetEntities(`teamReview?ofSubmission=${getShortID(this.submissionID)}`).then((response)=>{
       let allReviews = getResponseBody(response);
       this.setState( { allReviews, allReviewsLoaded: true },this.prepareAllReviews );
     })
@@ -134,7 +134,7 @@ class TeamReview extends Component {
       ...review,
       createdBy: this.state.teammates.find( (member) => review.createdBy['@id'] === member['@id'] )
     }))
-    const memberReviews = this.state.members.map( (member) => ({
+    const memberReviews = this.state.teammates.map( (member) => ({
       ...member,
       reviews: reviews.filter((review) => review.reviewedStudent[0]['@id'] === member['@id'] )
     }));
@@ -150,17 +150,15 @@ class TeamReview extends Component {
     let newReviews = this.state.reviews.filter( (review) => !review.exists );
     let axiosReviews = [
       ...existingReviews.map( (review) => axiosUpdateEntity( {
-        percentage: review.percentage,
-        reviewedStudent: review.student['@id'],
-        studentComment: review.studentComment,
-        privateComment: review.privateComment,
-        ofSubmission: this.submissionID
+        percentage: review.percentage.toString(),
+        studentComment: prepareMultiline(review.studentComment),
+        privateComment: prepareMultiline(review.privateComment),
       } , `teamReview/${getShortID(review.reviewID)}` ) ),
       ...newReviews.map( (review) => axiosAddEntity( {
-        percentage: review.percentage,
+        percentage: review.percentage.toString(),
         reviewedStudent: review.student['@id'],
-        studentComment: review.studentComment,
-        privateComment: review.privateComment,
+        studentComment: prepareMultiline(review.studentComment),
+        privateComment: prepareMultiline(review.privateComment),
         ofSubmission: this.submissionID
       } , 'teamReview' ) ),
     ];
@@ -239,7 +237,6 @@ class TeamReview extends Component {
         </Alert>
       )
     }
-
     return(
       <div>
         { periodHappening(this.props.assignment.teamReviewPeriod) && this.state.reviews.map((review) =>
@@ -265,7 +262,7 @@ class TeamReview extends Component {
         }
         {
           this.props.settings.isInstructor && periodHasEnded(this.props.assignment.teamReviewPeriod) &&
-          <InstructorTeamReviewDetails />
+          <InstructorTeamReviewDetails reviews={this.state.allReviews} students={this.state.teammates} />
         }
         {
           !this.props.settings.isInstructor && periodHasEnded(this.props.assignment.teamReviewPeriod) &&

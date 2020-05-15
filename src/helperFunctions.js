@@ -2,35 +2,26 @@ import axios from 'axios'
 import { getToken } from './components/Auth';
 import { API_URL as REST_URL } from './configuration/api';
 import moment from 'moment';
-export const randomSentence = () =>{
-
-const subjects=['I','You','Bob','John','Sue','Kate','The lizard people'];
-const verbs=['will search for','will get','will find','attained','found','will start interacting with','will accept','accepted'];
-const objects=['Billy','an apple','a Triforce','the treasure','a sheet of paper'];
-const endings=['.',', right?','.',', like I said.','.',', just like you!'];
-	return subjects[Math.round(Math.random()*(subjects.length-1))]+' '+verbs[Math.round(Math.random()*(verbs.length-1))]+' '+objects[Math.round(Math.random()*(objects.length-1))]+endings[Math.round(Math.random()*(endings.length-1))];
-}
 
 //time manipulation
-export const timestampToInput = (timestamp)=>{
-  return timestamp!==null && timestamp!=='' && timestamp!==undefined ?new Date(timestamp).toISOString().replace('Z',''):''
+export const timestampToInput = (timestamp) => {
+  return isNaN(timestamp) ? '' : moment.unix(timestamp).format('YYYY-MM-DDTHH:mm')
 }
 
-export const inputToTimestamp = (input)=>{
-  return isNaN(new Date(input).getTime()) || input === '' ? null : (new Date(input).getTime())
+export const inputToTimestamp = (input) => {
+  return isNaN(moment(input).unix()) ? null : (moment(input).unix())
 }
 
 export const timestampToString = (timestamp) => {
-  let date = (new Date(timestamp));
-  return date.getHours()+":"+(date.getMinutes() < 10 ? '0' : '') + date.getMinutes()+" "+date.getDate()+"."+(date.getMonth()+1)+"."+date.getFullYear();
+  return moment.unix(timestamp).format('HH:mm DD.MM.YYYY');
 }
 
-export const afterNow = (date) => {
-	return inputToTimestamp(date) !== null && inputToTimestamp(date) > (new Date()).getTime()
+export const afterNow = (unix) => {
+	return unix > moment().unix()
 }
 
-export const addMinutesToDate = ( date, minutes ) =>{
-	return moment(date).add(minutes, 'm').toDate()
+export const addMinutesToUnix = ( unix, minutes ) =>{
+	return moment.unix(unix).add(minutes, 'm').unix()
 }
 
 //supported languages at https://github.com/conorhastings/react-syntax-highlighter/blob/HEAD/AVAILABLE_LANGUAGES_HLJS.MD
@@ -47,10 +38,6 @@ export const getFileType = (extension) =>{
     }
 
   }
-}
-
-export const htmlFixNewLines = (text) => {
-  return text.replace(/(?:\r\n|\r|\n)/g,'<br>');
 }
 
 export const toSelectInput = ( arr, label = 'name', id = '@id' ) => {
@@ -120,6 +107,10 @@ export const axiosDeleteEntity = ( entity ) => {
   )
 }
 
+export const axiosDeleteEntities = ( entities ) => {
+  return entities.forEach((entity) => axiosDeleteEntity(entity))
+}
+
 export const axiosGetEntities = (entity) => {
   return axiosRequest(
     'get',
@@ -144,12 +135,30 @@ export const periodStarted = (period) => {
 
 export const periodHappening = (period) => {
 	return !afterNow(period.openTime) &&
-	afterNow(addMinutesToDate(new Date(period.deadline), period.extraTime).getTime())
+	afterNow(addMinutesToUnix(period.deadline, period.extraTime))
 }
 
 export const periodHasEnded = (period) => {
 	return !afterNow(period.openTime) &&
-	!afterNow(addMinutesToDate(new Date(period.deadline), period.extraTime).getTime())
+	!afterNow(addMinutesToUnix(period.deadline, period.extraTime))
 }
 
 export const getStudentName = (student) => student.firstName + ' ' + student.lastName;
+
+export const sameStringForms = ( item1, item2 ) => {
+  return JSON.stringify(item1)===JSON.stringify(item2)
+}
+
+
+export const htmlFixNewLines = (text) => {
+  return text.replace(/(?:\r\n|\r|\n)/g,'<br>');
+}
+
+export const htmlRemoveNewLines = (text) => {
+  return text.replace(/(?:\r\n|\r|\n)/g,'');
+}
+
+
+export const prepareMultiline = ( text ) => {
+  return `""${text}""`
+}
