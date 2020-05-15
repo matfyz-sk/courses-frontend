@@ -1,3 +1,143 @@
+//FROM GENERAL
+.m-l-10{
+  margin-left: 10px;
+}
+
+label {
+  font-weight: bolder;
+}
+
+.red-color{
+  color: #bd2130;
+}
+
+.light-red-color{
+  color: #f8d7da;
+}
+
+.green-color{
+  color: #1e7e34;
+}
+
+.scrollable{
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+// FROM ASSIGNMENTS
+
+.assignmentsContainer{
+  max-width: 900px;
+}
+
+.assignmentContainer{
+  max-width: 900px;
+}
+
+.assignmentViewContainer{
+  margin: 20px 0px;
+}
+
+.submissionContainer{
+  margin: 20px 0px;
+}
+
+.bigPopover{
+  max-width: 600px;
+}
+
+.codeBlock{
+  border: solid lightGrey 4px;
+  border-radius: 10px;
+  margin:10px 5px;
+  padding:10px;
+}
+
+.comment-reply-button{
+  display: none;
+}
+
+.comment-section:hover{
+  .comment-reply-button{
+    display:inherit;
+  }
+}
+
+.gallery-cat-image {
+  margin-top: auto;
+  margin-bottom: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+
+.hasError{
+  border: 2px solid #f7afa8 !important;
+}
+
+.red-text{
+  color:red;
+}
+
+.grey-text{
+  color:#D0D0D0;
+}
+
+.table-folder{
+  border: 1px solid #dee2e6;
+  td{
+    padding: 2px 4px;
+  }
+}
+
+.not-highlightable {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Opera and Firefox */
+}
+.popover-500{
+  min-width: 500px;
+}
+
+.popover-700{
+  min-width: 700px;
+}
+
+.popover-max-height-700{
+  max-height: 700px;
+}
+
+.m-r-285{
+  margin-right: 285px !important;
+}
+
+.time-has-passed{
+  color: #6c757d;
+  border: 1px solid #6c757d;
+  border-radius: 0.25rem;
+  padding:3px;
+}
+
+.upcomming-time{
+  color: #28a745;
+  border: 1px solid #28a745;
+  border-radius: 0.25rem;
+  padding:3px;
+}
+
+.greyed-out{
+  color: #6c757d;
+}
+
+.center-cell{
+  text-align: center;
+}
+
+//NEXT 
 .form-control:focus {
   border-color: #2ea22e;
   box-shadow: 0 0 0 0.2rem rgba(29, 102, 29, 0.25);

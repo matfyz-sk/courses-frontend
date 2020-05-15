@@ -135,31 +135,6 @@ main {
   justify-content: left;
 }
 
-.m-l-10{
-  margin-left: 10px;
-}
-
-label {
-  font-weight: bolder;
-}
-
-.red-color{
-  color: #bd2130;
-}
-
-.light-red-color{
-  color: #f8d7da;
-}
-
-.green-color{
-  color: #1e7e34;
-}
-
-.scrollable{
-  overflow-y: auto;
-  overflow-x: auto;
-}
-
 .pagination-wrapper {margin-top: 20px}
 .pagination {display: inline-flex}
 .pagination * {cursor: pointer}
