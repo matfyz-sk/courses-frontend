@@ -72,7 +72,8 @@ export const getTimelineBlocks = events => {
     const block = timelineBlocks[timelineBlocks.length - 1]
     if (
       event.type === 'Block' ||
-      new Date(event.startDate) >= new Date(block.endDate)
+      new Date(event.startDate) >= new Date(block.endDate) ||
+      block.type !== 'Block'
     ) {
       timelineBlocks.push(event)
     }
