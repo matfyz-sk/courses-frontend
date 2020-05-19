@@ -4,66 +4,6 @@ export default class Answers extends Component {
 
 
   render(){
-
-    let answers = [
-      {
-        '@id': 444,
-        answer: 'Answer my answer is no \n Aaaskljasdklasklsakasldsad klsadkjsadk sadlk sdakjaskl sajd klsan sklnskdl  klsnlska nsaklsanks nsa dlkdklnlsak nsalkndlkd nsad lsanls nsalk \n naslksandldkl',
-        score: 4,
-        review: {
-          student: {
-            firstName: 'Aka',
-            lastName: 'fuka',
-          },
-          team: {
-            name: 'Team Aka fuka'
-          }
-        },
-      },
-      {
-        '@id': 446,
-        answer: 'Answer my answer is no',
-        score: 5,
-        review: {
-          student: {
-            firstName: 'Aka',
-            lastName: 'fuka',
-          },
-          team: {
-            name: 'Team Aka fuka'
-          }
-        },
-      },
-      {
-        '@id': 448,
-        answer: 'Answer my answer is no',
-        score: 6,
-        review: {
-          student: {
-            firstName: 'Aka',
-            lastName: 'fuka',
-          },
-          team: {
-            name: 'Team Aka fuka'
-          }
-        },
-      },
-      {
-        '@id': 449,
-        answer: 'Answer my answer is no',
-        score: 7,
-        review: {
-          student: {
-            firstName: 'Aka',
-            lastName: 'fuka',
-          },
-          team: {
-            name: 'Team Aka fuka'
-          }
-        },
-      },
-  ]
-
     return(
       <>
       {this.props.questionsWithAnswers.map((question, index) =>
@@ -71,7 +11,7 @@ export default class Answers extends Component {
         <Label for="rating">Question:</Label>{' '+question.question}
           <Table borderless>
             <tbody>
-              { answers.map((answer) =>
+              { question.answers.map((answer) =>
                 <tr key={answer['@id']}>
                   <td
                     style={{

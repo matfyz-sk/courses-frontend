@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Table, Button, Label } from 'reactstrap';
-import { getShortID, periodHappening, periodStarted } from '../../../helperFunctions';
+import { getShortID, periodHappening, periodStarted, periodHasEnded } from '../../../helperFunctions';
 
 export default class StudentTeamSubmissionsView extends Component {
 
@@ -32,12 +32,21 @@ export default class StudentTeamSubmissionsView extends Component {
       noImprovedSubmission: assignment.submissionImprovedSubmission && periodHappening(assignment.improvedSubmissionPeriod) && improvedSubmission === null,
     }
 
+    const canBeRated = (
+      (!assignment.submissionImprovedSubmission && periodHasEnded( assignment.initialSubmissionPeriod )) ||
+      (assignment.submissionImprovedSubmission && periodHasEnded( assignment.improvedSubmissionPeriod ))
+  );
+
+  const scoredSubmission = [initialSubmission, improvedSubmission].find((submission) => submission !== null  && submission.teacherRating !== undefined );
+  const score = scoredSubmission !== undefined ? `${scoredSubmission.teacherRating} points` : `Not rated yet`
+
     return (
       <Table>
         <thead>
           <tr>
             <th className="center-cell">Initial</th>
               { assignment.submissionImprovedSubmission && periodStarted( assignment.improvedSubmissionPeriod ) && <th className="center-cell">Improved</th>}
+              { canBeRated && <th className="center-cell">Score</th>}
             <th width="80"></th>
           </tr>
         </thead>
@@ -50,6 +59,11 @@ export default class StudentTeamSubmissionsView extends Component {
           <td className="center-cell">
           { improvedSubmission ? <i className="fa fa-check green-color" /> : <i className="fa fa-times red-color" /> }
           </td>
+        }
+        { canBeRated &&
+        <td className="center-cell">
+          { score }
+        </td>
         }
         <td>
         <Button color={ this.getButtonColor(settings)} onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/submission/submission`)}>{ this.getButtonText(settings) }</Button>

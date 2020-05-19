@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { CardBody, Card, Button, FormGroup, Label, Input, Collapse,ListGroup, ListGroupItem, FormText } from 'reactstrap';
-import Slider from 'components/slider';
 
 
 const students=[{value:0,badgesGiven:10,percentageGiven:105,label:'Patricny'},{value:1,badgesGiven:7,percentageGiven:105,label:'Haradon'},{value:2,badgesGiven:0,percentageGiven:90,label:'Pestrak'}];

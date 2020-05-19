@@ -105,6 +105,20 @@ class StudentAssignmentView extends Component {
     this.getReviews();
   }
 
+  getToReviewButtonText(toReview){
+    if( periodHappening(this.props.assignment.peerReviewPeriod) ){
+      return toReview ? "Update review" : "Review"
+    }
+    return "View"
+  }
+
+  getToReviewButtonColor(toReview){
+    if( periodHappening(this.props.assignment.peerReviewPeriod) && !toReview ){
+      return "success"
+    }
+    return "primary"
+  }
+
   render() {
 
     /*
@@ -157,7 +171,12 @@ class StudentAssignmentView extends Component {
       }
       <h5>Your submissions</h5>
       <Alert color="primary" className="row" isOpen={!this.state.submissionsLoaded||!this.state.reviewsLoaded}>Loading submissions...</Alert>
-      <Alert color="warning" className="row" isOpen={this.state.initialSubmissions.length === 0 && this.state.improvedSubmissions.length === 0}>
+      <Alert color="warning" className="row"
+        isOpen={
+          this.state.initialSubmissions.length === 0 &&
+          this.state.improvedSubmissions.length === 0 &&
+          ( periodHappening(assignment.initialSubmissionPeriod) || ( assignment.submissionImprovedSubmission && periodHappening(assignment.improvedSubmissionPeriod) ) )
+        }>
         <div className="center-hor">No submissions yet!</div> <Button className="ml-auto" color="success" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/submission/submission`)}>Submit</Button>
       </Alert>
 
@@ -202,10 +221,10 @@ class StudentAssignmentView extends Component {
                     <td className="center-cell">{ toReview.review !== undefined ? <i className="fa fa-check green-color" /> : <i className="fa fa-times red-color" /> }</td>
                     <td>
                       <Button
-                        color={ toReview.review ? "primary" : "success" }
+                        color={ this.getToReviewButtonColor(toReview) }
                         onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/review/${getShortID(toReview['@id'])}/reviews`)}
                         >
-                        { toReview.review ? 'Update review':'Review'}
+                        { this.getToReviewButtonText(toReview) }
                       </Button>
                     </td>
                   </tr>

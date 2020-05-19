@@ -5,7 +5,7 @@ import { Alert, Button } from 'reactstrap';
 import AssignmentView from './assignmentView';
 import AddAssignment from './assignment/add';
 import EditAssignment from './assignment/edit';
-import { getResponseBody, inputToTimestamp, getShortID, axiosGetEntities, axiosUpdateEntity, afterNow } from 'helperFunctions';
+import { getResponseBody, inputToTimestamp, getShortID, axiosGetEntities, axiosUpdateEntity, afterNow, axiosDeleteEntity } from 'helperFunctions';
 import { assignmentsGetStudentTeams, assignmentsGetCourseInstance } from 'redux/actions';
 import { getAssignmentPeriods, assignPeriods } from './reusableFunctions';
 

@@ -10,7 +10,7 @@ export default class OneReview extends Component {
       <>
         <Label className="bold" for="teamName">{studentName}</Label>
         <FormGroup>
-          <Label for="teamName">Percentage</Label>
+          <Label for="teamName">Percentage ({this.props.percentage})</Label>
           <Slider
             min={0}
             max={100}

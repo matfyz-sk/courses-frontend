@@ -25,19 +25,33 @@ export const addMinutesToUnix = ( unix, minutes ) =>{
 }
 
 //supported languages at https://github.com/conorhastings/react-syntax-highlighter/blob/HEAD/AVAILABLE_LANGUAGES_HLJS.MD
+const config = {
+  js: 'jsx',
+  scss: 'scss',
+  bash: 'sh',
+  cpp: 'cpp',
+  cs: 'cs',
+  css: 'css',
+  delphi: 'delphi',
+  dsconfig: 'dsconfig',
+  xlsx: 'excel',
+  go: 'go',
+  http: 'http',
+  java: 'java',
+  json: 'json',
+  md: 'markdown',
+  py: 'python',
+  ps: 'powershell',
+  sql: 'sql',
+  swift: 'swift',
+  typescript: 'ts',
+  xml: 'xml',
+}
 export const getFileType = (extension) =>{
-  switch (extension) {
-    case 'js':{
-      return 'jsx';
-    }
-    case 'scss':{
-      return 'scss';
-    }
-    default:{
-      return 'text';
-    }
-
+  if( Object.keys(config).includes(extension) ){
+    return config[extension];
   }
+  return "text"
 }
 
 export const toSelectInput = ( arr, label = 'name', id = '@id' ) => {

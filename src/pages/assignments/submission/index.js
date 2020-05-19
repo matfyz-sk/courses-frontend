@@ -254,7 +254,7 @@ class SubmissionContainer extends Component{
                   </NavLink>
                 </NavItem>
               }
-              { settings.peerReviewEnabled &&
+              { settings.peerReviewEnabled && !assignment.hasField.some((field) => field.fieldType === "codeReview" ) &&
                 (
                   ( (settings.myAssignment || settings.isInstructor) && periodHasEnded(assignment.peerReviewPeriod) ) ||
                   ( settings.peerReview && periodStarted(assignment.peerReviewPeriod) )
@@ -321,6 +321,10 @@ class SubmissionContainer extends Component{
                   <CodeReview
                     history={this.props.history}
                     match={this.props.match}
+                    assignment={this.state.assignment}
+                    settings={this.state.settings}
+                    initialSubmission={this.state.initialSubmission}
+                    improvedSubmission={this.state.improvedSubmission}
                     />
                 </TabPane>
               }

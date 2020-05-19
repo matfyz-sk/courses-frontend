@@ -81,8 +81,6 @@ class ModalAddAssignment extends Component {
 
   loadForm(){
     const assignment = this.props.assignment;
-    console.log('assignment');
-    console.log(assignment);
     let axiosFields = assignment.hasField.map((field) => axiosGetEntities(`field/${getShortID(field['@id'])}`) );
     Promise.all([
       axiosGetEntities('PeerReviewQuestion'),

@@ -137,7 +137,7 @@ label {
   text-align: center;
 }
 
-//NEXT 
+//NEXT
 .form-control:focus {
   border-color: #2ea22e;
   box-shadow: 0 0 0 0.2rem rgba(29, 102, 29, 0.25);
@@ -195,4 +195,12 @@ a label{
 .no-m-p {
   margin: 0px;
   padding: 0px;
+}
+
+.small-card{
+  margin-top: 5px;
+}
+.small-card-header{
+  padding: 0px 10px;
+
 }
