@@ -12,7 +12,7 @@ export default class Questionare extends Component {
         <Label for="rating">Question:</Label>{' '+question.question.question}
         { question.rated &&
           <FormGroup className="row">
-          <Label for="rating">Rating</Label>
+          <Label for="rating">Rating ({question.score})</Label>
           <Slider
             className='ml-3 slider-100 center-hor'
             min={0}

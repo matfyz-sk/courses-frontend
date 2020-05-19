@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import Questionare from './questionare';
 import Answers from './answers';
 
-import { axiosGetEntities, axiosAddEntity, axiosUpdateEntity, getShortID, getResponseBody, periodHappening, periodHasEnded, periodStarted, getIRIFromAddResponse } from 'helperFunctions';
+import { axiosGetEntities, axiosAddEntity, axiosUpdateEntity, getShortID, getResponseBody, periodHappening, periodHasEnded, periodStarted, getIRIFromAddResponse, axiosDeleteEntity } from 'helperFunctions';
 
 const randomSentence = () => 'AAAA'
 
@@ -85,7 +85,8 @@ class PeerReview extends Component {
 
     if( this.state.myReview !== null ){
       this.state.myReview.hasQuestionAnswer.map((answer) => {
-        let index = questionare.findIndex( (question) => answer.question[0]['@id'] === question.id );
+        let index = questionare.findIndex( (question) => answer.question === question.id );
+        console.log(index);
         if( index !== -1 ){
           questionare[index] = {
             ...questionare[index],
@@ -201,9 +202,12 @@ class PeerReview extends Component {
     ]).then(([updateResponses, newResponses])=>{
       let newIDs = newResponses.map((response)=> getIRIFromAddResponse(response));
       if( this.state.myReview !== null ){
+        if(newIDs.length === 0){
+          this.setState({ saving: false })
+        }
         axiosUpdateEntity({
-          hasQuestionAnswer:[...existingReviews.map((review)=>review['@id']),...newIDs ],
-        },`peerReview/${this.state.myReview['@id']}`).then( (response) => {
+          hasQuestionAnswer:[...existingReviews.map((review)=>review.answerID),...newIDs ],
+        },`peerReview/${getShortID(this.state.myReview['@id'])}`).then( (response) => {
           this.setState({ saving: false })
           this.fetchMyReview();
         })
@@ -211,12 +215,11 @@ class PeerReview extends Component {
         let newPeerReview = {
           hasQuestionAnswer:newIDs,
           ofSubmission: this.submissionID,
-
         }
         if(this.props.assignment.reviewedByTeam){
-          newPeerReview.reviewedByTeam = this.props.match.params.teamID;
-        }else{
-          newPeerReview.reviewedByStudent = getShortID(this.props.user.fullURI);
+          newPeerReview.reviewedByTeam = this.props.toReview.team[0]['@id'];
+        } else {
+          newPeerReview.reviewedByStudent = this.props.toReview.student[0]['@id'];
         }
         axiosAddEntity(newPeerReview,'peerReview').then( (response) => {
           this.setState({ saving: false })

@@ -45,9 +45,18 @@ export default class StudentTeamSubmissionsView extends Component {
     }
   }
 
+  getScore(team){
+    const scoredSubmission = [team.initialSubmission, team.improvedSubmission].find((submission) => submission !== undefined  && submission.teacherRating !== undefined );
+    return scoredSubmission !== undefined ? `${scoredSubmission.teacherRating} points` : `Not rated yet`
+  }
+
   render() {
     const assignment = this.props.assignment;
-    let groupedSubmissions = this.groupByTeam(this.props.initialSubmissions, this.props.improvedSubmissions);
+    const groupedSubmissions = this.groupByTeam(this.props.initialSubmissions, this.props.improvedSubmissions);
+    const canBeRated = (
+      (!assignment.submissionImprovedSubmission && periodHasEnded( assignment.initialSubmissionPeriod )) ||
+      (assignment.submissionImprovedSubmission && periodHasEnded( assignment.improvedSubmissionPeriod ))
+  );
     return (
       <Table>
         <thead>
@@ -55,15 +64,18 @@ export default class StudentTeamSubmissionsView extends Component {
             <th>Team</th>
             <th className="center-cell">Initial</th>
             { assignment.submissionImprovedSubmission && periodStarted( assignment.improvedSubmissionPeriod ) && <th className="center-cell">Improved</th>}
-            {periodHappening(this.props.assignment.teamReviewPeriod) && <th width="80"></th>}
-            {periodHasEnded(this.props.assignment.teamReviewPeriod) && <th width="80"></th>}
+            { canBeRated && <th className="center-cell">Score</th>}
+            {periodHappening(this.props.assignment.teamReviewPeriod) || periodHasEnded(this.props.assignment.teamReviewPeriod) && <th></th>}
             <th width="80"></th>
           </tr>
         </thead>
       <tbody>
       { groupedSubmissions.map((team,index)=>
         <tr key={team['@id']}>
-        <td>
+        <td style={{
+            whiteSpace: 'nowrap',
+            width: '1%'
+        }}>
         { team.name }
         </td>
         <td className="center-cell">
@@ -74,16 +86,22 @@ export default class StudentTeamSubmissionsView extends Component {
           { team.improvedSubmission ? <i className="fa fa-check green-color" /> : <i className="fa fa-times red-color" /> }
           </td>
         }
-        { periodHappening(this.props.assignment.teamReviewPeriod) &&
+        { canBeRated &&
+          <td style={{
+              whiteSpace: 'nowrap',
+              width: '1%'
+          }}>
+          {this.getScore(team)}
+          </td>
+        }
           <td className="center-cell">
+            { periodHappening(this.props.assignment.teamReviewPeriod) &&
             <Button color="success" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/team/${getShortID(team['@id'])}/submission/teamReview`)}>Review team</Button>
-          </td>
-        }
-        { periodHasEnded(this.props.assignment.teamReviewPeriod) &&
-          <td className="center-cell">
+          }
+          { periodHasEnded(this.props.assignment.teamReviewPeriod) &&
             <Button color="success" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/team/${getShortID(team['@id'])}/submission/teamReview`)}>Team results</Button>
+          }
           </td>
-        }
         <td>
         <Button color={this.getButtonColor(team.settings)} onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/team/${getShortID(team['@id'])}/submission/submission`)}>
           { this.getButtonText(team.settings ) }

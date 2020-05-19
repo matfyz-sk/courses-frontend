@@ -76,7 +76,7 @@ class TeamReview extends Component {
     if( this.submissionID === null ){
       return;
     }
-    axiosGetEntities(`teamReview?ofSubmission=${getShortID(this.submissionID)}&createdBy=${this.props.user.id}`).then((response)=>{
+    axiosGetEntities(`teamReview?ofSubmission=${getShortID(this.submissionID)}&createdBy=${this.props.user.id}&&_join=reviewedStudent`).then((response) => {
       let myReviews = getResponseBody(response);
       this.setState( { myReviews, myReviewsLoaded: true }, this.prepareReviews );
     })
@@ -266,14 +266,14 @@ class TeamReview extends Component {
         }
         {
           !this.props.settings.isInstructor && periodHasEnded(this.props.assignment.teamReviewPeriod) &&
-          <TeamReviewDetails />
+          <TeamReviewDetails reviews={this.state.reviewsOfMe} myReviews={this.state.myReviews} students={this.state.teammates} />
         }
       </div>
     )
   }
 }
 
-const mapStateToProps = ({ authReducer }) => {
+const mapStateToProps = ({ authReducer, assignStudentDataReducer }) => {
   const { user } = authReducer;
   return {
     user,

@@ -364,7 +364,7 @@ class Submission extends Component{
           { instructorViewing && periodHasEnded(assignment.initialSubmissionPeriod) && ( !assignment.submissionImprovedSubmission || periodHasEnded(assignment.improvedSubmissionPeriod) ) &&
             <div>
               <FormGroup>
-                <Label>Score</Label>
+                <Label>Score ({this.state.teacherRating})</Label>
                 <Slider
                   min={0}
                   max={10}

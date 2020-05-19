@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FormGroup, Label, Input, Alert, Table } from 'reactstrap';
+import { FormGroup, Label, Input, Alert, Table, CardHeader, Card, CardBody } from 'reactstrap';
 import { getStudentName } from 'helperFunctions';
 
 export default class InstructorTeamReviewDetails extends Component {
@@ -34,7 +34,6 @@ export default class InstructorTeamReviewDetails extends Component {
     const { students } = this.props;
     const reviews = this.assignStudentToReview( students, this.props.reviews )
     const didntReview = this.getStudentsWithoutReviews( students, reviews )
-    console.log(reviews);
     return(
       <>
       <Alert color="danger" isOpen={ didntReview.length > 0} className="mt-3">
@@ -43,41 +42,36 @@ export default class InstructorTeamReviewDetails extends Component {
         <Label>{`Mentioned students:`}</Label>
         {` ${ didntReview.map((student) => getStudentName(student)).join(', ')}`}
       </Alert>
-      { this.groupReviewsOfStudents( students, reviews, didntReview ).map( (student) =>
+      { this.groupReviewsOfStudents( students, reviews, didntReview ).map( (student, index) =>
         <div key={student['@id']}>
-          <Label>{`Student: ${ getStudentName(student) }`}</Label>
+          <Label>{`Student:`}</Label>{` ${ getStudentName(student) }`}
           <br/>
           <Label className="no-m-p">{`Total percentage: ${ student.percentage }%`}</Label>
-          <Table borderless>
-            <tbody>
-              { student.reviews.map((review) =>
-                <tr key={review['@id']}>
-                  <td
-                    style={{
-                        whiteSpace: 'nowrap',
-                        width: '1%'
-                    }}>
-                    <Label className="no-m-p">{ getStudentName(review.createdBy) }</Label>
-                    <br/>
-                    <Label className="no-m-p">Percentage:</Label> { `${review.percentage}%` }
-                  </td>
-                  <td>
-                    <p>
-                    <Label className="no-m-p text-muted small">Student comment:</Label>
-                    <br/>
-                    { review.studentComment }
-                  </p>
-                  <p>
-                    <Label className="no-m-p text-muted small">Private comment:</Label>
-                    <br/>
-                  { review.privateComment }
-                </p>
-                  </td>
-                </tr>
+          { student.reviews.map( (review) =>
+            <Card key={review['@id']} className="small-card">
+              <CardHeader className="small-card-header row">
+                <span className="mr-auto">
+                  <Label>Percentage:</Label> { `${review.percentage}%` }
+                  </span>
+                  <span>
+                    <Label>Teammate:</Label>{` ${getStudentName(review.createdBy)}`}
+                    </span>
+                  </CardHeader>
+                  <CardBody className="row">
+                    <div className="col-6">
+                      <Label className="no-m-p text-muted small">Comment:</Label>
+                      <br/>
+                      { review.studentComment }
+                    </div>
+                    <div className="col-6">
+                      <Label className="no-m-p text-muted small clickable not-highlightable"> Private comment: </Label>
+                      <br/>
+                      { review.privateComment }
+                    </div>
+                  </CardBody>
+                </Card>
               )}
-            </tbody>
-          </Table>
-          <hr/>
+              { index !== students.length -1 && <hr/>}
       </div>
       )}
       </>
