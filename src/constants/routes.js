@@ -16,7 +16,6 @@ export const NEW_COURSE_INSTANCE = '/newcourseinstance/:course_id'
 export const USER_MANAGEMENT = coursePrefix('/usermanagement/')
 export const COURSE_MIGRATION = coursePrefix('/coursemigration/')
 export const ASSIGNMENTS = coursePrefix('/assignments')
-export const RESULTS = '/results'
 export const QUIZ = coursePrefix('/quiz')
 export const DOCUMENTS = '/documents'
 export const INFO_PAGE = '/info/:course_id'
@@ -29,3 +28,8 @@ export const COURSE_TEAM_DETAIL = coursePrefix('/teams/:team_id')
 
 export const PUBLIC_PROFILE = '/profile/:user_id'
 export const REGISTER_COMPLETION = '/register-completion'
+
+export const MY_RESULTS = coursePrefix('/my-results')
+export const RESULTS = coursePrefix('/results')
+export const RESULT_TYPE = coursePrefix('/results/type/:result_type')
+export const RESULT_USER = coursePrefix('/results/user/:user_id')

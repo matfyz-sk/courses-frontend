@@ -21,3 +21,10 @@ body{
   background-color:inherit;
   border-width:0
 }
+
+.tableInput {
+  max-width: 90px;
+  @media only screen and (max-width: 600px) {
+    width: 100%;
+  }
+}

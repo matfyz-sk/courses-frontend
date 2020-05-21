@@ -135,15 +135,31 @@ class NavigationCourseClass extends React.Component {
                 Timeline
               </NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink
-                activeClassName="is-active"
-                to={ROUTES.RESULTS}
-                className="nav-link nav-button"
-              >
-                Results
-              </NavLink>
-            </NavItem>
+            {privileges.inCourseInstance !== 'visitor' ? (
+              <NavItem>
+                {privileges.inCourseInstance === 'student' ? (
+                  <NavLink
+                    to={redirect(ROUTES.MY_RESULTS, [
+                      { key: 'course_id', value: this.state.courseId },
+                    ])}
+                    activeClassName="is-active"
+                    className="nav-link nav-button"
+                  >
+                    My results
+                  </NavLink>
+                ) : (
+                  <NavLink
+                    to={redirect(ROUTES.RESULTS, [
+                      { key: 'course_id', value: this.state.courseId },
+                    ])}
+                    activeClassName="is-active"
+                    className="nav-link nav-button"
+                  >
+                    Results
+                  </NavLink>
+                )}
+              </NavItem>
+            ) : null}
             <NavItem>
               <NavLink
                 to={redirect(ROUTES.ASSIGNMENTS, [

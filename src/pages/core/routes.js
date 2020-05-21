@@ -26,6 +26,9 @@ import Profile from './Profile'
 import TeamDetail from './Teams/TeamDetail'
 import NewCourseInstance from './NewCourseInstance'
 import InfoPage from './InfoPage'
+import ResultsInstructor from '../results/ResultsInstructor'
+import StudentOverview from '../results/StudentOverview'
+import ResultsTypeDetail from '../results/ResultsTypeDetail'
 
 const CoreRoutes = [
   <RouteWrapper
@@ -70,6 +73,39 @@ const CoreRoutes = [
     key={ROUTES.PROFILE_SETTINGS}
     path={ROUTES.PROFILE_SETTINGS}
     component={Profile}
+  />,
+
+  <RouteWrapper
+    key={ROUTES.RESULTS}
+    path={ROUTES.RESULTS}
+    component={ResultsInstructor}
+    layout={CourseLayout}
+    exact
+    auth
+  />,
+  <RouteWrapper
+    key={ROUTES.MY_RESULTS}
+    path={ROUTES.MY_RESULTS}
+    component={StudentOverview}
+    layout={CourseLayout}
+    exact
+    auth
+  />,
+  <RouteWrapper
+    key={ROUTES.RESULT_TYPE}
+    path={ROUTES.RESULT_TYPE}
+    component={ResultsTypeDetail}
+    layout={CourseLayout}
+    exact
+    auth
+  />,
+  <RouteWrapper
+    key={ROUTES.RESULT_USER}
+    path={ROUTES.RESULT_USER}
+    component={StudentOverview}
+    layout={CourseLayout}
+    exact
+    auth
   />,
 
   <PrivateOnlyRoute
