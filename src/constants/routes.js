@@ -33,3 +33,5 @@ export const MY_RESULTS = coursePrefix('/my-results')
 export const RESULTS = coursePrefix('/results')
 export const RESULT_TYPE = coursePrefix('/results/type/:result_type')
 export const RESULT_USER = coursePrefix('/results/user/:user_id')
+
+export const USER_DASHBOARD = '/dashboard'

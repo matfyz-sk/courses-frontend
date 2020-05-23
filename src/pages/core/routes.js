@@ -29,6 +29,7 @@ import InfoPage from './InfoPage'
 import ResultsInstructor from '../results/ResultsInstructor'
 import StudentOverview from '../results/StudentOverview'
 import ResultsTypeDetail from '../results/ResultsTypeDetail'
+import Dashboard from './Dashboard'
 
 const CoreRoutes = [
   <RouteWrapper
@@ -109,9 +110,9 @@ const CoreRoutes = [
   />,
 
   <PrivateOnlyRoute
-    key="/dashboard"
-    path="/dashboard"
-    component={LandingPage}
+    key={ROUTES.USER_DASHBOARD}
+    path={ROUTES.USER_DASHBOARD}
+    component={Dashboard}
   />,
 
   <InstructorRoute
