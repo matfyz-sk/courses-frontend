@@ -30,6 +30,7 @@ import ResultsInstructor from '../results/ResultsInstructor'
 import StudentOverview from '../results/StudentOverview'
 import ResultsTypeDetail from '../results/ResultsTypeDetail'
 import Dashboard from './Dashboard'
+import ResultDetail from '../results/ResultDetail'
 
 const CoreRoutes = [
   <RouteWrapper
@@ -104,6 +105,14 @@ const CoreRoutes = [
     key={ROUTES.RESULT_USER}
     path={ROUTES.RESULT_USER}
     component={StudentOverview}
+    layout={CourseLayout}
+    exact
+    auth
+  />,
+  <RouteWrapper
+    key={ROUTES.RESULT_DETAIL}
+    path={ROUTES.RESULT_DETAIL}
+    component={ResultDetail}
     layout={CourseLayout}
     exact
     auth

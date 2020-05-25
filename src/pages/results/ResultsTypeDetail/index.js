@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { Col, Container, Row, Table, FormGroup, Input, Alert, Button, Label } from 'reactstrap'
 import withResultDetail from './withResultDetail'
 import { redirect } from '../../../constants/redirect'
-import { RESULT_TYPE } from '../../../constants/routes'
+import {RESULT_DETAIL, RESULT_TYPE} from '../../../constants/routes';
 import { formatDate } from '../../../functions/global'
 import { getUsersInCourse, getResultsUsersInType, createUserResult, updateUserResult } from '../functions'
 import { showUserName } from '../../../components/Auth/userFunction'
@@ -127,7 +127,10 @@ const ResultsTypeDetail = props => {
               key: 'course_id',
               value: course_id,
             },
-            { key: 'result_type_id', value: getShortID(resultType.correctionFor[0]['@id']) },
+            {
+              key: 'result_type_id',
+              value: getShortID(resultType.correctionFor[0]['@id']),
+            },
           ])}
         >
           {resultType.correctionFor[0].name}
@@ -213,7 +216,23 @@ const ResultsTypeDetail = props => {
               <b>{users[i].result ? `${users[i].result.points} p` : '-'}</b>
             )}
           </td>
-          <td>{users[i].result['@id'] ? 'Detail' : ''}</td>
+          <td>{users[i].result['@id'] ? (
+              <Link
+                to={redirect(RESULT_DETAIL, [
+                  {
+                    key: 'course_id',
+                    value: course_id,
+                  },
+                  {
+                    key: 'result_id',
+                    value: getShortID(users[i].result['@id']),
+                  },
+                ])}
+              >
+                Detail
+              </Link>
+            ) : null}
+          </td>
         </tr>
       )
     }

@@ -27,12 +27,16 @@ export const getResultsUsersInType = type_id => {
   })
 }
 
-export const getUserResult = id => {
-  return fetch(`${BACKEND_URL}/data/result/${id}?_join=hasUser,awardedBy`, {
-    method: 'GET',
-    headers: authHeader(),
-    mode: 'cors',
-    credentials: 'omit',
+export const getUserResult = (id, type = false) => {
+  return fetch(
+    `${BACKEND_URL}/data/result/${id}?_join=hasUser,awardedBy${
+      type ? ',type' : ''
+    }`,
+    {
+      method: 'GET',
+      headers: authHeader(),
+      mode: 'cors',
+      credentials: 'omit',
   }).then(response => {
     return response.json()
   })
