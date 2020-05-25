@@ -16,8 +16,7 @@ const ResultTypes = props => {
       renderTypes.push(
         <tr className="border-bottom" key={`grading-list-${item['@id']}`}>
           <th>{item.name}</th>
-          <td>{item.correctionFor ? '' : 'without'}</td>
-          <td>{item.minPoints}</td>
+          <td>{item.minPoints} p</td>
           <td className="text-right">
             <ResultTypeModal resultType={item} />
             {courseInstance ? (
@@ -27,7 +26,7 @@ const ResultTypes = props => {
                     key: 'course_id',
                     value: getShortID(courseInstance['@id']),
                   },
-                  { key: 'result_type', value: getShortID(item['@id']) },
+                  { key: 'result_type_id', value: getShortID(item['@id']) },
                 ])}
                 className="btn btn-sm btn-link ml-2"
               >
@@ -48,7 +47,6 @@ const ResultTypes = props => {
         <thead>
           <tr className="border-bottom">
             <th>Name</th>
-            <th>Correction for</th>
             <th>Min points</th>
             <th> </th>
           </tr>

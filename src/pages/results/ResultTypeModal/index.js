@@ -207,6 +207,31 @@ const ResultTypeModal = props => {
       })
   }
 
+  const options = []
+  options.push(
+    <option value="" key="empty-select">
+      Without correction
+    </option>
+  )
+  if (courseInstance && courseInstance.hasResultType) {
+    for (let i = 0; i < courseInstance.hasResultType.length; i++) {
+      if (
+        !resultType ||
+        (resultType &&
+          resultType['@id'] !== courseInstance.hasResultType[i]['@id'])
+      ) {
+        options.push(
+          <option
+            value={courseInstance.hasResultType[i]['@id']}
+            key={courseInstance.hasResultType[i]['@id']}
+          >
+            {courseInstance.hasResultType[i].name}
+          </option>
+        )
+      }
+    }
+  }
+
   return (
     <>
       <Button
@@ -274,11 +299,7 @@ const ResultTypeModal = props => {
                   setForm({ ...form, correctionFor: e.target.value })
                 }}
               >
-                <option value=''>Without correction</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
+                {options}
               </Input>
             </FormGroup>
           </Form>

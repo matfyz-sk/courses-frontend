@@ -37,7 +37,7 @@ class CourseLayout extends Component {
   }
 
   componentWillUnmount() {
-    store.dispatch(clearCourseInstance())
+    //store.dispatch(clearCourseInstance())
   }
 
   render() {
