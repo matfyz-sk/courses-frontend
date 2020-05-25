@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
-import {Col, Container, Row, Table, FormGroup, Input, Alert, Button} from 'reactstrap';
+import { Col, Container, Row, Table, FormGroup, Input, Alert, Button, Label } from 'reactstrap'
 import withResultDetail from './withResultDetail'
 import { redirect } from '../../../constants/redirect'
 import { RESULT_TYPE } from '../../../constants/routes'
@@ -9,12 +9,15 @@ import { formatDate } from '../../../functions/global'
 import { getUsersInCourse, getResultsUsersInType, createUserResult, updateUserResult } from '../functions'
 import { showUserName } from '../../../components/Auth/userFunction'
 import { getUser } from '../../../components/Auth'
-import {getShortID} from "../../../helperFunctions";
+import { getShortID } from '../../../helperFunctions'
 
 const ResultsTypeDetail = props => {
   const { canEdit, resultType, course_id, result_type_id, privileges, instance } = props
   const [users, setUsers] = useState(null)
+  const [performUser, setPerformUser] = useState(null)
   const [msg, setMsg] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [extended, setExtended] = useState(false)
 
   function getResultsData(type_id, userList) {
     getResultsUsersInType(result_type_id).then(data => {
@@ -43,11 +46,14 @@ const ResultsTypeDetail = props => {
                 awardedBy: getUser().fullURI,
                 type: resultType['@id'],
                 points: '',
+                description: '',
+                reference: '',
               },
             })
           }
         }
         setUsers(userWithResults)
+        setPerformUser(JSON.parse(JSON.stringify(userWithResults)))
       }
     })
   }
@@ -60,23 +66,49 @@ const ResultsTypeDetail = props => {
     })
   }
 
+  function checkPerformance(i) {
+    return (
+      `${users[i].result.points}` !== `${performUser[i].result.points}` ||
+      users[i].result.description !== performUser[i].result.description ||
+      users[i].result.reference !== performUser[i].result.reference
+    )
+  }
+
   function saveAll() {
     for (let i = 0; i < users.length; i++) {
-      if (users[i].result.points !== '') {
+      if (users[i].result.points !== '' && checkPerformance(i)) {
         if (users[i].result['@id']) {
-          updateUserResult(users[i].result)
+          setMsg(`[ PROGRESS ] Creating results for students ...`)
+          setLoading(true)
+          updateUserResult(users[i].result).then(data => {
+            setPerformUser(JSON.parse(JSON.stringify(users)))
+            setLoading(false)
+            setMsg('Results has been saved!')
+          })
         } else {
+          setLoading(true)
+          setMsg(`[ PROGRESS ] Creating results for students ...`)
           createUserResult(
             users[i].result.courseInstance,
             users[i].result.hasUser,
             users[i].result.awardedBy,
             users[i].result.type,
-            users[i].result.points
-          )
+            users[i].result.points,
+            users[i].result.description,
+            users[i].result.reference
+          ).then(data => {
+            if (data['@graph']) {
+              const cUsers = [...users]
+              cUsers[i].result = data['@graph'][0]
+              setUsers(cUsers)
+              setPerformUser(JSON.parse(JSON.stringify(cUsers)))
+              setLoading(false)
+              setMsg('Results has been saved!')
+            }
+          })
         }
       }
     }
-    setMsg('Points has been updated!')
   }
 
   useEffect(() => {
@@ -123,7 +155,45 @@ const ResultsTypeDetail = props => {
               : '-'}
           </td>
           <td>{resultType.minPoints} p</td>
-          <td>
+          {!canEdit && extended ? (
+            <>
+              <td>
+                <FormGroup className="m-0">
+                  <Input
+                    type="textarea"
+                    name={`description-${i}`}
+                    placeholder="describe your result"
+                    bsSize="sm"
+                    disabled={users[i].result.points === ''}
+                    value={users[i].result.description}
+                    onChange={e => {
+                      const cUsers = [...users]
+                      cUsers[i].result.description = e.target.value
+                      setUsers(cUsers)
+                    }}
+                  />
+                </FormGroup>
+              </td>
+              <td>
+                <FormGroup className="m-0">
+                  <Input
+                    type="text"
+                    name={`reference-${i}`}
+                    placeholder="set reference"
+                    bsSize="sm"
+                    disabled={users[i].result.points === ''}
+                    value={users[i].result.reference}
+                    onChange={e => {
+                      const cUsers = [...users]
+                      cUsers[i].result.reference = e.target.value
+                      setUsers(cUsers)
+                    }}
+                  />
+                </FormGroup>
+              </td>
+            </>
+          ) : null}
+          <td style={{width: 90}}>
             {!canEdit ? (
               <FormGroup className="m-0">
                 <Input
@@ -143,7 +213,7 @@ const ResultsTypeDetail = props => {
               <b>{users[i].result ? `${users[i].result.points} p` : '-'}</b>
             )}
           </td>
-          <td>Detail</td>
+          <td>{users[i].result['@id'] ? 'Detail' : ''}</td>
         </tr>
       )
     }
@@ -169,17 +239,34 @@ const ResultsTypeDetail = props => {
             size="sm"
             className="float-right mb-3"
             onClick={saveAll}
-            disabled={!(renderUsers.length > 0)}
+            disabled={!(renderUsers.length > 0 || loading)}
           >
             Save results
           </Button>
+          {!canEdit && renderUsers.length > 0 ? (
+            <FormGroup check className="w-50">
+              <Label check>
+                <Input
+                  type="checkbox"
+                  checked={extended}
+                  onChange={() => setExtended(!extended)}
+                /> Extend options
+              </Label>
+            </FormGroup>
+          ) : null}
           <Table hover size="sm" responsive>
             <thead>
               <tr>
                 <th>Student</th>
                 <th>Awarded by</th>
-                <th>Minimum points</th>
-                <th>Earned points</th>
+                <th>Min. p</th>
+                {extended && !canEdit ? (
+                  <>
+                    <th>Description</th>
+                    <th>Reference</th>
+                  </>
+                ) : null}
+                <th>Earned p</th>
                 <th> </th>
               </tr>
             </thead>

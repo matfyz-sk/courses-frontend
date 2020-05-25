@@ -27,6 +27,17 @@ export const getResultsUsersInType = type_id => {
   })
 }
 
+export const getUserResult = id => {
+  return fetch(`${BACKEND_URL}/data/result/${id}?_join=hasUser,awardedBy`, {
+    method: 'GET',
+    headers: authHeader(),
+    mode: 'cors',
+    credentials: 'omit',
+  }).then(response => {
+    return response.json()
+  })
+}
+
 export const createUserResult = (
   courseInstance,
   hasUser,
@@ -64,9 +75,13 @@ export const createUserResult = (
             credentials: 'omit',
             body: JSON.stringify({ type }),
           }
-        ).then(response => {
-          return response.json()
-        })
+        )
+          .then(response => {
+            return response.json()
+          })
+          .then(data2 => {
+            return getUserResult(getShortID(data2.resource.iri))
+          })
       }
     })
 }
