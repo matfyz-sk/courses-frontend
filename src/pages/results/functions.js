@@ -13,6 +13,17 @@ export const getUsersInCourse = course_id => {
   })
 }
 
+export const getAllResultsInCourse = course_id => {
+  return fetch(`${BACKEND_URL}/data/result?courseInstance=${course_id}`, {
+    method: 'GET',
+    headers: authHeader(),
+    mode: 'cors',
+    credentials: 'omit',
+  }).then(response => {
+    return response.json()
+  })
+}
+
 export const getResultsUsersInType = type_id => {
   return fetch(
     `${BACKEND_URL}/data/result?type=${type_id}&_join=hasUser,awardedBy`,
