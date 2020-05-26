@@ -42,6 +42,13 @@ const StudentsPreview = props => {
     })
   }
 
+  function resultModifier(user_index, oldVal, newVal) {
+    const newUser = [...users]
+    newUser[user_index].result =
+      newUser[user_index].result - parseFloat(oldVal) + parseFloat(newVal)
+    setUsers(newUser)
+  }
+
   useEffect(() => {
     getUsers()
   }, [])
@@ -67,7 +74,11 @@ const StudentsPreview = props => {
         <td>{users[i].result} b</td>
         <td>{grading}</td>
         <td className="text-right">
-          <PointsModal user={null} />
+          <PointsModal
+            user={users[i].user}
+            userIndex={i}
+            resultModifier={resultModifier}
+          />
           <Link
             to={redirect(RESULT_USER, [
               {

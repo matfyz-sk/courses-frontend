@@ -53,6 +53,19 @@ export const getUserResult = (id, type = false) => {
   })
 }
 
+export const getUserByTypeResult = (user_id, type_id) => {
+  return fetch(
+    `${BACKEND_URL}/data/result?hasUser=${user_id}&type=${type_id}`,
+    {
+      method: 'GET',
+      headers: authHeader(),
+      mode: 'cors',
+      credentials: 'omit',
+    }).then(response => {
+    return response.json()
+  })
+}
+
 export const createUserResult = (
   courseInstance,
   hasUser,
