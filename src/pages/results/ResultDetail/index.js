@@ -71,7 +71,9 @@ const ResultDetail = props => {
   return (
     <Container>
       <h1 className="mb-2">{showUserName(result.hasUser[0], privileges)}</h1>
-      <h3 className="text-muted mb-4">Result detail of {resultHref}</h3>
+      {resultHref !== '' ? (
+        <h3 className="text-muted mb-4">{resultHref}</h3>
+      ) : null}
       <p>
         Awarded by {result.awardedBy[0].firstName} {result.awardedBy[0].lastName} on {formatDate(result.createdAt)}.
       </p>

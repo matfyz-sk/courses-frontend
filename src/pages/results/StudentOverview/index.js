@@ -1,12 +1,223 @@
-import React from 'react'
-import { withRouter } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Col, Container, Row, Table, Alert } from 'reactstrap'
+import {
+  getAllUserResults,
+  getUserInCourse,
+  getResultTypeDetail,
+} from '../functions'
+import { getShortID } from '../../../helperFunctions'
+import { formatDate } from '../../../functions/global'
+import { redirect } from '../../../constants/redirect'
+import { RESULT_DETAIL, RESULT_TYPE } from '../../../constants/routes'
+import { getUserID } from '../../../components/Auth'
+import { showUserName } from '../../../components/Auth/userFunction'
 
-const StudentOverview = () => {
+const StudentOverview = props => {
+  const { courseInstance, privileges, match } = props
+  const { course_id, user_id } = match.params
+  const userId = user_id ? user_id : getUserID()
+  const [user, setUser] = useState(null)
+  const [results, setResults] = useState(null)
+
+  function fetchStudent() {
+    getUserInCourse(course_id, userId).then(data => {
+      if (data['@graph'] && data['@graph'].length > 0) {
+        setUser(data['@graph'][0])
+        getAllUserResults(userId).then(data2 => {
+          if (data2['@graph']) {
+            const resultArr = data2['@graph']
+            for (let i = 0; i < resultArr.length; i++) {
+              if (resultArr[i].correctionFor) {
+                getResultTypeDetail(getShortID(resultArr.correctionFor)).then(
+                  corr => {
+                    if (corr['@graph'] && corr['@graph'].length > 0) {
+                      resultArr[i] = {
+                        ...resultArr[i],
+                        correction: corr['@graph'][0],
+                      }
+                    } else {
+                      resultArr[i] = { ...resultArr[i], correction: null }
+                    }
+                  }
+                )
+              } else {
+                resultArr[i] = { ...resultArr[i], correction: null }
+              }
+            }
+            setResults(resultArr)
+          }
+        })
+      }
+    })
+  }
+
+  useEffect(() => {
+    fetchStudent()
+  }, [])
+
+  let grading = null
+  let pointsUpper = null
+  let isBottom = false
+  const renderResult = []
+  let total_result = null
+  if (results) {
+    total_result = 0
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i]
+      total_result += result.points
+      renderResult.push(
+        <tr
+          key={result['@id']}
+          className={
+            result.type &&
+            result.type.length > 0 &&
+            result.points < result.type[0].minPoints
+              ? 'text-danger'
+              : ''
+          }
+        >
+          <td>
+            {result.type && result.type.length > 0 ? (
+              <Link
+                to={redirect(RESULT_TYPE, [
+                  {
+                    key: 'course_id',
+                    value: getShortID(courseInstance['@id']),
+                  },
+                  {
+                    key: 'result_type_id',
+                    value: getShortID(result.type[0]['@id']),
+                  },
+                ])}
+              >
+                {result.type[0].name}
+              </Link>
+            ) : (
+              '-'
+            )}
+          </td>
+          <td>
+            {result.correction ? (
+              <Link
+                to={redirect(RESULT_TYPE, [
+                  {
+                    key: 'course_id',
+                    value: getShortID(courseInstance['@id']),
+                  },
+                  {
+                    key: 'result_type_id',
+                    value: getShortID(result.correction['@id']),
+                  },
+                ])}
+              >
+                {result.correction.name}
+              </Link>
+            ) : (
+              '-'
+            )}
+          </td>
+          <td>
+            {result.awardedBy
+              ? `${result.awardedBy[0].firstName} ${result.awardedBy[0].lastName}`
+              : '-'}
+          </td>
+          <td>{result.description ? 'Has description' : 'Without description'}</td>
+          <td>
+            {result.reference ? (
+              <a href={result.reference} target="_blank">Reference</a>
+            ) : (
+              '-'
+            )}
+          </td>
+          <th>{result.points}</th>
+          <td>{formatDate(result.createdAt)}</td>
+          <td className="text-right">
+            <Link
+              to={redirect(RESULT_DETAIL, [
+                {
+                  key: 'course_id',
+                  value: course_id,
+                },
+                {
+                  key: 'result_id',
+                  value: getShortID(result['@id']),
+                },
+              ])}
+            >
+              Detail
+            </Link>
+          </td>
+        </tr>
+      )
+    }
+    renderResult.push(
+      <tr key="total-results" style={{ fontSize: '1.2rem' }} className="text-right">
+        <th colSpan={7} className="pt-3">TOTAL:</th>
+        <th className="pt-3">{total_result} points</th>
+      </tr>
+    )
+
+    if (courseInstance && courseInstance.hasGrading.length > 0) {
+      const sortedGrading = courseInstance.hasGrading.sort(function(a, b) {
+        return a.minPoints - b.minPoints
+      })
+      for (let g = 0; g < sortedGrading.length; g++) {
+        if (sortedGrading[g].minPoints < total_result) {
+          grading = sortedGrading[g].grade
+          isBottom = g === 0
+          if (g + 1 < sortedGrading.length) {
+            pointsUpper = `${
+              sortedGrading[g + 1].minPoints - total_result
+            } more points to ${sortedGrading[g + 1].grade}`
+          }
+        } else {
+          break
+        }
+      }
+    }
+  }
+
+  const renderGradings = []
+  if (courseInstance && courseInstance.hasGrading.length > 0) {
+    const sortedGrading = courseInstance.hasGrading.sort(function(a, b) {
+      return b.minPoints - a.minPoints
+    })
+    for (let i = 0; i < sortedGrading.length; i++) {
+      const item = sortedGrading[i]
+      let compareString = <th> </th>
+      if (i === 0) {
+        compareString = (
+          <>
+            <th>{item.minPoints}</th>
+            <th>-</th>
+            <th>{String.fromCharCode(8734)}</th>
+          </>
+        )
+      } else {
+        compareString = (
+          <>
+            <th>{item.minPoints}</th>
+            <th>-</th>
+            <th>{sortedGrading[i - 1].minPoints}</th>
+          </>
+        )
+      }
+      renderGradings.push(
+        <tr className="border-bottom" key={`grading-list-${item['@id']}`}>
+          {compareString}
+          <th>{item.grade}</th>
+        </tr>
+      )
+    }
+  }
+
   return (
     <Container>
-      <h1 className="mb-5">My results</h1>
+      {user ? (
+        <h1 className="mb-5">{getUserID() === userId ? 'My results' : `Results of ${showUserName(user, privileges)}`}</h1>
+      ) : null}
       <Row>
         <Col lg={9} md={8} sm={12} className="order-md-1 order-sm-2  mt-md-0 mt-4">
           <h2 className="mb-4">Points preview</h2>
@@ -14,46 +225,43 @@ const StudentOverview = () => {
             <thead>
               <tr>
                 <th>Result type</th>
+                <th>Correction for</th>
                 <th>Awarded by</th>
                 <th>Description</th>
                 <th>Reference</th>
                 <th>Points</th>
                 <th>Created at</th>
+                <th> </th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>dsdssd</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-                <td>Mark</td>
-                <th>Otto</th>
-                <td>@mdo</td>
-              </tr>
-              <tr>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-                <td>Mark</td>
-                <th>Otto</th>
-                <td>@mdo</td>
-              </tr>
-            </tbody>
+            <tbody>{renderResult}</tbody>
           </Table>
         </Col>
         <Col lg={3} md={4} sm={12} className="order-md-2 order-sm-1">
           <h2 className="mb-4">Course grading</h2>
-          <Alert color="primary" className="text-center">
-            <span>Your current grading is</span>
-            <h4 className="mt-1 mb-1">E</h4>
-            <span>(5 more points to D)</span>
-          </Alert>
+          {grading ? (
+            <Alert
+              color={isBottom ? 'danger' : 'success'}
+              className="text-center"
+            >
+              <span>Your current grading is</span>
+              <h3 className="mt-1 mb-1">{grading}</h3>
+              {pointsUpper ? (
+                <span>({pointsUpper})</span>
+              ) : (<span>yes, this is maximum</span>)}
+            </Alert>
+          ) : null}
           <Table hover size="sm" responsive>
             <tbody>
-              <tr className="border-bottom">
-                <th>0 - 25 b</th>
-                <th>Fx</th>
-              </tr>
+              {courseInstance && courseInstance.hasGrading.length === 0 ? (
+                <tr>
+                  <td>
+                    <Alert color="info">No gradings was set</Alert>
+                  </td>
+                </tr>
+              ) : (
+                <>{renderGradings}</>
+              )}
             </tbody>
           </Table>
         </Col>
@@ -62,8 +270,13 @@ const StudentOverview = () => {
   )
 }
 
-const mapStateToProps = state => {
-  return state
+const mapStateToProps = ({ courseInstanceReducer, privilegesReducer }) => {
+  const { courseInstance } = courseInstanceReducer
+  const privileges = privilegesReducer
+  return {
+    courseInstance,
+    privileges,
+  }
 }
 
 export default withRouter(connect(mapStateToProps)(StudentOverview))

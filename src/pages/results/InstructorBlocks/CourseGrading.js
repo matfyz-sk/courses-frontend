@@ -15,15 +15,27 @@ const CourseGrading = props => {
     })
     for (let i = 0; i < sortedGrading.length; i++) {
       const item = sortedGrading[i]
-      let compareString = '-'
+      let compareString = <th> </th>
       if (i === 0) {
-        compareString = `${item.minPoints} - ${String.fromCharCode(8734)}`
+        compareString = (
+          <>
+            <th>{item.minPoints}</th>
+            <th>-</th>
+            <th>{String.fromCharCode(8734)}</th>
+          </>
+        )
       } else {
-        compareString = `${item.minPoints} - ${sortedGrading[i - 1].minPoints}`
+        compareString = (
+          <>
+            <th>{item.minPoints}</th>
+            <th>-</th>
+            <th>{sortedGrading[i - 1].minPoints}</th>
+          </>
+        )
       }
       renderGradings.push(
         <tr className="border-bottom" key={`grading-list-${item['@id']}`}>
-          <th>{compareString}</th>
+          {compareString}
           <th>{item.grade}</th>
           <td className="text-right">
             <CriteriaModal grading={item} />
