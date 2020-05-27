@@ -1,16 +1,41 @@
 import { getShortID } from '../../helperFunctions'
-import {getUser, getUserID} from './index';
+import { getUser, getUserID } from './index'
 
-export function showUserName(user, privilege) {
-  if (getShortID(user['@id']) === getUserID() || !user.useNickName) {
+function hasSpecificNickName(user, course) {
+  for (let k = 0; k < course.hasPersonalSettings.length; k++) {
+    if (course.hasPersonalSettings[k].hasUser === user['@id']) {
+      if (course.hasPersonalSettings[k].nickName.length > 0) {
+        return course.hasPersonalSettings[k].nickName
+      }
+    }
+  }
+  return null
+}
+
+export function showUserName(user, privilege, courseInstance = null) {
+  let specificNickName = null
+  if (courseInstance) {
+    specificNickName = hasSpecificNickName(user, courseInstance)
+  }
+
+  if (
+    getShortID(user['@id']) === getUserID() ||
+    (!user.useNickName && !specificNickName)
+  ) {
     return `${user.firstName} ${user.lastName}`
   }
   if (privilege.inCourseInstance === 'instructor' || privilege.inGlobal === 'admin') {
+    if (specificNickName) {
+      return `${user.firstName} ${user.lastName} (${specificNickName})`
+    }
     return `${user.firstName} ${user.lastName} ${user.useNickName && user.nickname.length > 0 ? `(${user.nickname})` : ''}`
   }
-  if (user.useNickName) {
+  if (user.useNickName || specificNickName) {
     if (user.nickname.length === 0) {
       return 'Anonymous'
+    }
+    if (specificNickName) {
+      return specificNickName
     }
     return user.nickname
   }

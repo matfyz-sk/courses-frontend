@@ -86,6 +86,7 @@ class CoursesPageBase extends Component {
             endDate: courseInstance.endDate,
             hasAdmin: courseInstance.instanceOf[0].hasAdmin,
             hasInstructor: courseInstance.hasInstructor,
+            hasPersonalSettings: courseInstance.hasPersonalSettings,
           }
         })
 
@@ -245,6 +246,7 @@ class CoursesPageBase extends Component {
         enrolled: course.enrolled,
         instructor: course.instructor,
         requests: course.requests,
+        hasPersonalSettings: course.hasPersonalSettings,
       })
     }
     return Object.keys(groupedCourses).map(function (key) {

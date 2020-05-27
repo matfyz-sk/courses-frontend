@@ -295,7 +295,8 @@ class TeamsDetail extends Component {
 
   render() {
     const { isOpen, form, error } = this.state
-    const { team, users, create, privileges, isAdmin, privilegesReducer } = this.props
+    const { team, users, create, privileges, isAdmin, privilegesReducer, courseInstanceReducer } = this.props
+    const { courseInstance } = courseInstanceReducer
 
     const render_members = []
     let canEdit = false
@@ -347,7 +348,7 @@ class TeamsDetail extends Component {
             <th scope="row">{
               (canEdit || isAdmin) && user.nickNameTeamException && users[i].approved ?
                 `${user.firstName} ${user.lastName}`
-                : showUserName(user, privilegesReducer)
+                : showUserName(user, privilegesReducer, courseInstance)
               }</th>
             <td>
               <h5>

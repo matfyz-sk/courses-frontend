@@ -151,7 +151,7 @@ const ResultsTypeDetail = props => {
             users[i].result.points < resultType.minPoints ? 'text-danger' : ''
           }
         >
-          <th>{showUserName(users[i].user, privileges)}</th>
+          <th>{showUserName(users[i].user, privileges, instance)}</th>
           <td>
             {users[i].result && Array.isArray(users[i].result.awardedBy)
               ? `${users[i].result.awardedBy[0].firstName} ${users[i].result.awardedBy[0].lastName}`

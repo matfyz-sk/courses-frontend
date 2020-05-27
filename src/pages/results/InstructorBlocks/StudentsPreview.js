@@ -70,7 +70,7 @@ const StudentsPreview = props => {
     }
     renderUsers.push(
       <tr key={`user-list-${i}`}>
-        <td>{showUserName(users[i].user, privileges)} </td>
+        <td>{showUserName(users[i].user, privileges, courseInstance)} </td>
         <td>{users[i].result}</td>
         <td>{grading}</td>
         <td className="text-right">

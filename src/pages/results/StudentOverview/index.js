@@ -225,7 +225,7 @@ const StudentOverview = props => {
   return (
     <Container>
       {user ? (
-        <h1 className="mb-5">{getUserID() === userId ? 'My results' : `Results of ${showUserName(user, privileges)}`}</h1>
+        <h1 className="mb-5">{getUserID() === userId ? 'My results' : `Results of ${showUserName(user, privileges, courseInstance)}`}</h1>
       ) : null}
       <Row>
         <Col lg={9} md={8} sm={12} className="order-md-1 order-sm-2  mt-md-0 mt-4">

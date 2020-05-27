@@ -10,7 +10,7 @@ import {showUserName} from "../../../components/Auth/userFunction";
 import {formatDate} from "../../../functions/global";
 
 const ResultDetail = props => {
-  const { match, privileges, history } = props
+  const { match, privileges, history, courseInstance } = props
   const { course_id, result_id } = match.params
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -82,7 +82,7 @@ const ResultDetail = props => {
 
   return (
     <Container>
-      <h1 className="mb-2">{showUserName(result.hasUser[0], privileges)}</h1>
+      <h1 className="mb-2">{showUserName(result.hasUser[0], privileges, courseInstance)}</h1>
       {resultHref !== '' ? (
         <h3 className="text-muted mb-4">{resultHref}</h3>
       ) : null}
@@ -218,10 +218,12 @@ const ResultDetail = props => {
   )
 }
 
-const mapStateToProps = ({ privilegesReducer }) => {
+const mapStateToProps = ({ privilegesReducer, courseInstanceReducer }) => {
   const privileges = privilegesReducer
+  const { courseInstance } = courseInstanceReducer
   return {
     privileges,
+    courseInstance,
   }
 }
 
