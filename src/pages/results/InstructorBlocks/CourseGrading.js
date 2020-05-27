@@ -29,7 +29,7 @@ const CourseGrading = props => {
           <>
             <th>{item.minPoints}</th>
             <th>-</th>
-            <th>{sortedGrading[i - 1].minPoints}</th>
+            <th>{sortedGrading[i - 1].minPoints - 1}</th>
           </>
         )
       }

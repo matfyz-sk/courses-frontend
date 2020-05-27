@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import {getUserResult, updateUserResult} from '../functions';
+import {getUserResult, removeUserResult, updateUserResult} from '../functions';
 import {Alert, Button, Col, Container, FormGroup, Input, Row, Table} from "reactstrap";
 import {redirect} from "../../../constants/redirect";
-import {RESULT_TYPE} from "../../../constants/routes";
+import {RESULT_TYPE, RESULT_USER} from "../../../constants/routes";
 import {getShortID} from "../../../helperFunctions";
 import {Link, withRouter} from "react-router-dom";
 import {connect} from "react-redux"
@@ -10,7 +10,7 @@ import {showUserName} from "../../../components/Auth/userFunction";
 import {formatDate} from "../../../functions/global";
 
 const ResultDetail = props => {
-  const { match, privileges } = props
+  const { match, privileges, history } = props
   const { course_id, result_id } = match.params
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -34,6 +34,18 @@ const ResultDetail = props => {
         setMsg('Result has been saved!')
       })
     }
+  }
+
+  function removeResult() {
+    const user_id = getShortID(result.hasUser[0]['@id'])
+    removeUserResult(result_id).then(data => {
+      history.push(
+        redirect(RESULT_USER, [
+          { key: 'course_id', value: course_id },
+          { key: 'user_id', value: user_id },
+        ])
+      )
+    })
   }
 
   useEffect(() => {
@@ -173,13 +185,24 @@ const ResultDetail = props => {
             </tbody>
           </Table>
           {canEdit ? (
-            <Button
-              color="primary"
-              className="float-right"
-              onClick={saveChanges}
-            >
-              Save changes
-            </Button>
+            <>
+              <Button
+                color="danger"
+                className="float-left"
+                onClick={removeResult}
+                disabled={loading}
+              >
+                Remove result
+              </Button>
+              <Button
+                color="primary"
+                className="float-right"
+                onClick={saveChanges}
+                disabled={loading}
+              >
+                Save changes
+              </Button>
+            </>
           ) : null}
         </Col>
         {hasResultType ? (

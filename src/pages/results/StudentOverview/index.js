@@ -163,8 +163,8 @@ const StudentOverview = props => {
     }
     renderResult.push(
       <tr key="total-results" style={{ fontSize: '1.2rem' }} className="text-right">
-        <th colSpan={7} className="pt-3">TOTAL:</th>
-        <th className="pt-3">{total_result} points</th>
+        <th colSpan={5} className="pt-3">TOTAL:</th>
+        <th colSpan={3} className="pt-3">{total_result} points</th>
       </tr>
     )
 
@@ -173,10 +173,10 @@ const StudentOverview = props => {
         return a.minPoints - b.minPoints
       })
       for (let g = 0; g < sortedGrading.length; g++) {
-        if (sortedGrading[g].minPoints < total_result) {
+        if (sortedGrading[g].minPoints <= total_result) {
           grading = sortedGrading[g].grade
           isBottom = g === 0
-          if (g + 1 < sortedGrading.length) {
+          if (g + 1 < sortedGrading.length && (sortedGrading[g + 1].minPoints - total_result) >= 0) {
             pointsUpper = `${
               sortedGrading[g + 1].minPoints - total_result
             } more points to ${sortedGrading[g + 1].grade}`
@@ -209,7 +209,7 @@ const StudentOverview = props => {
           <>
             <th>{item.minPoints}</th>
             <th>-</th>
-            <th>{sortedGrading[i - 1].minPoints}</th>
+            <th>{sortedGrading[i - 1].minPoints - 1}</th>
           </>
         )
       }

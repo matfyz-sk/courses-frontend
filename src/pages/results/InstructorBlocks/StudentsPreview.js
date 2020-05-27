@@ -61,7 +61,7 @@ const StudentsPreview = props => {
         return a.minPoints - b.minPoints
       })
       for (let g = 0; g < sortedGrading.length; g++) {
-        if (sortedGrading[g].minPoints < users[i].result) {
+        if (sortedGrading[g].minPoints <= users[i].result) {
           grading = sortedGrading[g].grade
         } else {
           break
@@ -71,7 +71,7 @@ const StudentsPreview = props => {
     renderUsers.push(
       <tr key={`user-list-${i}`}>
         <td>{showUserName(users[i].user, privileges)} </td>
-        <td>{users[i].result} b</td>
+        <td>{users[i].result}</td>
         <td>{grading}</td>
         <td className="text-right">
           <PointsModal

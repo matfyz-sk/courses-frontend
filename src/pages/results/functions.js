@@ -164,3 +164,14 @@ export const updateUserResult = data => {
     return response.json()
   })
 }
+
+export const removeUserResult = result_id => {
+  return fetch(`${BACKEND_URL}/data/result/${result_id}`, {
+    method: 'DELETE',
+    headers: authHeader(),
+    mode: 'cors',
+    credentials: 'omit',
+  }).then(response => {
+    return response.json()
+  })
+}

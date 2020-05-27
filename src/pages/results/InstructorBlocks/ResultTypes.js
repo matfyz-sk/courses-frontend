@@ -16,7 +16,7 @@ const ResultTypes = props => {
       renderTypes.push(
         <tr className="border-bottom" key={`grading-list-${item['@id']}`}>
           <th>{item.name}</th>
-          <td>{item.minPoints} p</td>
+          <td>{item.minPoints}</td>
           <td className="text-right">
             <ResultTypeModal resultType={item} />
             {courseInstance ? (
