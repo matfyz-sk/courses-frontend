@@ -158,7 +158,7 @@ const ResultsTypeDetail = props => {
               : '-'}
           </td>
           <td>{resultType.minPoints} p</td>
-          {!canEdit && extended ? (
+          {canEdit && extended ? (
             <>
               <td>
                 <FormGroup className="m-0">
@@ -197,7 +197,7 @@ const ResultsTypeDetail = props => {
             </>
           ) : null}
           <td style={{width: 90}}>
-            {!canEdit ? (
+            {canEdit ? (
               <FormGroup className="m-0">
                 <Input
                   type="number"
@@ -253,16 +253,18 @@ const ResultsTypeDetail = props => {
       {msg ? <Alert color="success" className="mt-3">{msg}</Alert> : null}
       <Row>
         <Col sm={12} className="mt-4">
-          <Button
-            color="primary"
-            size="sm"
-            className="float-right mb-3"
-            onClick={saveAll}
-            disabled={!(renderUsers.length > 0 || loading)}
-          >
-            Save results
-          </Button>
-          {!canEdit && renderUsers.length > 0 ? (
+          {canEdit ? (
+            <Button
+              color="primary"
+              size="sm"
+              className="float-right mb-3"
+              onClick={saveAll}
+              disabled={!(renderUsers.length > 0 || loading)}
+            >
+              Save results
+            </Button>
+          ) : null}
+          {canEdit && renderUsers.length > 0 ? (
             <FormGroup check className="w-50">
               <Label check>
                 <Input
@@ -279,7 +281,7 @@ const ResultsTypeDetail = props => {
                 <th>Student</th>
                 <th>Awarded by</th>
                 <th>Min. p</th>
-                {extended && !canEdit ? (
+                {extended && canEdit ? (
                   <>
                     <th>Description</th>
                     <th>Reference</th>

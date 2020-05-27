@@ -5,6 +5,8 @@ import StudentsPreview from '../InstructorBlocks/StudentsPreview'
 // eslint-disable-next-line import/no-cycle
 import ResultTypes from '../InstructorBlocks/ResultTypes'
 import CourseGrading from '../InstructorBlocks/CourseGrading'
+import { connect } from 'react-redux'
+import instructorOnly from '../instructorOnly'
 
 const ResultsInstructor = props => {
   return (
@@ -28,4 +30,11 @@ const ResultsInstructor = props => {
   )
 }
 
-export default ResultsInstructor
+const mapStateToProps = ({ privilegesReducer }) => {
+  const privileges = privilegesReducer
+  return {
+    privileges,
+  }
+}
+
+export default connect(mapStateToProps)(instructorOnly(ResultsInstructor))

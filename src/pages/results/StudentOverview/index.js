@@ -120,18 +120,27 @@ const StudentOverview = props => {
           </td>
           <td>
             {result.awardedBy
-              ? `${result.awardedBy[0].firstName} ${result.awardedBy[0].lastName}`
+              ? `${result.awardedBy[0].lastName}`
               : '-'}
           </td>
-          <td>{result.description ? 'Has description' : 'Without description'}</td>
+          <td>{result.description ? 'Yes' : 'No'}</td>
           <td>
             {result.reference ? (
-              <a href={result.reference} target="_blank">Reference</a>
+              'Yes'
             ) : (
-              '-'
+              'No'
             )}
           </td>
-          <th>{result.points}</th>
+          <th>
+            {result.points}{' '}
+            <span className="font-weight-normal">
+              {result.type &&
+              result.type.length > 0 &&
+              result.points < result.type[0].minPoints
+                ? `(${result.type[0].minPoints - result.points} needed)`
+                : ''}
+            </span>
+          </th>
           <td>{formatDate(result.createdAt)}</td>
           <td className="text-right">
             <Link

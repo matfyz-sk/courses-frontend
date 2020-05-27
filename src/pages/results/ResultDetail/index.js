@@ -104,7 +104,7 @@ const ResultDetail = props => {
               <tr>
                 <td>Earned points</td>
                 <th>
-                  {!canEdit ? (
+                  {canEdit ? (
                     <FormGroup className="m-0">
                       <Input
                         type="number"
@@ -127,7 +127,7 @@ const ResultDetail = props => {
               <tr>
                 <td>Reference</td>
                 <td>
-                  {!canEdit ? (
+                  {canEdit ? (
                     <FormGroup className="m-0">
                       <Input
                         type="text"
@@ -150,7 +150,7 @@ const ResultDetail = props => {
               <tr>
                 <td>Description</td>
                 <td>
-                  {!canEdit ? (
+                  {canEdit ? (
                     <FormGroup className="m-0">
                       <Input
                         type="textarea"
@@ -172,7 +172,7 @@ const ResultDetail = props => {
               </tr>
             </tbody>
           </Table>
-          {!canEdit ? (
+          {canEdit ? (
             <Button
               color="primary"
               className="float-right"
