@@ -468,7 +468,7 @@ class TeamsDetail extends Component {
               </Button>
             ) : null}
           </Col>
-
+{/*
           <Col xs={12} sm={6} className="mt-3" key="data">
             <p>
               <b>Points</b>
@@ -571,7 +571,7 @@ class TeamsDetail extends Component {
                 </Collapse>
               </ListGroupItem>
             </ListGroup>
-          </Col>
+          </Col>*/}
         </Row>
       </Container>
     )
