@@ -321,6 +321,7 @@ class SubmissionContainer extends Component{
                   <CodeReview
                     history={this.props.history}
                     match={this.props.match}
+                    tabID = {this.state.tabID}
                     assignment={this.state.assignment}
                     settings={this.state.settings}
                     initialSubmission={this.state.initialSubmission}

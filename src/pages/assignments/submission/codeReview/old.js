@@ -5,7 +5,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import classnames from 'classnames';
 
-import { timestampToString, getFileType, htmlFixNewLines } from 'helperFunctions';
+import { unixToString, getFileType, htmlFixNewLines } from 'helperFunctions';
 import { assignmentsGetTestFileLocally } from 'redux/actions';
 
 var fakeComments = [
@@ -234,7 +234,7 @@ class CodeReview extends Component {
                     }}>
                     <td style={{width:20}}><i className={file.dir?"fa fa-folder":'fa fa-file'} /></td>
                     <td>{file.name.substring(this.state.currentFolder.length,file.name.length)}</td>
-                    <td style={{width:150}}>{timestampToString(file.date.getTime())}</td>
+                    <td style={{width:150}}>{unixToString(file.date.getTime())}</td>
                   </tr>
                 )}
               </tbody>

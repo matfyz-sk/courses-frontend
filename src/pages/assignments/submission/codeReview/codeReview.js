@@ -5,7 +5,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import classnames from 'classnames';
 
-import { timestampToString, getFileType, htmlFixNewLines, axiosGetEntities, getResponseBody } from 'helperFunctions';
+import { unixToString, getFileType, htmlFixNewLines, axiosGetEntities, getResponseBody, getStudentName, timestampToString } from 'helperFunctions';
 import { assignmentsGetTestFileLocally } from 'redux/actions';
 
 export default class CodeReview extends Component {
@@ -13,7 +13,6 @@ export default class CodeReview extends Component {
     super(props);
     this.state={
 
-      showComments: [],
       addComment: null,
       openAddComment: false,
 
@@ -27,8 +26,27 @@ export default class CodeReview extends Component {
     }
     this.newID = 0;
     this.getNewID.bind(this);
-
     this.getComments.bind(this);
+    this.props.setForceOpenComment( (lineNumber) => {
+      const comments = this.getComments(lineNumber);
+      if( this.state.addComment !== null && this.state.addComment.lineNumber === lineNumber ) return;
+      if(comments.length>0){
+        let element = this.findElement(".react-syntax-highlighter-line-number ",lineNumber);
+        this.setState(
+          {
+            addComment:null,
+            openAddComment:false,
+            commentsLocation:{
+              top:element.offsetTop,
+              left:element.parentElement.parentElement.offsetLeft + element.parentElement.parentElement.offsetWidth + 50,
+              lineNumber
+            }
+          }
+        );
+      }else{
+        this.setState({addComment:null, openAddComment:false, commentsLocation:null})
+      }
+    })
   }
 
   getNewID(){
@@ -36,7 +54,7 @@ export default class CodeReview extends Component {
   }
 
   getComments(lineNumber){
-    return this.props.allComments.filter((comment)=>comment.path === this.props.currentDocument.path && lineNumber >= comment.from && lineNumber <= comment.to);
+    return this.props.allComments.filter((comment)=>comment.filePath === this.props.currentDocument.path && lineNumber >= comment.commentedTextFrom && lineNumber <= comment.commentedTextTo);
   }
 
   findElement(selector, lineNumber) {
@@ -52,9 +70,20 @@ export default class CodeReview extends Component {
     return {
       style: { display: 'block',backgroundColor:comments.length > 0 ? 'grey':'inherit' },
       onClick() {
+        if( self.state.addComment !== null && self.state.addComment.lineNumber === lineNumber ) return;
         if(comments.length>0){
           let element = self.findElement(".react-syntax-highlighter-line-number ",lineNumber);
-          self.setState({addComment:null, openAddComment:false, showComments:comments, commentsLocation:{top:element.offsetTop,left:element.parentElement.parentElement.offsetLeft + element.parentElement.parentElement.offsetWidth + 50}});
+          self.setState(
+            {
+              addComment:null,
+              openAddComment:false,
+              commentsLocation:{
+                top:element.offsetTop,
+                left:element.parentElement.parentElement.offsetLeft + element.parentElement.parentElement.offsetWidth + 50,
+                lineNumber
+              }
+            }
+          );
         }else{
           self.setState({addComment:null, openAddComment:false, commentsLocation:null})
         }
@@ -75,7 +104,19 @@ export default class CodeReview extends Component {
         } else return;
         if(selectedText.toString().length!==0){
           let element = self.findElement(".react-syntax-highlighter-line-number ",lineNumber);
-          self.setState({openAddComment:false,commentsLocation:null,addComment:{position:{top:element.offsetTop,left:element.offsetLeft + element.parentElement.parentElement.offsetWidth },text:selectedText.toString(),element, lineNumber }});
+          self.setState({
+            openAddComment:false,
+            commentsLocation:null,
+            addComment:{
+              position:{
+                top:element.offsetTop,
+                left:element.offsetLeft + element.parentElement.parentElement.offsetWidth
+              },
+              text:selectedText.toString(),
+              element,
+              lineNumber
+            }
+          });
         }else{
           self.setState({addComment:null, openAddComment:false})
         }
@@ -96,16 +137,22 @@ export default class CodeReview extends Component {
     let topBody = splitBody.slice(lineNumber + 1  - lineCount, lineNumber + 1).join('\n').includes(nText);
     let bottomBody = splitBody.slice(lineNumber, lineNumber + lineCount + 1).join('\n').includes(nText);
     if(topBody && bottomBody){
-      return { from: editorLineNumber, to: editorLineNumber }
+      return { commentedTextFrom: editorLineNumber, commentedTextTo: editorLineNumber }
     }else if(topBody){
-      return {from : editorLineNumber - lineCount + 1, to: editorLineNumber }
+      return {commentedTextFrom : editorLineNumber - lineCount + 1, commentedTextTo: editorLineNumber }
     }
-    return {from : editorLineNumber, to: editorLineNumber + lineCount - 1 }
+    return {commentedTextFrom : editorLineNumber, commentedTextTo: editorLineNumber + lineCount - 1 }
+  }
+
+  getCommentBy(comment){
+    if(this.props.commentCreatorsVisible){
+      return getStudentName(comment.createdBy)
+    }
+    return comment.color.name
   }
 
 
   render(){
-    console.log(this.props);
     return(
       <div>
         <div>
@@ -149,7 +196,7 @@ export default class CodeReview extends Component {
             <i className="far fa-comment" />
           </Button>
 
-          { this.state.openAddComment && this.props.match.params.tabID === "codeReview" && !this.props.disabled &&
+          { this.state.openAddComment && this.props.tabID === "codeReview" && !this.props.disabled &&
             <Popover placement="right" className="bigPopover" isOpen={this.state.openAddComment} toggle={()=>{this.setState({openAddComment:false})}} target="addCodeCommentBlock">
               <PopoverHeader>Add comment</PopoverHeader>
               <PopoverBody>
@@ -178,12 +225,9 @@ export default class CodeReview extends Component {
 
                       let newCodeComment = {
                         ...loc,
-                        childComments:[],
-                        id:this.getNewID(),
-                        creator:'Maroš Rezba',
-                        path:this.props.currentDocument.path,
-                        text:this.state.addComment.text,
-                        comment:this.state.newCodeComment,
+                        filePath: this.props.currentDocument.path,
+                        commentedText: this.state.addComment.text,
+                        commentText: this.state.newCodeComment,
                       }
                       this.setState({openAddComment:false,addComment:null, newCodeComment:''})
                       this.props.addComment(newCodeComment)
@@ -195,39 +239,48 @@ export default class CodeReview extends Component {
               </PopoverBody>
             </Popover>
           }
-          { this.state.commentsLocation!==null && this.props.match.params.tabID === "codeReview" && !this.props.disabled &&
+          { this.state.commentsLocation!==null && this.props.tabID === "codeReview" && !this.props.disabled &&
             <Popover placement="right" className="bigPopover" isOpen={this.state.commentsLocation!==null} toggle={()=>{this.setState({commentsLocation:null})}} target="viewCodeCommentBlock">
               <PopoverHeader>Current comments</PopoverHeader>
               <PopoverBody>
-                { this.state.showComments.map((comment)=>
-                  <div className="comment-section" key={comment.id}>
-                    <Label>{'Commented code by '}
-                      <span style={{fontWeight:'bolder'}}>{comment.creator}</span>
-                    </Label>
+                { this.getComments(this.state.commentsLocation.lineNumber).map((comment)=>
+                  <div className="comment-section" key={comment['@id']}>
                     <SyntaxHighlighter
                       language={getFileType(this.props.currentDocument.fileExtension)}
                       style={okaidia}
-                      children={this.state.commentsLocation===null?'':comment.text}
+                      children={this.state.commentsLocation===null?'':comment.commentedText}
                       />
+                    <Label>Commented code by
+                      <span style={{fontWeight:'bolder', color: this.props.commentCreatorsVisible ? 'black' : comment.color.hex, marginLeft: '0.5rem' }}>{`${this.getCommentBy(comment)}`}</span>
+                    </Label>
+                    <div className="text-muted ml-auto">
+                      {timestampToString(comment.createdAt)}
+                    </div>
                     <p className="text-muted">
-                      {comment.comment}
+                      {comment.commentText}
                     </p>
                     { comment.childComments.map((childComment)=>
-                      <div key={childComment.id} style={{padding:'5px 10px'}}>
+                      <div key={childComment['@id']} style={{padding:'5px 10px'}}>
+                        <Label className="flex row">
+                          <span style={{fontWeight:'bolder', color: this.commentCreatorsVisible ? 'black' : childComment.color.hex }}>{`${this.getCommentBy(childComment)}`}</span>
+                          <div className="text-muted ml-auto">
+                            {timestampToString(childComment.createdAt)}
+                          </div>
+                        </Label>
                         <p className="text-muted">
-                          {childComment.comment}
+                          {childComment.commentText}
                         </p>
                         <hr/>
                       </div>
                     )}
-                    { this.state.addSubcomment !== comment.id && <Button
+                    { this.state.addSubcomment !== comment['@id'] && <Button
                       color="link"
                       className="pull-right comment-reply-button"
-                      onClick={()=>this.setState({addSubcomment:comment.id})}
+                      onClick={()=>this.setState({addSubcomment:comment['@id']})}
                       >
                       <i className="fa fa-reply" /> Reply
                       </Button>}
-                      {this.state.addSubcomment === comment.id && <div>
+                      {this.state.addSubcomment === comment['@id'] && <div>
                         <FormGroup>
                           <Label htmlFor="addCodeComment">Subcomment</Label>
                           <Input id="addCodeSubcomment" type="textarea" value={this.state.newSubcomment} onChange={(e)=>this.setState({newSubcomment:e.target.value})}/>
@@ -240,12 +293,15 @@ export default class CodeReview extends Component {
                             color="primary"
                             onClick={()=>{
                               let newSubcomment = {
-                                id:this.getNewID(),
-                                creator:'Maroš Rezba',
-                                comment:this.state.newSubcomment,
+                                commentedTextFrom: comment.commentedTextFrom,
+                                commentedTextTo: comment.commentedTextTo,
+                                ofComment: comment['@id'],
+                                filePath: comment.filePath,
+                                commentedText: comment.commentedText,
+                                commentText: this.state.newSubcomment,
                               }
                               this.setState({addSubcomment:null, newSubcomment:''});
-                              this.props.addSubcomment(newSubcomment);
+                              this.props.addComment(newSubcomment);
                             }}
                             >
                             Add comment

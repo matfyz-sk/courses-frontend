@@ -12,8 +12,29 @@ export const inputToTimestamp = (input) => {
   return isNaN(moment(input).unix()) ? null : (moment(input).unix())
 }
 
-export const timestampToString = (timestamp) => {
+export const unixToString = (timestamp) => {
   return moment.unix(timestamp).format('HH:mm DD.MM.YYYY');
+}
+
+export const timestampToString = (timestamp) => {
+  return moment(timestamp).format('HH:mm DD.MM.YYYY');
+}
+
+export const datesComparator = (date1, date2, isUnix = false, olderFirst = false ) => {
+  const result1 = olderFirst ? 1 : -1;
+  const result2 = olderFirst ? -1 : 1;
+
+  if(date1 === null || date1 === undefined){
+    return result2;
+  }
+  if(date2 === null || date2 === undefined){
+    return result1;
+  }
+  if( isUnix ){
+    return date1 > date2 ? result1 : result2;
+  }else{
+    return moment(date1) > moment(date2) ? result1 : result2;
+  }
 }
 
 export const afterNow = (unix) => {
@@ -174,5 +195,14 @@ export const htmlRemoveNewLines = (text) => {
 
 
 export const prepareMultiline = ( text ) => {
-  return `""${text}""`
+  return `""${text.replace(/(?:")/g,'\'')}""`
+}
+
+export const getRandomRolor = () => {
+    const letters = '0123456789'.split('');
+    let color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.round(Math.random() * 10)];
+    }
+    return color;
 }

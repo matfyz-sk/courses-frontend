@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Alert, Table,Button, Label } from 'reactstrap';
 import { connect } from "react-redux";
-import { getShortID, timestampToString, axiosGetEntities, getResponseBody, periodHappening, getStudentName, afterNow } from '../../../helperFunctions';
+import { getShortID, unixToString, axiosGetEntities, getResponseBody, periodHappening, getStudentName, afterNow } from '../../../helperFunctions';
 import StudentTeamSubmissionsView from './studentTeamSubmissionsView';
 import StudentSubmissionsView from './studentSubmissionsView';
 
@@ -138,7 +138,7 @@ class StudentAssignmentView extends Component {
         showInitialDeadline &&
         <div>
           <Label className="mb-0 pt-0">Submission deadline: </Label>
-          <span>{' ' + timestampToString(assignment.initialSubmissionPeriod.deadline)}</span>
+          <span>{' ' + unixToString(assignment.initialSubmissionPeriod.deadline)}</span>
           <Button outline className="ml-2 mb-2 p-1" color={this.state.initialSubmissions.length === 0 ? 'success' : 'primary' } onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/submission`)}>
             {this.state.initialSubmissions.length === 0 ? 'Submit' : 'Update' }
           </Button>
@@ -148,7 +148,7 @@ class StudentAssignmentView extends Component {
         showImprovedDeadline &&
         <div>
           <Label className="mb-0 pt-0">Improved submission deadline: </Label>
-          <span>{' ' + timestampToString(assignment.improvedSubmissionPeriod.deadline)}</span>
+          <span>{' ' + unixToString(assignment.improvedSubmissionPeriod.deadline)}</span>
           <Button outline className="ml-2 mb-2 p-1" color={this.state.improvedSubmissions.length === 0 ? 'success' : 'primary' } onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/submission`)}>
             {this.state.improvedSubmissions.length === 0 ? 'Submit' : 'Update' }
           </Button>
@@ -158,14 +158,14 @@ class StudentAssignmentView extends Component {
         showPeerDeadline &&
         <div>
           <Label className="mb-0 pt-0">Peer review deadline: </Label>
-          <span>{' ' + timestampToString(assignment.peerReviewPeriod.deadline)}</span>
+          <span>{' ' + unixToString(assignment.peerReviewPeriod.deadline)}</span>
         </div>
       }
       {
         showTeamDeadline &&
         <div>
           <Label className="mb-0 pt-0">Team review deadline: </Label>
-          <span>{' ' + timestampToString(assignment.teamReviewPeriod.deadline)}</span>
+          <span>{' ' + unixToString(assignment.teamReviewPeriod.deadline)}</span>
           <Button outline className="ml-2 mb-2 p-1" color="primary" onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(assignment['@id'])}/submission/teamReview`)}>Review team</Button>
         </div>
       }

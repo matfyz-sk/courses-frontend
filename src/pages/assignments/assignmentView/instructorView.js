@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Alert, Table,Button } from 'reactstrap';
-import { getShortID, timestampToString, afterNow, addMinutesToUnix, shuffleArray, axiosUpdateEntity, axiosAddEntity, getStudentName, axiosGetEntities, periodHasEnded } from '../../../helperFunctions';
+import { getShortID, unixToString, afterNow, addMinutesToUnix, shuffleArray, axiosUpdateEntity, axiosAddEntity, getStudentName, axiosGetEntities, periodHasEnded } from '../../../helperFunctions';
 import classnames from 'classnames';
 
 export default class InstructorAssignmentView extends Component {
@@ -170,12 +170,12 @@ export default class InstructorAssignmentView extends Component {
             <td>Initial submission</td>
             <td>
               <span className={this.getTimeCellClassNames(assignment.initialSubmissionPeriod.openTime)}>
-                {timestampToString(assignment.initialSubmissionPeriod.openTime)}
+                {unixToString(assignment.initialSubmissionPeriod.openTime)}
               </span>
             </td>
             <td>
               <span className={this.getTimeCellClassNames(assignment.initialSubmissionPeriod.deadline)}>
-                {timestampToString(assignment.initialSubmissionPeriod.deadline)}
+                {unixToString(assignment.initialSubmissionPeriod.deadline)}
               </span>
             </td>
             <td>{assignment.initialSubmissionPeriod.extraTime + ' minutes'}</td>
@@ -185,12 +185,12 @@ export default class InstructorAssignmentView extends Component {
               <td>Improved submission</td>
               <td>
                 <span className={this.getTimeCellClassNames(assignment.improvedSubmissionPeriod.openTime)}>
-                  {timestampToString(assignment.improvedSubmissionPeriod.openTime)}
+                  {unixToString(assignment.improvedSubmissionPeriod.openTime)}
                 </span>
               </td>
               <td>
                 <span className={this.getTimeCellClassNames(assignment.improvedSubmissionPeriod.deadline)}>
-                  {timestampToString(assignment.improvedSubmissionPeriod.deadline)}
+                  {unixToString(assignment.improvedSubmissionPeriod.deadline)}
                 </span>
               </td>
               <td>{assignment.improvedSubmissionPeriod.extraTime + ' minutes'}</td>
@@ -201,12 +201,12 @@ export default class InstructorAssignmentView extends Component {
               <td>Peer review</td>
               <td>
                 <span className={this.getTimeCellClassNames(assignment.peerReviewPeriod.openTime)}>
-                  {timestampToString(assignment.peerReviewPeriod.openTime)}
+                  {unixToString(assignment.peerReviewPeriod.openTime)}
                 </span>
               </td>
               <td>
                 <span className={this.getTimeCellClassNames(assignment.peerReviewPeriod.deadline)}>
-                  {timestampToString(assignment.peerReviewPeriod.deadline)}
+                  {unixToString(assignment.peerReviewPeriod.deadline)}
                 </span>
               </td>
               <td>{assignment.peerReviewPeriod.extraTime + ' minutes'}</td>
@@ -217,12 +217,12 @@ export default class InstructorAssignmentView extends Component {
               <td>Team review</td>
               <td>
                 <span className={this.getTimeCellClassNames(assignment.teamReviewPeriod.openTime)}>
-                  {timestampToString(assignment.teamReviewPeriod.openTime)}
+                  {unixToString(assignment.teamReviewPeriod.openTime)}
                 </span>
               </td>
               <td>
                 <span className={this.getTimeCellClassNames(assignment.teamReviewPeriod.deadline)}>
-                  {timestampToString(assignment.teamReviewPeriod.deadline)}
+                  {unixToString(assignment.teamReviewPeriod.deadline)}
                 </span>
               </td>
               <td>{assignment.teamReviewPeriod.extraTime + ' minutes'}</td>

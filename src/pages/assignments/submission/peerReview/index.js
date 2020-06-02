@@ -1,16 +1,36 @@
 import React, { Component } from 'react';
-import { Label, Alert } from 'reactstrap';
+import { Label, Alert, Button, FormGroup, Input } from 'reactstrap';
 import { connect } from "react-redux";
 import Questionare from './questionare';
 import Answers from './answers';
 
-import { axiosGetEntities, axiosAddEntity, axiosUpdateEntity, getShortID, getResponseBody, periodHappening, periodHasEnded, periodStarted, getIRIFromAddResponse, axiosDeleteEntity } from 'helperFunctions';
-
+import {
+  axiosGetEntities,
+  axiosAddEntity,
+  axiosUpdateEntity,
+  getShortID,
+  getResponseBody,
+  periodHappening,
+  periodHasEnded,
+  periodStarted,
+  getIRIFromAddResponse,
+  axiosDeleteEntity,
+  unixToString,
+  timestampToString,
+  getFileType,
+  htmlFixNewLines,
+  sameStringForms,
+  prepareMultiline,
+  getStudentName,
+  getRandomRolor,
+  datesComparator
+} from 'helperFunctions';
 const randomSentence = () => 'AAAA'
 
 class PeerReview extends Component {
   constructor(props){
     super(props);
+    this.commentCreatorsVisible = this.props.assignment.reviewsVisibility === 'open' || this.props.settings.isInstructor;
     this.state = {
       questions: [],
       questionsLoaded: false,
@@ -24,6 +44,13 @@ class PeerReview extends Component {
       questionare: [],
       questionareLoaded: false,
 
+      commentsLoaded: false,
+      generalComments: [],
+      messageColors: [],
+      newGeneralComment: '',
+      newGeneralCommentParent: null,
+      generalCommentSaving: false,
+
       saving: false,
     }
     this.submissionID = null;
@@ -36,6 +63,42 @@ class PeerReview extends Component {
     this.getQuestionAnswers.bind(this);
     this.loadForm.bind(this);
 
+  }
+
+  fetchComments(){
+    const initialSubmission = this.props.initialSubmission;
+    if( initialSubmission === null ){
+      return;
+    }
+    let getUser = this.commentCreatorsVisible ? "&_join=createdBy" : ""
+    axiosGetEntities(`comment?ofSubmission=${getShortID(initialSubmission['@id'])}${getUser}`).then((response)=>{
+      let allComments = getResponseBody(response).filter( ( comment ) => !comment['@type'].endsWith('CodeComment') );
+      let messageColors = [ ...this.state.messageColors ];
+      allComments = allComments.sort( ( comment1, comment2 ) => datesComparator( comment1.createdAt, comment2.createdAt ) )
+        .map((comment) => {
+        if( !messageColors.some((color) => color.id === comment.createdBy['@id']) ){
+          messageColors.push({ id: comment.createdBy['@id'] , hex: getRandomRolor(), name: `Anonymous ${messageColors.length + 1}` })
+        }
+        return {
+          ... comment,
+          color: messageColors.find((color) => color.id === comment.createdBy['@id']),
+        }
+      })
+      let childComments = allComments.filter((comment) => comment.ofComment.length !== 0);
+      const parentComments = allComments.filter((comment) => comment.ofComment.length === 0)
+        .map((comment) => ({
+          ...comment,
+          childComments: childComments.filter((subcomment) => subcomment.ofComment[0]['@id'] === comment['@id'] ).reverse()
+        }));
+      this.setState({ generalComments: parentComments, commentsLoaded:true, messageColors })
+    })
+  }
+
+  getCommentBy(comment){
+    if(this.commentCreatorsVisible){
+      return getStudentName(comment.createdBy)
+    }
+    return comment.color.name
   }
 
   fetchQuestions(){
@@ -86,7 +149,6 @@ class PeerReview extends Component {
     if( this.state.myReview !== null ){
       this.state.myReview.hasQuestionAnswer.map((answer) => {
         let index = questionare.findIndex( (question) => answer.question === question.id );
-        console.log(index);
         if( index !== -1 ){
           questionare[index] = {
             ...questionare[index],
@@ -170,7 +232,31 @@ class PeerReview extends Component {
     }) )
   }
 
+  addGeneralComment(){
+    if(this.props.initialSubmission === null){
+      return;
+    }
+    this.setState({ generalCommentSaving: true })
+    const newComment = {
+      commentText: prepareMultiline(this.state.newGeneralComment),
+      ofSubmission: this.props.initialSubmission['@id'],
+      _type: 'comment',
+    }
+    if( this.state.newGeneralCommentParent !== null){
+      newComment.ofComment = this.state.newGeneralCommentParent['@id']
+    }
+    axiosAddEntity( newComment, 'comment' ).then((response) => {
+      this.setState({ generalCommentSaving: false, newGeneralComment: '', newGeneralCommentParent: null })
+      this.fetchComments();
+    }).catch((error) => {
+      this.setState({ generalCommentSaving: false })
+      console.log(error);
+    })
+  }
+
+
   componentWillMount(){
+    this.fetchComments();
     if( periodHappening(this.props.assignment.peerReviewPeriod) && this.props.settings.peerReview ){ //student hodnoti niekoho
       this.fetchQuestions();
       this.fetchMyReview();
@@ -309,6 +395,65 @@ class PeerReview extends Component {
             nameVisible={ this.props.assignment.reviewsVisibility === "open" || this.props.settings.isInstructor }
             />
         }
+        <h3><Label className="bold">General comments</Label></h3>
+        {this.state.generalComments.length===0 && <div style={{ fontStyle: 'italic' }}>
+        There are currently no comments!
+      </div>}
+      {this.state.generalComments.map((genComment)=>
+        <div key={genComment['@id']}>
+          <Label className="flex row">Commented by
+            <span style={{fontWeight:'bolder', color: genComment.color.hex, marginLeft: '0.5rem' }}>{`${this.getCommentBy(genComment)}`}</span>
+            <div className="text-muted ml-auto">
+              {timestampToString(genComment.createdAt)}
+            </div>
+          </Label>
+          <div className="text-muted">
+            <div dangerouslySetInnerHTML = {{__html: htmlFixNewLines(genComment.commentText) }} />
+          </div>
+          <div style={{padding:'5px 10px'}}>
+            {genComment.childComments.map((childComment)=>
+              <div key={childComment['@id']}>
+                <hr style={{margin: 0}} />
+                  <Label className="flex row">Commented by
+                    <span style={{fontWeight:'bolder', color: childComment.color.hex, marginLeft: '0.5rem' }}>{`${this.getCommentBy(childComment)}`}</span>
+                    <div className="text-muted ml-auto">
+                      {timestampToString(childComment.createdAt)}
+                    </div>
+                  </Label>
+                <div className="text-muted">
+                  <div dangerouslySetInnerHTML = {{__html: htmlFixNewLines(childComment.commentText) }} />
+                </div>
+              </div>
+            )}
+          </div>
+          <Button
+            color="link"
+            onClick={()=>this.setState({newGeneralCommentParent:genComment})}
+            >
+            <i className="fa fa-reply" /> Reply
+            </Button>
+            <hr/>
+          </div>
+        )}
+        <FormGroup>
+          <Label htmlFor="addCodeComment" style={{fontWeight:'bold'}}>New comment</Label>
+          <Input id="addCodeComment" type="textarea" value={this.state.newGeneralComment} onChange={(e)=>this.setState({newGeneralComment:e.target.value})}/>
+        </FormGroup>
+        {this.state.newGeneralCommentParent && <span>
+          Commenting on {this.state.newGeneralCommentParent.commentText.substring(0,10)}...
+          <Button color="link" className="ml-auto"
+            onClick={()=>this.setState({newGeneralCommentParent:null})}
+            >
+            <i className="fa fa-times" />
+          </Button>
+        </span>}
+        <Button
+          color="primary"
+          disabled={ this.state.generalCommentSaving || this.state.newGeneralComment.length === 0 }
+          onClick={this.addGeneralComment.bind(this)}
+          >
+          Add comment
+        </Button>
       </div>
     )
 }

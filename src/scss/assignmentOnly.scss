@@ -63,6 +63,16 @@ label {
   }
 }
 
+.sort-button{
+  color: white;
+}
+
+.sort-title:hover{
+  .sort-button {
+    color: inherit;
+  }
+}
+
 .gallery-cat-image {
   margin-top: auto;
   margin-bottom: auto;

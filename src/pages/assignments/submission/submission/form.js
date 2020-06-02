@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Alert, Button, Label } from 'reactstrap';
 
-import { periodHappening, timestampToString } from 'helperFunctions';
+import { periodHappening, unixToString } from 'helperFunctions';
 import { generateField } from './generateSubmission';
 
 export default class SubmissionForm extends Component{
@@ -12,7 +12,7 @@ export default class SubmissionForm extends Component{
       <div>
         <Label className="mb-0">{this.props.isInitial ? 'Initial submission' : 'Improved submission' }</Label>
         <br/>
-        <Label className="mb-0">Deadline: { timestampToString( (this.props.isInitial ? assignment.initialSubmissionPeriod.deadline : assignment.improvedSubmissionPeriod.deadline) ) }</Label>
+        <Label className="mb-0">Deadline: { unixToString( (this.props.isInitial ? assignment.initialSubmissionPeriod.deadline : assignment.improvedSubmissionPeriod.deadline) ) }</Label>
         { fields.map((field) =>
           generateField(
             field,

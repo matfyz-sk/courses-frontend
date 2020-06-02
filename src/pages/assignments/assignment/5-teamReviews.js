@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { FormGroup, Label, Input, Button } from 'reactstrap';
-import { timestampToInput, timestampToString } from 'helperFunctions';
+import { timestampToInput, unixToString } from 'helperFunctions';
 import moment from 'moment';
 import ErrorMessage from 'components/error';
 
@@ -33,7 +33,7 @@ export default class TeamReview extends Component {
           <Input id="submission-add-openTime" type="datetime-local" value={this.props.data.openTime} onChange={(e)=>{this.setData('openTime',e.target.value)}} disabled={this.props.data.disabled}/>
         </FormGroup>
         <ErrorMessage show={this.props.showErrors && !this.props.data.disabled && this.props.data.openTime===''} message="You must pick an open time!" />
-        <ErrorMessage show={this.props.showErrors && this.props.data.openTime!=='' && this.props.initialDeadline !== null && this.props.initialDeadline > moment(this.props.data.openTime).unix()} message={`Open time must be after intial submission deadline! (${timestampToString(this.props.initialDeadline)})`} />
+        <ErrorMessage show={this.props.showErrors && this.props.data.openTime!=='' && this.props.initialDeadline !== null && this.props.initialDeadline > moment(this.props.data.openTime).unix()} message={`Open time must be after intial submission deadline! (${unixToString(this.props.initialDeadline)})`} />
 
         <FormGroup>
           <Label htmlFor="submission-add-deadline" >Deadline</Label>
