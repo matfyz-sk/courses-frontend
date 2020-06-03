@@ -3,23 +3,33 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import { getCourseInstance } from '../../../../redux/actions'
+import { fetchCourseInstance } from '../../../../redux/actions'
 import TopicsOverview from './topics-overview'
 
 class TopicsOverviewData extends Component {
   componentDidMount() {
-    const { getCourseInstanceConnect, courseInstanceId, token } = this.props
+    const {
+      getCourseInstanceConnect,
+      courseInstanceId,
+      token,
+      history,
+    } = this.props
     if (courseInstanceId && token) {
       getCourseInstanceConnect(
+        history,
         courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-        ['covers', 'instanceOf'],
         token
       )
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { courseInstanceId, getCourseInstanceConnect, token } = this.props
+    const {
+      courseInstanceId,
+      getCourseInstanceConnect,
+      token,
+      history,
+    } = this.props
     if (
       courseInstanceId &&
       token &&
@@ -27,8 +37,8 @@ class TopicsOverviewData extends Component {
         prevProps.token !== token)
     ) {
       getCourseInstanceConnect(
+        history,
         courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-        ['covers', 'instanceOf'],
         token
       )
     }
@@ -44,16 +54,14 @@ class TopicsOverviewData extends Component {
       match,
     } = this.props
     return (
-      <>
-        <TopicsOverview
-          courseInstanceId={courseInstanceId}
-          token={token}
-          isTeacher={isTeacher}
-          topics={courseInstance && courseInstance.covers}
-          userId={userId}
-          match={match}
-        />
-      </>
+      <TopicsOverview
+        courseInstanceId={courseInstanceId}
+        token={token}
+        isTeacher={isTeacher}
+        topics={courseInstance && courseInstance.covers}
+        userId={userId}
+        match={match}
+      />
     )
   }
 }
@@ -85,5 +93,5 @@ const mapStateToProps = ({ userReducer, courseInstanceReducer }) => {
 }
 
 export default connect(mapStateToProps, {
-  getCourseInstanceConnect: getCourseInstance,
+  getCourseInstanceConnect: fetchCourseInstance,
 })(TopicsOverviewData)

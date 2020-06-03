@@ -5,13 +5,11 @@ import {
   Row,
   Col,
 } from 'reactstrap'
-import axios from 'axios'
 import { connect } from 'react-redux'
 
-import apiConfig from '../../configuration/api'
 import NewTopic from './topics/new-topic'
 import { QuestionAssignment } from './question/question-assignment/question-assignment'
-// import SideNav from '../../side-nav.tsx'
+import SideNav from '../../side-nav'
 import QuestionOverview from './question/question-overview/question-chain-overview'
 
 import QuizAssignmentsOverview from './quiz/quiz-assignment-overview/quiz-assignments-overview'
@@ -20,17 +18,13 @@ import TopicsOverviewData from './question/topics-overview/topics-overview-data'
 import QuestionNewData from './question/question/question-new-data'
 import { store } from '../../index'
 import { setSubNav } from '../../redux/actions/navigationActions'
-// import QuizTake from './quiz/quiz-take/quiz-take';
+import QuizTake from './quiz/quiz-take/quiz-take'
 
 class Quiz extends Component {
-  state = {
-    activeUser: null,
-  }
-
   componentDidMount() {
     store.dispatch(setSubNav('quiz'))
     const { user } = this.props
-    if (user) {
+    if (user && user.user) {
       const { _token: token } = user
       const { id: userId } = user.user
       if (token && userId) {
@@ -45,7 +39,7 @@ class Quiz extends Component {
   componentDidUpdate(prevProps) {
     const { user } = this.props
     if (JSON.stringify(user) !== JSON.stringify(prevProps.user)) {
-      if (user) {
+      if (user && user.user) {
         const { _token: token } = user
         const { id: userId } = user.user
         if (token && userId) {
@@ -59,76 +53,70 @@ class Quiz extends Component {
   }
 
   getUser = (userId, token) => {
-    return axios
-      .get(`${apiConfig.API_URL}/user/${userId}`, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-      })
-      .then(({ data }) => {
-        if (
-          data &&
-          data['@graph'] &&
-          data['@graph'].length &&
-          data['@graph'].length > 0
-        ) {
-          const user = data['@graph'][0]
-          const {
-            studentOf: studentOfData,
-            instructorOf: instructorOfData,
-          } = user
-          const id = user['@id']
-          const studentOf = studentOfData.map(courseInstance => {
-            return courseInstance['@id']
-          })
-          const instructorOf = instructorOfData.map(courseInstance => {
-            return courseInstance['@id']
-          })
-          const activeUserMapped = {
-            id,
-            studentOf,
-            instructorOf,
-          }
-
-          this.setState({
-            activeUser: activeUserMapped,
-          })
-        }
-      })
-      .catch(error => console.log(error))
+    //   return axios
+    //     .get(`${API_URL}/user/${userId}`, {
+    //       headers: {
+    //         Accept: 'application/json',
+    //         'Content-Type': 'application/json',
+    //         Authorization: token,
+    //       },
+    //     })
+    //     .then(({ data }) => {
+    //       if (
+    //         data &&
+    //         data['@graph'] &&
+    //         data['@graph'].length &&
+    //         data['@graph'].length > 0
+    //       ) {
+    //         const user = data['@graph'][0]
+    //         const {
+    //           studentOf: studentOfData,
+    //           instructorOf: instructorOfData,
+    //         } = user
+    //         const id = user['@id']
+    //         const studentOf = studentOfData.map(courseInstance => {
+    //           return courseInstance['@id']
+    //         })
+    //         const instructorOf = instructorOfData.map(courseInstance => {
+    //           return courseInstance['@id']
+    //         })
+    //         const activeUserMapped = {
+    //           id,
+    //           studentOf,
+    //           instructorOf,
+    //         }
+    //         this.setState({
+    //           activeUser: activeUserMapped,
+    //         })
+    //       }
+    //     })
+    //     .catch(error => console.log(error))
   }
 
   render() {
-    const { activeUser } = this.state
-    const { user, match } = this.props
+    const { user, match, history, courseInstance } = this.props
     // eslint-disable-next-line no-underscore-dangle
     const token = user._token ? `Bearer ${user._token}` : null
     let userId = null
-    let studentOf = null
-    let instructorOf = null
-    if (activeUser) {
-      userId = activeUser.id
-      studentOf = activeUser.studentOf
-      instructorOf = activeUser.instructorOf
+    if (user && user.user && user.user.fullURI) {
+      userId = user.user.fullURI
     }
 
     const courseInstanceId = match?.params?.course_id
       ? `http://www.courses.matfyz.sk/data/courseInstance/${match.params.course_id}`
       : null
     let isTeacher = null
-    // let isStudent = null
-    if (instructorOf && courseInstanceId) {
-      isTeacher = instructorOf.includes(courseInstanceId)
+    if (
+      courseInstance &&
+      courseInstance.hasInstructor &&
+      courseInstance.hasInstructor.length
+    ) {
+      isTeacher = courseInstance.hasInstructor[0]['@id'] === user.user.fullURI
     }
-    // if (studentOf) {
-    //   isStudent = studentOf.includes(courseInstanceId)
-    // }
     return (
       <Row>
         <Col xs="12" md="3">
-          {/* <SideNav /> */}
+          <SideNav match={match} />
         </Col>
         <Col xs="12" md="12">
           <Switch>
@@ -142,6 +130,7 @@ class Quiz extends Component {
                   token={token}
                   userId={userId}
                   match={matchChild}
+                  history={history}
                 />
               )}
             />
@@ -168,7 +157,7 @@ class Quiz extends Component {
             <Route
               exact
               path="/courses/:courseId/quiz/question"
-              render={({ history }) => (
+              render={() => (
                 <QuestionNewData
                   courseInstanceId={courseInstanceId}
                   isTeacher={isTeacher}
@@ -181,7 +170,7 @@ class Quiz extends Component {
             <Route
               exact
               path="/courses/:courseId/quiz/questionEdit/:questionType/:questionId"
-              render={({ match: matchChild, history }) => (
+              render={({ match: matchChild }) => (
                 <QuestionOverview
                   courseInstanceId={courseInstanceId}
                   userId={userId}
@@ -195,7 +184,7 @@ class Quiz extends Component {
             <Route
               exact
               path="/courses/:courseId/quiz/questionAssignment"
-              render={({ match: matchChild, history }) => (
+              render={({ match: matchChild }) => (
                 <QuestionAssignment
                   courseInstanceId={courseInstanceId}
                   userId={userId}
@@ -209,7 +198,7 @@ class Quiz extends Component {
             <Route
               exact
               path="/courses/:courseId/quiz/questionAssignment/:questionAssignmentId"
-              render={({ match: matchChild, history }) => (
+              render={({ match: matchChild }) => (
                 <QuestionAssignment
                   courseInstanceId={courseInstanceId}
                   userId={userId}
@@ -223,19 +212,59 @@ class Quiz extends Component {
             <Route
               exact
               path="/courses/:courseId/quiz/quizAssignmentsOverview"
-              component={QuizAssignmentsOverview}
+              render={({ match: matchChild }) => (
+                <QuizAssignmentsOverview
+                  courseInstanceId={courseInstanceId}
+                  userId={userId}
+                  isTeacher={isTeacher}
+                  match={matchChild}
+                  token={token}
+                  history={history}
+                />
+              )}
             />
             <Route
               exact
               path="/courses/:courseId/quiz/quizAssignment"
-              component={QuizAssignment}
+              render={({ match: matchChild }) => (
+                <QuizAssignment
+                  courseInstanceId={courseInstanceId}
+                  userId={userId}
+                  isTeacher={isTeacher}
+                  token={token}
+                  match={matchChild}
+                  history={history}
+                />
+              )}
             />
             <Route
               exact
-              path="/courses/:courseId/quiz/quizAssignment/:id"
-              component={QuizAssignment}
+              path="/courses/:courseId/quiz/quizAssignmentEdit/:quizAssignmentType/:quizAssignmentId"
+              render={({ match: matchChild }) => (
+                <QuizAssignment
+                  courseInstanceId={courseInstanceId}
+                  userId={userId}
+                  isTeacher={isTeacher}
+                  token={token}
+                  match={matchChild}
+                  history={history}
+                />
+              )}
             />
-            {/* <Route exact path="/quiz/quizTake/:id" component={QuizTake} /> */}
+            <Route
+              exact
+              path="/courses/:courseId/quiz/quizTake/:quizTakeId"
+              render={({ match: matchChild }) => (
+                <QuizTake
+                  courseInstanceId={courseInstanceId}
+                  userId={userId}
+                  isTeacher={isTeacher}
+                  token={token}
+                  match={matchChild}
+                  history={history}
+                />
+              )}
+            />
           </Switch>
         </Col>
       </Row>

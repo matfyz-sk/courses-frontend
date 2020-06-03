@@ -7,7 +7,7 @@ import axios from 'axios'
 import PropTypes from 'prop-types'
 import { Button, Label, FormGroup, Input } from 'reactstrap'
 
-import apiConfig from '../../../../configuration/api'
+import { API_URL } from '../../../../configuration/api'
 import AssignmentHeader from '../../common/assignment-header'
 import AgentOperatorNew from '../../common/agent-operator-new'
 
@@ -103,7 +103,7 @@ export class QuestionAssignment extends Component {
 
   getAgents = (courseInstanceId, token) => {
     return axios
-      .get(`${apiConfig.API_URL}/user${`?studentOf=${courseInstanceId}`}`, {
+      .get(`${API_URL}/user${`?studentOf=${courseInstanceId}`}`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export class QuestionAssignment extends Component {
   getQuestionAssignment = (questionAssignmentId, token) => {
     return axios
       .get(
-        `${apiConfig.API_URL}/questionAssignment/${questionAssignmentId}?_join=covers,assignedTo`,
+        `${API_URL}/questionAssignment/${questionAssignmentId}?_join=covers,assignedTo`,
         {
           headers: {
             Accept: 'application/json',
@@ -178,7 +178,7 @@ export class QuestionAssignment extends Component {
 
   getTopics = (courseInstanceId, token) => {
     return axios
-      .get(`${apiConfig.API_URL}/topic?covers=${courseInstanceId}`, {
+      .get(`${API_URL}/topic?covers=${courseInstanceId}`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -212,16 +212,13 @@ export class QuestionAssignment extends Component {
 
   getTopicsWithQuestionAssignment = (courseInstanceId, token) => {
     return axios
-      .get(
-        `${apiConfig.API_URL}/questionAssignment?courseInstance=${courseInstanceId}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-        }
-      )
+      .get(`${API_URL}/questionAssignment?courseInstance=${courseInstanceId}`, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      })
       .then(({ data }) => {
         if (
           data &&
@@ -319,7 +316,7 @@ export class QuestionAssignment extends Component {
       if (this.isEdit()) {
         axios
           .patch(
-            `${apiConfig.API_URL}/questionAssignment/${match.params.questionAssignmentId}`,
+            `${API_URL}/questionAssignment/${match.params.questionAssignmentId}`,
             JSON.stringify({
               description,
               covers: topic ? [topic] : [],
@@ -346,7 +343,7 @@ export class QuestionAssignment extends Component {
       } else {
         axios
           .post(
-            `${apiConfig.API_URL}/questionAssignment`,
+            `${API_URL}/questionAssignment`,
             JSON.stringify({
               name: '',
               description,

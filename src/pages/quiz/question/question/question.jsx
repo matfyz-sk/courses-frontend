@@ -12,7 +12,7 @@ import {
 } from 'reactstrap'
 import validate from '../../validate'
 import AnswerComponent from '../common/answer-component/answer-component'
-import api from '../../../../api'
+// import api from '../../../../api'
 
 class Question extends Component {
   constructor(props) {
@@ -101,36 +101,36 @@ class Question extends Component {
   }
 
   formSubmitHandler = () => {
-    const answers = this.state.answers.map(answer => {
-      return {
-        text: this.state.formControls[answer.answerInputName].value,
-        correct: this.state.formControls[answer.answerCheckboxName].value,
-      }
-    })
-    const data = {
-      token: this.props.isAdmin
-        ? 'http://www.semanticweb.org/semanticweb#Teacher'
-        : 'http://www.semanticweb.org/semanticweb#Adam',
-      // TODO add user "http://www.semanticweb.org/semanticweb#Course_student_2"
-      questionId: this.props.questionId,
-      questionText: this.state.formControls.question.value,
-      topic: this.state.formControls.topic.value,
-      questionType: this.state.formControls.questionType.value,
-      title: this.state.title,
-      answers,
-    }
-    fetch(api.quiz.fetchCreateNewQuestion(), {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    }).then(response => {
-      if (response.ok) {
-        this.props.history.push('/quiz/questionGroups')
-      }
-    })
+    // const answers = this.state.answers.map(answer => {
+    //   return {
+    //     text: this.state.formControls[answer.answerInputName].value,
+    //     correct: this.state.formControls[answer.answerCheckboxName].value,
+    //   }
+    // })
+    // const data = {
+    //   token: this.props.isAdmin
+    //     ? 'http://www.semanticweb.org/semanticweb#Teacher'
+    //     : 'http://www.semanticweb.org/semanticweb#Adam',
+    //   // TODO add user "http://www.semanticweb.org/semanticweb#Course_student_2"
+    //   questionId: this.props.questionId,
+    //   questionText: this.state.formControls.question.value,
+    //   topic: this.state.formControls.topic.value,
+    //   questionType: this.state.formControls.questionType.value,
+    //   title: this.state.title,
+    //   answers,
+    // }
+    // fetch(api.quiz.fetchCreateNewQuestion(), {
+    //   method: 'POST',
+    //   headers: {
+    //     Accept: 'application/json',
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(data),
+    // }).then(response => {
+    //   if (response.ok) {
+    //     this.props.history.push('/quiz/questionGroups')
+    //   }
+    // })
   }
 
   addNewAnswer = e => {
@@ -188,37 +188,37 @@ class Question extends Component {
   }
 
   getTopics = () => {
-    fetch(api.quiz.fetchTopicsToCreateModifyQuestion(), {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        token: this.props.isAdmin
-          ? 'http://www.semanticweb.org/semanticweb#Teacher'
-          : 'http://www.semanticweb.org/semanticweb#Adam',
-        // TODO add user "http://www.semanticweb.org/semanticweb#Course_student_2"
-      }),
-    }).then(response => {
-      this.populateSelect(
-        response,
-        'topic',
-        this.props.topic
-          ? this.props.topic
-          : this.props.location &&
-            this.props.location.state &&
-            this.props.location.state.topic
-          ? this.props.location.state.topic
-          : null
-      )
-    })
+    // fetch(api.quiz.fetchTopicsToCreateModifyQuestion(), {
+    //   method: 'POST',
+    //   headers: {
+    //     Accept: 'application/json',
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     token: this.props.isAdmin
+    //       ? 'http://www.semanticweb.org/semanticweb#Teacher'
+    //       : 'http://www.semanticweb.org/semanticweb#Adam',
+    //     // TODO add user "http://www.semanticweb.org/semanticweb#Course_student_2"
+    //   }),
+    // }).then(response => {
+    //   this.populateSelect(
+    //     response,
+    //     'topic',
+    //     this.props.topic
+    //       ? this.props.topic
+    //       : this.props.location &&
+    //         this.props.location.state &&
+    //         this.props.location.state.topic
+    //       ? this.props.location.state.topic
+    //       : null
+    //   )
+    // })
   }
 
   getQuestionTypes = () => {
-    fetch(api.quiz.fetchQuestionTypes()).then(response => {
-      this.populateSelect(response, 'questionType', this.props.questionType)
-    })
+    // fetch(api.quiz.fetchQuestionTypes()).then(response => {
+    //   this.populateSelect(response, 'questionType', this.props.questionType)
+    // })
   }
 
   populateSelect(response, selectElement, propValue) {

@@ -1,27 +1,22 @@
-import React from "react";
-import { ListGroupItem } from "reactstrap";
-import { Draggable } from "react-beautiful-dnd";
+import React from 'react'
+import { ListGroupItem } from 'reactstrap'
+import { Draggable } from 'react-beautiful-dnd'
 
 export default class QuestionRow extends React.Component {
   render() {
+    const { question, index } = this.props
     return (
-      <Draggable
-        draggableId={this.props.question.id}
-        index={this.props.index}
-        key={this.props.question.id}
-      >
+      <Draggable draggableId={question.id} index={index} key={question.id}>
         {provided => (
           <div
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             ref={provided.innerRef}
           >
-            <ListGroupItem key={this.props.question.id}>
-              {this.props.question.title}
-            </ListGroupItem>
+            <ListGroupItem key={question.id}>{question.name}</ListGroupItem>
           </div>
         )}
       </Draggable>
-    );
+    )
   }
 }

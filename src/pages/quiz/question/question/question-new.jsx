@@ -1,8 +1,9 @@
 import React from 'react'
-import { Form, Card, CardBody, Label, FormGroup, Input } from 'reactstrap'
+import { Card, CardBody, Label, FormGroup, Input } from 'reactstrap'
 
 import { QuestionTypesEnums } from './question-new-data'
 import QuestionAnswers from './question-answers'
+import AnswerComponentOpen from '../common/answer-component/answer-component-open'
 
 const enText = {
   title: 'Title',
@@ -30,6 +31,12 @@ function QuestionNew({
   questionTypeOptions,
   setQuestionType,
   answers,
+  setRegexp,
+  regexp,
+  setRegexpUserAnswer,
+  regexpUserAnswer,
+  setUserAnswer,
+  userAnswer,
   addNewAnswer,
   disabled,
   children,
@@ -131,6 +138,16 @@ function QuestionNew({
         )}
         {questionType === QuestionTypesEnums.multiple.id && (
           <QuestionAnswers answers={answers} addNewAnswer={addNewAnswer} />
+        )}
+        {questionType === QuestionTypesEnums.open.id && (
+          <AnswerComponentOpen
+            setRegexp={setRegexp}
+            regexp={regexp}
+            setRegexpUserAnswer={setRegexpUserAnswer}
+            regexpUserAnswer={regexpUserAnswer}
+            setUserAnswer={setUserAnswer}
+            userAnswer={userAnswer}
+          />
         )}
         {children}
       </CardBody>

@@ -1,8 +1,8 @@
 /* eslint-disable react/prefer-stateless-function */
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { connect } from 'react-redux'
 import {
+  Input,
   Button,
   DropdownMenu,
   DropdownItem,
@@ -28,27 +28,27 @@ const enText = {
 
 function SavedQuestion({
   id,
-  title,
-  questionText,
-  topic,
-  questionType,
-  answers,
   comments,
+  question,
   createdBy,
   createdAt,
   isTeacher,
   changeShowEditQuestion,
   canEdit,
   canApprove,
-  canApproveAsPrivate,
+  canDisapprove,
   isApproved,
+  showMetadata,
+  canApproveAsPrivate,
+  setScore,
   token,
   callback,
   userId,
-  canDisapprove,
 }) {
   const [toggleOpen, setToggleOpen] = useState(false)
   const [author, setAuthor] = useState('')
+  const [regexpUserAnswer, setRegexpUserAnswer] = useState('')
+
   const changeToggleOpen = () => {
     setToggleOpen(x => !x)
   }
@@ -138,33 +138,49 @@ function SavedQuestion({
       fetchData()
     }
   }, [token, createdBy, isTeacher])
-
+  const {
+    title,
+    questionText,
+    topic,
+    questionType,
+    regexp,
+    answers,
+    score,
+    setUserAnswer,
+    userAnswer,
+  } = question
+  const metadata = () => (
+    <>
+      {isApproved && <h2>{enText.approved}</h2>}
+      {isTeacher && (
+        <>
+          <FormText color="muted">{`${enText.by} ${author}`}</FormText>
+          <FormText color="muted">
+            {`${enText.at} ${createdAt.toLocaleDateString()}`}
+          </FormText>
+        </>
+      )}
+    </>
+  )
   return (
     <div className="mb-3">
       <QuestionNew
         key={id}
-        metadata={() => (
-          <>
-            {isApproved && <h2>{enText.approved}</h2>}
-            {isTeacher && (
-              <>
-                <FormText color="muted">{`${enText.by} ${author}`}</FormText>
-                <FormText color="muted">
-                  {`${enText.at} ${createdAt.toLocaleDateString()}`}
-                </FormText>
-              </>
-            )}
-          </>
-        )}
+        metadata={showMetadata && metadata}
         title={title}
         question={questionText}
         topic={topic}
         questionType={questionType}
         answers={answers}
-        edit={changeShowEditQuestion}
+        regexp={regexp}
+        setRegexpUserAnswer={setRegexpUserAnswer}
+        regexpUserAnswer={regexpUserAnswer}
+        setUserAnswer={setUserAnswer}
+        userAnswer={userAnswer}
         disabled
         color={isApproved ? '#ADFF2F' : null}
       >
+        {setScore && <Input type="text" value={score} onChange={setScore} />}
         {canEdit && changeShowEditQuestion && (
           <Button color="success" onClick={changeShowEditQuestion}>
             {enText['edit-question']}
@@ -196,14 +212,16 @@ function SavedQuestion({
           </Button>
         )}
       </QuestionNew>
-      <Comments
-        comments={comments}
-        token={token}
-        questionAddress={id.substr(
-          id.lastIndexOf('/', id.lastIndexOf('/') - 1)
-        )}
-        callback={callback}
-      />
+      {comments && (
+        <Comments
+          comments={comments}
+          token={token}
+          questionAddress={id.substr(
+            id.lastIndexOf('/', id.lastIndexOf('/') - 1)
+          )}
+          callback={callback}
+        />
+      )}
     </div>
   )
 }

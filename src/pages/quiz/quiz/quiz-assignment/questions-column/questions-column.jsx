@@ -1,15 +1,16 @@
-import React from "react";
-import QuestionRow from "./question-row/question-row";
-import { ListGroup } from "reactstrap";
-import { Droppable } from "react-beautiful-dnd";
+import React from 'react'
+import { ListGroup } from 'reactstrap'
+import { Droppable } from 'react-beautiful-dnd'
+import QuestionRow from './question-row/question-row'
+
 const style = {
-  minHeight: "100px"
-};
+  minHeight: '100px',
+}
 export default class QuestionsColumn extends React.Component {
   render() {
-    const { column, questions } = this.props;
+    const { column, questions } = this.props
     return (
-      <React.Fragment>
+      <>
         <h3>{column.title}</h3>
         <Droppable droppableId={column.id}>
           {provided => (
@@ -26,14 +27,14 @@ export default class QuestionsColumn extends React.Component {
                       index={index}
                       key={index}
                     />
-                  );
+                  )
                 })}
                 {provided.placeholder}
               </ListGroup>
             </div>
           )}
         </Droppable>
-      </React.Fragment>
-    );
+      </>
+    )
   }
 }

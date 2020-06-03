@@ -13,7 +13,7 @@ const enText = {
   delete: 'Delete',
 }
 
-export class AnswerComponentNew extends Component {
+export class AnswerComponentPredefined extends Component {
   onChangeAnswerText = event => {
     const { onChangeAnswerText } = this.props
     onChangeAnswerText(event.target.value)
@@ -91,4 +91,4 @@ export class AnswerComponentNew extends Component {
   }
 }
 
-export default AnswerComponentNew
+export default AnswerComponentPredefined

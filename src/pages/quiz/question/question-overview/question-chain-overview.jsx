@@ -94,7 +94,7 @@ function QuestionOverview({
                         )
                         break
                       case QuestionTypesEnums.open.id:
-                        question.answers = [questionData.regexp]
+                        question.regexp = questionData.regexp
                         break
                       case QuestionTypesEnums.essay.id:
                         break
@@ -114,7 +114,7 @@ function QuestionOverview({
       }
       fetchData()
     }
-  }, [token, match.params.questionType, match.params.questionId, userId])
+  }, [token, match.params.questionType, match.params.questionId])
 
   useEffect(() => {
     fetchQuestionChain()
@@ -139,40 +139,27 @@ function QuestionOverview({
             />
           )}
           {questions.map((question, index) => {
-            const {
-              id,
-              title,
-              questionText,
-              topic,
-              questionType,
-              answers,
-              comments,
-              createdBy,
-              createdAt,
-              approver,
-            } = question
+            const { comments, approver, createdBy, createdAt } = question
+            const createdByID = createdBy && createdBy['@id']
             const isApproved = Array.isArray(approver) && approver.length > 0
             return (
               <SavedQuestion
-                key={id}
-                id={id}
-                title={title}
-                questionText={questionText}
-                topic={topic}
-                questionType={questionType}
-                answers={answers}
+                key={question.id}
+                id={question.id}
                 comments={comments}
-                createdBy={createdBy}
+                question={question}
+                createdBy={createdByID}
                 createdAt={createdAt}
+                isTeacher={isTeacher}
+                showMetadata
                 changeShowEditQuestion={changeShowEditQuestion}
-                canEdit={index === 0 && !isApproved && createdBy === userId}
+                canEdit={index === 0 && !isApproved && createdByID === userId}
                 canApprove={!isApproved && isTeacher}
                 canDisapprove={isApproved && isTeacher}
                 isApproved={isApproved}
                 canApproveAsPrivate={
-                  !isApproved && isTeacher && createdBy === userId
+                  !isApproved && isTeacher && createdByID === userId
                 }
-                isTeacher={isTeacher}
                 token={token}
                 callback={fetchQuestionChain}
                 userId={userId}

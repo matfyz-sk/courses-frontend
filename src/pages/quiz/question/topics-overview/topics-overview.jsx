@@ -17,6 +17,7 @@ class TopicsOverview extends Component {
 
   componentDidMount() {
     const { courseInstanceId, token, isTeacher, userId, topics } = this.props
+    const { questionAssignments } = this.state
     if (courseInstanceId && isTeacher !== null && userId && token) {
       this.getAssignments(
         courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
@@ -24,13 +25,15 @@ class TopicsOverview extends Component {
         token
       )
     }
-    if (topics && topics.length && token && userId) {
-      this.getQuestionsData(topics, token, userId)
+    if (topics && topics.length && token && userId && questionAssignments) {
+      this.getQuestionsData(topics, token, userId, questionAssignments)
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const { courseInstanceId, token, isTeacher, userId, topics } = this.props
+    const { questionAssignments } = this.state
+
     if (token) {
       if (
         courseInstanceId &&
@@ -51,23 +54,31 @@ class TopicsOverview extends Component {
         topics &&
         token &&
         userId &&
+        questionAssignments &&
+        questionAssignments.length > 0 &&
         (topics !== prevProps.topics ||
           token !== prevProps.token ||
-          userId !== prevProps.userId)
+          userId !== prevProps.userId ||
+          questionAssignments !== prevState.questionAssignments)
       ) {
-        this.getQuestionsData(topics, token, userId)
+        this.getQuestionsData(topics, token, userId, questionAssignments)
       }
     }
   }
 
-  getQuestionsData = async (topics, token, userId) => {
+  getQuestionsData = async (topics, token, userId, questionAssignments) => {
     const topicsIds = topics.reduce((accumulator, topic) => {
       if (topic && topic['@id']) {
         accumulator.push(topic['@id'])
       }
       return accumulator
     }, [])
-    const questionsByTopic = await this.getQuestions(topicsIds, token, userId)
+    const questionsByTopic = await this.getQuestions(
+      topicsIds,
+      token,
+      userId,
+      questionAssignments
+    )
     this.setState({ questionsByTopic })
   }
 
@@ -114,26 +125,34 @@ class TopicsOverview extends Component {
     )
   }
 
-  getQuestions = async (topics, token, userId) => {
+  getQuestions = async (topics, token, userId, questionAssignments) => {
     const promises = []
     const questionsByTopicsRawEmpty = new Map()
     topics.forEach(topic => {
       questionsByTopicsRawEmpty.set(topic, [])
-      promises.push(
-        axios.get(
-          `${API_URL}/question${`?ofTopic=${topic.substring(
-            topic.lastIndexOf('/') + 1
-          )}`}`,
-          {
-            // TODO student should get only public/those which privantness isn't set
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-              Authorization: token,
-            },
-          }
+      let hasAssignment = false
+      if (questionAssignments) {
+        hasAssignment = questionAssignments.some(questionAssignment => {
+          return questionAssignment.covers[0]['@id'] === topic
+        })
+      }
+      if (hasAssignment) {
+        promises.push(
+          axios.get(
+            `${API_URL}/question${`?ofTopic=${topic.substring(
+              topic.lastIndexOf('/') + 1
+            )}`}`,
+            {
+              // TODO student should get only public/those which privantness isn't set
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                Authorization: token,
+              },
+            }
+          )
         )
-      )
+      }
     })
     return axios.all(promises).then(resultsQuestionsForTopic => {
       const questionsByTopicsRaw = resultsQuestionsForTopic.reduce(
@@ -230,26 +249,34 @@ class TopicsOverview extends Component {
           data['@graph'].length &&
           data['@graph'].length > 0
         ) {
-          const questionAssignments = data['@graph'].map(questionAssignment => {
-            let questionAssignmentMapped = {}
+          const questionAssignments = data['@graph'].reduce(
+            (accumulator, questionAssignment) => {
+              let questionAssignmentMapped = {}
 
-            if (questionAssignment) {
-              const {
-                description,
-                covers,
-                startDate,
-                endDate,
-              } = questionAssignment
-              questionAssignmentMapped = {
-                id: questionAssignment['@id'],
-                description,
-                covers,
-                startDate,
-                endDate,
+              if (
+                questionAssignment &&
+                questionAssignment['@type'] ===
+                  'http://www.courses.matfyz.sk/ontology#QuestionAssignment' // GET /questionAssignment?courseInstance=aJpGT
+              ) {
+                const {
+                  description,
+                  covers,
+                  startDate,
+                  endDate,
+                } = questionAssignment
+                questionAssignmentMapped = {
+                  id: questionAssignment['@id'],
+                  description,
+                  covers,
+                  startDate,
+                  endDate,
+                }
+                accumulator.push(questionAssignmentMapped)
               }
-            }
-            return questionAssignmentMapped
-          })
+              return accumulator
+            },
+            []
+          )
           this.setState({
             questionAssignments,
           })
@@ -283,6 +310,7 @@ class TopicsOverview extends Component {
                   questionAssignment => {
                     if (
                       questionAssignment.covers &&
+                      questionAssignment.covers.length &&
                       questionAssignment.covers[0]['@id']
                     ) {
                       return questionAssignment.covers[0]['@id'] === id
@@ -308,11 +336,6 @@ class TopicsOverview extends Component {
               }
               return accumulator
             }, [])}
-          {isTeacher ? (
-            <Button color="success" tag={Link} to="/quiz/createTopic">
-              <h2 className="h5">+ Create topic</h2>
-            </Button>
-          ) : null}
         </div>
       </>
     )

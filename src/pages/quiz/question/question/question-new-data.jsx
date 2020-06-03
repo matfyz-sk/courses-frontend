@@ -17,15 +17,18 @@ const enText = {
 
 export const QuestionTypesEnums = Object.freeze({
   multiple: {
-    id: 'http://www.courses.matfyz.sk/ontology#QuestionWithPredefinedAnswer',
+    id: 'http://www.courses.matfyz.sk/ontology#QuestionWithPredefinedAnswer', // should change id for type
+    entityName: 'questionWithPredefinedAnswer',
     name: enText['question-with-predefined-answer'],
   },
   essay: {
-    id: 'http://www.courses.matfyz.sk/ontology#EssayQuestion',
+    id: 'http://www.courses.matfyz.sk/ontology#EssayQuestion', // should change id for type
+    entityName: 'essayQuestion',
     name: enText['essay-question'],
   },
   open: {
-    id: 'http://www.courses.matfyz.sk/ontology#OpenQuestion',
+    id: 'http://www.courses.matfyz.sk/ontology#OpenQuestion', // should change id for type
+    entityName: 'openQuestion',
     name: enText['open-question'],
   },
 })
@@ -50,8 +53,11 @@ function QuestionNewData({
   )
   const [questionTypeOptions, setQuestionTypeOptions] = useState([])
   const [answers, setAnswers] = useState((question && question.answers) || [])
+  const [regexp, setRegexp] = useState((question && question.regexp) || '')
+  const [regexpUserAnswer, setRegexpUserAnswer] = useState(
+    (question && question.regexpUserAnswer !== undefined) || ''
+  )
   const [answerId, setAnswerId] = useState(-2)
-
   const saveTopics = useCallback(
     topicsMapped => {
       setTopicOptions(topicsMapped)
@@ -179,7 +185,7 @@ function QuestionNewData({
                       accumulator.push(QuestionTypesEnums.multiple)
                       break
                     case QuestionTypesEnums.open.id:
-                      // accumulator.push(QuestionTypesEnums.open)
+                      accumulator.push(QuestionTypesEnums.open)
                       break
                     case QuestionTypesEnums.essay.id:
                       // accumulator.push(QuestionTypesEnums.essay)
@@ -271,6 +277,15 @@ function QuestionNewData({
   }
 
   const formSubmitHandler = () => {
+    const questionToSubmit = {
+      name: title,
+      text: `\"\"${questionText}\"\"`,
+      ofTopic: topic ? [topic] : [],
+      courseInstance: courseInstanceId,
+    }
+    if (question && question.id) {
+      questionToSubmit.previous = question.id
+    }
     if (questionType === QuestionTypesEnums.multiple.id) {
       const hasAnswer = answers.reduce((accumulator, answer, answerIndex) => {
         const { correct, text } = answer
@@ -289,19 +304,12 @@ function QuestionNewData({
         }
         return accumulator
       }, [])
-      const questionWithPredefinedAnswer = {
-        name: title,
-        text: `\"\"${questionText}\"\"`,
-        ofTopic: topic ? [topic] : [],
-        hasAnswer,
-      }
-      if (question && question.id) {
-        questionWithPredefinedAnswer.previous = question.id
-      }
+      questionToSubmit.hasAnswer = hasAnswer
+
       axios
         .post(
           `${API_URL}/questionWithPredefinedAnswer`,
-          JSON.stringify(questionWithPredefinedAnswer),
+          JSON.stringify(questionToSubmit),
           {
             headers: {
               Accept: 'application/json',
@@ -321,8 +329,28 @@ function QuestionNewData({
         })
         .catch(error => console.log(error))
     }
+    if (questionType === QuestionTypesEnums.open.id) {
+      questionToSubmit.regexp = regexp
+      axios
+        .post(`${API_URL}/openQuestion`, JSON.stringify(questionToSubmit), {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        })
+        .then(({ status: statusQuestionAssignment }) => {
+          if (statusQuestionAssignment === 200) {
+            history.push(
+              `/courses/${courseInstanceId.substring(
+                courseInstanceId.lastIndexOf('/') + 1
+              )}/quiz/questionGroups`
+            )
+          }
+        })
+        .catch(error => console.log(error))
+    }
   }
-
   return (
     <QuestionNew
       header={() => (
@@ -344,7 +372,11 @@ function QuestionNewData({
       questionType={questionType}
       questionTypeOptions={questionTypeOptions}
       setQuestionType={setQuestionType}
+      setRegexp={setRegexp}
+      setRegexpUserAnswer={setRegexpUserAnswer}
       answers={answers}
+      regexp={regexp}
+      regexpUserAnswer={regexpUserAnswer}
       addNewAnswer={addNewAnswer}
       formSubmitHandler={formSubmitHandler}
     >

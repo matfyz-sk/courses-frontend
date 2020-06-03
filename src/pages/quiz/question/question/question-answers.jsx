@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 
 import { Button } from 'reactstrap'
 
-import AnswerComponentNew from '../common/answer-component/answer-component-new'
+import AnswerComponentPredefined from '../common/answer-component/answer-component-predefined'
 
 const enText = {
   'answer-placeholder': 'Place text of your answer',
@@ -29,7 +29,7 @@ class QuestionAnswers extends Component {
                 deleteAnswer,
               } = answer
               return (
-                <AnswerComponentNew
+                <AnswerComponentPredefined
                   key={id}
                   id={id}
                   placeholder={enText['answer-placeholder']}
