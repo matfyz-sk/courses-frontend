@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Table, Button, Label } from 'reactstrap';
+import { Table, Button } from 'reactstrap';
 import { getShortID, periodHappening, periodStarted, periodHasEnded } from '../../../helperFunctions';
 
 export default class StudentTeamSubmissionsView extends Component {

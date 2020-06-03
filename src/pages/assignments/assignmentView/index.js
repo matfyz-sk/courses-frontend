@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Collapse, CardBody, Card, Button, Alert, Table } from 'reactstrap';
+import { Collapse, CardBody, Card, Button } from 'reactstrap';
 import { connect } from "react-redux";
 import classnames from 'classnames';
-import { inputToTimestamp, afterNow, axiosDeleteEntity, getShortID, htmlFixNewLines } from 'helperFunctions';
+import { afterNow, axiosDeleteEntity, getShortID } from 'helperFunctions';
 
 import InstructorAssignmentView from './instructorView';
 import StudentAssignmentView from './studentView';

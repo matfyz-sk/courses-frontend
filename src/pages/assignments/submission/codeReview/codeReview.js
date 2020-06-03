@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, ListGroup, ListGroupItem, Collapse, PopoverHeader, PopoverBody, Popover, Input, Table, Alert } from 'reactstrap';
-import { connect } from "react-redux";
+import { Button, FormGroup, Label, PopoverHeader, PopoverBody, Popover, Input, Alert } from 'reactstrap';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import classnames from 'classnames';
 
-import { unixToString, getFileType, htmlFixNewLines, axiosGetEntities, getResponseBody, getStudentName, timestampToString } from 'helperFunctions';
-import { assignmentsGetTestFileLocally } from 'redux/actions';
+import { getFileType, getStudentName, timestampToString } from 'helperFunctions';
 
 export default class CodeReview extends Component {
   constructor(props){
@@ -27,6 +24,7 @@ export default class CodeReview extends Component {
     this.newID = 0;
     this.getNewID.bind(this);
     this.getComments.bind(this);
+    this.props.setForceCloseComment( () => this.setState({addComment:null, openAddComment:false, commentsLocation:null}) )
     this.props.setForceOpenComment( (lineNumber) => {
       const comments = this.getComments(lineNumber);
       if( this.state.addComment !== null && this.state.addComment.lineNumber === lineNumber ) return;

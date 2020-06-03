@@ -1,4 +1,4 @@
-import { inputToTimestamp, getIRIFromAddResponse, axiosAddEntity, axiosUpdateEntity, axiosDeleteEntity, getResponseBody, getShortID, htmlRemoveNewLines } from 'helperFunctions';
+import { inputToTimestamp, getIRIFromAddResponse, axiosAddEntity, axiosUpdateEntity, axiosDeleteEntity, getShortID, htmlRemoveNewLines } from 'helperFunctions';
 
 export const getAssignmentPeriods = (assignment) => {
   let periods = [...assignment.initialSubmissionPeriod];

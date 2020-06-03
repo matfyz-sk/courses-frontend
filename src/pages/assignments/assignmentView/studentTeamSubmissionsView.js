@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Alert, Table, Button, Label } from 'reactstrap';
+import { Table, Button } from 'reactstrap';
 import { getShortID, periodHappening, periodHasEnded, periodStarted } from '../../../helperFunctions';
 
 export default class StudentTeamSubmissionsView extends Component {
@@ -65,7 +65,7 @@ export default class StudentTeamSubmissionsView extends Component {
             <th className="center-cell">Initial</th>
             { assignment.submissionImprovedSubmission && periodStarted( assignment.improvedSubmissionPeriod ) && <th className="center-cell">Improved</th>}
             { canBeRated && <th className="center-cell">Score</th>}
-            {periodHappening(this.props.assignment.teamReviewPeriod) || periodHasEnded(this.props.assignment.teamReviewPeriod) && <th></th>}
+            { ( periodHappening(this.props.assignment.teamReviewPeriod) || periodHasEnded(this.props.assignment.teamReviewPeriod) ) && <th></th>}
             <th width="80"></th>
           </tr>
         </thead>

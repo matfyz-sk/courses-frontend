@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, NavItem, NavLink, Nav, TabContent, TabPane, Alert } from 'reactstrap';
 import classnames from 'classnames';
-import moment from 'moment';
 import { connect } from "react-redux";
 import { editAssignment } from '../reusableFunctions';
-import { inputToTimestamp, getResponseBody, axiosGetEntities, axiosAddEntity, getIRIFromAddResponse, getShortID, timestampToInput } from 'helperFunctions';
+import { getResponseBody, axiosGetEntities, getShortID, timestampToInput } from 'helperFunctions';
 import { infoOK, fieldsOK, submissionOK, teamsOK, reviewsOK, teamReviewsOK,getRealDeadline } from './verify';
 
 import Info from './0-info';
@@ -44,7 +43,7 @@ class ModalAddAssignment extends Component {
   }
 
   addMaterial( materialData ){
-    let material = {... materialData }
+    let material = {...materialData }
     if( materialData.new === undefined ){
       material.new = true;
       material['@id'] = '#n-' + this.getNewID();
@@ -65,7 +64,7 @@ class ModalAddAssignment extends Component {
   }
 
   addQuestion( questionData ){
-    let question = {... questionData }
+    let question = {...questionData }
     if( questionData.new === undefined ){
       question.new = true;
       question['@id'] = '#n-' + this.getNewID();

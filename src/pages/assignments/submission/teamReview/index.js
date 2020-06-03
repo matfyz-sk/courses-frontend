@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { CardBody, Card, Button, FormGroup, Label, Input, Collapse,ListGroup, ListGroupItem, FormText, Alert } from 'reactstrap';
+import { Button, Alert } from 'reactstrap';
 
 import { axiosGetEntities, axiosAddEntity, axiosUpdateEntity, getResponseBody, getShortID, periodHappening, periodHasEnded, periodStarted, prepareMultiline } from 'helperFunctions'
 

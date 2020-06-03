@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { Label, Input, Button, FormGroup, InputGroup, InputGroupAddon, InputGroupText, Table } from 'reactstrap';
+import { Button, InputGroup, InputGroupAddon, InputGroupText, Table } from 'reactstrap';
 import { Alert } from 'reactstrap';
-import ErrorMessage from 'components/error';
 
 export default class AddMaterial extends Component{
 

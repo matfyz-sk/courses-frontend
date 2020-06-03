@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FormGroup, Label, Input, Alert, Table, CardBody, Card, CardHeader, Collapse } from 'reactstrap';
+import { Label, Alert, CardBody, Card, CardHeader, Collapse } from 'reactstrap';
 import { getStudentName } from 'helperFunctions';
 
 export default class TeamReviewDetails extends Component {

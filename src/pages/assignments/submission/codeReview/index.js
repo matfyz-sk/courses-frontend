@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
-import { Button, FormGroup, Label, ListGroup, ListGroupItem, Collapse, PopoverHeader, PopoverBody, Popover, Input, Table, FormText, Alert } from 'reactstrap';
+import { Button, FormGroup, Label, Collapse, Input, Table, FormText, Alert } from 'reactstrap';
 import ErrorMessage from 'components/error';
 import { connect } from "react-redux";
 import classnames from 'classnames';
-import moment from 'moment';
 
 import CodeReview from './codeReview';
 import {
   unixToString,
   timestampToString,
-  getFileType,
   htmlFixNewLines,
   axiosGetEntities,
   getResponseBody,
@@ -44,6 +42,7 @@ class CodeReviewContainer extends Component {
 
       openedComments: false,
       forceOpenComment: () => {},
+      forceCloseComment: () => {},
 
       newSubcomment: '',
       addSubcomment: null,
@@ -111,7 +110,7 @@ class CodeReviewContainer extends Component {
           messageColors.push({ id: comment.createdBy['@id'] , hex: getRandomRolor(), name: `Anonymous ${messageColors.length + 1}` })
         }
         return {
-          ... comment,
+          ...comment,
           color: messageColors.find((color) => color.id === comment.createdBy['@id']),
         }
       })
@@ -274,7 +273,7 @@ class CodeReviewContainer extends Component {
                     let currentFolder = this.state.currentFolder;
                     currentFolder = currentFolder.substring(0,currentFolder.lastIndexOf('/'));
                     currentFolder = currentFolder.substring(0,currentFolder.lastIndexOf('/')+1);
-                    this.setState({currentFolder})
+                    this.setState({currentFolder}, () => this.setCurrentLocation(this.props))
                   }}>
                   <td colSpan="3">..</td>
                 </tr>
@@ -292,6 +291,7 @@ class CodeReviewContainer extends Component {
                         return;
                       }
                       this.setState({loadingDocument:true})
+                      this.state.forceCloseComment();
                       this.props.file.file(file.name).async('string').then((text)=>{
                         this.setState({
                           loadingDocument:false,
@@ -317,6 +317,7 @@ class CodeReviewContainer extends Component {
             currentDocument={ this.state.currentDocument }
             loadingDocument={ this.state.loadingDocument }
             setForceOpenComment= { (forceOpenComment) => this.setState({ forceOpenComment }) }
+            setForceCloseComment= { (forceCloseComment) => this.setState({ forceCloseComment }) }
             disabled={ this.state.testFileLoaded }
             allComments={ this.state.codeComments }
             tabID={ this.props.tabID }

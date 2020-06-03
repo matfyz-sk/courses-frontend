@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FormGroup, Label, Input, Button, Table } from 'reactstrap';
+import { Label, Table } from 'reactstrap';
 export default class Answers extends Component {
 
 

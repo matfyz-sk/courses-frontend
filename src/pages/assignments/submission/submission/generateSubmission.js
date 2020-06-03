@@ -85,7 +85,7 @@ export const generateField = (field, onChange) => {
         </FormGroup>
       )
     }
-    case 'Rich text':{
+    case 'Rich text':
       return (
         <FormGroup key={field.type['@id']}>
           <Label for={`Rich text-${field.id}`}>{field.type.name}</Label>
@@ -105,9 +105,6 @@ export const generateField = (field, onChange) => {
             />
         </FormGroup>
       )
-    }
-
-    break;
     default:{
       return <div key={field.type['@id']}>{field.type.fieldType}</div>
     }
@@ -154,7 +151,7 @@ export const generateView = ( field ) => {
           <div>
             <ErrorMessage show={field.value === null} message="Súbory na hodnotenie kódu neboli odovzdané!" />
             { field.value !== null &&
-              <a href={field.value.url} target="_blank"><Label>{field.value.name}</Label></a>
+              <a href={field.value.url} rel="noopener noreferrer" target="_blank"><Label>{field.value.name}</Label></a>
             }
           </div>
         </FormGroup>
@@ -169,7 +166,7 @@ export const generateView = ( field ) => {
             {
               field.value === null ?
               "Žiadne súbory neboli odovzdané" :
-              <a href={field.value.url} target="_blank">
+              <a href={field.value.url} rel="noopener noreferrer" target="_blank">
                 <Label>{field.value.name}</Label>
               </a>
             }
@@ -183,7 +180,7 @@ export const generateView = ( field ) => {
           <Label className="mb-0">{field.type.name}</Label>
           <FormText color="muted"><div dangerouslySetInnerHTML={{__html: field.type.description }} /></FormText>
           { field.value.length > 0 &&
-            <a href={field.value} target="_blank">
+            <a href={field.value} rel="noopener noreferrer" target="_blank">
               <Label>{field.value}</Label>
             </a>
           }

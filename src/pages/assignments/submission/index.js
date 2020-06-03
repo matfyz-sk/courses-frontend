@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { connect } from "react-redux";
 import Select from 'react-select';
 
-import { axiosGetEntities, getResponseBody, getShortID, toSelectInput, periodHappening, periodHasEnded, periodStarted } from 'helperFunctions'
+import { axiosGetEntities, getResponseBody, getShortID, toSelectInput, periodHasEnded, periodStarted } from 'helperFunctions'
 import { assignmentsGetStudentTeams, assignmentsEmptyStudentTeams, assignmentsGetCourseInstance } from 'redux/actions';
 import { getAssignmentPeriods, assignPeriods } from '../reusableFunctions';
 import { teamSelectStyle } from '../selectStyle';

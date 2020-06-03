@@ -3,8 +3,20 @@ import { Button, FormGroup, Label, Input, FormText, Alert } from 'reactstrap';
 import classnames from 'classnames';
 import { connect } from "react-redux";
 
-import { unixToString, sameStringForms, axiosGetEntities, axiosAddEntity, axiosUpdateEntity, getResponseBody, getIRIFromAddResponse, getShortID, periodHappening, periodHasEnded, periodStarted, prepareMultiline, htmlRemoveNewLines, axiosDeleteEntity } from 'helperFunctions';
-import { generateField, generateView } from './generateSubmission';
+import {
+  sameStringForms,
+  axiosGetEntities,
+  axiosAddEntity,
+  axiosUpdateEntity,
+  getResponseBody,
+  getIRIFromAddResponse,
+  getShortID,
+  periodHasEnded,
+  periodStarted,
+  prepareMultiline,
+  htmlRemoveNewLines,
+  periodHappening,
+} from 'helperFunctions';
 import SubmissionForm from './form';
 import SubmissionView from './view';
 import Slider from 'components/slider';

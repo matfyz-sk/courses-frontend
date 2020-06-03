@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Alert, Table,Button } from 'reactstrap';
-import { getShortID, unixToString, afterNow, addMinutesToUnix, shuffleArray, axiosUpdateEntity, axiosAddEntity, getStudentName, axiosGetEntities, periodHasEnded } from '../../../helperFunctions';
+import { getShortID, unixToString, afterNow, addMinutesToUnix, shuffleArray, axiosUpdateEntity, axiosAddEntity, getStudentName, periodHasEnded } from '../../../helperFunctions';
 import classnames from 'classnames';
 
 export default class InstructorAssignmentView extends Component {

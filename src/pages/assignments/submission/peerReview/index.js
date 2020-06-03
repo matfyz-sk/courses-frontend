@@ -14,18 +14,13 @@ import {
   periodHasEnded,
   periodStarted,
   getIRIFromAddResponse,
-  axiosDeleteEntity,
-  unixToString,
   timestampToString,
-  getFileType,
   htmlFixNewLines,
-  sameStringForms,
   prepareMultiline,
   getStudentName,
   getRandomRolor,
   datesComparator
 } from 'helperFunctions';
-const randomSentence = () => 'AAAA'
 
 class PeerReview extends Component {
   constructor(props){
@@ -80,7 +75,7 @@ class PeerReview extends Component {
           messageColors.push({ id: comment.createdBy['@id'] , hex: getRandomRolor(), name: `Anonymous ${messageColors.length + 1}` })
         }
         return {
-          ... comment,
+          ...comment,
           color: messageColors.find((color) => color.id === comment.createdBy['@id']),
         }
       })
@@ -147,7 +142,7 @@ class PeerReview extends Component {
     }))
 
     if( this.state.myReview !== null ){
-      this.state.myReview.hasQuestionAnswer.map((answer) => {
+      this.state.myReview.hasQuestionAnswer.forEach((answer) => {
         let index = questionare.findIndex( (question) => answer.question === question.id );
         if( index !== -1 ){
           questionare[index] = {

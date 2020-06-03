@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { inputToTimestamp, addMinutesToUnix } from 'helperFunctions';
 
 export const infoOK = (info) => {

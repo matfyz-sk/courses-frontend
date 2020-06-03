@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { Alert, Button } from 'reactstrap';
+import { Alert } from 'reactstrap';
 
 import AssignmentView from './assignmentView';
 import AddAssignment from './assignment/add';
-import EditAssignment from './assignment/edit';
-import { getResponseBody, inputToTimestamp, getShortID, axiosGetEntities, axiosUpdateEntity, afterNow, axiosDeleteEntity } from 'helperFunctions';
+import { getResponseBody, inputToTimestamp, getShortID, axiosGetEntities, afterNow } from 'helperFunctions';
 import { assignmentsGetStudentTeams, assignmentsGetCourseInstance } from 'redux/actions';
 import { getAssignmentPeriods, assignPeriods } from './reusableFunctions';
 

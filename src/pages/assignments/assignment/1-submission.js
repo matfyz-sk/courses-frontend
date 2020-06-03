@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { FormGroup, Label, Input, Button } from 'reactstrap';
 import moment from 'moment';
 import { timestampToInput } from 'helperFunctions';
-import { getRealDeadline } from './verify';
 import ErrorMessage from 'components/error';
 
 export default class PeerReview extends Component {

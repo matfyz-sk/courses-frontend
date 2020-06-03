@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Alert, Label } from 'reactstrap';
 
-import { periodHappening, unixToString } from 'helperFunctions';
+import { unixToString } from 'helperFunctions';
 import { generateView } from './generateSubmission';
 
 export default class SubmissionView extends Component {
 
   render(){
-    const { assignment, settings, improvedSubmission, initialSubmission, fields } = this.props;
+    const { assignment, improvedSubmission, initialSubmission, fields } = this.props;
     return(
       <div>
         <Label className="mb-0">{this.props.isInitial ? 'Initial submission' : 'Improved submission' }</Label>
