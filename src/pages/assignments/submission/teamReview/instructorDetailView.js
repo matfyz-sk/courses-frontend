@@ -13,14 +13,14 @@ export default class InstructorTeamReviewDetails extends Component {
 
   getStudentsWithoutReviews( students, reviews ){
     return students.filter( (student) =>{
-      return  !reviews.some((review) => review.createdBy['@id'] === student['@id'])
+      return  !reviews.some((review) => review.createdBy && review.createdBy['@id'] === student['@id'])
     } )
   }
 
   groupReviewsOfStudents( students, reviews, didntReview ){
     return students.map((student) => ({
       ...student,
-      reviews: reviews.filter((review) => review.reviewedStudent[0]['@id'] === student['@id'] )
+      reviews: reviews.filter((review) => review.reviewedStudent.length > 0 && review.reviewedStudent[0]['@id'] === student['@id'] )
     })).map((student)=>({
       ...student,
       percentage: (

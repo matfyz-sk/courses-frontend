@@ -136,7 +136,7 @@ class TeamReview extends Component {
     }))
     const memberReviews = this.state.teammates.map( (member) => ({
       ...member,
-      reviews: reviews.filter((review) => review.reviewedStudent[0]['@id'] === member['@id'] )
+      reviews: reviews.filter((review) => review.reviewedStudent.length > 0 && review.reviewedStudent[0]['@id'] === member['@id'] )
     }));
     this.setState({ memberReviews, memberReviewsLoaded: true  })
   }

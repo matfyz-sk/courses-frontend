@@ -249,7 +249,7 @@ export default class CodeReview extends Component {
                       children={this.state.commentsLocation===null?'':comment.commentedText}
                       />
                     <Label>Commented code by
-                      <span style={{fontWeight:'bolder', color: this.props.commentCreatorsVisible ? 'black' : comment.color.hex, marginLeft: '0.5rem' }}>{`${this.getCommentBy(comment)}`}</span>
+                      <span style={{fontWeight:'bolder', color: comment.color.hex, marginLeft: '0.5rem' }}>{`${this.getCommentBy(comment)}`}</span>
                     </Label>
                     <div className="text-muted ml-auto">
                       {timestampToString(comment.createdAt)}
@@ -260,7 +260,7 @@ export default class CodeReview extends Component {
                     { comment.childComments.map((childComment)=>
                       <div key={childComment['@id']} style={{padding:'5px 10px'}}>
                         <Label className="flex row">
-                          <span style={{fontWeight:'bolder', color: this.commentCreatorsVisible ? 'black' : childComment.color.hex }}>{`${this.getCommentBy(childComment)}`}</span>
+                          <span style={{fontWeight:'bolder', color: childComment.color.hex }}>{`${this.getCommentBy(childComment)}`}</span>
                           <div className="text-muted ml-auto">
                             {timestampToString(childComment.createdAt)}
                           </div>
