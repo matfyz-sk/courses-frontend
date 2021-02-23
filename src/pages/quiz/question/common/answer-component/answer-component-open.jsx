@@ -30,11 +30,11 @@ export class AnswerComponentOpen extends Component {
       setUserAnswer,
       userAnswer,
       placeholder,
-      // color,
+      clickedSubmit,
     } = this.props
     const regex = RegExp(regexp)
     return (
-      <fieldset className="mb-4">
+      <fieldset>
         <legend>Answer</legend>
         {setRegexp && (
           <div className="mb-3">
@@ -49,7 +49,7 @@ export class AnswerComponentOpen extends Component {
         )}
         {!setRegexp && <div style={{ whiteSpace: 'pre-line' }}>{regexp}</div>}
         {setRegexpUserAnswer && (
-          <div className="mb-3">
+          <div>
             <Input
               type="text"
               placeholder={placeholder}

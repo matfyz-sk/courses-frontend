@@ -20,16 +20,16 @@ class NewTopic extends Component {
       name: topicName,
     }
     postTopicConnect(topic, token)
-    // .then(
-    //   response => {
-    //     this.props.history.push("/quiz/questionGroups");
-    //   }
+    .then(
+      response => {
+        this.props.history.push("/quiz/questionGroups");
+      }
     // error => {
     //   if (error.statusCode === 401) {
     //     return <Redirect to="/login" />;
     //   }
     // }
-    // );
+    );
   }
 
   changeHandler = e => {

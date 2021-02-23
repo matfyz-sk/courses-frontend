@@ -2,21 +2,24 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { Card, Button } from 'reactstrap'
+import {Alert} from 'reactstrap'
 import axios from 'axios'
 
 import { getShortID, axiosRequest } from 'helperFunctions'
 import { API_URL } from '../../../../configuration/api'
 import AssignmentPreview from './assignment-preview/assignment-preview'
+import quizAssignment from '../quiz-assignment/quiz-assignment'
 
 class QuizAssignmentsOverview extends Component {
   state = {
     quizAssignments: [],
     quizAssignmentCollapse: [],
+    loading:true,
   }
 
   componentDidMount() {
     const { courseInstanceId, isTeacher, userId, token } = this.props
-    if (courseInstanceId && isTeacher && token) {
+    if (courseInstanceId && token) {
       this.fetchQuizAssignments(
         courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
         isTeacher ? null : userId.substring(userId.lastIndexOf('/') + 1),
@@ -29,7 +32,6 @@ class QuizAssignmentsOverview extends Component {
     const { courseInstanceId, isTeacher, userId, token } = this.props
     if (
       courseInstanceId &&
-      isTeacher &&
       token &&
       (prevProps.courseInstanceId !== courseInstanceId ||
         prevProps.isTeacher !== isTeacher ||
@@ -93,6 +95,7 @@ class QuizAssignmentsOverview extends Component {
             quizAssignmentCollapse: new Array(quizAssignments.length).fill(
               false
             ),
+            loading:false,
           })
         }
       })
@@ -102,11 +105,37 @@ class QuizAssignmentsOverview extends Component {
   render() {
     const { quizAssignmentCollapse, quizAssignments } = this.state
     const { isTeacher, history, match, token } = this.props
+
+    const quizAssignmentsSorted = quizAssignments.sort((qa1,qa2) => new Date(qa2.createdAt) - new Date(qa1.createdAt))
+
+    if(this.state.loading) {
+      return(
+        <>
+        <h1>Quizzes</h1>
+        <Alert color="warning">
+          Loading...
+        </Alert>
+        </>
+      )
+    }
+
     return (
       <>
         <h1>Quizzes</h1>
         <div>
-          {quizAssignments.map((quizAssignment, index) => {
+        {isTeacher ? (
+            <Button
+              className="mb-3"
+              color="success"
+              tag={Link}
+              to={{
+                pathname: `/courses/${match.params.courseId}/quiz/quizAssignment`,
+              }}
+            >
+              Create quiz assignment
+            </Button>
+          ) : null}
+          {quizAssignmentsSorted.map((quizAssignment, index) => {
             const {
               name,
               description,
@@ -116,7 +145,7 @@ class QuizAssignmentsOverview extends Component {
               quizTakes,
             } = quizAssignment
             return (
-              <Card tag="article" key={quizAssignment.id}>
+              <Card tag="article" key={quizAssignment.id} className='mb-3'>
                 <AssignmentPreview
                   id={id}
                   title={name}
@@ -134,17 +163,6 @@ class QuizAssignmentsOverview extends Component {
               </Card>
             )
           })}
-          {isTeacher ? (
-            <Button
-              color="success"
-              tag={Link}
-              to={{
-                pathname: `/courses/${match.params.courseId}/quiz/quizAssignment`,
-              }}
-            >
-              Create quiz assignment
-            </Button>
-          ) : null}
         </div>
       </>
     )

@@ -6,6 +6,8 @@ import { Button } from 'reactstrap'
 
 import AnswerComponentPredefined from '../common/answer-component/answer-component-predefined'
 
+import ErrorMessage from 'components/error';
+
 const enText = {
   'answer-placeholder': 'Place text of your answer',
   'add-answer': 'Add answer',
@@ -16,7 +18,7 @@ class QuestionAnswers extends Component {
     const { answers, addNewAnswer } = this.props
     return (
       <>
-        <fieldset className="mb-4">
+        <fieldset>
           <legend>Answers</legend>
           {answers &&
             answers.map(answer => {
@@ -43,7 +45,7 @@ class QuestionAnswers extends Component {
               )
             })}
           {addNewAnswer && (
-            <Button outline color="success" onClick={addNewAnswer}>
+            <Button color="success" className="mt-3" onClick={addNewAnswer}>
               {enText['add-answer']}
             </Button>
           )}

@@ -7,6 +7,7 @@ import {
   CardSubtitle,
   CardBody,
   CardLink,
+  CardTitle,
   CardText,
   Collapse,
   Button,
@@ -25,6 +26,7 @@ import { QuestionTypesEnums } from '../../../question/question/question-new-data
 import { QuizAssignmentTypesEnums } from '../../quiz-assignment/quiz-assignment'
 
 import QuizTakeTable from './quiz-take-table/quiz-take-table'
+import { Container } from '@material-ui/core'
 
 class AssignmentPreview extends Component {
   generateQuizTake = quizAssignmentId => {
@@ -177,28 +179,30 @@ class AssignmentPreview extends Component {
     return (
       <>
         <CardBody>
-          <h2 className="h3">{title}</h2>
-          <CardLink href="#" onClick={toggle}>
-            expand
-          </CardLink>
+        <CardTitle className="h3">{title}</CardTitle>
+        { collapse 
+          ? <Button color='success' onClick={toggle}>
+              Collapse
+            </Button> 
+          : <Button color='success' onClick={toggle}>
+              Expand
+            </Button> 
+        }
         </CardBody>
         <Collapse isOpen={collapse}>
-          <CardBody className="pt-0">
-            <CardSubtitle tag="h3" className="h4">
-              Assignment
-            </CardSubtitle>
+          <CardBody className='pt-0'>
+            <h4 className="h4">Assignment</h4>
             <CardText>{description}</CardText>
             <CardText>
-              Start date:
+              <label>Start date: </label>
               {` ${new Date(startDate).toLocaleDateString()}`}
-            </CardText>
-            <CardText>
-              End date:
-              {` ${new Date(endDate).toLocaleDateString()}`}
+              <br/>
+              <label>End date:</label>
+                {` ${new Date(endDate).toLocaleDateString()}`}
             </CardText>
             {isTeacher ? (
               <Button
-                color="primary"
+                color="success"
                 tag={Link}
                 to={{
                   pathname: `/courses/${match.params.courseId}/quiz/quizAssignmentEdit${quizAssignmentAddress}`,
@@ -208,11 +212,8 @@ class AssignmentPreview extends Component {
                 Edit assignment
               </Button>
             ) : null}
-          </CardBody>
-          <CardBody>
-            <CardSubtitle tag="h3" className="h4">
-              Quiz takes
-            </CardSubtitle>
+            <hr/>
+            <h3 className="mb-4">Quiz takes</h3>
             <Row>
               {quizTakenNotReviewed ? (
                 <Col xs="12" md="6">
@@ -239,7 +240,7 @@ class AssignmentPreview extends Component {
             {(new Date(startDate) < new Date() &&
               new Date(endDate) > new Date()) ||
             isTeacher ? (
-              <Button color="primary" onClick={() => this.generateQuizTake(id)}>
+              <Button color="success" onClick={() => this.generateQuizTake(id)}>
                 Take Quiz
               </Button>
             ) : null}

@@ -1,5 +1,6 @@
 import React from 'react'
-import { ListGroup } from 'reactstrap'
+
+import { ListGroup, Label, Input, FormGroup } from 'reactstrap'
 import { Droppable } from 'react-beautiful-dnd'
 import QuestionRow from './question-row/question-row'
 
@@ -7,11 +8,25 @@ const style = {
   minHeight: '100px',
 }
 export default class QuestionsColumn extends React.Component {
+  state={
+    topic: "-1",
+  }
+
+  handleChange = e => {
+    const { value } = e.target
+    this.setState({
+      topic: value,
+    })
+  }
+
   render() {
-    const { column, questions } = this.props
+    const { column, questions, topics } = this.props
+    const { topic } = this.state
+  
+
     return (
       <>
-        <h3>{column.title}</h3>
+        <h4>{column.title}</h4>
         <Droppable droppableId={column.id}>
           {provided => (
             <div

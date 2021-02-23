@@ -63,8 +63,7 @@ class SavedQuestion extends Component {
       }
     })
   }
-
-  // TODO make questionVersion green when approved
+  
   render() {
     const {
       isQuizTake,

@@ -18,6 +18,7 @@ import {
 import InfoTable from './info-table/info-table'
 
 import AssignmentPreview from './assignment-preview/assignment-preview'
+import { axiosAddEntity } from 'helperFunctions'
 
 function TopicPreview(props) {
   const {
@@ -29,6 +30,7 @@ function TopicPreview(props) {
     isTeacher,
     fetchDeleteAssignment,
     questions,
+    topics,
     match,
   } = props
   let assignmentId
@@ -60,13 +62,20 @@ function TopicPreview(props) {
       }
     })
   }
+
+
   return (
     <>
       <CardBody>
         <CardTitle className="h3">{name}</CardTitle>
-        <CardLink href="#" onClick={toggle}>
-          expand
-        </CardLink>
+        { collapse 
+          ? <Button color='success' onClick={toggle}>
+              Collapse
+            </Button> 
+          : <Button color='success' onClick={toggle}>
+              Expand
+            </Button> 
+        }
       </CardBody>
       <Collapse isOpen={collapse}>
         <CardBody className="pt-0">
@@ -95,7 +104,7 @@ function TopicPreview(props) {
             />
           )}
           <hr />
-          <h3 className="h4">Questions</h3>
+          <h3 className="mb-3">Questions</h3>
           <Row>
             {questionsNotApproved ? (
               <Col xs="12" md="6">
@@ -118,7 +127,7 @@ function TopicPreview(props) {
               </Col>
             ) : null}
           </Row>
-          {(assignment &&
+           {(assignment &&
             new Date(startTime) < new Date() &&
             new Date(endTime) > new Date()) ||
           isTeacher ? (
@@ -132,7 +141,7 @@ function TopicPreview(props) {
             >
               Create Question
             </Button>
-          ) : null}
+          ) : null} 
         </CardBody>
       </Collapse>
     </>

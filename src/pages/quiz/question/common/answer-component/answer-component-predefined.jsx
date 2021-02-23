@@ -7,6 +7,7 @@ import {
   CustomInput,
   Button,
 } from 'reactstrap'
+import { FaTrashAlt } from 'react-icons/fa'
 
 const enText = {
   'is-correct': 'Is correct',
@@ -31,12 +32,11 @@ export class AnswerComponentPredefined extends Component {
       correct,
       onChangeAnswerChecked,
       placeholder,
-      // color,
       onChangeAnswerText,
       deleteAnswer,
     } = this.props
     return (
-      <InputGroup className="mb-3">
+      <InputGroup className="mb-2">
         {onChangeAnswerText ? (
           <>
             <InputGroupAddon addonType="prepend">
@@ -60,7 +60,7 @@ export class AnswerComponentPredefined extends Component {
             />
             <InputGroupAddon addonType="append">
               <Button color="danger" onClick={deleteAnswer}>
-                {enText.delete}
+                <FaTrashAlt/>
               </Button>
             </InputGroupAddon>
           </>

@@ -76,7 +76,6 @@ class AgentOperatorNew extends Component {
   render() {
     const { agent } = this.state
     const { agentOptions, selectedAgents } = this.props
-
     const agentsTable = selectedAgents.map(selectedAgent => {
       const { id, name, deleteSelectedAgent } = selectedAgent
       return (

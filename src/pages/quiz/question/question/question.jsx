@@ -13,6 +13,7 @@ import {
 import validate from '../../validate'
 import AnswerComponent from '../common/answer-component/answer-component'
 // import api from '../../../../api'
+import { API_URL } from '../../../../configuration/api'
 
 class Question extends Component {
   constructor(props) {

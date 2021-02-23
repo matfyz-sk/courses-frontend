@@ -1,22 +1,22 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
-  Col,
-  Row,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  FormFeedback,
   Alert,
+  Button,
+  Col,
   Container,
+  Form,
+  FormFeedback,
+  FormGroup,
+  Input,
+  Label,
+  Row,
 } from 'reactstrap'
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import { emailValidator, passwordValidator } from '../../functions/validators';
+import {connect} from 'react-redux';
+import {withRouter} from 'react-router-dom';
+import {emailValidator, passwordValidator} from '../../functions/validators';
 import GithubAuth from '../../components/Auth/GithubAuth';
-import { registerData } from '../../components/Auth';
-import { BACKEND_URL } from '../../configuration/api';
+import {registerData} from '../../components/Auth';
+import {BACKEND_URL} from '../../configuration/api';
 
 class LoginPage extends Component {
   constructor(props) {

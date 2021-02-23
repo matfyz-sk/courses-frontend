@@ -10,7 +10,7 @@ import TopicPreview from './topic-preview/topic-preview'
 
 class TopicsOverview extends Component {
   state = {
-    topicCollapse: [true, false],
+    topicCollapse: [],
     questionAssignments: [],
     questionsByTopic: new Map(),
   }
@@ -143,6 +143,7 @@ class TopicsOverview extends Component {
               topic.lastIndexOf('/') + 1
             )}`}`,
             {
+
               // TODO student should get only public/those which privantness isn't set
               headers: {
                 Accept: 'application/json',
@@ -302,7 +303,7 @@ class TopicsOverview extends Component {
         <div>
           {topics &&
             topics.reduce((accumulator, topic, index) => {
-              if (index < 2) {
+              if (index < 10) {
                 const { name } = topic
                 const id = topic['@id']
 

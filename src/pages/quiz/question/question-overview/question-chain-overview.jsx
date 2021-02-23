@@ -97,6 +97,26 @@ function QuestionOverview({
                         question.regexp = questionData.regexp
                         break
                       case QuestionTypesEnums.essay.id:
+                        question.essay = questionData.essay
+                        break
+                      case QuestionTypesEnums.ordering.id:
+                        question.orderAnswers = questionData.hasAnswer.map (
+                          answer => {
+                            const { text, position } =
+                            answer
+                            return {id: answer['@id'], 
+                            text, position }
+                          }
+                        )                    
+                        break
+                      case QuestionTypesEnums.matching.id:
+                        question.matchPairs = questionData.hasAnswer.map(
+                          ans => {
+                            const { prompt, answer, position } = ans
+                            return {id: ans['@id'],
+                            prompt, answer, position}
+                          }
+                        )
                         break
                       default:
                         break
@@ -153,7 +173,7 @@ function QuestionOverview({
                 isTeacher={isTeacher}
                 showMetadata
                 changeShowEditQuestion={changeShowEditQuestion}
-                canEdit={index === 0 && !isApproved && createdByID === userId}
+                canEdit={index === 0 && !isApproved && (isTeacher || createdByID === userId)}
                 canApprove={!isApproved && isTeacher}
                 canDisapprove={isApproved && isTeacher}
                 isApproved={isApproved}

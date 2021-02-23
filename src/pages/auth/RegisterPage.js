@@ -1,24 +1,20 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
-  Col,
-  Row,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Collapse,
-  FormFeedback,
   Alert,
+  Button,
+  Col,
+  Collapse,
   Container,
+  Form,
+  FormFeedback,
+  FormGroup,
+  Input,
+  Label,
+  Row,
 } from 'reactstrap';
-import {
-  emailValidator,
-  textValidator,
-  passwordValidator,
-} from '../../functions/validators';
-import { registerData } from '../../components/Auth';
-import { BACKEND_URL } from '../../configuration/api';
+import {emailValidator, passwordValidator, textValidator,} from '../../functions/validators';
+import {registerData} from '../../components/Auth';
+import {BACKEND_URL} from '../../configuration/api';
 
 export default class RegisterPage extends Component {
   constructor(props) {

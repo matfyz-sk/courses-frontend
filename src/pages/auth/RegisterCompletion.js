@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
-import { withRouter } from 'react-router-dom'
-import { connect } from 'react-redux'
+import React, {Component} from 'react'
+import {withRouter} from 'react-router-dom'
+import {connect} from 'react-redux'
 import {
   Alert,
   Button,
@@ -14,15 +14,9 @@ import {
   Label,
   Row,
 } from 'reactstrap'
-import { emailValidator, textValidator } from '../../functions/validators'
-import {
-  authHeader,
-  getUser,
-  getUserID,
-  logout,
-  setUserProfile,
-} from '../../components/Auth'
-import { BACKEND_URL } from '../../configuration/api'
+import {emailValidator, textValidator} from '../../functions/validators'
+import {authHeader, getUser, getUserID, logout, setUserProfile,} from '../../components/Auth'
+import {BACKEND_URL} from '../../configuration/api'
 
 class RegisterCompletion extends Component {
   constructor(props) {

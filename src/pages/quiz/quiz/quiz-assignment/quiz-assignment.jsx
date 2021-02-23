@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { Label, Form, FormGroup, Row, Col, Input, Button } from 'reactstrap'
+import { Alert, Label, Form, FormGroup, Row, Col, Input, Button } from 'reactstrap'
 import { DragDropContext } from 'react-beautiful-dnd'
 import axios from 'axios'
 import AgentOperatorNew from 'pages/quiz/common/agent-operator-new'
@@ -37,12 +37,17 @@ class QuizAssignment extends Component {
     selectedAgents: [],
     description: '',
     questions: {},
+    allTopics: [],
+    validDate: true,
+    loading:true,
   }
 
   componentDidMount() {
     const { courseInstanceId, match, token } = this.props
 
     if (courseInstanceId && token) {
+      this.getTopics(courseInstanceId, token)
+
       this.getQuestions(
         courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
         token
@@ -66,6 +71,8 @@ class QuizAssignment extends Component {
         courseInstanceId !== prevProps.courseInstanceId ||
         token !== prevProps.token
       ) {
+        this.getTopics(courseInstanceId, token)
+
         this.getQuestions(
           courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
           token
@@ -86,6 +93,37 @@ class QuizAssignment extends Component {
         this.getQuizAssignment(quizAssignmentType, quizAssignmentId, token)
       }
     }
+  }
+
+  getTopics = (courseInstanceId, token) => {
+    return axios
+    .get(
+      `${API_URL}/topic?covers=${courseInstanceId}`, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      })
+    .then(({data}) => {
+      if (
+        data &&
+        data['@graph'] &&
+        data['@graph'].length &&
+        data['@graph'].length > 0
+      ) {
+        const topics = data['@graph'].reduce((accumulator, topic) => {
+          return accumulator.concat({
+            name: topic.name,
+            id: topic['@id'],
+          })
+        }, [])
+        this.setState({
+          allTopics: topics,
+        })
+      }
+    })
+    .catch(error => console.log(error))
   }
 
   getAgents = (courseInstanceId, token) => {
@@ -161,6 +199,7 @@ class QuizAssignment extends Component {
             columnOrder: ['choosenQuestions', 'availableQuestions'], //TODO do i need it?
           }
           this.setState({
+            loading: false,
             questions: initialDataDatabase, //TODO change for data from database
           })
         }
@@ -288,6 +327,7 @@ class QuizAssignment extends Component {
             startDate: new Date(startDate),
             endDate: new Date(endDate),
             selectedAgents,
+            loading:false,
           })
         }
       })
@@ -329,8 +369,9 @@ class QuizAssignment extends Component {
 
   populateSelect = (data, selectElement, elementStateName, selected) => {
     const selectedTmp = selected || (data.length >= 1 ? data[0].id : '')
+    var newData = data.concat([data])
     this.setState({
-      [selectElement]: data,
+      [selectElement]: newData,
       [elementStateName]: selectedTmp,
     })
   }
@@ -338,12 +379,14 @@ class QuizAssignment extends Component {
   onStartDateChange = date => {
     this.setState({
       startDate: date,
+      validDate: date <= this.state.endDate.getTime()
     })
   }
 
   onEndDateChange = date => {
     this.setState({
       endDate: date,
+      validDate: this.state.startDate.getTime() <= date
     })
   }
 
@@ -525,7 +568,22 @@ class QuizAssignment extends Component {
       selectedAgents,
       questions,
       allAgents,
+      allTopics,
+      validDate,
+      loading
     } = this.state
+
+    const topicOptions = allTopics.map(topicFromAll => {
+      return (
+        <option
+          key={topicFromAll.id}
+          value={topicFromAll.id}
+        >
+          {topicFromAll.name}
+        </option>
+      )
+    })
+
     const agentOptions = allAgents.reduce((accumulator, agent) => {
       const index = selectedAgents.findIndex(selectedAgent => {
         return selectedAgent.id === agent.id
@@ -545,6 +603,18 @@ class QuizAssignment extends Component {
         deleteSelectedAgent: () => this.deleteSelectedAgent(agent.id),
       }
     })
+
+    if(this.state.loading) {
+      return(
+        <>
+        <h3>Create new quiz assignment</h3>
+        <Alert color="primary">
+          Loading...
+        </Alert>
+        </>
+      )
+    }
+
     return (
       <>
         <h3>Create new quiz assignment</h3>
@@ -568,6 +638,7 @@ class QuizAssignment extends Component {
             onStartDateChange={this.onStartDateChange}
             onEndDateChange={this.onEndDateChange}
             handleChange={this.handleChange}
+            validDate={validDate}
           />
           <FormGroup>
             <Label for="questions">Questions</Label>
@@ -584,12 +655,15 @@ class QuizAssignment extends Component {
                           return questions.questions.get(questionId)
                         }
                       )
+                      
                       // console.log(questionsColumn)
                       return (
+    
                         <Col key={column.id}>
                           <QuestionsColumn
                             column={column}
                             questions={questionsColumn}
+                            topics = {topicOptions}
                           />
                         </Col>
                       )

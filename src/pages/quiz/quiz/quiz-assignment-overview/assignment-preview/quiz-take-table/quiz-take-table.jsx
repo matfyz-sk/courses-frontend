@@ -12,7 +12,7 @@ class QuizTakeTable extends Component {
     } = this.props;
     return (
       <React.Fragment>
-        <CardSubtitle tag={"h4"} className={"h5"}>
+        <CardSubtitle tag={"h5"} className={"mb-1"}>
           {headerText}
         </CardSubtitle>
         <Table hover striped size="sm">

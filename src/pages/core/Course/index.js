@@ -1,25 +1,14 @@
 import React from 'react'
-import {
-  Container,
-  Card,
-  CardSubtitle,
-  CardHeader,
-  CardBody,
-  CardText,
-  ListGroup,
-  ListGroupItem,
-  Table,
-  Alert,
-} from 'reactstrap'
-import { connect } from 'react-redux'
-import { NavLink } from 'react-router-dom'
-import { BASE_URL, COURSE_URL, INITIAL_COURSE_STATE } from '../constants'
-import { axiosRequest, getData } from '../AxiosRequests'
-import { redirect } from '../../../constants/redirect'
+import {Alert, Card, CardBody, CardHeader, CardSubtitle, Container, Table,} from 'reactstrap'
+import {connect} from 'react-redux'
+import {NavLink} from 'react-router-dom'
+import {BASE_URL, COURSE_URL, INITIAL_COURSE_STATE} from '../constants'
+import {axiosRequest, getData} from '../AxiosRequests'
+import {redirect} from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
+import {NOT_FOUND} from '../../../constants/routes'
 import './course.css'
-import { Redirect } from 'react-router'
-import { NOT_FOUND } from '../../../constants/routes'
+import {Redirect} from 'react-router'
 
 class Course extends React.Component {
   constructor(props) {

@@ -22,6 +22,7 @@ const enText = {
   approveAsPrivate: 'Approve as private',
   approved: 'Approved',
   disapprove: 'Cancel approve',
+  delete: 'Delete question',
   by: 'By',
   at: 'At',
 }
@@ -78,7 +79,7 @@ function SavedQuestion({
     axios
       .patch(
         `${API_URL}${id.substr(id.lastIndexOf('/', id.lastIndexOf('/') - 1))}`,
-        JSON.stringify({ approver: [] }),
+        JSON.stringify({ approver: [], }),
         {
           headers: {
             Accept: 'application/json',
@@ -89,7 +90,7 @@ function SavedQuestion({
       )
       .then(({ status: statusQuestionAssignment }) => {
         if (statusQuestionAssignment === 200) {
-          //refetch
+          // refetch
         }
       })
       .catch(error => console.log(error))
@@ -101,6 +102,7 @@ function SavedQuestion({
   const approveAsPrivate = () => {
     sendApprove(true)
   }
+
 
   useEffect(() => {
     if (createdBy && isTeacher) {
@@ -145,10 +147,33 @@ function SavedQuestion({
     questionType,
     regexp,
     answers,
+    essay,
     score,
     setUserAnswer,
     userAnswer,
+    orderAnswers,
+    matchPairs,
   } = question
+
+  const matchAnswersAdapted = matchPairs && matchPairs.reduce((acc,pair) => {
+    const answer = {
+      id: pair.position,
+      text: pair.answer,
+    }
+    acc.push(answer)
+    return acc
+  },[]).map(answer => answer.id === matchPairs.map(pair => pair.answer).indexOf(answer.text) ? answer : {...answer, text: ''})
+
+  const matchPairsAdapted = matchPairs && matchPairs.reduce((acc,pair) => {
+    const pairAdapted = {
+      position: pair.position,
+      promptText: pair.prompt,
+      answerId: matchAnswersAdapted.find(answer => answer.text === pair.answer).id,
+    }
+    acc.push(pairAdapted)
+    return acc
+  },[])
+
   const metadata = () => (
     <>
       {isApproved && <h2>{enText.approved}</h2>}
@@ -163,7 +188,7 @@ function SavedQuestion({
     </>
   )
   return (
-    <div className="mb-3">
+    <div className="mb-3 mt-3">
       <QuestionNew
         key={id}
         metadata={showMetadata && metadata}
@@ -177,12 +202,20 @@ function SavedQuestion({
         regexpUserAnswer={regexpUserAnswer}
         setUserAnswer={setUserAnswer}
         userAnswer={userAnswer}
+        essay={essay}
+        //ORDER Q
+        orderAnswers = {orderAnswers} 
+        //MATCH Q
+        matchAnswers = {matchAnswersAdapted}
+        matchPairs = {matchPairsAdapted}
         disabled
+        isSaved={true}
+        clickedSubmit={true}
         color={isApproved ? '#ADFF2F' : null}
       >
         {setScore && <Input type="text" value={score} onChange={setScore} />}
         {canEdit && changeShowEditQuestion && (
-          <Button color="success" onClick={changeShowEditQuestion}>
+          <Button className="mr-2" color="success" onClick={changeShowEditQuestion}>
             {enText['edit-question']}
           </Button>
         )}
@@ -207,10 +240,16 @@ function SavedQuestion({
           </Button>
         )}
         {canDisapprove && (
-          <Button color="danger" onClick={sendDisapprove}>
+          <Button className="" color="danger" onClick={sendDisapprove}>
             {enText.disapprove}
           </Button>
         )}
+        {/* {isTeacher && (
+          <Button color="danger" style={{float:"right"}}>
+            {enText.delete}
+          </Button>
+        )} */}
+
       </QuestionNew>
       {comments && (
         <Comments
