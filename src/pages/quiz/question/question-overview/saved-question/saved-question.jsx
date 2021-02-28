@@ -154,6 +154,9 @@ function SavedQuestion({
     orderAnswers,
     matchPairs,
   } = question
+  
+  orderAnswers && orderAnswers.sort((a,b) => a.position < b.position ? -1 : 1)
+  matchPairs && matchPairs.sort((a,b) => a.position < b.position ? -1 : 1)
 
   const matchAnswersAdapted = matchPairs && matchPairs.reduce((acc,pair) => {
     const answer = {
@@ -162,8 +165,7 @@ function SavedQuestion({
     }
     acc.push(answer)
     return acc
-  },[]).map(answer => answer.id === matchPairs.map(pair => pair.answer).indexOf(answer.text) ? answer : {...answer, text: ''})
-
+  },[]).map(answer => answer.id === matchPairs.find(pair => pair.answer === answer.text).position ? answer : {...answer,text:''})
   const matchPairsAdapted = matchPairs && matchPairs.reduce((acc,pair) => {
     const pairAdapted = {
       position: pair.position,
@@ -210,7 +212,6 @@ function SavedQuestion({
         matchPairs = {matchPairsAdapted}
         disabled
         isSaved={true}
-        clickedSubmit={true}
         color={isApproved ? '#ADFF2F' : null}
       >
         {setScore && <Input type="text" value={score} onChange={setScore} />}

@@ -373,6 +373,9 @@ function QuestionNewData({
   //OrderQuestion function
   useEffect(() => {
     if (orderAnswers && orderAnswers.length > 0) {
+
+      orderAnswers.sort((a,b) => a.position < b.position ? -1 : 1)
+
       const orderAnswersMapped = orderAnswers.reduce((acc,answer) => {
         const answerData = {
           ...answer,
@@ -383,7 +386,6 @@ function QuestionNewData({
         return acc
       },[])
       setOrderAnswers(orderAnswersMapped)
-      console.log(orderAnswersMapped)
     }
   },[])
 
@@ -446,6 +448,7 @@ function QuestionNewData({
   //MatchQuestion function
   useEffect(() => {
     if (question && question.matchPairs ) {
+      question.matchPairs.sort((a,b) => a.position < b.position ? -1 : 1)
       const matchAnswersAdapted = question.matchPairs.reduce((acc,pair) => {
         const answer = {
           id: pair.position,
@@ -454,7 +457,7 @@ function QuestionNewData({
         }
         acc.push(answer)
         return acc
-      },[]).map(answer => answer.id === question.matchPairs.map(pair => pair.answer).indexOf(answer.text) ? answer : {...answer, text: ''})
+      },[]).map(answer => answer.id === question.matchPairs.find(pair => pair.answer === answer.text).position ? answer : {...answer,text:''})
 
       const matchPairsAdapted = question.matchPairs.reduce((acc,pair) => {
         const pairAdapted = {
