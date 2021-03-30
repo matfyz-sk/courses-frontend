@@ -30,12 +30,12 @@ export class AnswerComponentOpen extends Component {
       setUserAnswer,
       userAnswer,
       placeholder,
-      clickedSubmit,
+      quiz,
     } = this.props
     const regex = RegExp(regexp)
     return (
       <fieldset>
-        <legend>Answer</legend>
+        {!quiz && <legend>Answer</legend>}
         {setRegexp && (
           <div className="mb-3">
             <Label for="title">{enText.regexpLabel}</Label>

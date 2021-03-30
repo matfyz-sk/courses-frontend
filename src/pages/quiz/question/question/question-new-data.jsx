@@ -28,27 +28,27 @@ export const QuestionTypesEnums = Object.freeze({
   multiple: {
     id: 'http://www.courses.matfyz.sk/ontology#QuestionWithPredefinedAnswer', // should change id for type
     entityName: 'questionWithPredefinedAnswer',
-    name: enText['question-with-predefined-answer'],
+    name: 'Question with predefined answer'
   },
   essay: {
     id: 'http://www.courses.matfyz.sk/ontology#EssayQuestion', // should change id for type
     entityName: 'essayQuestion',
-    name: enText['essay-question'],
+    name: 'Essay question'
   },
   open: {
     id: 'http://www.courses.matfyz.sk/ontology#OpenQuestion', // should change id for type
     entityName: 'openQuestion',
-    name: enText['open-question'],
+    name: 'Open question'
   },
   ordering: {
     id: 'http://www.courses.matfyz.sk/ontology#OrderingQuestion',
     entityName: 'orderingQuestion',
-    name: enText['ordering-question'],
+    name: 'Ordering question'
   },
   matching: {
     id: 'http://www.courses.matfyz.sk/ontology#MatchQuestion',
     entityName: 'matchingQuestion',
-    name: enText['matching-question'],
+    name: 'Matching question'
   },
 })
 
@@ -471,7 +471,7 @@ function QuestionNewData({
         acc.push(pairAdapted)
         return acc
       },[])
-      
+
       setMatchAnswers(matchAnswersAdapted)
       setMatchPairs(matchPairsAdapted)
       setMatchAnswerId(matchAnswersAdapted.length)
@@ -488,7 +488,7 @@ function QuestionNewData({
     }
     setMatchAnswerId(prevVal => prevVal+1)
     setMatchAnswers(prevState => prevState.concat(answer))
-    
+
     const pair = {
       position: matchPairPos,
       promptText: '',
@@ -760,7 +760,7 @@ function QuestionNewData({
       showWarning={showWarning}
       formSubmitHandler={formSubmitHandler}
     >
-      <WarningMessage 
+      <WarningMessage
         text = {showWarning.answers}
         isOpen = {showWarning.answers}
       />

@@ -154,7 +154,7 @@ function SavedQuestion({
     orderAnswers,
     matchPairs,
   } = question
-  
+
   orderAnswers && orderAnswers.sort((a,b) => a.position < b.position ? -1 : 1)
   matchPairs && matchPairs.sort((a,b) => a.position < b.position ? -1 : 1)
 
@@ -206,13 +206,13 @@ function SavedQuestion({
         userAnswer={userAnswer}
         essay={essay}
         //ORDER Q
-        orderAnswers = {orderAnswers} 
+        orderAnswers = {orderAnswers}
         //MATCH Q
         matchAnswers = {matchAnswersAdapted}
         matchPairs = {matchPairsAdapted}
         disabled
         isSaved={true}
-        color={isApproved ? '#ADFF2F' : null}
+        color={isApproved ? '#f4f9ec' : null}
       >
         {setScore && <Input type="text" value={score} onChange={setScore} />}
         {canEdit && changeShowEditQuestion && (

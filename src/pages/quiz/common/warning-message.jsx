@@ -1,20 +1,19 @@
-import React, { useState } from 'react'
-import { Alert } from '@material-ui/lab/'
-import { Collapse } from '@material-ui/core/'
+import React from 'react'
+import {Alert}  from '@material-ui/lab/'
+import {Collapse}  from '@material-ui/core/'
 
 export function WarningMessage ({
- text,
- className,
- isOpen,
-}) {
-    
-    return (
-        <Collapse in={text && text !== 'ok' ? true : false}>
-            <Alert style={{width: "fit-content"}} className = {className} severity="error">
-                {text}
-            </Alert>
-        </Collapse>
-    )
+                                  text,
+                                  className,
+                                }) {
+
+  return (
+    <Collapse in={text.length > 0 && text !== 'ok'}>
+      <Alert style={{width: "fit-content"}} className = {className} severity="error">
+        {text}
+      </Alert>
+    </Collapse>
+  )
 }
 
 export default WarningMessage

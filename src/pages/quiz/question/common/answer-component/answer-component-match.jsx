@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React from 'react'
 import {
   Button,
   ButtonGroup,
@@ -20,6 +20,7 @@ export function AnswerComponentMatch ({
  matchAnswers,
  pairs,
  addNewPair,
+  quiz,
 }) {
   const changePairAnswerId = (event, answerId, pair) => {
     pairs.map(p => p.answerId === pair.answerId ? p.changePairAnswer(p.position) : null)
@@ -40,8 +41,8 @@ export function AnswerComponentMatch ({
   const usedMatchAnswers = matchAnswers.filter(answer => answer.text !== '')
 
   return (
-    <div className='mb-3'>
-      <legend>Pairs</legend>
+    <div>
+      {!quiz && <legend>Pairs</legend>}
       {pairs.map(pair => {
         const pairAnswer = matchAnswers.find(answer => answer.id === pair.answerId)
         return (
@@ -68,10 +69,10 @@ export function AnswerComponentMatch ({
                       <DropdownToggle color='success'>
                         <FaChevronDown/>
                       </DropdownToggle>
-                      <DropdownMenu right>                    
-                      {pair.answerId !== pair.position && 
+                      <DropdownMenu right>
+                      {pair.answerId !== pair.position &&
                       <div>
-                        <DropdownItem 
+                        <DropdownItem
                           onClick = {(e) => removeAnswer(e, pair)}
                         >
                           Remove answer
@@ -82,8 +83,8 @@ export function AnswerComponentMatch ({
                       {usedMatchAnswers.map(answer => {
                         return (
                           pair.answerId !== answer.id &&
-                          <DropdownItem   
-                            className="word-wrapped-items"      
+                          <DropdownItem
+                            className="word-wrapped-items"
                             key={answer.id}
                             style={{}}
                             onClick={(e) => changePairAnswerId(e, answer.id, pair)}
@@ -91,18 +92,18 @@ export function AnswerComponentMatch ({
                             {answer.text}
                           </DropdownItem>
                         )})
-                      }                        
+                      }
                       </DropdownMenu>
                     </UncontrolledButtonDropdown>
-                    <Button 
-                      color="danger" 
+                    <Button
+                      color="danger"
                       onClick={(e) => deletePair(e, pair)}
                     >
                       <FaTrashAlt/>
                     </Button>
                   </ButtonGroup>
                   </InputGroupAddon>
-                </InputGroup>                
+                </InputGroup>
               ) : (
                 //Saved Question
                 <Container style={{margin: "0px", padding: "0px"}}>

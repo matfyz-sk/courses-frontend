@@ -12,18 +12,19 @@ render() {
       orderAnswersColumn,
       addNewOrderAnswer,
       onDragEnd,
+      quiz,
     } = this.props
     const answersMapped = orderAnswersColumn.answersPositions.map(answerPos => orderAnswers.find(ans => ans.position === answerPos))
     return (
       <div>
-        <legend>{orderAnswersColumn.title}</legend>
+        {!quiz && <legend>{orderAnswersColumn.title}</legend>}
         <DragDropContext onDragEnd={onDragEnd}>
           <AnswerOrderColumn
             key={orderAnswersColumn.id}
             orderAnswerColumn={orderAnswersColumn}
             answersMapped={answersMapped}
           />
-          {addNewOrderAnswer && 
+          {addNewOrderAnswer &&
           (<Button className="mt-3" color="success" onClick={addNewOrderAnswer}>
             Add answer
           </Button>)}

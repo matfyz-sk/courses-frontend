@@ -7,15 +7,16 @@ import QuestionNewData, {
   QuestionTypesEnums,
 } from '../question/question-new-data'
 import SavedQuestion from './saved-question/saved-question'
+import setAnswers from '../../common/set-answers'
 
 function QuestionOverview({
-  match,
-  courseInstanceId,
-  isTeacher,
-  token,
-  userId,
-  history,
-}) {
+                            match,
+                            courseInstanceId,
+                            isTeacher,
+                            token,
+                            userId,
+                            history,
+                          }) {
   const [questions, setQuestions] = useState([])
   const [showEditQuestion, setShowEditQuestion] = useState(false)
 
@@ -84,44 +85,8 @@ function QuestionOverview({
                       .sort(
                         (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
                       )
-                    switch (question.questionType) {
-                      case QuestionTypesEnums.multiple.id:
-                        question.answers = questionData.hasAnswer.map(
-                          answer => {
-                            const { correct, text } = answer
-                            return { id: answer['@id'], correct, text }
-                          }
-                        )
-                        break
-                      case QuestionTypesEnums.open.id:
-                        question.regexp = questionData.regexp
-                        break
-                      case QuestionTypesEnums.essay.id:
-                        question.essay = questionData.essay
-                        break
-                      case QuestionTypesEnums.ordering.id:
-                        question.orderAnswers = questionData.hasAnswer.map (
-                          answer => {
-                            const { text, position } =
-                            answer
-                            return {id: answer['@id'], 
-                            text, position }
-                          }
-                        )                    
-                        break
-                      case QuestionTypesEnums.matching.id:
-                        question.matchPairs = questionData.hasAnswer.map(
-                          ans => {
-                            const { prompt, answer, position } = ans
-                            return {id: ans['@id'],
-                            prompt, answer, position}
-                          }
-                        )
-                        break
-                      default:
-                        break
-                    }
-                    accumulator.push(question)
+                    const newquestion = setAnswers(question, questionData)
+                    accumulator.push(newquestion)
                   }
                   return accumulator
                 },

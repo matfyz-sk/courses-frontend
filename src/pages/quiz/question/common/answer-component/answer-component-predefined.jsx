@@ -8,9 +8,10 @@ import {
   Button,
 } from 'reactstrap'
 import { FaTrashAlt } from 'react-icons/fa'
+import {Checkbox, ListItem, ListItemIcon, ListItemText} from "@material-ui/core";
 
 const enText = {
-  'is-correct': 'Is correct',
+  'is-correct': 'Correct',
   delete: 'Delete',
 }
 
@@ -66,24 +67,41 @@ export class AnswerComponentPredefined extends Component {
           </>
         ) : (
           <>
-            <InputGroupAddon addonType="prepend">
-              <InputGroupText>
-                <CustomInput
-                  type="checkbox"
-                  id={id}
-                  label={enText['is-correct']}
+            <ListItem
+              style={{
+                backgroundColor: '#ffffff',
+                border: `1px solid #d9d9d9`,
+                justifyContent: 'center',
+              }}
+            >
+              <ListItemIcon>
+                <Checkbox
                   checked={correct}
-                  readOnly
+                  style={{color: '#29741d', backgroundColor: 'transparent'}}
                 />
-              </InputGroupText>
-            </InputGroupAddon>
-            <Input
-              type="text"
-              placeholder={placeholder}
-              value={text}
-              readOnly
-              // disabled={!this.props.isTextEnabled}
-            />
+              </ListItemIcon>
+              <ListItemText
+                primary={text}
+              />
+            </ListItem>
+            {/*<InputGroupAddon addonType="prepend">*/}
+            {/*  <InputGroupText>*/}
+            {/*    <CustomInput*/}
+            {/*      type="checkbox"*/}
+            {/*      id={id}*/}
+            {/*      label={enText['is-correct']}*/}
+            {/*      checked={correct}*/}
+            {/*      readOnly*/}
+            {/*    />*/}
+            {/*  </InputGroupText>*/}
+            {/*</InputGroupAddon>*/}
+            {/*<Input*/}
+            {/*  type="text"*/}
+            {/*  placeholder={placeholder}*/}
+            {/*  value={text}*/}
+            {/*  readOnly*/}
+            {/*  // disabled={!this.props.isTextEnabled}*/}
+            {/*/>*/}
           </>
         )}
       </InputGroup>

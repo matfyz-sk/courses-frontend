@@ -68,12 +68,12 @@ function QuestionNew({
                   placeholder={enText['title-placeholder']}
                   value={title}
                   onChange={e => {setTitle(e.target.value)}}
-                />                
-                <WarningMessage 
+                />
+                <WarningMessage
                   className='mt-3'
-                  text = {showWarning.title} 
+                  text = {showWarning.title}
                   isOpen = {showWarning.title}
-                />   
+                />
               </>
             )}
             {disabled && <h3>{title}</h3>}
@@ -92,11 +92,11 @@ function QuestionNew({
                   value={question}
                   onChange={e => {setQuestion(e.target.value)}}
                 />
-                <WarningMessage 
+                <WarningMessage
                   className='mt-3'
                   text={showWarning.question}
                   // isOpen = {showWarning.question}
-                />   
+                />
               </>
             )}
             {disabled && (
@@ -175,9 +175,9 @@ function QuestionNew({
             />
           </FormGroup>
         )}
-        {questionType === QuestionTypesEnums.essay.id && (
-          null
-        )}
+        {/*{questionType === QuestionTypesEnums.essay.id && (*/}
+        {/*  null*/}
+        {/*)}*/}
         {questionType === QuestionTypesEnums.ordering.id && (
           <FormGroup>
               <AnswerComponentOrder
