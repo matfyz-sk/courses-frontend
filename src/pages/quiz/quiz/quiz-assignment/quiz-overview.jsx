@@ -36,7 +36,7 @@ function QuizOverview({
 
   function formatDateTime(date){
     const datetime = new Date(date)
-    return `${datetime.getDate()}.${datetime.getMonth()+1}.${datetime.getFullYear()} ${datetime.getHours()}:${datetime.getMinutes()}`
+    return `${datetime.getDate()}.${datetime.getMonth()+1}.${datetime.getFullYear()} ${datetime.getHours()}:${String(datetime.getMinutes()).padStart(2, "0")}`
   }
 
   function pointsSum(){

@@ -422,7 +422,7 @@ function QuizAssignment({
           setPointsSameForAll(false)
           if (quizAssignment.timeLimit) {
             setUnlimitedTime(quizAssignment.timeLimit === -1)
-            setTimeLimit(quizAssignment.timeLimit === -1 ? '' : quizAssignment.timeLimit.toString)
+            setTimeLimit(quizAssignment.timeLimit === -1 ? '' : quizAssignment.timeLimit.toString())
           }
           else {
             setTimeLimit('')
