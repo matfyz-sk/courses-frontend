@@ -1,18 +1,30 @@
-import React, { Component, useEffect } from 'react'
-import { connect } from 'react-redux'
-import { Alert, Label, Form, FormGroup, Row, Col, Input, Button } from 'reactstrap'
-import { DragDropContext } from 'react-beautiful-dnd'
+import React, {useEffect, useState} from 'react'
+import {API_URL} from '../../../../configuration/api'
 import axios from 'axios'
-import AgentOperatorNew from 'pages/quiz/common/agent-operator-new'
-import QuestionsColumn from './questions-column/questions-column'
-import AssignmentHeader from '../../common/assignment-header'
-import { API_URL } from '../../../../configuration/api'
-
-const quizAssignmentTypeHARD = 'manualQuizAssignment'
+import {Box, Button, Paper, Step, StepLabel, Stepper, Tab, Tabs,} from '@material-ui/core'
+import {Alert} from "@material-ui/lab";
+import {BsCaretLeftFill, BsCaretRightFill} from 'react-icons/bs'
+import {ThemeProvider,} from '@material-ui/styles'
+import ManualQuizAssignment from './manual-quiz-assignment'
+import SelectedQuestions from './selected-questions'
+import GeneralInfo from './general-info'
+import {theme, useStyles} from '../../common/styles'
+import setAnswers from '../../common/set-answers'
+import QuizOverview from "./quiz-overview";
+import GenerateQuestionsSection from "./generate-questions-section";
+import {checkEndDateQA, checkTextNotEmpty, checkTimeLimitQA} from "../../common/validate-input";
 
 const enText = {
   'manual-quiz-assignment': 'Manual quiz assignment',
   'generated-quiz-assignment': 'Generated quiz assignment',
+}
+
+function not(a, b) {
+  return a.filter((value) => b.indexOf(value) === -1);
+}
+
+function union(a, b) {
+  return [...a, ...not(b, a)];
 }
 
 export const QuizAssignmentTypesEnums = Object.freeze({
@@ -28,136 +40,218 @@ export const QuizAssignmentTypesEnums = Object.freeze({
   },
 })
 
-class QuizAssignment extends Component {
-  state = {
+function intersection(a, b) {
+  return a.filter((value) => b.indexOf(value) !== -1);
+}
+
+function QuizAssignment({
+                          courseInstanceId,
+                          userId,
+                          isTeacher,
+                          token,
+                          match,
+                          history,
+                        }) {
+
+  const style = useStyles()
+
+  // General data
+  const [courseName, setCourseName] = useState('')
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [startDate, setStartDate] = useState(new Date(new Date().setMinutes(Math.round((new Date().getMinutes() / 5) + 1) * 5)));
+  const [endDate, setEndDate] = useState(new Date(new Date().setMinutes(Math.round((new Date().getMinutes() / 5) + 1) * 5)));
+  const [unlimitedTime, setUnlimitedTime] = useState(false)
+  const [timeLimit, setTimeLimit] = useState('')
+  const [agentsSelected, setAgentsSelected] = useState([])
+  const [topicsSelected, setTopicsSelected] = useState([])
+  const [selectedQuestions, setSelectedQuestions] = useState( [])
+
+  //Options
+  const [agentOptionsUsers, setAgentOptionsUsers] = useState([])
+  const [agentOptionsTeams, setAgentOptionsTeams] = useState([])
+
+  const [topicOptionsCovered, setTopicOptionsCovered] = useState([])
+  const [topicOptionsRequired, setTopicOptionsRequired] = useState([])
+  const [topicOptionsMentions, setTopicOptionsMentions] = useState([])
+
+  const [allQuestions, setAllQuestions] = useState([])
+  const [availableQuestions, setAvailableQuestions] = useState([])
+
+  //Additional info
+  const [pointsForAll, setPointsForAll] = useState('1')
+  const [pointsSameForAll, setPointsSameForAll] = useState(true)
+  const [shuffleQuizTake, setShuffleQuizTake] = useState(false)
+  const [maxPositionSelected, setMaxPositionSelected] = useState(0)
+
+  const [showWarning, setShowWarning] = useState({
     title: '',
-    startDate: new Date(),
-    endDate: new Date(),
-    allAgents: [],
-    selectedAgents: [],
-    description: '',
-    questions: {},
-    allTopics: [],
-    validDate: true,
-    loading:true,
+    startDate: '',
+    endDate: '',
+    timeLimit: '',
+  })
+
+  const [loadingInfo, setLoadingInfo] = useState({
+    quizEdit: isEdit(),
+  });
+
+  const [quizAssignmentMode, setQuizAssignmentMode] = useState(
+    QuizAssignmentTypesEnums.manualQuizAssignment);
+  const [quizModeTab, setQuizModeTab] = useState(
+    QuizAssignmentTypesEnums.manualQuizAssignment.id);
+
+  //STEPPER
+  const [activeStep, setActiveStep] = useState(0);
+  const steps = getSteps();
+
+  // GET DATA
+  function isEdit () {
+    return !!match.params.quizAssignmentId
   }
 
-  componentDidMount() {
-    const { courseInstanceId, match, token } = this.props
-
-    if (courseInstanceId && token) {
-      this.getTopics(courseInstanceId, token)
-
-      this.getQuestions(
-        courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-        token
-      )
-      if (this.isEdit()) {
-        const { quizAssignmentType, quizAssignmentId } = match.params
-        if (quizAssignmentType && quizAssignmentId)
-          this.getQuizAssignment(quizAssignmentType, quizAssignmentId, token)
-      }
-      this.getAgents(
-        courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-        token
-      )
+  useEffect( () => {
+    if (courseInstanceId && userId && token) {
+      getCourseName(courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
+        token)
+      getTopics(courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
+        token)
+      getQuestions(courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
+        token)
+      getAgents(courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
+        token)
     }
-  }
+  },[courseInstanceId, userId, token])
 
-  componentDidUpdate(prevProps, prevState) {
-    const { courseInstanceId, match, token } = this.props
-    if (courseInstanceId && token) {
-      if (
-        courseInstanceId !== prevProps.courseInstanceId ||
-        token !== prevProps.token
-      ) {
-        this.getTopics(courseInstanceId, token)
-
-        this.getQuestions(
-          courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-          token
-        )
-
-        this.getAgents(
-          courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-          token
-        )
-      }
+  useEffect(() => {
+    if (isEdit()) {
       const { quizAssignmentType, quizAssignmentId } = match.params
-      if (
-        this.isEdit() &&
-        (token !== prevProps.token ||
-          quizAssignmentType !== prevProps.match.params.quizAssignmentType ||
-          quizAssignmentId !== prevProps.match.params.quizAssignmentId)
-      ) {
-        this.getQuizAssignment(quizAssignmentType, quizAssignmentId, token)
-      }
+      if (quizAssignmentType && quizAssignmentId)
+        getQuizAssignment(quizAssignmentType, quizAssignmentId, token)
     }
-  }
+  },[allQuestions,topicOptionsCovered, topicOptionsMentions, topicOptionsRequired])
 
-  getTopics = (courseInstanceId, token) => {
-    return axios
-    .get(
-      `${API_URL}/topic?covers=${courseInstanceId}`, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-      })
-    .then(({data}) => {
-      if (
-        data &&
-        data['@graph'] &&
-        data['@graph'].length &&
-        data['@graph'].length > 0
-      ) {
-        const topics = data['@graph'].reduce((accumulator, topic) => {
-          return accumulator.concat({
-            name: topic.name,
-            id: topic['@id'],
-          })
-        }, [])
-        this.setState({
-          allTopics: topics,
+  useEffect(() => {
+    setAvailableQuestions(allQuestions.filter(question =>
+      topicsSelected.map(topic => {
+        return topic.id
+      }).indexOf(question.question.topic) !== -1
+    ))
+    setSelectedQuestions(prevState => prevState.filter(question =>
+      topicsSelected.map(topic => {
+        return topic.id
+      }).indexOf(question.question.topic) !== -1
+    ))
+  },[topicsSelected])
+
+  const getCourseName = (courseInstanceId, token) => {
+    axios
+      .get(`${API_URL}/courseInstance/${courseInstanceId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
         })
-      }
-    })
-    .catch(error => console.log(error))
-  }
-
-  getAgents = (courseInstanceId, token) => {
-    return axios
-      .get(`${API_URL}/user${`?studentOf=${courseInstanceId}`}`, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-      })
-      .then(({ data }) => {
+      .then(({data} ) => {
         if (
           data &&
           data['@graph'] &&
           data['@graph'].length &&
           data['@graph'].length > 0
-        ) {
-          const allAgents = data['@graph'].map(user => ({
-            name: `${user.firstName} ${user.lastName}`,
-            id: user['@id'],
-          }))
-          this.setState({
-            allAgents,
-          })
+        ){
+          setCourseName(data['@graph'][0].name)
         }
       })
       .catch(error => console.log(error))
   }
 
-  getQuestions = (courseInstanceId, token) => {
-    return axios
+  const getTopics = (courseInstanceId, token) => {
+    axios.all([
+      axios.get(`${API_URL}/topic?covers=${courseInstanceId}`, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      }),
+      axios.get(`${API_URL}/topic?requires=${courseInstanceId}`, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      }),
+      axios.get(`${API_URL}/topic?mentions=${courseInstanceId}`, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      })
+    ])
+      .then(([topicsCovered, topicsRequired, topicsMentioned]) => {
+        if (
+          topicsCovered.data &&
+          topicsCovered.data['@graph'] &&
+          topicsCovered.data['@graph'].length > 0
+        ) {
+          const topicsCoveredMapped = topicsCovered.data['@graph'].reduce(
+            (acc,topicData) => {
+              if (topicData && topicData['@id'] && topicData.name) {
+                acc.push({
+                  id: topicData['@id'],
+                  name: topicData.name,
+                })
+              }
+              return acc
+            },[]
+          )
+          setTopicOptionsCovered(topicsCoveredMapped)
+        }
+        if (
+          topicsRequired.data &&
+          topicsRequired.data['@graph'] &&
+          topicsRequired.data['@graph'].length > 0
+        ) {
+          const topicsRequiredMapped = topicsRequired.data['@graph'].reduce(
+            (acc,topicData) => {
+              if (topicData && topicData['@id'] && topicData.name) {
+                acc.push({
+                  id: topicData['@id'],
+                  name: topicData.name,
+                })
+              }
+              return acc
+            },[]
+          )
+          setTopicOptionsRequired(topicsRequiredMapped)
+        }
+        if (
+          topicsMentioned.data &&
+          topicsMentioned.data['@graph'] &&
+          topicsMentioned.data['@graph'].length > 0
+        ) {
+          const topicsMentionedMapped = topicsMentioned.data['@graph'].reduce(
+            (acc,topicData) => {
+              if (topicData && topicData['@id'] && topicData.name) {
+                acc.push({
+                  id: topicData['@id'],
+                  name: topicData.name,
+                })
+              }
+              return acc
+            },[]
+          )
+          setTopicOptionsMentions(topicsMentionedMapped)
+        }
+      })
+      .catch(error => console.log(error))}
+
+  const getQuestions = (courseInstanceId, token) => {
+    axios
       .get(
-        `${API_URL}/question${`?approver=iri&courseInstance=${courseInstanceId}`}`,
+        `${API_URL}/question?approver=iri&courseInstance=${courseInstanceId}`,
         {
           headers: {
             Accept: 'application/json',
@@ -166,48 +260,128 @@ class QuizAssignment extends Component {
           },
         }
       )
-      .then(({ data }) => {
+      .then(res => res.data)
+      .then(data => {
         if (
           data &&
           data['@graph'] &&
+          data['@graph'] &&
           data['@graph'].length &&
           data['@graph'].length > 0
-        ) {
-          const questionsRaw = data['@graph']
-          const questions = new Map()
-          questionsRaw.forEach(questionRaw => {
-            const question = { ...questionRaw }
-            question.id = questionRaw['@id']
+        ){
+          const questionsWithAnswers = data['@graph'].reduce( (acc, questionData) => {
+            const questionFullId = questionData['@id']
+            const questionId = questionFullId.substr(
+              questionFullId.lastIndexOf('/') + 1
+            )
+            const questionType = questionFullId.substring(
+              questionFullId.lastIndexOf('/', questionFullId.lastIndexOf('/') - 1) + 1,
+              questionFullId.lastIndexOf('/')
+            )
+            axios
+              .get(
+                `${API_URL}/${questionType}/${questionId}?_join=hasAnswer`,
+                {
+                  headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: token,
+                  },
+                }
+              )
+              .then(res => res.data)
+              .then(data => {
+                const questionData = data['@graph'][0]
+                const question = {
+                  id: questionData['@id'],
+                  title: questionData.name,
+                  questionText: questionData.text,
+                  topic: questionData.ofTopic[0]['@id'],
+                  questionType: questionData['@type'],
+                  createdBy: questionData.createdBy,
+                  createdAt: new Date(questionData.createdAt),
+                }
+                acc.push({
+                  question: setAnswers(question,questionData),
+                  points: pointsForAll,
+                  position: -1,
+                  changePoints: newPoints => changePoints(question.id, newPoints)
+                })
+              })
+              .catch(error => console.log(error))
 
-            questions.set(questionRaw['@id'], question)
-          })
-
-          const initialDataDatabase = {
-            questions,
-            columns: {
-              availableQuestions: {
-                id: 'availableQuestions',
-                title: 'Available questions',
-                questionIds: Array.from(questions.keys()),
-              },
-              choosenQuestions: {
-                id: 'choosenQuestions',
-                title: 'Choosen questions',
-                questionIds: [],
-              },
-            },
-            columnOrder: ['choosenQuestions', 'availableQuestions'], //TODO do i need it?
-          }
-          this.setState({
-            loading: false,
-            questions: initialDataDatabase, //TODO change for data from database
-          })
+            return acc
+          },[])
+          setAllQuestions(questionsWithAnswers)
+          setLoadingInfo(prevState => {return {...prevState, allQuestions: false}})
         }
       })
       .catch(error => console.log(error))
   }
+  const getAgents = (courseInstanceId, token) => {
+    axios.all([
+      axios.get(`${API_URL}/user?studentOf=${courseInstanceId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        }),
+      axios.get(`${API_URL}/team?courseInstance=${courseInstanceId}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        })]
+    ).then(([userAgents, teamAgents]) => {
+      if (
+        userAgents &&
+        userAgents.data &&
+        userAgents.data['@graph'] &&
+        userAgents.data['@graph'].length &&
+        userAgents.data['@graph'].length > 0
+      ){
+        const usersData =  userAgents.data['@graph']
+        const agentUsers = usersData.reduce((acc,user) => {
+          if (user['@type'] === "http://www.courses.matfyz.sk/ontology#User"){
+            acc.push({
+              id: user['@id'],
+              type: user['@type'],
+              name: `${user.firstName} ${user.lastName}`,
+            })
+          }
+          return acc
+        },[])
+        setAgentOptionsUsers(agentUsers)
+      }
+      if (
+        teamAgents &&
+        teamAgents.data &&
+        teamAgents.data['@graph'] &&
+        teamAgents.data['@graph'].length &&
+        teamAgents.data['@graph'].length > 0
+      ){
+        const teamsData = teamAgents.data['@graph']
+        const agentTeams = teamsData.reduce((acc,team) => {
+          if (team['@type'] === "http://www.courses.matfyz.sk/ontology#Team"){
+            acc.push({
+              id: team['@id'],
+              type: team['@type'],
+              name: team.name,
+            })
+          }
+          return acc
+        },[])
+        setAgentOptionsTeams(agentTeams)
+      }
+    })
+      .catch(error => console.log(error))
+  }
 
-  getQuizAssignment = (quizAssignmentType, quizAssignmentId, token) => {
+  const getQuizAssignment = (quizAssignmentType, quizAssignmentId, token) => {
     let join = ''
     if (
       quizAssignmentType ===
@@ -239,35 +413,56 @@ class QuizAssignment extends Component {
           data['@graph'].length > 0
         ) {
           const quizAssignment = data['@graph'][0]
-          const {
-            name,
-            description,
-            startDate,
-            endDate,
-            assignedTo,
-          } = quizAssignment
-          let selectedAgents = []
-          selectedAgents = assignedTo.map(student => {
-            return {
-              id: student['@id'],
-              name: `${student.firstName} ${student.lastName}`,
-            }
-          })
-          if (
-            quizAssignment['@type'] ===
-            QuizAssignmentTypesEnums.manualQuizAssignment.id
+
+          setTitle(quizAssignment.name)
+          setDescription(quizAssignment.description)
+          setStartDate(quizAssignment.startDate)
+          setEndDate(quizAssignment.endDate)
+          setShuffleQuizTake(quizAssignment.shuffleQuestion)
+          setPointsSameForAll(false)
+          if (quizAssignment.timeLimit) setTimeLimit(quizAssignment.timeLimit)
+          else {
+            setTimeLimit('')
+            setUnlimitedTime(true)
+          }
+
+          //TODO delete when new quizzes
+          if (quizAssignment.covers.length === 0 &&
+            quizAssignment.requires.length === 0 &&
+            quizAssignment.mentions.length === 0
           ) {
+            setTopicsSelected(topicOptionsCovered)
+          } else {
+            const topicsS = union(union(
+              topicOptionsCovered.filter(t => quizAssignment.covers.map( q => {return q['@id']}).indexOf(t.id) !== -1),
+              topicOptionsRequired.filter(t => quizAssignment.requires.map( q => {return q['@id']}).indexOf(t.id) !== -1)),
+              topicOptionsMentions.filter(t => quizAssignment.mentions.map( q => {return q['@id']}).indexOf(t.id) !== -1))
+
+            setTopicsSelected(topicsS)
+          }
+
+          const selectedAgentsQT = quizAssignment.assignedTo.reduce((acc,user) => {
+            acc.push({
+              id: user['@id'],
+              type: user['@type'],
+              name: `${user.firstName} ${user.lastName}`,
+            })
+            return acc
+          },[])
+
+          setAgentsSelected(selectedAgentsQT)
+
+          //MANUAL
+          if (quizAssignment['@type'] === QuizAssignmentTypesEnums.manualQuizAssignment.id) {
             if (
               quizAssignment.hasQuizTakePrototype &&
               quizAssignment.hasQuizTakePrototype.length
             ) {
-              const quizTakePrototypeId =
-                quizAssignment.hasQuizTakePrototype[0]['@id']
+              const quizTakePrototypeId = quizAssignment.hasQuizTakePrototype[0]['@id']
               axios
                 .get(
                   `${API_URL}/quizTakePrototype/${quizTakePrototypeId.substring(
-                    quizTakePrototypeId.lastIndexOf('/') + 1
-                  )}?_join=orderedQuestion`,
+                    quizTakePrototypeId.lastIndexOf('/') + 1)}?_join=orderedQuestion`,
                   {
                     headers: {
                       Accept: 'application/json',
@@ -276,7 +471,7 @@ class QuizAssignment extends Component {
                     },
                   }
                 )
-                .then(({ data: dataQuizTakePrototype }) => {
+                .then(({data: dataQuizTakePrototype}) => {
                   if (
                     dataQuizTakePrototype &&
                     dataQuizTakePrototype['@graph'] &&
@@ -284,245 +479,72 @@ class QuizAssignment extends Component {
                     dataQuizTakePrototype['@graph'].length > 0
                   ) {
                     const quizTakePrototype = dataQuizTakePrototype['@graph'][0]
-                    const sortedOrderedQuestions = quizTakePrototype.orderedQuestion.sort(
-                      (a, b) => {
-                        return a.position - b.position
-                      }
+
+                    const selectedQuestionsReduced = quizTakePrototype.orderedQuestion.reduce((acc,question) => {
+                      acc.push({
+                        question: allQuestions.find(q => q.question.id === question.question).question ,
+                        points: question.points ? question.points : pointsForAll,
+                        position: question.position,
+                        changePoints: newPoints => changePoints(question.question, newPoints)
+                      })
+                      return acc
+                    },[])
+                    const sortedSelectedQuestions = selectedQuestionsReduced.sort(
+                      (a, b) => {return a.position - b.position}
                     )
-                    const questionsIds = sortedOrderedQuestions.reduce(
-                      (accumulator, orderedQuestion) => {
-                        if (orderedQuestion.question) {
-                          accumulator.push(orderedQuestion.question)
-                        }
-                        return accumulator
-                      },
-                      []
-                    )
-                    const newQuestions = {
-                      ...this.state.questions,
-                      columns: {
-                        ...this.state.questions.columns,
-                        availableQuestions: {
-                          ...this.state.questions.columns.availableQuestions,
-                          questionIds: this.state.questions.columns.availableQuestions.questionIds.filter(
-                            x => !questionsIds.includes(x)
-                          ),
-                        },
-                        choosenQuestions: {
-                          ...this.state.questions.columns.choosenQuestions,
-                          questionIds: questionsIds,
-                        },
-                      },
-                    }
-                    this.setState({ questions: newQuestions })
+
+                    setMaxPositionSelected(sortedSelectedQuestions.length)
+                    setSelectedQuestions(sortedSelectedQuestions)
+                    setLoadingInfo(prevState => {return {...prevState, quizEdit: false}})
+
                   }
                 })
                 .catch(error => console.log(error))
             }
           }
 
-          this.setState({
-            title: name,
-            description,
-            startDate: new Date(startDate),
-            endDate: new Date(endDate),
-            selectedAgents,
-            loading:false,
-          })
         }
       })
       .catch(error => console.log(error))
   }
 
-  addSelectedAgent = selectedAgent => {
-    const { allAgents, selectedAgents } = this.state
-    const findAgentRaw = allAgents.find(agent => {
-      return agent.id === selectedAgent
-    })
-    if (
-      findAgentRaw &&
-      selectedAgents.findIndex(updatedSelectedAgent => {
-        return updatedSelectedAgent.id === selectedAgent
-      }) === -1
-    ) {
-      this.setState({
-        selectedAgents: [...selectedAgents, findAgentRaw],
-      })
-    }
-  }
+  const formSubmit = () => {
 
-  deleteSelectedAgent = selectedAgent => {
-    const { selectedAgents } = this.state
-    const updatedSelectedAgents = [...selectedAgents]
-    if (selectedAgent) {
-      const index = updatedSelectedAgents.findIndex(updatedSelectedAgent => {
-        return updatedSelectedAgent.id === selectedAgent
-      })
-      if (index > -1) {
-        updatedSelectedAgents.splice(index, 1)
-        this.setState({
-          selectedAgents: updatedSelectedAgents,
-        })
-      }
-    }
-  }
+    const selectedAgentsIds = agentsSelected.map(agent => {return agent.id})
+    const topicsCoveredIds = intersection(topicsSelected, topicOptionsCovered).map(topic => {return topic.id})
+    const topicsMentionedIds = intersection(topicsSelected, topicOptionsMentions).map(topic => {return topic.id})
+    const topicsRequiredIds = intersection(topicsSelected, topicOptionsRequired).map(topic => {return topic.id})
 
-  populateSelect = (data, selectElement, elementStateName, selected) => {
-    const selectedTmp = selected || (data.length >= 1 ? data[0].id : '')
-    var newData = data.concat([data])
-    this.setState({
-      [selectElement]: newData,
-      [elementStateName]: selectedTmp,
-    })
-  }
-
-  onStartDateChange = date => {
-    this.setState({
-      startDate: date,
-      validDate: date <= this.state.endDate.getTime()
-    })
-  }
-
-  onEndDateChange = date => {
-    this.setState({
-      endDate: date,
-      validDate: this.state.startDate.getTime() <= date
-    })
-  }
-
-  setSelectedAgents = selectedAgents => {
-    this.setState({
-      selectedAgents,
-    })
-  }
-
-  handleChange = e => {
-    const { name } = e.target
-    const { value } = e.target
-    this.setState({
-      [name]: value,
-    })
-  }
-
-  isEdit = () => {
-    return !!this.props.match.params.quizAssignmentId
-  }
-
-  onDragEnd = result => {
-    const { destination, source, draggableId } = result
-    if (!destination) {
-      return
-    }
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return
-    }
-    if (destination.droppableId === source.droppableId) {
-      const column = this.state.questions.columns[source.droppableId]
-      const newQuestionIds = Array.from(column.questionIds)
-      newQuestionIds.splice(source.index, 1)
-      newQuestionIds.splice(destination.index, 0, draggableId)
-      const newColumn = {
-        ...column,
-        questionIds: newQuestionIds,
-      }
-      const newState = {
-        ...this.state,
-        questions: {
-          ...this.state.questions,
-          columns: {
-            ...this.state.questions.columns,
-            [newColumn.id]: newColumn,
-          },
-        },
-      }
-      this.setState(newState)
-    } else {
-      const columnSource = this.state.questions.columns[source.droppableId]
-      const columnDestination = this.state.questions.columns[
-        destination.droppableId
-      ]
-      const newQuestionIdsSource = Array.from(columnSource.questionIds)
-      const newQuestionIdsDestination = Array.from(
-        columnDestination.questionIds
-      )
-      newQuestionIdsSource.splice(source.index, 1)
-      newQuestionIdsDestination.splice(destination.index, 0, draggableId)
-      const newColumnSource = {
-        ...columnSource,
-        questionIds: newQuestionIdsSource,
-      }
-      const newColumnDestination = {
-        ...columnDestination,
-        questionIds: newQuestionIdsDestination,
-      }
-      const newState = {
-        ...this.state,
-        questions: {
-          ...this.state.questions,
-          columns: {
-            ...this.state.questions.columns,
-            [newColumnSource.id]: newColumnSource,
-            [newColumnDestination.id]: newColumnDestination,
-          },
-        },
-      }
-      this.setState(newState)
-    }
-  }
-
-  formSubmitWithToken = () => {
-    const { token } = this.props
-    if (token) {
-      this.formSubmit(token)
-    }
-  }
-
-  formSubmit = token => {
-    const {
-      title,
-      startDate,
-      endDate,
-      description,
-      selectedAgents,
-      questions,
-    } = this.state
-    const { match, history, courseInstanceId } = this.props
-    const selectedAgentsIds = selectedAgents.map(
-      selectedAgent => selectedAgent.id
-    )
-    const hasQuizTakePrototype = {
-      orderedQuestion: questions.columns.choosenQuestions.questionIds.map(
-        (questionId, index) => {
-          const questionTmp = {
-            question: questionId,
-            position: index,
-          }
-          return questionTmp
-        }
-      ),
-    }
-    const data = {
+    //TODO time limit
+    const quizNewData = {
       name: title,
-      startDate,
-      endDate,
-      description,
+      description: description,
+      startDate: startDate,
+      endDate: endDate,
       assignedTo: selectedAgentsIds,
       courseInstance: courseInstanceId,
+      shuffleQuestion: shuffleQuizTake,
       shuffleAnswer: false,
-      shuffleQuestion: false,
+      covers: topicsCoveredIds,
+      mentions: topicsMentionedIds,
+      requires: topicsRequiredIds,
     }
-    if (
-      quizAssignmentTypeHARD ===
-      QuizAssignmentTypesEnums.manualQuizAssignment.middlename
-    ) {
-      data.hasQuizTakePrototype = hasQuizTakePrototype
+
+    if (quizAssignmentMode.id === QuizAssignmentTypesEnums.manualQuizAssignment.id) {
+      quizNewData.hasQuizTakePrototype = {
+        orderedQuestion: selectedQuestions.reduce((acc, question) => {
+          acc.push({
+            question: question.question.id,
+            position: question.position,
+            points: parseInt(question.points,10),
+          })
+          return acc
+        }, [])
+      }
     }
 
     axios
-      .post(`${API_URL}/${quizAssignmentTypeHARD}`, JSON.stringify(data), {
+      .post(`${API_URL}/${quizAssignmentMode.middlename}`, JSON.stringify(quizNewData), {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -531,7 +553,7 @@ class QuizAssignment extends Component {
       })
       .then(({ status: statusQuestionAssignment }) => {
         if (statusQuestionAssignment === 200) {
-          if (this.isEdit()) {
+          if (isEdit()) {
             const { quizAssignmentType, quizAssignmentId } = match.params
             axios
               .delete(`${API_URL}/${quizAssignmentType}/${quizAssignmentId}`, {
@@ -559,138 +581,235 @@ class QuizAssignment extends Component {
       .catch(error => console.log(error))
   }
 
-  render() {
-    const {
-      title,
-      startDate,
-      endDate,
-      description,
-      selectedAgents,
-      questions,
-      allAgents,
-      allTopics,
-      validDate,
-      loading
-    } = this.state
-
-    const topicOptions = allTopics.map(topicFromAll => {
-      return (
-        <option
-          key={topicFromAll.id}
-          value={topicFromAll.id}
-        >
-          {topicFromAll.name}
-        </option>
-      )
-    })
-
-    const agentOptions = allAgents.reduce((accumulator, agent) => {
-      const index = selectedAgents.findIndex(selectedAgent => {
-        return selectedAgent.id === agent.id
+  const validateOnSubmit = () => {
+    if (checkTextNotEmpty(title,"") === 'ok' &&
+      checkEndDateQA(new Date(startDate), new Date(endDate)) === 'ok' &&
+      checkTimeLimitQA(timeLimit, unlimitedTime) === 'ok')
+      formSubmit()
+    else {
+      setShowWarning(prevState => {
+        return ({...prevState, title: checkTextNotEmpty(title, 'Title')})
       })
-      if (index === -1) {
-        accumulator.push({
-          ...agent,
-          addSelectedAgent: () => this.addSelectedAgent(agent.id),
-        })
-      }
-      return accumulator
-    }, [])
-
-    const selectedAgentsMapped = selectedAgents.map(agent => {
-      return {
-        ...agent,
-        deleteSelectedAgent: () => this.deleteSelectedAgent(agent.id),
-      }
-    })
-
-    if(this.state.loading) {
-      return(
-        <>
-        <h3>Create new quiz assignment</h3>
-        <Alert color="primary">
-          Loading...
-        </Alert>
-        </>
-      )
+      setShowWarning(prevState => {
+        return ({...prevState, endDate: checkEndDateQA(new Date(startDate), new Date(endDate))})
+      })
+      setShowWarning(prevState => {
+        return ({...prevState, timeLimit: checkTimeLimitQA(timeLimit, unlimitedTime)})
+      })
+      window.scrollTo({top:0, behavior: 'smooth'})
     }
+  }
 
-    return (
-      <>
-        <h3>Create new quiz assignment</h3>
-        <Form>
-          <FormGroup>
-            <Label for="title">Title</Label>
-            <Input
-              id="title"
-              type="text"
-              name="title"
-              placeholder="Add title"
-              value={title}
-              onChange={this.handleChange}
-              valid={title.length > 0}
+  const changePoints = (id, points) => {
+    setSelectedQuestions(prevState => prevState.map(q => {
+      return q.question.id === id ? {...q, points} : q
+    }))
+  }
+
+  const handleModeChange = (event, newValue) => {
+    setQuizModeTab(newValue)
+  }
+
+  const handleNext = () => {
+    if (activeStep === 2) validateOnSubmit()
+    else {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      window.scrollTo({top:150, behavior: 'auto'})
+    }
+  };
+
+  const handleBack = () => {
+    if (activeStep === 2) setShowWarning({
+      title: '',
+      startDate: '',
+      endDate: '',
+      timeLimit: '',
+    })
+    setActiveStep((prevActiveStep) => prevActiveStep - 1)
+    window.scrollTo({top:150, behavior: 'auto'})
+  };
+
+  function getSteps() {
+    return ['General', 'Questions', 'Overview'];
+  }
+
+  function getStepContent(stepIndex) {
+    switch (stepIndex) {
+      case 0:
+        return (
+          <div className={style.sectionRoot}>
+            <GeneralInfo
+              courseName = {courseName}
+              title = {title}
+              setTitle = {setTitle}
+              description = {description}
+              setDescription = {setDescription}
+              startDate = {startDate}
+              setStartDate = {setStartDate}
+              endDate = {endDate}
+              setEndDate = {setEndDate}
+              unlimitedTime = {unlimitedTime}
+              setUnlimitedTime = {setUnlimitedTime}
+              timeLimit = {timeLimit}
+              setTimeLimit = {setTimeLimit}
+              agentOptionsUsers = {agentOptionsUsers}
+              agentOptionsTeams = {agentOptionsTeams}
+              agentsSelected = {agentsSelected}
+              setAgentsSelected = {setAgentsSelected}
+              topicsSelected = {topicsSelected}
+              setTopicsSelected = {setTopicsSelected}
+              topicOptionsCovered = {topicOptionsCovered}
+              topicOptionsRequired = {topicOptionsRequired}
+              topicOptionsMentions = {topicOptionsMentions}
+              loadingInfo = {loadingInfo}
+              showWarning = {showWarning}
             />
-          </FormGroup>
-          <AssignmentHeader
-            startDate={startDate}
-            endDate={endDate}
-            description={description}
-            onStartDateChange={this.onStartDateChange}
-            onEndDateChange={this.onEndDateChange}
-            handleChange={this.handleChange}
-            validDate={validDate}
-          />
-          <FormGroup>
-            <Label for="questions">Questions</Label>
-            <DragDropContext onDragEnd={this.onDragEnd}>
-              <Row>
-                {questions && questions.columnOrder
-                  ? questions.columnOrder.map(columnId => {
-                      // console.log(questions.columnOrder)
-                      // console.log(columnId)
-                      const column = questions.columns[columnId]
-                      // console.log(column)
-                      const questionsColumn = column.questionIds.map(
-                        questionId => {
-                          return questions.questions.get(questionId)
-                        }
-                      )
-                      
-                      // console.log(questionsColumn)
-                      return (
-    
-                        <Col key={column.id}>
-                          <QuestionsColumn
-                            column={column}
-                            questions={questionsColumn}
-                            topics = {topicOptions}
-                          />
-                        </Col>
-                      )
-                    })
-                  : null}
-              </Row>
-            </DragDropContext>
-          </FormGroup>
-          <AgentOperatorNew
-            allAgents={allAgents}
-            agentOptions={agentOptions}
-            selectedAgents={selectedAgentsMapped}
-          />
-          <Button color="success" onClick={this.formSubmitWithToken}>
-            {this.isEdit() ? 'Edit assignment' : 'Create assignment'}
-          </Button>
-        </Form>
-      </>
-    )
+          </div>
+        );
+      case 1:
+        return (
+          <div>
+            <Tabs
+              value={quizModeTab}
+              onChange={handleModeChange}
+              variant = 'fullWidth'
+              className={style.sectionRoot}
+              indicatorColor='primary'
+            >
+              <Tab
+                className={style.QA_tabs}
+                value={QuizAssignmentTypesEnums.manualQuizAssignment.id}
+                label={
+                  <h5 className='mb-0'>{QuizAssignmentTypesEnums.manualQuizAssignment.name}</h5>
+                }
+              />
+              <Tab
+                className={style.QA_tabs}
+                value = {QuizAssignmentTypesEnums.generatedQuizAssignment.id}
+                label={
+                  <h5 className='mb-0'>{QuizAssignmentTypesEnums.generatedQuizAssignment.name}</h5>
+                }
+              />
+            </Tabs>
+            {quizModeTab === QuizAssignmentTypesEnums.manualQuizAssignment.id ?
+              <div>
+                <ManualQuizAssignment
+                  topicsSelected = {topicsSelected}
+                  availableQuestions = {availableQuestions}
+                  selectedQuestions = {selectedQuestions}
+                  setSelectedQuestions = {setSelectedQuestions}
+                  pointsForAll={pointsForAll}
+                  maxPositionSelected={maxPositionSelected}
+                  setMaxPositionSelected = {setMaxPositionSelected}
+                  isEdit={isEdit()}
+                />
+                <SelectedQuestions
+                  selectedQuestions = {selectedQuestions}
+                  setSelectedQuestions = {setSelectedQuestions}
+                  pointsForAll = {pointsForAll}
+                  setPointsForAll = {setPointsForAll}
+                  pointsSameForAll = {pointsSameForAll}
+                  setPointsSameForAll = {setPointsSameForAll}
+                  shuffleQuizTake = {shuffleQuizTake}
+                  setShuffleQuizTake = {setShuffleQuizTake}
+                  setMaxPositionSelected = {setMaxPositionSelected}
+                  topicsSelected={topicsSelected}
+                />
+              </div>
+              :
+              <div/>
+              // <GenerateQuestionsSection
+              //   topicsSelected={topicsSelected}
+              //   availableQuestions={availableQuestions}
+              // />
+            }
+
+          </div>
+        )
+      case 2:
+        return (
+          <div className={style.sectionRoot}>
+            <QuizOverview
+              title={title}
+              description = {description}
+              startDate={startDate}
+              endDate={endDate}
+              timeLimit={unlimitedTime ? -1 : timeLimit}
+              topics={topicsSelected}
+              agents={agentsSelected}
+              questions={selectedQuestions}
+              shuffleQuizTake = {shuffleQuizTake}
+              agentOptionsUsers = {agentOptionsUsers}
+              agentOptionsTeams = {agentOptionsTeams}
+              agentsSelected = {agentsSelected}
+              topicsSelected = {topicsSelected}
+              topicOptionsCovered = {topicOptionsCovered}
+              topicOptionsRequired = {topicOptionsRequired}
+              topicOptionsMentions = {topicOptionsMentions}
+              showWarning={showWarning}
+            />
+          </div>
+        )
+      default:
+        return 'Unknown stepIndex';
+    }
   }
+
+  return (
+    <Paper variant='outlined' className={style.root} >
+      <ThemeProvider theme={theme}>
+        <h2>Quiz assignment</h2>
+        {loadingInfo.quizEdit ?
+          <div style={{marginTop: 20}}>
+            <Alert severity='success' icon={false}>
+              Loading...
+            </Alert>
+          </div>
+          :
+          <div>
+            <Stepper
+              activeStep={activeStep}
+              className={`${style.smDownDisplayNone} ${style.sectionRoot}`}
+            >
+              {steps.map((label) => (
+                <Step key={label}>
+                  <StepLabel
+                    StepIconProps={{classes: {root: style.QA_stepIcon}}} classes={{label: style.QA_stepLabel}}>{label}
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+
+            {getStepContent(activeStep)}
+            <Box className = {style.QA_navButtons}>
+              {activeStep > 0 &&
+              <Button
+                className = {style.QA_navButton}
+                variant= 'contained'
+                size = 'large'
+                color= 'primary'
+                onClick = {handleBack}
+                startIcon={<BsCaretLeftFill/>}
+              >
+                {getSteps()[activeStep-1]}
+              </Button>}
+              <Button
+                className = {style.QA_navButton}
+                variant= 'contained'
+                size = 'large'
+                color= 'primary'
+                onClick = {handleNext}
+                endIcon={
+                  activeStep === getSteps().length -1 ? null : <BsCaretRightFill/>
+                }
+              >
+                {activeStep === getSteps().length -1 ? isEdit() ? 'Edit quiz' : 'Create quiz' : getSteps()[activeStep+1]}
+              </Button>
+            </Box>
+          </div>}
+      </ThemeProvider>
+    </Paper>
+  )
 }
 
-const mapStateToProps = ({ userReducer }) => {
-  const { isAdmin } = userReducer
-  return {
-    isAdmin,
-  }
-}
-
-export default connect(mapStateToProps, {})(QuizAssignment)
+export default QuizAssignment
