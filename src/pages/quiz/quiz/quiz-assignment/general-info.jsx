@@ -1,9 +1,10 @@
 import React from 'react'
-import {Grid, InputAdornment, Switch, TextField} from '@material-ui/core'
+import {Box, Grid, InputAdornment, Switch, TextField, Typography} from '@material-ui/core'
 import {DateTimePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import TopicSelection from './topic-selection'
 import AgentSelection from "./agents-selection";
+import {grey} from "@material-ui/core/colors";
 
 function GeneralInfo({
                        courseName,
@@ -40,8 +41,11 @@ function GeneralInfo({
   }
 
   const handleTimeLimitChange = (event) => {
-    event.target.value.length < 6 && event.target.value[0] !== '0' &&
-    setTimeLimit(event.target.value)
+    const newValue = event.target.value.replace(/^0+(?=\d)/, '')
+    if (newValue === '') setTimeLimit('')
+    else if (newValue.match(/^\d+$/)) {
+      setTimeLimit(parseInt(newValue) === 0 ? '' : newValue)
+    }
   }
 
   const handleSwitchChange = (event) => {
@@ -87,42 +91,37 @@ function GeneralInfo({
   )
 
   const timeLimitSection = () => (
-    <Grid item container direction='row' xs={6}>
-      <Grid item xs={5}>
+    <Box display='flex' justifyContent='flex-start'>
+      <Box width={190} paddingRight={3} style={{borderRight: `2px solid ${grey[400]}`}}>
         <TextField
-          type='number'
-          variant='outlined'
           size='small'
+          variant='outlined'
           value = {timeLimit}
+          disabled={unlimitedTime}
           InputProps={{
             endAdornment:
               <InputAdornment
                 position='end'>
                 minutes
               </InputAdornment>,
-            inputProps: {
-              min: 2,
-              max: 10000,
-              style: {textAlign:'center'}
-            }
           }}
-          disabled={unlimitedTime}
+          inputProps={{
+            min: 0,
+            maxLength: 4,
+            style: {textAlign: 'center'}
+          }}
           onChange={e => handleTimeLimitChange(e)}
         />
-      </Grid>
-      <Grid item container alignItems='center' spacing={1} xs={4}>
-        <Grid item>
-          Unlimited
-        </Grid>
-        <Grid item>
-          <Switch
-            color="primary"
-            checked={unlimitedTime}
-            onChange={handleSwitchChange}
-          />
-        </Grid>
-      </Grid>
-    </Grid>
+      </Box>
+      <Box paddingLeft={3}>
+        <Typography variant='button'>Unlimited</Typography>
+        <Switch
+          color="primary"
+          checked={unlimitedTime}
+          onChange={handleSwitchChange}
+        />
+      </Box>
+    </Box>
   )
 
   return (

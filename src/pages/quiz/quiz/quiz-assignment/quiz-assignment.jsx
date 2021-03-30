@@ -61,7 +61,7 @@ function QuizAssignment({
   const [description, setDescription] = useState('')
   const [startDate, setStartDate] = useState(new Date(new Date().setMinutes(Math.round((new Date().getMinutes() / 5) + 1) * 5)));
   const [endDate, setEndDate] = useState(new Date(new Date().setMinutes(Math.round((new Date().getMinutes() / 5) + 1) * 5)));
-  const [unlimitedTime, setUnlimitedTime] = useState(false)
+  const [unlimitedTime, setUnlimitedTime] = useState(true)
   const [timeLimit, setTimeLimit] = useState('')
   const [agentsSelected, setAgentsSelected] = useState([])
   const [topicsSelected, setTopicsSelected] = useState([])
@@ -420,7 +420,10 @@ function QuizAssignment({
           setEndDate(quizAssignment.endDate)
           setShuffleQuizTake(quizAssignment.shuffleQuestion)
           setPointsSameForAll(false)
-          if (quizAssignment.timeLimit) setTimeLimit(quizAssignment.timeLimit)
+          if (quizAssignment.timeLimit) {
+            setUnlimitedTime(quizAssignment.timeLimit === -1)
+            setTimeLimit(quizAssignment.timeLimit === -1 ? '' : quizAssignment.timeLimit.toString)
+          }
           else {
             setTimeLimit('')
             setUnlimitedTime(true)
@@ -521,6 +524,7 @@ function QuizAssignment({
       description: description,
       startDate: startDate,
       endDate: endDate,
+      timeLimit: unlimitedTime ? -1 : parseInt(timeLimit, 10),
       assignedTo: selectedAgentsIds,
       courseInstance: courseInstanceId,
       shuffleQuestion: shuffleQuizTake,
