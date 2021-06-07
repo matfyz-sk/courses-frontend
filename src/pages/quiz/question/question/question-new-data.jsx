@@ -1,16 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from 'reactstrap'
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
 import { API_URL } from '../../../../configuration/api'
 import QuestionNew from './question-new'
-import { checkAnswers, checkPairs, checkTextNotEmpty} from '../../common/validate-input'
-import {WarningMessage} from '../../common/warning-message'
+import { checkAnswers, checkPairs, checkTextNotEmpty } from '../../common/functions/validate-input'
+import { WarningMessage } from '../../common/warning-message'
+import { QuestionTypesEnums } from '../../common/functions/type-enums'
 
 const enText = {
   'open-question': 'Open question',
@@ -23,34 +18,6 @@ const enText = {
   'new-question': 'New question',
   'new-question-version': 'New question version',
 }
-
-export const QuestionTypesEnums = Object.freeze({
-  multiple: {
-    id: 'http://www.courses.matfyz.sk/ontology#QuestionWithPredefinedAnswer', // should change id for type
-    entityName: 'questionWithPredefinedAnswer',
-    name: 'Question with predefined answer'
-  },
-  essay: {
-    id: 'http://www.courses.matfyz.sk/ontology#EssayQuestion', // should change id for type
-    entityName: 'essayQuestion',
-    name: 'Essay question'
-  },
-  open: {
-    id: 'http://www.courses.matfyz.sk/ontology#OpenQuestion', // should change id for type
-    entityName: 'openQuestion',
-    name: 'Open question'
-  },
-  ordering: {
-    id: 'http://www.courses.matfyz.sk/ontology#OrderingQuestion',
-    entityName: 'orderingQuestion',
-    name: 'Ordering question'
-  },
-  matching: {
-    id: 'http://www.courses.matfyz.sk/ontology#MatchQuestion',
-    entityName: 'matchingQuestion',
-    name: 'Matching question'
-  },
-})
 
 function QuestionNewData({
   userId,
@@ -425,25 +392,25 @@ function QuestionNewData({
     setOrderAnswers(prevState => prevState.filter(el => el.position !== position))
   }
 
-  const onDragEnd = result => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
-    const {destination, source, draggableId} = result;
-    if (!destination) {
-      return
-    }
-    if (destination.index === source.index) {
-      return
-    }
-    const newAnswersPos = orderAnswersColumn.answersPositions
-    newAnswersPos.splice(source.index, 1)
-    newAnswersPos.splice(destination.index, 0,parseInt(draggableId))
-    const newColumnData = {
-      id: orderAnswersColumn.id,
-      title: orderAnswersColumn.title,
-      answersPositions: newAnswersPos,
-    }
-    setOrderAnswersColumn(newColumnData)
-  }
+  // const onDragEnd = result => {
+  //   setShowWarning(prevState => {return ({...prevState, answers: ''})})
+  //   const {destination, source, draggableId} = result;
+  //   if (!destination) {
+  //     return
+  //   }
+  //   if (destination.index === source.index) {
+  //     return
+  //   }
+  //   const newAnswersPos = orderAnswersColumn.answersPositions
+  //   newAnswersPos.splice(source.index, 1)
+  //   newAnswersPos.splice(destination.index, 0,parseInt(draggableId))
+  //   const newColumnData = {
+  //     id: orderAnswersColumn.id,
+  //     title: orderAnswersColumn.title,
+  //     answersPositions: newAnswersPos,
+  //   }
+  //   setOrderAnswersColumn(newColumnData)
+  // }
 
   //MatchQuestion function
   useEffect(() => {
@@ -752,7 +719,8 @@ function QuestionNewData({
       orderAnswers={orderAnswers}
       orderAnswersColumn={orderAnswersColumn}
       addNewOrderAnswer={addNewOrderAnswer}
-      onDragEnd={onDragEnd}
+      setShowWarning={setShowWarning}
+      setOrderAnswersColumn={setOrderAnswersColumn}
       //MatchingQuestion
       matchAnswers = {matchAnswers}
       matchPairs = {matchPairs}

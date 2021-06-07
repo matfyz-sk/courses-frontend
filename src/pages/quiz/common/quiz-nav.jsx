@@ -1,5 +1,5 @@
 import React from 'react'
-import { Nav, NavItem, NavLink, Navbar } from 'reactstrap'
+import { Nav, Navbar, NavItem, NavLink } from 'reactstrap'
 import { NavLink as NV } from 'react-router-dom'
 
 const QuizNav = ({ match }) => {
@@ -18,7 +18,7 @@ const QuizNav = ({ match }) => {
         </NavItem>
         <NavItem >
           <NavLink
-            tag={NV}          
+            tag={NV}
             to={`/courses/${match.params.course_id}/quiz/quizAssignmentsOverview`}
           >
             Quizzes

@@ -1,14 +1,14 @@
 /* eslint-disable react/prefer-stateless-function */
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import {
-  Input,
   Button,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle,
   ButtonDropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
   FormText,
+  Input,
 } from 'reactstrap'
 
 import { API_URL } from '../../../../../configuration/api'
@@ -208,8 +208,9 @@ function SavedQuestion({
         //ORDER Q
         orderAnswers = {orderAnswers}
         //MATCH Q
-        matchAnswers = {matchAnswersAdapted}
-        matchPairs = {matchPairsAdapted}
+        // matchAnswers = {matchAnswersAdapted}
+        // matchPairs = {matchPairsAdapted}
+        matchPairs={matchPairs}
         disabled
         isSaved={true}
         color={isApproved ? '#f4f9ec' : null}

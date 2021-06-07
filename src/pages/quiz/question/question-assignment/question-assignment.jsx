@@ -5,12 +5,12 @@ import React, { Component } from 'react'
 import axios from 'axios'
 
 import PropTypes from 'prop-types'
-import { Button, Label, FormGroup, Input } from 'reactstrap'
+import { Button, FormGroup, Input, Label } from 'reactstrap'
 
 import { API_URL } from '../../../../configuration/api'
 import AssignmentHeader from '../../common/assignment-header'
 import AgentOperatorNew from '../../common/agent-operator-new'
-import { checkTextNotEmpty, checkDate } from '../../common/validate-input'
+import { checkDate, checkTextNotEmpty } from '../../common/functions/validate-input'
 
 export class QuestionAssignment extends Component {
   state = {
@@ -533,8 +533,8 @@ export class QuestionAssignment extends Component {
           agentOptions={agentOptions}
           selectedAgents={selectedAgentsMapped}
         />
-        <Button 
-          color="success" 
+        <Button
+          color="success"
           onClick={this.validateOnSubmit}
         >
           {this.isEdit() ? 'Edit assignment' : 'Create assignment'}

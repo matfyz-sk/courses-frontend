@@ -1,31 +1,22 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import {
-  Grid,
-  Checkbox,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
+  Box,
   Card,
   CardHeader,
-  Divider,
+  Checkbox,
   Collapse,
+  Divider,
+  Grid,
   IconButton,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
 } from '@material-ui/core'
-import {useStyles} from '../../common/styles'
+import { customTheme, useStyles } from '../../common/style/styles'
 import { FaAngleDown, FaAngleUp, FaTimes } from 'react-icons/fa'
-
-function not(a, b) {
-  return a.filter((value) => b.map(val => {return val.id}).indexOf(value.id) === -1);
-}
-
-function intersection(a, b) {
-  return a.filter((value) => b.map(val => {return val.id}).indexOf(value.id) !== -1);
-}
-
-function union(a, b) {
-  return [...a, ...not(b, a)];
-}
+import { Skeleton } from '@material-ui/lab'
+import { intersection, not, union } from '../../common/functions/common-functions'
 
 function AgentSelection ({
                            courseName,
@@ -33,6 +24,7 @@ function AgentSelection ({
                            agentOptionsTeams,
                            agentsSelected,
                            setAgentsSelected,
+                           loadedQuestions,
                          }) {
 
   const style = useStyles()
@@ -72,59 +64,79 @@ function AgentSelection ({
     setAgentsSelected(prevState => intersection(prevState, agents).length === agents.length ? not(prevState, agents) : union(prevState, agents) )
   }
 
-  const agentCategory = (title, agents, index) => (
-    <div>
-      <ListItem className={style.options_listHeader} button onClick=
-        {handleCategoryCollapse(index)}>
-        <ListItemIcon>
-          <Checkbox
-            checked = {agentsSelected.length > 0 && intersection(agentsSelected, agents).length === agents.length}
-            indeterminate = {intersection(agents, agentsSelected).length > 0 && intersection(agents, agentsSelected).length < agents.length}
-            onClick = {e => {e.stopPropagation(); handleCheckedCategory(agents)}}
-          />
-        </ListItemIcon>
-        <ListItemText
-          primaryTypographyProps= {{style:{fontSize: 19 }}}
-          primary = {title}
-        />
-        {openCategory.indexOf(index) !== -1 ? <FaAngleUp /> : <FaAngleDown />}
-      </ListItem>
-      <Collapse
-        className={ openCategory.indexOf(index) !== -1 ? style.options_listItems : null}
-        in={openCategory.indexOf(index) !== -1}
-      >
-        <List component="div" disablePadding>
-          {agents.length > 0 ?
-            agents.map((agent) => {
-              return (
-                <ListItem
-                  button
-                  key={agent.id}
-                  onClick={e => handleCheckedAgent(agent)}
-                >
-                  <ListItemIcon>
-                    <Checkbox
-                      color='primary'
-                      checked={agentsSelected.map(a => {return a.id}).indexOf(agent.id) !== -1}
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    primaryTypographyProps={{style: {fontSize: 17}}}
-                    primary={agent.name}
-                  />
-                </ListItem>
-              )}
-            ) :
-            <ListItem>
+  const agentCategory = (title, agents, index) => {
+    return (
+      <Box>
+        {loadedQuestions ?
+          <ListItem className={style.options_listHeader} button onClick=
+            {handleCategoryCollapse(index)}>
+            <ListItemIcon>
+              <Checkbox
+                checked={agentsSelected.length > 0 && intersection(agentsSelected, agents).length === agents.length}
+                indeterminate={intersection(agents, agentsSelected).length > 0 && intersection(agents, agentsSelected).length < agents.length}
+                onClick={e => {
+                  e.stopPropagation()
+                  handleCheckedCategory(agents)
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText
+              primaryTypographyProps={{ style: { fontSize: 19 } }}
+              primary={title}
+            />
+            {openCategory.indexOf(index) !== -1 ? <FaAngleUp /> : <FaAngleDown />}
+          </ListItem>
+          :
+          <Skeleton variant='rect' width='100%' animation="wave" className={style.options_listHeader}>
+            <ListItem className={style.options_listHeader}>
+              <ListItemIcon>
+                <Checkbox/>
+              </ListItemIcon>
               <ListItemText
-                secondary={`This course has no ${title}`}
+                primaryTypographyProps={{ style: { fontSize: 19 } }}
+                primary="Dummy skeleton"
               />
             </ListItem>
-          }
-        </List>
-      </Collapse>
-    </div>
-  )
+          </Skeleton>
+        }
+        <Collapse
+          in={openCategory.indexOf(index) !== -1}
+          style={{paddingTop: 4, paddingBottom: 4}}
+        >
+          <List component="div" disablePadding>
+            {agents.length > 0 ?
+              agents.map((agent) => {
+                return (
+                  <ListItem
+                    button
+                    key={agent.id}
+                    onClick={e => handleCheckedAgent(agent)}
+                  >
+                    <ListItemIcon>
+                      <Checkbox
+                        color='primary'
+                        checked={agentsSelected.map(a => {return a.id}).indexOf(agent.id) !== -1}
+                      />
+                    </ListItemIcon>
+                    <ListItemText
+                      primaryTypographyProps={{style: {fontSize: 17}}}
+                      primary={agent.name}
+                    />
+                  </ListItem>
+                )}
+              ) :
+              <ListItem>
+                <ListItemText
+                  style={{textTransform: 'lowercase'}}
+                  secondary={`This course has no ${title}`}
+                />
+              </ListItem>
+            }
+          </List>
+        </Collapse>
+      </Box>
+    )
+  }
 
   return(
     <Grid item container direction='column'>
@@ -140,8 +152,8 @@ function AgentSelection ({
             />
             <Divider />
             <List className={style.options_list}>
-              {agentCategory('students',agentOptionsUsers, 0)}
-              {agentCategory('teams',agentOptionsTeams, 1)}
+              {agentCategory('Students',agentOptionsUsers, 0)}
+              {agentCategory('Teams',agentOptionsTeams, 1)}
             </List>
           </Card>
         </Grid>
@@ -157,15 +169,15 @@ function AgentSelection ({
               {agentsSelected.map((agent) => {
                 return (
                   <ListItem button key={agent.id}>
-                    <ListItemText primary={
-                      agent.type === "http://www.courses.matfyz.sk/ontology#Team" ?
+                    <ListItemText
+                      primary={agent.type === "http://www.courses.matfyz.sk/ontology#Team" ?
                         `${agent.name} (team)` : agent.name} />
                     <IconButton
                       onClick = {e => handleRemoveSelected(agent)}
                     >
                       <FaTimes
                         fontSize='medium'
-                        className={style.options_removeButton}
+                        color={customTheme.palette.error.main}
                       />
                     </IconButton>
                   </ListItem>

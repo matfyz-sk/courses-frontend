@@ -1,9 +1,8 @@
 /* eslint-disable react/forbid-prop-types */
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
 import axios from 'axios'
 import PropTypes from 'prop-types'
-import { Card, Button } from 'reactstrap'
+import { Card } from 'reactstrap'
 
 import { API_URL } from '../../../../configuration/api'
 import TopicPreview from './topic-preview/topic-preview'
@@ -136,7 +135,8 @@ class TopicsOverview extends Component {
           return questionAssignment.covers[0]['@id'] === topic
         })
       }
-      if (hasAssignment) {
+
+      // if (hasAssignment) {
         promises.push(
           axios.get(
             `${API_URL}/question${`?ofTopic=${topic.substring(
@@ -153,7 +153,7 @@ class TopicsOverview extends Component {
             }
           )
         )
-      }
+      // }
     })
     return axios.all(promises).then(resultsQuestionsForTopic => {
       const questionsByTopicsRaw = resultsQuestionsForTopic.reduce(

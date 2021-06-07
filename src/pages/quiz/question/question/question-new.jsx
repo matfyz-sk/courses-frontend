@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react'
-import { Card, CardBody, Label, FormGroup, Input} from 'reactstrap'
+import React from 'react'
+import { Card, CardBody, FormGroup, Input, Label } from 'reactstrap'
 
-import { QuestionTypesEnums } from './question-new-data'
+import { QuestionTypesEnums } from '../../common/functions/type-enums'
 import QuestionAnswers from './question-answers'
 import AnswerComponentOpen from '../common/answer-component/answer-component-open'
 import AnswerComponentOrder from '../common/answer-component/answer-component-order'
@@ -44,7 +44,8 @@ function QuestionNew({
   orderAnswers,
   orderAnswersColumn,
   addNewOrderAnswer,
-  onDragEnd,
+  setShowWarning,
+  setOrderAnswersColumn,
   matchAnswers,
   matchPairs,
   addNewPair,
@@ -189,14 +190,15 @@ function QuestionNew({
                   answersPositions: orderAnswers.map(answer => answer.position),}
                 }
               addNewOrderAnswer={addNewOrderAnswer}
-              onDragEnd={onDragEnd}
+              setShowWarning={setShowWarning}
+              setOrderAnswersColumn={setOrderAnswersColumn}
             />
           </FormGroup>
         )}
         {questionType === QuestionTypesEnums.matching.id && (
          <FormGroup>
            <AnswerComponentMatch
-             matchAnswers = {matchAnswers}
+             matchAnswers = {addNewPair && matchAnswers}
              pairs = {matchPairs}
              addNewPair = {addNewPair}
            />

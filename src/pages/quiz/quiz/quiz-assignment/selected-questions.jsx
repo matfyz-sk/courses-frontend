@@ -1,4 +1,5 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
+import { customTheme, useStyles } from '../../common/style/styles'
 import {
   Box,
   Card,
@@ -10,14 +11,10 @@ import {
   ListItemText,
   Switch,
   TextField,
-  Tooltip,
   Typography,
 } from '@material-ui/core'
-import {useStyles} from '../../common/styles'
-import {FaAngleDown, FaAngleUp, FaArrowDown, FaArrowUp, FaTrashAlt} from 'react-icons/fa'
-import {FiHelpCircle} from 'react-icons/fi'
-import QuizQuestion from "../../common/quiz-question";
-import {grey} from "@material-ui/core/colors";
+import { FaAngleDown, FaAngleUp, FaArrowDown, FaArrowUp, FaTrashAlt } from 'react-icons/fa'
+import QuizQuestion from '../../common/quiz-question'
 
 function SelectedQuestions({
                              selectedQuestions,
@@ -34,10 +31,6 @@ function SelectedQuestions({
   const style = useStyles()
 
   const [openQuestions, setOpenQuestions] = useState([])
-
-  const handleOrderMode = (e) => {
-    setShuffleQuizTake(prevState => !prevState)
-  }
 
   const handlePointsModeChange = (event) => {
     setPointsSameForAll(event.target.checked)
@@ -151,31 +144,11 @@ function SelectedQuestions({
 
   return (
     <div className={style.sectionRoot}>
-      <Typography className={style.sectionHeader} variant='h6'>Selected question</Typography>
+      <Typography className={`${style.sectionHeader} ${style.startSection}`} variant='h6'>Selected questions</Typography>
       <Box
         className={style.sectionAppbar}
       >
-        <Box className={style.SQ_toolbar} style={{borderRight: `1px solid ${grey[200]}`}}>
-          <Tooltip
-            title={
-              <Typography variant='body2'>Questions will be shown in random order for each quiz
-                take </Typography>
-            }
-            arrow
-            placement='top'
-          >
-            <IconButton size='small' style={{marginRight: 10}}>
-              <FiHelpCircle/>
-            </IconButton>
-          </Tooltip>
-          <Typography variant='button'>Shuffle quiz take</Typography>
-          <Switch
-            checked={shuffleQuizTake}
-            onChange={handleOrderMode}
-            color='primary'
-          />
-        </Box>
-        <Box className={style.SQ_toolbar} style={{borderLeft: `1px solid ${grey[200]}`}}>
+        <Box className={style.SQ_toolbar} display='flex' justifyContent='flex-end' alignItems='center'>
           <Typography variant='button'>Points for all questions</Typography>
           <Switch
             checked={pointsSameForAll}
@@ -185,7 +158,7 @@ function SelectedQuestions({
           <TextField
             size='small'
             variant='outlined'
-            className={style.SQ_pointsTextField}
+            className={style.numberTextField}
             disabled={!pointsSameForAll}
             inputProps={{min: 0, maxLength: 3, style: {textAlign: 'center', padding: 8}}}
             value={pointsForAll}
@@ -197,88 +170,100 @@ function SelectedQuestions({
 
       <Card variant='outlined' className={style.MQA_questionList}>
         <List>
-          {selectedQuestions.map(question => {
-            return (
-              <div key={question.question.id} className={style.MQA_questionItem}
-              >
-                <ListItem
-                  button
-                  onClick={e => handleOpenQuestion(question)}
+          {selectedQuestions.length === 0 ?
+            <ListItem>
+              <ListItemText
+                secondary={`No questions selected`}
+              />
+            </ListItem>
+            :
+            selectedQuestions.map(question => {
+              return (
+                <div key={question.question.id} className={style.MQA_questionItem}
                 >
-                  <ListItemIcon>
-                    {openQuestions.indexOf(question) !== -1 ?
-                      <FaAngleUp size={25}/> : <FaAngleDown size={25}/>}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={question.question.title}
-                  />
-                  <Box
-                    display='flex'
-                    justifyContent='flex-end'
-                    alignItems='center'
-                  >
-                    {!pointsSameForAll && <Typography variant='subtitle1'>points: </Typography>}
-                    {!pointsSameForAll &&
-                    <TextField
-                      size='small'
-                      variant='outlined'
-                      className={style.SQ_pointsTextField}
-                      disabled={pointsSameForAll}
-                      inputProps={{
-                        min: 0,
-                        maxLength: 3,
-                        style: {textAlign: 'center', padding: 8}
-                      }}
-                      value={question.points}
-                      onClick={e => e.stopPropagation()}
-                      onChange={e => handlePointsForQuestion(e, question)}
-                      onBlur={e => optimizeEmptyPoints(e, question)}
-                    />}
-                    <IconButton
-                      className={style.SQ_removeButton}
-                      onClick={e => {
-                        e.stopPropagation();
-                        removeFromSelectedQuestions(question)
-                      }}
+                  <>
+                    <ListItem
+                      button
+                      onClick={e => handleOpenQuestion(question)}
                     >
-                      <FaTrashAlt/>
-                    </IconButton>
-                    {!shuffleQuizTake &&
-                    <div>
-                      <IconButton
-                        className={style.SQ_orderButton}
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleMoveUp(question)
-                        }}
+                      <ListItemIcon>
+                        {openQuestions.indexOf(question) !== -1 ?
+                          <FaAngleUp size={25}/> : <FaAngleDown size={25}/>}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={question.question.title}
+                      />
+                      <Box
+                        display='flex'
+                        justifyContent='flex-end'
+                        alignItems='center'
                       >
-                        <FaArrowUp/>
-                      </IconButton>
-                      <IconButton
-                        className={style.SQ_orderButton}
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleMoveDown(question)
-                        }}
-                      >
-                        <FaArrowDown/>
-                      </IconButton>
-                    </div>}
-                  </Box>
-                </ListItem>
-                <Collapse
-                  in={openQuestions.indexOf(question) !== -1}
-                >
-                  <ListItem component={"div"} style={{display: 'flex'}}>
-                    <QuizQuestion
-                      question={question}
-                      variant='quizSelectionPreview'
-                    />
-                  </ListItem>
-                </Collapse>
-              </div>
-            )
-          })}
+                        {!pointsSameForAll && <Typography variant='subtitle1'>points: </Typography>}
+                        {!pointsSameForAll &&
+                        <TextField
+                          size='small'
+                          variant='outlined'
+                          className={style.numberTextField}
+                          disabled={pointsSameForAll}
+                          inputProps={{
+                            min: 0,
+                            maxLength: 3,
+                            style: {textAlign: 'center', padding: 8}
+                          }}
+                          value={question.points}
+                          onClick={e => e.stopPropagation()}
+                          onChange={e => handlePointsForQuestion(e, question)}
+                          onBlur={e => optimizeEmptyPoints(e, question)}
+                        />}
+                        <IconButton
+                          className={style.iconButton}
+                          style={{color: customTheme.palette.error.main}}
+                          onClick={e => {
+                            e.stopPropagation();
+                            removeFromSelectedQuestions(question)
+                          }}
+                        >
+                          <FaTrashAlt/>
+                        </IconButton>
+                        {!shuffleQuizTake &&
+                        <div>
+                          <IconButton
+                            className={style.iconButton}
+                            color='primary'
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleMoveUp(question)
+                            }}
+                          >
+                            <FaArrowUp/>
+                          </IconButton>
+                          <IconButton
+                            className={style.iconButton}
+                            color='primary'
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleMoveDown(question)
+                            }}
+                          >
+                            <FaArrowDown/>
+                          </IconButton>
+                        </div>}
+                      </Box>
+                    </ListItem>
+                  </>
+                  <Collapse
+                    in={openQuestions.indexOf(question) !== -1}
+                  >
+                    <ListItem component={"div"} style={{display: 'flex'}}>
+                      <QuizQuestion
+                        question={question}
+                        variant='questionPreview'
+                      />
+                    </ListItem>
+                  </Collapse>
+                </div>
+              )
+            })}
         </List>
       </Card>
     </div>

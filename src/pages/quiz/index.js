@@ -16,7 +16,13 @@ import TopicsOverviewData from './question/topics-overview/topics-overview-data'
 import QuestionNewData from './question/question/question-new-data'
 import { store } from '../../index'
 import { setSubNav } from '../../redux/actions/navigationActions'
-import QuizTake from './quiz/quiz-take/quiz-take'
+import QuizTakeNew from './quiz/quiz-take/quiz-take-new'
+import QuizTakeIntro from './quiz/quiz-take/quiz-take-intro'
+import QuizTakeReview from './quiz/quiz-take/quiz-take-review'
+import SelfQuizNew from './quiz/self-quiz/self-quiz-new'
+import QuizTakesOverviewData from './quiz/quiz-take/quiz-takes-overview-data'
+import QuizTakeStudentResult from './quiz/quiz-take/quiz-take-student-result'
+import SelfQuizzes from './quiz/self-quiz/self-quizzes'
 
 class Quiz extends Component {
   componentDidMount() {
@@ -125,7 +131,7 @@ class Quiz extends Component {
                 token={token}
                 userId={userId}
                 match={matchChild}
-                history={history}
+                history2={history}
               />
             )}
           />
@@ -248,9 +254,95 @@ class Quiz extends Component {
           />
           <Route
             exact
+            path="/courses/:courseId/quiz/quizTakeIntro/:quizAssignmentId"
+            render={({ match: matchChild }) => (
+              // TODO delete later, just for testing
+              <QuizTakeIntro
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
+              />
+            )}
+          />
+          //TODO
+          <Route
+            exact
             path="/courses/:courseId/quiz/quizTake/:quizTakeId"
             render={({ match: matchChild }) => (
-              <QuizTake
+              <QuizTakeNew
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
+              />
+            )}
+          />
+          <Route
+            exact
+            path="/courses/:courseId/quiz/quizTakesOverview/:quizAssignmentId"
+            render={({ match: matchChild }) => (
+              <QuizTakesOverviewData
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
+              />
+            )}
+          />
+          <Route
+            exact
+            path="/courses/:courseId/quiz/quizTakeReview/:quizTakeId"
+            render={({ match: matchChild }) => (
+              <QuizTakeReview
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
+              />
+            )}
+          />
+          <Route
+            exact
+            path="/courses/:courseId/quiz/quizResult/:quizTakeId"
+            render={({ match: matchChild }) => (
+              <QuizTakeStudentResult
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
+              />
+            )}
+          />
+          <Route
+            exact
+            path="/courses/:courseId/quiz/selfQuizzes"
+            render={({ match: matchChild }) => (
+              <SelfQuizzes
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
+              />
+            )}
+          />
+          <Route
+            exact
+            path="/courses/:courseId/quiz/selfQuiz"
+            render={({ match: matchChild }) => (
+              <SelfQuizNew
                 courseInstanceId={courseInstanceId}
                 userId={userId}
                 isTeacher={isTeacher}
@@ -263,7 +355,7 @@ class Quiz extends Component {
         </Switch>
       </div>
     )
-    
+
   }
 }
 

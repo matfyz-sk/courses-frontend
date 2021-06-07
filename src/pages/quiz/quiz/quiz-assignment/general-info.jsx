@@ -1,10 +1,10 @@
 import React from 'react'
-import {Box, Grid, InputAdornment, Switch, TextField, Typography} from '@material-ui/core'
-import {DateTimePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
+import { Box, Grid, InputAdornment, Switch, TextField, Typography } from '@material-ui/core'
+import { DateTimePicker, MuiPickersUtilsProvider } from '@material-ui/pickers'
+import DateFnsUtils from '@date-io/date-fns'
 import TopicSelection from './topic-selection'
-import AgentSelection from "./agents-selection";
-import {grey} from "@material-ui/core/colors";
+import AgentSelection from './agents-selection'
+import { customTheme } from '../../common/style/styles'
 
 function GeneralInfo({
                        courseName,
@@ -29,6 +29,7 @@ function GeneralInfo({
                        topicOptionsCovered,
                        topicOptionsRequired,
                        topicOptionsMentions,
+  loadedQuestions,
 
                      }) {
 
@@ -92,7 +93,7 @@ function GeneralInfo({
 
   const timeLimitSection = () => (
     <Box display='flex' justifyContent='flex-start'>
-      <Box width={190} paddingRight={3} style={{borderRight: `2px solid ${grey[400]}`}}>
+      <Box width={190} paddingRight={3} style={{borderRight: `2px solid ${customTheme.palette.info.grey_300}`}}>
         <TextField
           size='small'
           variant='outlined'
@@ -113,8 +114,8 @@ function GeneralInfo({
           onChange={e => handleTimeLimitChange(e)}
         />
       </Box>
-      <Box paddingLeft={3}>
-        <Typography variant='button'>Unlimited</Typography>
+      <Box paddingLeft={3} display='flex' alignItems='center'>
+        <Typography component='div'><Box fontSize={18}>Unlimited</Box></Typography>
         <Switch
           color="primary"
           checked={unlimitedTime}
@@ -170,7 +171,7 @@ function GeneralInfo({
         </Grid>
         {timeLimitSection()}
       </Grid>
-      <Grid item>
+      <Grid item container>
         <TopicSelection
           courseName = {courseName}
           topicsSelected = {topicsSelected}
@@ -178,15 +179,17 @@ function GeneralInfo({
           topicOptionsCovered = {topicOptionsCovered}
           topicOptionsRequired = {topicOptionsRequired}
           topicOptionsMentions = {topicOptionsMentions}
+          loadedQuestions = {loadedQuestions}
         />
       </Grid>
-      <Grid item>
+      <Grid item container>
         <AgentSelection
           courseName = {courseName}
           agentOptionsUsers={agentOptionsUsers}
           agentOptionsTeams={agentOptionsTeams}
           agentsSelected={agentsSelected}
           setAgentsSelected={setAgentsSelected}
+          loadedQuestions={loadedQuestions}
         />
       </Grid>
     </Grid>

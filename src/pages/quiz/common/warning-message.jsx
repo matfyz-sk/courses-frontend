@@ -1,6 +1,6 @@
 import React from 'react'
-import {Alert}  from '@material-ui/lab/'
-import {Collapse}  from '@material-ui/core/'
+import { Alert } from '@material-ui/lab/'
+import { Collapse } from '@material-ui/core/'
 
 export function WarningMessage ({
                                   text,
@@ -10,7 +10,7 @@ export function WarningMessage ({
   return (
     <Collapse in={text.length > 0 && text !== 'ok'}>
       <Alert style={{width: "fit-content"}} className = {className} severity="error">
-        {text}
+        <span style={{whiteSpace: 'pre', display:'flex', textAlign:'center'}}>{text}</span>
       </Alert>
     </Collapse>
   )

@@ -1,13 +1,11 @@
 /* eslint-disable react/prefer-stateless-function */
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
 import { API_URL } from '../../../../configuration/api'
-import QuestionNewData, {
-  QuestionTypesEnums,
-} from '../question/question-new-data'
+import QuestionNewData from '../question/question-new-data'
 import SavedQuestion from './saved-question/saved-question'
-import setAnswers from '../../common/set-answers'
+import { setAnswers } from '../../common/functions/answers-functions'
 
 function QuestionOverview({
                             match,
@@ -128,27 +126,30 @@ function QuestionOverview({
             const createdByID = createdBy && createdBy['@id']
             const isApproved = Array.isArray(approver) && approver.length > 0
             return (
-              <SavedQuestion
-                key={question.id}
-                id={question.id}
-                comments={comments}
-                question={question}
-                createdBy={createdByID}
-                createdAt={createdAt}
-                isTeacher={isTeacher}
-                showMetadata
-                changeShowEditQuestion={changeShowEditQuestion}
-                canEdit={index === 0 && !isApproved && (isTeacher || createdByID === userId)}
-                canApprove={!isApproved && isTeacher}
-                canDisapprove={isApproved && isTeacher}
-                isApproved={isApproved}
-                canApproveAsPrivate={
-                  !isApproved && isTeacher && createdByID === userId
-                }
-                token={token}
-                callback={fetchQuestionChain}
-                userId={userId}
-              />
+              <div key = {question.id}>
+                {index === 1 && <h3 className='mt-5'>Previous versions</h3>}
+                <SavedQuestion
+                  key={question.id}
+                  id={question.id}
+                  comments={comments}
+                  question={question}
+                  createdBy={createdByID}
+                  createdAt={createdAt}
+                  isTeacher={isTeacher}
+                  showMetadata
+                  changeShowEditQuestion={changeShowEditQuestion}
+                  canEdit={index === 0 && !isApproved && (isTeacher || createdByID === userId)}
+                  canApprove={!isApproved && isTeacher}
+                  canDisapprove={isApproved && isTeacher}
+                  isApproved={isApproved}
+                  canApproveAsPrivate={
+                    !isApproved && isTeacher && createdByID === userId
+                  }
+                  token={token}
+                  callback={fetchQuestionChain}
+                  userId={userId}
+                />
+              </div>
             )
           })}
         </>

@@ -4,21 +4,12 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 // import axios from 'axios'
-import {
-  CardBody,
-  CardLink,
-  Collapse,
-  Button,
-  Row,
-  Col,
-  CardTitle,
-} from 'reactstrap'
+import { Button, CardBody, CardTitle, Col, Collapse, Row } from 'reactstrap'
 
 // import apiConfig from '../../../../../configuration/api'
 import InfoTable from './info-table/info-table'
 
 import AssignmentPreview from './assignment-preview/assignment-preview'
-import { axiosAddEntity } from 'helperFunctions'
 
 function TopicPreview(props) {
   const {
@@ -68,13 +59,13 @@ function TopicPreview(props) {
     <>
       <CardBody>
         <CardTitle className="h3">{name}</CardTitle>
-        { collapse 
+        { collapse
           ? <Button color='success' onClick={toggle}>
               Collapse
-            </Button> 
+            </Button>
           : <Button color='success' onClick={toggle}>
               Expand
-            </Button> 
+            </Button>
         }
       </CardBody>
       <Collapse isOpen={collapse}>
@@ -141,7 +132,7 @@ function TopicPreview(props) {
             >
               Create Question
             </Button>
-          ) : null} 
+          ) : null}
         </CardBody>
       </Collapse>
     </>
