@@ -1,12 +1,12 @@
-import React, { Component } from 'react'
-import { withRouter, Link } from 'react-router-dom'
-import { connect } from 'react-redux'
-import { Badge, Container, Table } from 'reactstrap'
-import { redirect } from '../../../constants/redirect'
+import React, {Component} from 'react'
+import {Link, withRouter} from 'react-router-dom'
+import {connect} from 'react-redux'
+import {Container, Table} from 'reactstrap'
+import {redirect} from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
-import { authHeader } from '../../../components/Auth'
-import { BACKEND_URL } from '../../../configuration/api'
-import {dateCompare, formatDate, idFromURL} from '../../../functions/global';
+import {authHeader} from '../../../components/Auth'
+import {BACKEND_URL} from '../../../configuration/api'
+import {formatDate, idFromURL} from '../../../functions/global';
 
 class Teams extends Component {
   constructor(props) {

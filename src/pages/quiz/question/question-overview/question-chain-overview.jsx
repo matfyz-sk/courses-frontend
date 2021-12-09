@@ -1,21 +1,20 @@
 /* eslint-disable react/prefer-stateless-function */
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
 import { API_URL } from '../../../../configuration/api'
-import QuestionNewData, {
-  QuestionTypesEnums,
-} from '../question/question-new-data'
+import QuestionNewData from '../question/question-new-data'
 import SavedQuestion from './saved-question/saved-question'
+import { setAnswers } from '../../common/functions/answers-functions'
 
 function QuestionOverview({
-  match,
-  courseInstanceId,
-  isTeacher,
-  token,
-  userId,
-  history,
-}) {
+                            match,
+                            courseInstanceId,
+                            isTeacher,
+                            token,
+                            userId,
+                            history,
+                          }) {
   const [questions, setQuestions] = useState([])
   const [showEditQuestion, setShowEditQuestion] = useState(false)
 
@@ -84,24 +83,8 @@ function QuestionOverview({
                       .sort(
                         (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
                       )
-                    switch (question.questionType) {
-                      case QuestionTypesEnums.multiple.id:
-                        question.answers = questionData.hasAnswer.map(
-                          answer => {
-                            const { correct, text } = answer
-                            return { id: answer['@id'], correct, text }
-                          }
-                        )
-                        break
-                      case QuestionTypesEnums.open.id:
-                        question.regexp = questionData.regexp
-                        break
-                      case QuestionTypesEnums.essay.id:
-                        break
-                      default:
-                        break
-                    }
-                    accumulator.push(question)
+                    const newquestion = setAnswers(question, questionData)
+                    accumulator.push(newquestion)
                   }
                   return accumulator
                 },
@@ -143,27 +126,30 @@ function QuestionOverview({
             const createdByID = createdBy && createdBy['@id']
             const isApproved = Array.isArray(approver) && approver.length > 0
             return (
-              <SavedQuestion
-                key={question.id}
-                id={question.id}
-                comments={comments}
-                question={question}
-                createdBy={createdByID}
-                createdAt={createdAt}
-                isTeacher={isTeacher}
-                showMetadata
-                changeShowEditQuestion={changeShowEditQuestion}
-                canEdit={index === 0 && !isApproved && createdByID === userId}
-                canApprove={!isApproved && isTeacher}
-                canDisapprove={isApproved && isTeacher}
-                isApproved={isApproved}
-                canApproveAsPrivate={
-                  !isApproved && isTeacher && createdByID === userId
-                }
-                token={token}
-                callback={fetchQuestionChain}
-                userId={userId}
-              />
+              <div key = {question.id}>
+                {index === 1 && <h3 className='mt-5'>Previous versions</h3>}
+                <SavedQuestion
+                  key={question.id}
+                  id={question.id}
+                  comments={comments}
+                  question={question}
+                  createdBy={createdByID}
+                  createdAt={createdAt}
+                  isTeacher={isTeacher}
+                  showMetadata
+                  changeShowEditQuestion={changeShowEditQuestion}
+                  canEdit={index === 0 && !isApproved && (isTeacher || createdByID === userId)}
+                  canApprove={!isApproved && isTeacher}
+                  canDisapprove={isApproved && isTeacher}
+                  isApproved={isApproved}
+                  canApproveAsPrivate={
+                    !isApproved && isTeacher && createdByID === userId
+                  }
+                  token={token}
+                  callback={fetchQuestionChain}
+                  userId={userId}
+                />
+              </div>
             )
           })}
         </>

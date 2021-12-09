@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, {useEffect, useState} from 'react'
 import Page404 from '../../errors/Page404'
-import { BACKEND_URL } from '../../../configuration/api'
-import { authHeader } from '../../../components/Auth'
+import {BACKEND_URL} from '../../../configuration/api'
+import {authHeader} from '../../../components/Auth'
 
 const withTeamHandler = Component => props => {
   const { privilegesReducer, courseInstanceReducer } = props

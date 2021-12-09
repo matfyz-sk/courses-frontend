@@ -44,7 +44,7 @@ function Comments({ id, commentText, createdAt, createdBy, token }) {
   }, [token, createdBy])
   return (
     <>
-      <ListGroupItem key={id} color="warning">
+      <ListGroupItem className="mt-2" key={id} color="warning">
         <ListGroupItemText style={{ whiteSpace: 'pre-line' }}>
           {commentText}
         </ListGroupItemText>

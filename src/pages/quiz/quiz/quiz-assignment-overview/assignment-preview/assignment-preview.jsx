@@ -1,260 +1,157 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
-import axios from 'axios'
-
-import {
-  CardSubtitle,
-  CardBody,
-  CardLink,
-  CardText,
-  Collapse,
-  Button,
-  Row,
-  Col,
-} from 'reactstrap'
-
-import { API_URL } from 'configuration/api'
-import question from 'pages/quiz/question/question/question'
-import {
-  axiosAddEntity,
-  getIRIFromAddResponse,
-  shuffleArray,
-} from 'helperFunctions'
-import { QuestionTypesEnums } from '../../../question/question/question-new-data'
-import { QuizAssignmentTypesEnums } from '../../quiz-assignment/quiz-assignment'
+import React from 'react'
 
 import QuizTakeTable from './quiz-take-table/quiz-take-table'
+import { Box, Button, Divider, Grid } from '@material-ui/core'
+import { customTheme } from '../../../common/style/styles'
+import { formatDateTime } from '../../../common/functions/common-functions'
 
-class AssignmentPreview extends Component {
-  generateQuizTake = quizAssignmentId => {
-    const { history, match, token } = this.props
-    axios
-      .get(
-        `${API_URL}${quizAssignmentId.substr(
-          quizAssignmentId.lastIndexOf(
-            '/',
-            quizAssignmentId.lastIndexOf('/') - 1
-          )
-        )}`,
-        {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-        }
-      )
-      .then(({ data }) => {
-        if (
-          data &&
-          data['@graph'] &&
-          data['@graph'].length &&
-          data['@graph'].length > 0
-        ) {
-          const quizAssignment = data['@graph'][0]
-          const quizAssignmentId = quizAssignment['@id']
-          const quizAssignmentType = quizAssignment['@type']
-          if (
-            quizAssignmentType ===
-            QuizAssignmentTypesEnums.manualQuizAssignment.id
-          ) {
-            const quizTakePrototype = quizAssignment.hasQuizTakePrototype
-            if (quizTakePrototype && quizTakePrototype.length) {
-              const quizTakePrototypeId = quizTakePrototype[0]['@id']
-              if (quizTakePrototypeId) {
-                axios
-                  .get(
-                    `${API_URL}/quizTakePrototype/${quizTakePrototypeId.substring(
-                      quizTakePrototypeId.lastIndexOf('/') + 1
-                    )}?_join=orderedQuestion`,
-                    {
-                      headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        Authorization: token,
-                      },
-                    }
-                  )
-                  .then(({ data: dataQuizTakePrototype }) => {
-                    console.log(dataQuizTakePrototype)
-                    if (
-                      dataQuizTakePrototype &&
-                      dataQuizTakePrototype['@graph'] &&
-                      dataQuizTakePrototype['@graph'].length &&
-                      dataQuizTakePrototype['@graph'].length > 0
-                    ) {
-                      const quizTakePrototypeRaw =
-                        dataQuizTakePrototype['@graph'][0]
-                      quizTakePrototypeRaw.orderedQuestion = quizTakePrototypeRaw.orderedQuestion.sort(
-                        (a, b) => {
-                          return a.position - b.position
-                        }
-                      )
-                      let sortedQuestions = quizTakePrototypeRaw.orderedQuestion.map(
-                        orderedQuestion => {
-                          return orderedQuestion.question
-                        }
-                      )
-                      if (quizAssignment.shuffleQuestions) {
-                        sortedQuestions = shuffleArray(sortedQuestions)
-                      }
-                      const quizTakeData = {
-                        quizAssignment: quizAssignmentId,
-                        startTime: new Date(),
-                        orderedQuestion: sortedQuestions.map(
-                          (sortedQuestion, index) => {
-                            // let userAnswer
-                            // if (
-                            //   sortedQuestion.type ===
-                            //   QuestionTypesEnums.multiple.id
-                            // ) {
-                            //   userAnswer = {}
-                            // }
-                            // if (
-                            //   sortedQuestion.type ===
-                            //     QuestionTypesEnums.open.id ||
-                            //   sortedQuestion.type ===
-                            //     QuestionTypesEnums.essay.id
-                            // ) {
-                            //   userAnswer = { text: '' }
-                            // }
-                            return {
-                              position: index,
-                              question: sortedQuestion,
-                            }
-                          }
-                        ),
-                      }
-                      axiosAddEntity(quizTakeData, 'quizTake')
-                        .then(response => {
-                          const quizTakeIri = getIRIFromAddResponse(response)
-                          history.push(
-                            `/courses/${
-                              match.params.courseId
-                            }/quiz/quizTake/${quizTakeIri.substring(
-                              quizTakeIri.lastIndexOf('/') + 1
-                            )}`
-                          )
-                        })
-                        .catch(error => console.log(error))
-                    }
-                  })
-                  .catch(error => console.log(error))
-              }
-            }
-          }
-        }
-      })
-      .catch(error => console.log(error))
+function AssignmentPreview ({
+                              quizAssignment,
+                              isTeacher,
+                              history,
+                              match,
+                              token,
+                              userId,
+                            }) {
+
+  const generateQuizTake = quizAssignmentId => {
+    const quizAssignmentIdParts = quizAssignmentId.split('/')
+    const quizAssignmentType = quizAssignmentIdParts[quizAssignmentIdParts.length-2]
+    const quizAssignmentShortId = quizAssignmentIdParts[quizAssignmentIdParts.length-1]
+
+    history.push({
+      pathname: `/courses/${match.params.courseId}/quiz/quizTakeIntro/${quizAssignmentShortId}`,
+      state: {quizAssignmentType: quizAssignmentType, quizAssignmentFullId: quizAssignmentId}
+    })
   }
 
-  render() {
-    const {
-      title,
-      toggle,
-      collapse,
-      description,
-      startDate,
-      endDate,
-      isTeacher,
-      id,
-      quizTakes,
-      match,
-    } = this.props
-    const quizTakenReviewed = []
-    const quizTakenNotReviewed = []
-    if (quizTakes) {
-      quizTakes.forEach(quiz => {
-        quiz.isReviewed
-          ? quizTakenReviewed.push(quiz)
-          : quizTakenNotReviewed.push(quiz)
-      })
-    }
-    const quizAssignmentAddress = id.substr(
-      id.lastIndexOf('/', id.lastIndexOf('/') - 1)
+  const goToQuizTakeOverview = quizAssignmentFullId => {
+    const quizAssignmentType = quizAssignmentFullId.substring(
+      quizAssignmentFullId.lastIndexOf('/', quizAssignmentFullId.lastIndexOf('/')-1
+      )+1,quizAssignmentFullId.lastIndexOf('/')
     )
-    return (
-      <>
-        <CardBody>
-          <h2 className="h3">{title}</h2>
-          <CardLink href="#" onClick={toggle}>
-            expand
-          </CardLink>
-        </CardBody>
-        <Collapse isOpen={collapse}>
-          <CardBody className="pt-0">
-            <CardSubtitle tag="h3" className="h4">
-              Assignment
-            </CardSubtitle>
-            <CardText>{description}</CardText>
-            <CardText>
-              Start date:
-              {` ${new Date(startDate).toLocaleDateString()}`}
-            </CardText>
-            <CardText>
-              End date:
-              {` ${new Date(endDate).toLocaleDateString()}`}
-            </CardText>
-            {isTeacher ? (
-              <Button
-                color="primary"
-                tag={Link}
-                to={{
-                  pathname: `/courses/${match.params.courseId}/quiz/quizAssignmentEdit${quizAssignmentAddress}`,
-                  state: { topic: id },
-                }}
-              >
-                Edit assignment
-              </Button>
-            ) : null}
-          </CardBody>
-          <CardBody>
-            <CardSubtitle tag="h3" className="h4">
-              Quiz takes
-            </CardSubtitle>
-            <Row>
-              {quizTakenNotReviewed ? (
-                <Col xs="12" md="6">
-                  <QuizTakeTable
-                    headerText="Submitted"
-                    authorHeader="Author"
-                    questions={quizTakenNotReviewed}
-                    link="/quiz/quizTake/"
-                  />
-                </Col>
-              ) : null}
-              {quizTakenReviewed ? (
-                <Col xs="12" md="6">
-                  <QuizTakeTable
-                    headerText="Scored"
-                    authorHeader="Author"
-                    scoreHeader="Score"
-                    questions={quizTakenReviewed}
-                    link="/quiz/quizTake/"
-                  />
-                </Col>
-              ) : null}
-            </Row>
-            {(new Date(startDate) < new Date() &&
-              new Date(endDate) > new Date()) ||
-            isTeacher ? (
-              <Button color="primary" onClick={() => this.generateQuizTake(id)}>
-                Take Quiz
-              </Button>
-            ) : null}
-          </CardBody>
-        </Collapse>
-      </>
-    )
+    const quizAssignmentId = quizAssignmentFullId.substring(quizAssignmentFullId.lastIndexOf('/')+1)
+    history.push({
+      pathname: `/courses/${match.params.courseId}/quiz/quizTakesOverview/${quizAssignmentId}`,
+      state: {quizAssignmentType: quizAssignmentType, quizAssignmentFullId: quizAssignmentFullId}
+    })
   }
+
+  const goToEditQuiz = (quizAssignmentFullId) => {
+    const quizAssignmentType = quizAssignmentFullId.substring(
+      quizAssignmentFullId.lastIndexOf('/', quizAssignmentFullId.lastIndexOf('/')-1
+      )+1,quizAssignmentFullId.lastIndexOf('/')
+    )
+    const quizAssignmentId = quizAssignmentFullId.substring(quizAssignmentFullId.lastIndexOf('/')+1)
+    history.push({
+      pathname: `/courses/${match.params.courseId}/quiz/quizAssignmentEdit/${quizAssignmentType}/${quizAssignmentId}`,
+    })
+  }
+
+  const getFooterContent = () => {
+    const now = new Date().getTime()
+    const start = new Date(quizAssignment.startDate).getTime()
+    const end = new Date(quizAssignment.endDate).getTime()
+    if (isTeacher) return (
+      <Box width='100%' display='flex' alignItems='center'>
+        <Box display='flex' width='50%'>
+          <Button
+            color='primary'
+            variant='contained'
+            style={{ marginRight: 16 }}
+            size='large'
+            onClick={e => goToEditQuiz(quizAssignment.id)}
+          >
+            Edit Assignment
+          </Button>
+          <Button
+            color='primary'
+            variant='contained'
+            size='large'
+            onClick={e => goToQuizTakeOverview(quizAssignment.id)}
+          >
+            Quiz takes review
+          </Button>
+        </Box>
+        {!(start<= now && end >= now) &&
+        <Box display='flex' width='50%' justifyContent='flex-end'>
+          <Button
+            style={{
+              color: customTheme.palette.error.main,
+              borderColor: customTheme.palette.error.main,
+            }}
+            variant='outlined'
+            size='large'
+            // onClick={e => goToQuizTakeOverview(quizAssignment.id)}
+          >
+            Delete assignment
+          </Button>
+        </Box>}
+      </Box>
+    )
+    if (quizAssignment.quizTake) return (
+      <QuizTakeTable
+        match={match}
+        history={history}
+        userId={userId}
+        quizAssignment={quizAssignment}
+      />
+    )
+    if (start <= now && end >= now) return (
+      <Button
+        color='primary'
+        variant='contained'
+        size='large'
+        onClick={e => generateQuizTake(quizAssignment.id)}
+      >
+        Take quiz
+      </Button>
+    )
+
+  }
+
+  return (
+
+    <>
+      <Box padding={3}>
+        <Box marginBottom={2}>
+          <Grid container direction='column' spacing={3}>
+            <Grid item container direction='column' spacing={1}>
+              <Grid item container direction='row' spacing={1}>
+                <Grid item>
+                  <b>Start date:</b>
+                </Grid>
+                <Grid item>
+                  {formatDateTime(quizAssignment.startDate)}
+                </Grid>
+              </Grid>
+              <Grid item container direction='row' spacing={1}>
+                <Grid item>
+                  <b>End date:</b>
+                </Grid>
+                <Grid item>
+                  {formatDateTime(quizAssignment.endDate)}
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item container direction='column' spacing={1}>
+              <Grid item>
+                <h4>Assignment</h4>
+              </Grid>
+              <Grid item>
+                {quizAssignment.description ? quizAssignment.description : <em>No description</em>}
+              </Grid>
+            </Grid>
+          </Grid>
+        </Box>
+        <Divider/>
+        <Box display='flex' marginTop={2}>
+          {getFooterContent()}
+        </Box>
+      </Box>
+    </>
+  )
 }
 
-const mapStateToProps = ({ userReducer }) => {
-  const { isAdmin } = userReducer
-  return {
-    isAdmin,
-  }
-}
+export default AssignmentPreview
 
-export default connect(mapStateToProps, {})(AssignmentPreview)

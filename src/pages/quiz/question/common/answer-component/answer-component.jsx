@@ -1,11 +1,5 @@
-import React, { Component } from "react";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
-  Input,
-  Badge
-} from "reactstrap";
+import React, { Component } from 'react'
+import { Badge, Input, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap'
 
 export class AnswerComponent extends Component {
   constructor(props) {

@@ -165,3 +165,11 @@ main {
 .rc-slider-handle{
   border-color: #1D661D !important;
 }
+
+.word-wrapped-items{
+  min-width: 100%;
+  max-width: 300px;
+  width: max-content;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}

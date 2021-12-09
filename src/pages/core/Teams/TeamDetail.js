@@ -1,28 +1,25 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import {
+  Alert,
+  Badge,
+  Button,
   Col,
+  Container,
+  Form,
+  FormGroup,
+  Input,
+  Label,
   Row,
   Table,
-  Badge,
-  ListGroup,
-  ListGroupItem,
-  Collapse,
-  Container,
-  Button,
-  Label,
-  Input,
-  FormGroup,
-  Alert,
-  Form,
 } from 'reactstrap'
-import { Link, withRouter } from 'react-router-dom'
-import { connect } from 'react-redux'
+import {Link, withRouter} from 'react-router-dom'
+import {connect} from 'react-redux'
 import * as ROUTES from '../../../constants/routes'
-import { authHeader, getUser, getUserID } from '../../../components/Auth'
-import { BACKEND_URL } from '../../../configuration/api'
-import { redirect } from '../../../constants/redirect'
+import {authHeader, getUser, getUserID} from '../../../components/Auth'
+import {BACKEND_URL} from '../../../configuration/api'
+import {redirect} from '../../../constants/redirect'
 import withTeamHandler from './TeamDetailHOC'
-import { getShortID } from '../../../helperFunctions'
+import {getShortID} from '../../../helperFunctions'
 import {isVisibleUser, showUserName} from '../../../components/Auth/userFunction';
 
 class TeamsDetail extends Component {

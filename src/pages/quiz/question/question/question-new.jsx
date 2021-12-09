@@ -1,9 +1,12 @@
 import React from 'react'
-import { Card, CardBody, Label, FormGroup, Input } from 'reactstrap'
+import { Card, CardBody, FormGroup, Input, Label } from 'reactstrap'
 
-import { QuestionTypesEnums } from './question-new-data'
+import { QuestionTypesEnums } from '../../common/functions/type-enums'
 import QuestionAnswers from './question-answers'
 import AnswerComponentOpen from '../common/answer-component/answer-component-open'
+import AnswerComponentOrder from '../common/answer-component/answer-component-order'
+import WarningMessage from '../../../quiz/common/warning-message'
+import { AnswerComponentMatch } from '../common/answer-component/answer-component-match'
 
 const enText = {
   title: 'Title',
@@ -38,12 +41,21 @@ function QuestionNew({
   setUserAnswer,
   userAnswer,
   addNewAnswer,
+  orderAnswers,
+  orderAnswersColumn,
+  addNewOrderAnswer,
+  setShowWarning,
+  setOrderAnswersColumn,
+  matchAnswers,
+  matchPairs,
+  addNewPair,
   disabled,
   children,
   color,
+  showWarning,
 }) {
   return (
-    <Card style={color && { backgroundColor: color }}>
+    <Card className = 'mb-3' style={color && { backgroundColor: color }}>
       <CardBody>
         {header && header()}
         {title !== null && (setTitle || disabled) && (
@@ -56,7 +68,12 @@ function QuestionNew({
                   name="title"
                   placeholder={enText['title-placeholder']}
                   value={title}
-                  onChange={e => setTitle(e.target.value)}
+                  onChange={e => {setTitle(e.target.value)}}
+                />
+                <WarningMessage
+                  className='mt-3'
+                  text = {showWarning.title}
+                  isOpen = {showWarning.title}
                 />
               </>
             )}
@@ -72,10 +89,14 @@ function QuestionNew({
                 <Input
                   id="question"
                   type="textarea"
-                  name="question"
                   placeholder={enText['question-placeholder']}
                   value={question}
-                  onChange={e => setQuestion(e.target.value)}
+                  onChange={e => {setQuestion(e.target.value)}}
+                />
+                <WarningMessage
+                  className='mt-3'
+                  text={showWarning.question}
+                  // isOpen = {showWarning.question}
                 />
               </>
             )}
@@ -125,7 +146,6 @@ function QuestionNew({
                       <option
                         key={questionTypeOption.id}
                         value={questionTypeOption.id}
-                        // TODO disabled if out of startDate-endDate
                       >
                         {questionTypeOption.name}
                       </option>
@@ -137,17 +157,52 @@ function QuestionNew({
           </>
         )}
         {questionType === QuestionTypesEnums.multiple.id && (
-          <QuestionAnswers answers={answers} addNewAnswer={addNewAnswer} />
+          <FormGroup>
+            <QuestionAnswers
+              answers={answers}
+              addNewAnswer={addNewAnswer}
+            />
+          </FormGroup>
         )}
         {questionType === QuestionTypesEnums.open.id && (
-          <AnswerComponentOpen
-            setRegexp={setRegexp}
-            regexp={regexp}
-            setRegexpUserAnswer={setRegexpUserAnswer}
-            regexpUserAnswer={regexpUserAnswer}
-            setUserAnswer={setUserAnswer}
-            userAnswer={userAnswer}
-          />
+          <FormGroup>
+            <AnswerComponentOpen
+              setRegexp={setRegexp}
+              regexp={regexp}
+              setRegexpUserAnswer={setRegexpUserAnswer}
+              regexpUserAnswer={regexpUserAnswer}
+              setUserAnswer={setUserAnswer}
+              userAnswer={userAnswer}
+            />
+          </FormGroup>
+        )}
+        {/*{questionType === QuestionTypesEnums.essay.id && (*/}
+        {/*  null*/}
+        {/*)}*/}
+        {questionType === QuestionTypesEnums.ordering.id && (
+          <FormGroup>
+              <AnswerComponentOrder
+              orderAnswers={orderAnswers}
+              orderAnswersColumn={orderAnswersColumn ||
+                {
+                  id: "answerColumn",
+                  title: "Answers in correct order",
+                  answersPositions: orderAnswers.map(answer => answer.position),}
+                }
+              addNewOrderAnswer={addNewOrderAnswer}
+              setShowWarning={setShowWarning}
+              setOrderAnswersColumn={setOrderAnswersColumn}
+            />
+          </FormGroup>
+        )}
+        {questionType === QuestionTypesEnums.matching.id && (
+         <FormGroup>
+           <AnswerComponentMatch
+             matchAnswers = {addNewPair && matchAnswers}
+             pairs = {matchPairs}
+             addNewPair = {addNewPair}
+           />
+         </FormGroup>
         )}
         {children}
       </CardBody>

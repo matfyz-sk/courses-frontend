@@ -4,15 +4,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 // import axios from 'axios'
-import {
-  CardBody,
-  CardLink,
-  Collapse,
-  Button,
-  Row,
-  Col,
-  CardTitle,
-} from 'reactstrap'
+import { Button, CardBody, CardTitle, Col, Collapse, Row } from 'reactstrap'
 
 // import apiConfig from '../../../../../configuration/api'
 import InfoTable from './info-table/info-table'
@@ -29,6 +21,7 @@ function TopicPreview(props) {
     isTeacher,
     fetchDeleteAssignment,
     questions,
+    topics,
     match,
   } = props
   let assignmentId
@@ -60,13 +53,20 @@ function TopicPreview(props) {
       }
     })
   }
+
+
   return (
     <>
       <CardBody>
         <CardTitle className="h3">{name}</CardTitle>
-        <CardLink href="#" onClick={toggle}>
-          expand
-        </CardLink>
+        { collapse
+          ? <Button color='success' onClick={toggle}>
+              Collapse
+            </Button>
+          : <Button color='success' onClick={toggle}>
+              Expand
+            </Button>
+        }
       </CardBody>
       <Collapse isOpen={collapse}>
         <CardBody className="pt-0">
@@ -95,7 +95,7 @@ function TopicPreview(props) {
             />
           )}
           <hr />
-          <h3 className="h4">Questions</h3>
+          <h3 className="mb-3">Questions</h3>
           <Row>
             {questionsNotApproved ? (
               <Col xs="12" md="6">
@@ -118,7 +118,7 @@ function TopicPreview(props) {
               </Col>
             ) : null}
           </Row>
-          {(assignment &&
+           {(assignment &&
             new Date(startTime) < new Date() &&
             new Date(endTime) > new Date()) ||
           isTeacher ? (

@@ -1,17 +1,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import {
-  Button,
-  Form,
-  Card,
-  CardBody,
-  Label,
-  FormGroup,
-  Input,
-} from 'reactstrap'
+import { Button, Card, CardBody, Form, FormGroup, Input, Label } from 'reactstrap'
 import validate from '../../validate'
 import AnswerComponent from '../common/answer-component/answer-component'
+
 // import api from '../../../../api'
 
 class Question extends Component {

@@ -5,11 +5,12 @@ import React, { Component } from 'react'
 import axios from 'axios'
 
 import PropTypes from 'prop-types'
-import { Button, Label, FormGroup, Input } from 'reactstrap'
+import { Button, FormGroup, Input, Label } from 'reactstrap'
 
 import { API_URL } from '../../../../configuration/api'
 import AssignmentHeader from '../../common/assignment-header'
 import AgentOperatorNew from '../../common/agent-operator-new'
+import { checkDate, checkTextNotEmpty } from '../../common/functions/validate-input'
 
 export class QuestionAssignment extends Component {
   state = {
@@ -23,6 +24,7 @@ export class QuestionAssignment extends Component {
     selectedAgents: [],
     disabledTopics: [],
     disabledTopicsRaw: [],
+    showWarning: {date: '', description: ''},
   }
 
   componentDidMount() {
@@ -51,6 +53,7 @@ export class QuestionAssignment extends Component {
       disabledTopics,
       allTopics,
       disabledTopicsRaw,
+      showWarning,
     } = this.state
     if (courseInstanceId && token) {
       if (
@@ -97,6 +100,9 @@ export class QuestionAssignment extends Component {
             topicOldValue
           ),
         })
+      }
+      if ( showWarning.date === 'ok' && showWarning.description === 'ok') {
+        this.formSubmitWithToken()
       }
     }
   }
@@ -278,18 +284,42 @@ export class QuestionAssignment extends Component {
     const { value } = e.target
     this.setState({
       [name]: value,
+      showWarning:
+      {
+        ...this.state.showWarning,
+        description: '',
+      }
     })
   }
 
   onStartDateChange = date => {
     this.setState({
       startDate: date,
+      showWarning:
+      {
+        ...this.state.showWarning,
+        date: '',
+      },
     })
   }
 
   onEndDateChange = date => {
     this.setState({
       endDate: date,
+      showWarning:
+      {
+        ...this.state.showWarning,
+        date: '',
+      },
+    })
+  }
+
+  validateOnSubmit = () => {
+    this.setState({
+      showWarning: {
+        date: checkDate(this.state.startDate, this.state.endDate),
+        description: checkTextNotEmpty(this.state.description, 'Description'),
+      }
     })
   }
 
@@ -441,6 +471,7 @@ export class QuestionAssignment extends Component {
       allAgents,
       selectedAgents,
       disabledTopics,
+      showWarning
     } = this.state
     const agentOptions = allAgents.reduce((accumulator, agent) => {
       const index = selectedAgents.findIndex(selectedAgent => {
@@ -472,6 +503,7 @@ export class QuestionAssignment extends Component {
         </option>
       )
     })
+
     return isTeacher ? (
       <>
         <h3>Create new question assignment</h3>
@@ -482,6 +514,7 @@ export class QuestionAssignment extends Component {
           onStartDateChange={this.onStartDateChange}
           onEndDateChange={this.onEndDateChange}
           handleChange={this.handleChange}
+          showWarning={showWarning}
         />
         <FormGroup>
           <Label for="topic">Topic</Label>
@@ -500,7 +533,10 @@ export class QuestionAssignment extends Component {
           agentOptions={agentOptions}
           selectedAgents={selectedAgentsMapped}
         />
-        <Button color="success" onClick={this.formSubmitWithToken}>
+        <Button
+          color="success"
+          onClick={this.validateOnSubmit}
+        >
           {this.isEdit() ? 'Edit assignment' : 'Create assignment'}
         </Button>
       </>

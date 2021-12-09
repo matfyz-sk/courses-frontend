@@ -2,7 +2,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { CardText, Button, Row } from 'reactstrap'
+import { Table, CardText, Button, Row, Col } from 'reactstrap'
+import { FaTrash, FaTrashAlt } from 'react-icons/fa'
 
 export default function AssignmentPreview({
   id,
@@ -15,15 +16,14 @@ export default function AssignmentPreview({
 }) {
   return (
     <>
-      <h3 className="h4">Assignment</h3>
+      <h4 className="h4">Assignment</h4>
       <CardText>{description}</CardText>
       <CardText>
-        Start date:
+        <label>Start date: </label>
         {` ${new Date(startTime).toLocaleDateString()}`}
-      </CardText>
-      <CardText>
-        End date:
-        {` ${new Date(endTime).toLocaleDateString()}`}
+        <br/>
+        <label>End date:</label>
+          {` ${new Date(endTime).toLocaleDateString()}`}
       </CardText>
       <Row>
         {isTeacher ? (
@@ -41,9 +41,9 @@ export default function AssignmentPreview({
           <Button
             color="danger"
             onClick={deleteAssignment}
-            className="text-center"
+            className="ml-2"
           >
-            X
+            <FaTrashAlt/>
           </Button>
         )}
       </Row>

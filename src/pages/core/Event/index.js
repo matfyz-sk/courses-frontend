@@ -1,34 +1,20 @@
 import React from 'react'
-import {
-  Container,
-  Card,
-  CardSubtitle,
-  CardHeader,
-  CardBody,
-  Table,
-  Alert,
-} from 'reactstrap'
-import { connect } from 'react-redux'
-import { NavLink, Redirect } from 'react-router-dom'
+import {Alert, Card, CardBody, CardHeader, CardSubtitle, Container, Table,} from 'reactstrap'
+import {connect} from 'react-redux'
+import {NavLink, Redirect} from 'react-router-dom'
 import './Event.css'
-import { SubEventList } from '../Events'
+import {SubEventList} from '../Events'
 import {
   getDisplayDateTime,
   getIcon,
+  getInstructorRights,
   getShortId,
   mergeMaterials,
 } from '../Helper'
-import {
-  BASE_URL,
-  EVENT_URL,
-  INITIAL_EVENT_STATE,
-  SESSIONS,
-  TASKS_EXAMS,
-} from '../constants'
-import { axiosRequest, getData } from '../AxiosRequests'
-import { redirect } from '../../../constants/redirect'
+import {BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, SESSIONS, TASKS_EXAMS,} from '../constants'
+import {axiosRequest, getData} from '../AxiosRequests'
+import {redirect} from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
-import { getInstructorRights } from '../Helper'
 
 class Event extends React.Component {
   constructor(props) {

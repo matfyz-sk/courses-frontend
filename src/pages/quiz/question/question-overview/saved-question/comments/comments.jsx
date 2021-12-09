@@ -61,7 +61,7 @@ function Comments({ comments, questionAddress, token, callback }) {
           />
         )
       })}
-      <FormGroup color="warning">
+      <FormGroup className="mt-2" color="warning">
         <InputGroup>
           <Input
             type="textarea"
