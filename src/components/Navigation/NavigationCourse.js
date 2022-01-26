@@ -173,7 +173,9 @@ class NavigationCourseClass extends React.Component {
             <NavItem>
               <NavLink
                 activeClassName="is-active"
-                to={ROUTES.DOCUMENTS}
+                to={redirect(ROUTES.DOCUMENTS, [
+                  { key: 'course_id', value: this.state.courseId },
+                ])}
                 className="nav-link nav-button"
               >
                 Documents
