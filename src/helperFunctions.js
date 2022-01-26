@@ -206,3 +206,5 @@ export const getRandomRolor = () => {
     }
     return color;
 }
+
+export const decapitalizeFirstLetter = (string) => string[0].toUpperCase() + string.slice(1);
