@@ -3,7 +3,8 @@ name: release
 env:
   PATH: /home/www/devcourses3.matfyz.sk/
 
-on: 
+on:
+  workflow_dispatch:
   push:
     branches: [ main ]
 
