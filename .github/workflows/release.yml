@@ -31,6 +31,14 @@ jobs:
           known_hosts: 'placeholder'
       - name:  Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: Trigger and wait backend workflow
+        uses: convictional/trigger-workflow-and-wait@v1.5.0
+        with:
+          owner: ${{ secrets.OWNER }}
+          wait_interval: 60
+          repo: courses-backend
+          github_token: ${{ secrets.OWNER_ACCESS_TOKEN }}
+          workflow_file_name: release.yml
       - name: Deploy
         run: rsync -avz ./build/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$FOLDER
       
