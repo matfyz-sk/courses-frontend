@@ -20,6 +20,10 @@ export const timestampToString = (timestamp) => {
   return moment(timestamp).format('HH:mm DD.MM.YYYY');
 }
 
+export const timestampToString2 = (timestamp) => {
+  return moment(timestamp).format('DD/MM/YYYY HH:mm'); 
+}
+
 export const datesComparator = (date1, date2, isUnix = false, olderFirst = false ) => {
   const result1 = olderFirst ? 1 : -1;
   const result2 = olderFirst ? -1 : 1;
@@ -207,4 +211,6 @@ export const getRandomRolor = () => {
     return color;
 }
 
-export const decapitalizeFirstLetter = (string) => string[0].toUpperCase() + string.slice(1);
+export const decapitalizeFirstLetter = (string) => string[0].toLowerCase() + string.slice(1);
+
+export const getShortType = (fullType) => decapitalizeFirstLetter(fullType.split("#")[1])
