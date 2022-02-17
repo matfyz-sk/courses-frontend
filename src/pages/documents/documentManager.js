@@ -1,90 +1,210 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { Table, Button } from 'reactstrap';
-import { axiosGetEntities, axiosUpdateEntity, decapitalizeFirstLetter, getResponseBody, getShortID } from 'helperFunctions';
+import { Alert, Table, Button, Dropdown , DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { axiosGetEntities, axiosUpdateEntity, getShortType, getResponseBody, getShortID, compareByDate, compareByName } from 'helperFunctions';
 import DocumentRow from './documentRow';
+import { HiSortAscending, HiSortDescending } from 'react-icons/hi'
+import { redirect } from '../../constants/redirect';
+import * as ROUTES from '../../constants/routes'
 
+
+const SORTING_KEY_IS_CREATED_AT = "createdAt"
+const SORTING_KEY_IS_NAME = "name"
+
+// FIXME style conventionally
+const THEAD_COLOR = "#237a23"
 
 function DocumentsManager(props) {
     const [documents, setDocuments] = useState([])
     const [courseId, setCourseId] = useState(props.match.params.course_id)
-    
-    const fetchDocuments = useCallback(async () => {
-        const url = `document?courseInstance=${courseId}&isDeleted=${props.showingDeleted}`
-        axiosGetEntities(url)
-            .then(response => getResponseBody(response))
+
+    const [dropdownIsOpen, setDropdownIsOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [sortBy, setSortBy] = useState(SORTING_KEY_IS_NAME);
+    const [sortIsAscending, setSortIsAscending] = useState(true);
+
+    const sortDocuments = (items) => {
+        if (items === []) return []
+
+        let sortedItems = [];
+        if (sortBy === SORTING_KEY_IS_CREATED_AT) {
+            sortedItems = [...items].sort(compareByDate(sortIsAscending))
+        } else if (sortBy === SORTING_KEY_IS_NAME) {
+            sortedItems = [...items].sort(compareByName(sortIsAscending))
+        }
+        return sortedItems
+    }
+
+    useEffect(() => {
+        setLoading(true)
+        const entitiesUrl = `courseInstance/${courseId}?_join=hasDocument`
+        axiosGetEntities(entitiesUrl)
+            .then(response => {
+                if (response.failed) {
+                    console.error("Couldn't fetch documents, try again"); 
+                    setLoading(false)
+                    return // ? show error to user?
+                }                
+                return getResponseBody(response)
+            })
             .then(data => {
-                console.log({data})
-                setDocuments(data)
+                // * i could, as a precaution, check if they are current
+                console.log({fetchedDocuments: data[0].hasDocument})
+                setDocuments(
+                    sortDocuments(
+                        data[0].hasDocument
+                            .filter(doc => doc.isDeleted === props.showingDeleted)
+                        )
+                )
+                setLoading(false)
             })
     }, [courseId, props.showingDeleted])
 
-    const inverseDeletedFlagOfDocument = (document) => {
-        console.log(getShortID(document["@id"]))
-        const documentClass = decapitalizeFirstLetter(document["@type"].split("#")[1])
-        const url = `${documentClass}/${getShortID(document["@id"])}`
+    useEffect(() => {
+        setDocuments(sortDocuments(documents))
+    }, [sortBy, sortIsAscending])
 
-        document.isDeleted = !document.isDeleted // ! not sure about this
+    const invertDeletionFlag = (document) => {
+        const url = `${getShortType(document["@type"])}/${getShortID(document["@id"])}`
+        
+        document.isDeleted = !document.isDeleted // ? is this valid react, check with react strict mode?
         axiosUpdateEntity({isDeleted: document.isDeleted}, url)
             .then(response => {
-                if (response.failed === true) {
-                    console.error("Houston we got a problem")
+                if (response.failed) {
+                    console.error("Inverting was unsuccessful")
+                    // ? snackbar?
                 } else {
-                    console.log({documents})
-                    console.log(documents.filter(doc => doc.isDeleted == props.showingDeleted))
-                    setDocuments(documents.filter(doc => doc.isDeleted == props.showingDeleted))
+                    setDocuments(documents.filter(document => document.isDeleted === props.showingDeleted))
                 }
             })
+    }   
+    
+    const toggleDropdown = () => setDropdownIsOpen(state => !state)
+
+    if (loading) {
+        return (
+            <Alert color="secondary" className="empty-message">
+              Loading...
+            </Alert>
+        )
     }
     
-    
-    useEffect(() => {
-        fetchDocuments()
-    }, [fetchDocuments])
+    return (
+        <div className='documentManager' style={{maxWidth: "50%", margin: "auto"}}>  
+            {!props.showingDeleted && 
+                <>
+                    <Link 
+                        to={redirect(ROUTES.DELETED_DOCUMENTS,  [
+                                { key: 'course_id', value: courseId },
+                        ])}
+                    >
+                        <Button>Deleted documents</Button>
+                    </Link>
+                    <Dropdown toggle={toggleDropdown} isOpen={dropdownIsOpen}>
+                        <DropdownToggle caret color="success">Create new document</DropdownToggle>
+                        <DropdownMenu>  
+                            <DropdownItem
+                                tag={Link}
+                                to={redirect(ROUTES.CREATE_INTERNAL_DOCUMENT,  [
+                                    { key: 'course_id', value: getShortID(courseId) },
+                                ])}
+                            >
+                                Internal Document
+                            </DropdownItem>
+                            <DropdownItem
+                                tag={Link}
+                                to={redirect(ROUTES.CREATE_EXTERNAL_DOCUMENT,  [
+                                    { key: 'course_id', value: getShortID(courseId) },
+                                ])}
+                            >
+                                External Document
+                            </DropdownItem>
+                            <DropdownItem
+                                tag={Link}
+                                to={redirect(ROUTES.CREATE_FILE_DOCUMENT,  [
+                                    { key: 'course_id', value: getShortID(courseId) },
+                                ])}
+                            >
+                                File Document
+                            </DropdownItem>
+                        </DropdownMenu>
 
-
-    return(
-        <>  
-            {!props.showingDeleted
-                && 
-                <Link to={`/courses/${courseId}/documents/deleted`}>
-                    <Button>Deleted documents</Button>
-                </Link>  
-            }          
+                    </Dropdown>
+                </>
+            }  
             <br/>
             <Table>
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>doc name</th>
-                        <th>delete</th>
+                        <th>
+                            <Link
+                                style={{color: THEAD_COLOR, textDecoration: "none"}}
+                                to="#"
+                                onClick={() => {
+                                    if (sortBy === SORTING_KEY_IS_NAME) {
+                                        setSortIsAscending(prev => !prev)
+                                    } else {
+                                        setSortBy(SORTING_KEY_IS_NAME)
+                                        setSortIsAscending(true)
+                                    }
+                                }}
+                            >
+                                Name
+                                {" "}
+                                {sortBy === SORTING_KEY_IS_NAME && (
+                                    sortIsAscending
+                                    ?  <HiSortAscending/>
+                                    : <HiSortDescending/>
+                                )}
+                            </Link>
+                        </th>
+                        <th>
+                            <Link
+                                style={{color: THEAD_COLOR, textDecoration: "none"}}
+                                to="#"
+                                onClick={() => {
+                                    if (sortBy === SORTING_KEY_IS_CREATED_AT) {
+                                        setSortIsAscending(prev => !prev)
+                                    } else {
+                                        setSortBy(SORTING_KEY_IS_CREATED_AT)
+                                        setSortIsAscending(true)
+                                    }
+                                }}
+                            >
+                                Last Changed
+                                {" "}
+                                {sortBy === SORTING_KEY_IS_CREATED_AT && (
+                                    sortIsAscending
+                                    ?  <HiSortAscending/>
+                                    : <HiSortDescending/>
+                                )}
+                            </Link>
+                        </th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {documents.map((d, i) =>    
+                    {documents.map((document, i) =>    
                     <DocumentRow 
-                        courseId={courseId}
                         key={i} 
-                        document={d}
-                        inverseDeletedFlagOfDocument={inverseDeletedFlagOfDocument}
+                        document={document}
+                        invertDeletionFlag={invertDeletionFlag}
                         showingDeleted={props.showingDeleted}
                     />)
                     }
                 </tbody>
             </Table>
-        </>
+        </div>
     )
 }
 
 
 const mapStateToProps = ({courseInstanceReducer}) => {
-    const { courseInstance } = courseInstanceReducer 
     return {
-        courseInstance
+        courseInstance: courseInstanceReducer.courseInstance    
     }
 }
   
-// ! 
 export default withRouter(connect(mapStateToProps)(DocumentsManager))
   
