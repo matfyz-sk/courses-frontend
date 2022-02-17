@@ -17,10 +17,17 @@ export const USER_MANAGEMENT = coursePrefix('/usermanagement/')
 export const COURSE_MIGRATION = coursePrefix('/coursemigration/')
 export const ASSIGNMENTS = coursePrefix('/assignments')
 export const QUIZ = coursePrefix('/quiz')
-export const DOCUMENTS = coursePrefix('/documents')
 export const INFO_PAGE = '/info/:course_id'
 export const ACCESS_DENIED = '/accessdenied'
 export const NOT_FOUND = '/notfound'
+
+export const DOCUMENTS = coursePrefix('/documents')
+export const DELETED_DOCUMENTS = coursePrefix('/documents/deleted')
+export const EDIT_DOCUMENT = coursePrefix('/documents/edit/:document_id')
+export const DOCUMENT_HISTORY = coursePrefix('/documents/history/:document_id')
+export const CREATE_INTERNAL_DOCUMENT = coursePrefix('/documents/createInternal')
+export const CREATE_EXTERNAL_DOCUMENT = coursePrefix('/documents/createExternal')
+export const CREATE_FILE_DOCUMENT = coursePrefix('/documents/createFile')
 
 export const COURSE_TEAMS = coursePrefix('/teams')
 export const COURSE_TEAM_CREATE = coursePrefix('/team-create')
