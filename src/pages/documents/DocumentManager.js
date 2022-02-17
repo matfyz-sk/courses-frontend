@@ -19,7 +19,7 @@ import {
   compareByDate,
   compareByName,
 } from 'helperFunctions'
-import DocumentRow from './documentRow'
+import DocumentRow from './DocumentRow'
 import { HiSortAscending, HiSortDescending } from 'react-icons/hi'
 import { redirect } from '../../constants/redirect'
 import * as ROUTES from '../../constants/routes'
