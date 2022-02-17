@@ -214,3 +214,32 @@ export const getRandomRolor = () => {
 export const decapitalizeFirstLetter = (string) => string[0].toLowerCase() + string.slice(1);
 
 export const getShortType = (fullType) => decapitalizeFirstLetter(fullType.split("#")[1])
+
+export const compareByDate = sortAscending => {
+  return function (a, b) {
+    return sortAscending
+      ? new Date(a.createdAt) - new Date(b.createdAt)
+      : new Date(b.createdAt) - new Date(a.createdAt)
+  }
+}
+
+export const compareByName = sortAscending => {
+  return function (a, b) {
+    return sortAscending
+      ? stringComparator(a.name, b.name)
+      : stringComparator(b.name, a.name)
+  }
+}
+
+function stringComparator(a, b) {
+  if (a === undefined && b === undefined) 
+    return 0
+  else if (a === undefined)
+    return -1
+  else if (b === undefined)
+    return 1
+  
+  a = a.toLowerCase()
+  b = b.toLowerCase()
+  return a < b ? -1 : a > b ? 1 : 0
+}
