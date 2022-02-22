@@ -1,0 +1,30 @@
+name: Deployment of testing enviroment
+
+on: 
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy frontend
+        uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml
+        with:
+          FOLDER: /home/www/devcourses3.matfyz.sk/
+        secrets:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+      - name: Deploy backend
+        uses: matfyz-sk/courses-backend/.github/workflows/deploy.yml
+        with:
+          TAG: courses:testing
+          CONTAINER: courses-testing
+          BRANCH: ${GITHUB_REF##*/}
+        secrets:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+      
+
