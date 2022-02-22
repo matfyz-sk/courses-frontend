@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy workflow
-        uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml
+        uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
         with:
           FOLDER: /home/www/devcourses3.matfyz.sk/
         secrets:

@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy frontend
-        uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml
+        uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
         with:
           FOLDER: /home/www/devcourses3.matfyz.sk/
         secrets:
@@ -17,7 +17,7 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
       - name: Deploy backend
-        uses: matfyz-sk/courses-backend/.github/workflows/deploy.yml
+        uses: matfyz-sk/courses-backend/.github/workflows/deploy.yml@master
         with:
           TAG: courses:testing
           CONTAINER: courses-testing
