@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          repository: matfyz-sk/courses-frontend
       - name: Setup nodeJS
         uses: actions/setup-node@v2
         with:
