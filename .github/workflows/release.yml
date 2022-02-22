@@ -7,15 +7,13 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy workflow
-        uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
+    uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
         with:
           FOLDER: /home/www/devcourses3.matfyz.sk/
         secrets:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
+        
       
 
