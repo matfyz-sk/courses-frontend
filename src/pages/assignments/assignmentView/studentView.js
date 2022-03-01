@@ -22,7 +22,8 @@ class StudentAssignmentView extends Component {
       initialSubmissions: [],
       improvedSubmissions: [],
       toReviews: [],
-      raketa: 'link',
+      mySubmissionWasReviewed: false,
+      reviewsTemporary: [],
     }
   }
 
@@ -144,20 +145,18 @@ class StudentAssignmentView extends Component {
             assignment.teamsDisabled
           )
           this.setState({ toReviews, reviewsLoaded: true })
+          this.setState({ reviewsTemporary: reviews })
+          // console.log('TUTOK', this.state.initialSubmissions)
+          // console.log(
+          //   'OBSAHUJE',
+          //   reviews.find(
+          //     review =>
+          //       review.ofSubmission[0]['@id'] ===
+          //       'http://www.courses.matfyz.sk/data/submission/GP4dN'
+          //   )
+          // )
         }
       )
-
-      // axiosSubFields = this.props.teams.map(team =>
-      //   axiosGetEntities(
-      //     `submittedField=`
-      //   )
-      // )
-      // this.fetchAnything(
-      //   'submittedField',
-      //   getShortID(toReviews[0].submission[0].submittedField)
-      // ).then(response => console.log(response))
-      // // console.log('RR:', rr)
-      // this.setState({ raketa: rr.field.value })
     })
   }
 
@@ -176,6 +175,7 @@ class StudentAssignmentView extends Component {
   }
 
   assignReviews(toReviews, reviews, creators, individual) {
+    console.log('ZAC:', toReviews)
     return toReviews.map(toReviewItem => ({
       ...toReviewItem,
       review: reviews.find(
@@ -185,6 +185,8 @@ class StudentAssignmentView extends Component {
       name: this.getCreatorsName(creators, toReviewItem, individual),
     }))
   }
+
+  checkMySubmissionsReview() {}
 
   fetchAnything = async (model, id) => {
     // console.log('POKUS:')
@@ -203,20 +205,14 @@ class StudentAssignmentView extends Component {
     }
   }
 
-  async componentWillMount() {
+  componentWillMount() {
     this.getSubmissions()
     this.getReviews()
-    const field = await this.fetchAnything(
-      'submittedField',
-      this.props.assignment['@id']
-    )
-    console.log('FIELD:', field)
-    this.setState({ raketa: field.field[0].value })
   }
 
-  getToReviewButtonText(toReview) {
+  getToReviewButtonText(review) {
     if (periodHappening(this.props.assignment.peerReviewPeriod)) {
-      return toReview ? 'Update review' : 'Review'
+      return review ? 'Update Review' : 'Review'
     }
     return 'View'
   }
@@ -228,7 +224,27 @@ class StudentAssignmentView extends Component {
     return 'primary'
   }
 
+  setWasReviewed(reviews, initialSubmissions) {
+    console.log('10', reviews)
+    console.log('11', initialSubmissions[0])
+
+    if (initialSubmissions.length > 0) {
+      const wasReviewed = reviews.find(
+        review => review.ofSubmission[0]['@id'] === initialSubmissions[0]['@id']
+      )
+      if (wasReviewed) {
+        return true
+      }
+    }
+  }
+
   render() {
+    console.log('UZPOD:', this.state.reviewsTemporary)
+    const wasReviewed = this.setWasReviewed(
+      this.state.reviewsTemporary,
+      this.state.initialSubmissions
+    )
+
     /*
     ak deadline na submission alebo team review pridat quick button, ak na review pridat text
     odkaz na submission - initial/improved - moznost view, submit, update (ratat s extra casom)
@@ -390,6 +406,7 @@ class StudentAssignmentView extends Component {
               improvedSubmissions={this.state.improvedSubmissions}
               teams={this.props.teams}
               assignment={assignment}
+              wasReviewed={wasReviewed}
             />
           )}
         {!assignment.reviewsDisabled &&
@@ -406,10 +423,11 @@ class StudentAssignmentView extends Component {
                     <th width="150" className="center-cell">
                       Was reviewed
                     </th>
-                    <th width="150"></th>
+                    <th width="150">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
+                  {console.log('REVS:', this.state.toReviews)}
                   {this.state.toReviews.map(toReview => (
                     <tr key={toReview['@id']}>
                       {['blind', 'open'].includes(
@@ -422,6 +440,16 @@ class StudentAssignmentView extends Component {
                           <i className="fa fa-times red-color" />
                         )}
                       </td>
+                      {/* possible TODO in-progress */}
+                      {/* <td className="center-cell">
+                        {toReview.review !== undefined ? (
+                          <i className="fa fa-check green-color" />
+                        ) : this.props.inProgress ? (
+                          <i class="fa fa-duotone fa-spinner blue-color"></i>
+                        ) : (
+                          <i className="fa fa-times red-color" />
+                        )}
+                      </td> */}
                       <td>
                         <Button
                           color={this.getToReviewButtonColor(toReview)}
@@ -433,7 +461,7 @@ class StudentAssignmentView extends Component {
                             )
                           }
                         >
-                          {this.getToReviewButtonText(toReview)}
+                          {this.getToReviewButtonText(toReview.review)}
                         </Button>
                       </td>
                       {console.log(this.state)}
@@ -449,12 +477,18 @@ class StudentAssignmentView extends Component {
   }
 }
 
-const mapStateToProps = ({ assignStudentDataReducer, authReducer }) => {
+const mapStateToProps = ({
+  assignStudentDataReducer,
+  authReducer,
+  assignAssignmentReducer,
+}) => {
   const { teams } = assignStudentDataReducer
   const { user } = authReducer
+  const { inProgress } = assignAssignmentReducer
   return {
     teams,
     user,
+    inProgress,
   }
 }
 

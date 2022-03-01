@@ -1,24 +1,31 @@
-import { SET_ASSIGNMENT } from '../../types'
+import { SET_ASSIGNMENT, SET_REVIEW_PROGRESS } from '../../types'
 
 const initialState = {
   assignment: {},
   assignmentLoaded: false,
-};
+  inProgress: 'nic',
+}
 
-export default function assignmentsAssignmentReducer(state = initialState, action) {
+export default function assignmentsAssignmentReducer(
+  state = initialState,
+  action
+) {
   switch (action.type) {
-    case SET_ASSIGNMENT:{
+    case SET_ASSIGNMENT: {
       return {
         ...state,
         assignment: action.assignment,
-        assignmentLoaded: true
-      };
+        assignmentLoaded: true,
+      }
     }
-    case 'LOGOUT':{
-      return initialState;
+    case SET_REVIEW_PROGRESS: {
+      return { ...state, inProgress: true }
     }
-    default:{
-      return state;
+    case 'LOGOUT': {
+      return initialState
+    }
+    default: {
+      return state
     }
   }
 }

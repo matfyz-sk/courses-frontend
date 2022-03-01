@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { FormGroup, Label, Input, FormText } from 'reactstrap'
 import CKEditor from 'ckeditor4-react'
 import ErrorMessage from 'components/error'
-import JSZip from 'jszip'
+import JSZip, { file } from 'jszip'
 
 export const generateField = (field, onChange) => {
-  // console.log('field:', field)
+  console.log('field_HERE:', field)
   // console.log(onChange)
   const onChangeWithTaget = event => {
     onChange({ ...field, value: event.target.value })
@@ -196,7 +196,7 @@ export const generateField = (field, onChange) => {
 
 // export default generateSubmission
 
-export const GenerateView = ({ field }) => {
+export const GenerateView = ({ field, value }) => {
   // const [code, setCode] = useState('')
   useEffect(() => {
     convertFromBase64(field.value)
@@ -258,7 +258,7 @@ export const GenerateView = ({ field }) => {
           <div>{field.value}</div>
           {field.value.length === 0 && (
             <FormText color="muted" className="muted-medium">
-              Empty
+              Empty Submission
             </FormText>
           )}
         </FormGroup>
@@ -292,14 +292,9 @@ export const GenerateView = ({ field }) => {
               show={field.value === null}
               message="Súbory na hodnotenie kódu neboli odovzdané!"
             />
-            {/* <Code code={code} /> */}
             {field.value !== null && (
-              <a
-                href={field.value.url}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <Label>{field.value.name}</Label>
+              <a href={field.value}>
+                <Label>Download</Label>
               </a>
             )}
           </div>

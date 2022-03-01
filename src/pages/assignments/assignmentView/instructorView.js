@@ -155,8 +155,9 @@ export default class InstructorAssignmentView extends Component {
       !this.afterNow(
         assignment.initialSubmissionPeriod.deadline,
         assignment.initialSubmissionPeriod.extraTime
-      ) && !assignment.reviewsDisabled //&&
-    // !assignment.hasAssignedReviews /*&& !this.state.assigningSuccess*/
+      ) &&
+      !assignment.reviewsDisabled &&
+      !assignment.hasAssignedReviews /*&& !this.state.assigningSuccess*/
     const canBeRated =
       !this.afterNow(
         assignment.initialSubmissionPeriod.deadline,

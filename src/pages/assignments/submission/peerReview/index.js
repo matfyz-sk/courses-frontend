@@ -21,6 +21,7 @@ import {
   getRandomRolor,
   datesComparator,
 } from 'helperFunctions'
+import question from 'pages/quiz/question/question/question'
 
 class PeerReview extends Component {
   constructor(props) {
@@ -168,6 +169,7 @@ class PeerReview extends Component {
       )}&${peerReviewCondition}&_join=hasQuestionAnswer`
     ).then(response => {
       let review = getResponseBody(response)
+      console.log('UPDATED:', review)
       this.setState(
         {
           myReview: review.length === 0 ? null : review[0],
@@ -289,6 +291,21 @@ class PeerReview extends Component {
   }
 
   getQuestionAnswers() {
+    console.log('Qs:', this.state.questions)
+    console.log('Ans:', this.state.answers)
+    console.log('id:', this.submissionID)
+    const qAndA = this.state.questions.map(question => {
+      return {
+        ...question,
+        answers: this.state.answers
+          .filter(answer => answer.question === question['@id'])
+          .sort((answer1, answer2) =>
+            answer1.createdAt > answer2.createdAt ? -1 : 1
+          ),
+      }
+    })
+    return qAndA
+    console.log('q&a', qAndA)
     if (this.submissionID === null) {
       return []
     }
@@ -301,6 +318,9 @@ class PeerReview extends Component {
         ),
     }))
   }
+
+  // "http://www.courses.matfyz.sk/data/peerReviewQuestion/vctpc"
+  // 'http://www.courses.matfyz.sk/data/peerReviewQuestion/vctpc' answer[0].question
 
   addGeneralComment() {
     if (this.props.initialSubmission === null) {
@@ -353,6 +373,7 @@ class PeerReview extends Component {
     if (this.submissionID === null) {
       return
     }
+    console.log()
     this.setState({ saving: true })
     let existingReviews = this.state.questionare.filter(review => review.exists)
     let newReviews = this.state.questionare.filter(review => !review.exists)
@@ -384,6 +405,7 @@ class PeerReview extends Component {
         if (newIDs.length === 0) {
           this.setState({ saving: false })
         }
+        console.log('UPDATE:', this.state.myReview)
         axiosUpdateEntity(
           {
             hasQuestionAnswer: [
@@ -429,7 +451,7 @@ class PeerReview extends Component {
 
   render() {
     console.log('RENDER PEER REVIEW')
-    console.log(this.props.submissionID)
+    console.log('REW Props', this.props)
     if (!periodStarted(this.props.assignment.teamReviewPeriod)) {
       return (
         <Alert color="danger" className="mt-3">
@@ -499,6 +521,7 @@ class PeerReview extends Component {
               submit={this.submit.bind(this)}
             />
           )}
+        {}
         {(this.props.settings.myAssignment ||
           this.props.settings.isInstructor) &&
           periodHasEnded(this.props.assignment.peerReviewPeriod) && (
@@ -512,13 +535,6 @@ class PeerReview extends Component {
           )}
         {console.log('A:', this.getQuestionAnswers())}
 
-        <Answers
-          questionsWithAnswers={this.getQuestionAnswers()}
-          nameVisible={
-            this.props.assignment.reviewsVisibility === 'open' ||
-            this.props.settings.isInstructor
-          }
-        />
         <h3>
           <Label className="bold">General comments</Label>
         </h3>

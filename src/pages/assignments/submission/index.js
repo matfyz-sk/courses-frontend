@@ -38,7 +38,6 @@ import TeamReview from './teamReview'
 
 class SubmissionContainer extends Component {
   constructor(props) {
-    console.log('IT IS SUBMISSION.')
     super(props)
     this.state = {
       assignment: null,
@@ -174,15 +173,29 @@ class SubmissionContainer extends Component {
         const initialSubmission =
           toReview.submission.length > 0 ? toReview.submission[0] : null
         const improvedSubmission = null
-        this.setState({
-          toReview: toReview,
-          submissionsLoaded: true,
-          initialSubmission:
-            initialSubmission !== undefined ? initialSubmission : null,
-          improvedSubmission:
-            improvedSubmission !== undefined ? improvedSubmission : null,
+
+        axiosGetEntities(
+          `submittedField/${getShortID(initialSubmission.submittedField)}`
+        ).then(response => {
+          const submittedField = getResponseBody(response)[0]
+          console.log('TAKYTO TVAR:', {
+            ...initialSubmission,
+            submittedField: [submittedField],
+          })
+
+          this.setState({
+            toReview: toReview,
+            submissionsLoaded: true,
+            initialSubmission:
+              initialSubmission !== undefined
+                ? { ...initialSubmission, submittedField: [submittedField] }
+                : null,
+            improvedSubmission:
+              improvedSubmission !== undefined ? improvedSubmission : null,
+          })
         })
       })
+
       return
     }
     const ID = this.getID(settings, props)
@@ -201,6 +214,7 @@ class SubmissionContainer extends Component {
       const initialSubmission = submissions.find(
         submission => !submission.isImproved
       )
+      console.log('TAKYTO TVAR:', initialSubmission)
       const improvedSubmission = submissions.find(
         submission => submission.isImproved
       )
@@ -324,6 +338,7 @@ class SubmissionContainer extends Component {
 
     return (
       <div className="assignmentContainer center-ver mt-3">
+        {console.log('SUBMISTION', this.state)}
         <Card className="assignmentsContainer center-ver">
           <CardHeader className="row">
             <Button
@@ -392,21 +407,29 @@ class SubmissionContainer extends Component {
                     </NavLink>
                   </NavItem>
                 )}
-              <NavItem>
+              {/* <NavItem>
                 <NavLink
                   className={classnames({
-                    active: this.state.tabID === 'reviews',
+                    active: this.state.tabID === 'codeReview',
                     clickable: true,
                   })}
-                  onClick={() => this.setState({ tabID: 'reviews' })}
+                  onClick={() => this.setState({ tabID: 'codeReview' })}
                 >
-                  Reviews
+                  Code reviews
                 </NavLink>
-              </NavItem>
+              </NavItem> */}
+              {console.log(
+                'TRUE AJ:',
+                settings.peerReviewEnabled &&
+                  !assignment.hasField.some(
+                    field => field.fieldType === 'codeReview'
+                  ) &&
+                  (((settings.myAssignment || settings.isInstructor) &&
+                    periodHasEnded(assignment.peerReviewPeriod)) ||
+                    (settings.peerReview &&
+                      periodStarted(assignment.peerReviewPeriod)))
+              )}
               {settings.peerReviewEnabled &&
-                !assignment.hasField.some(
-                  field => field.fieldType === 'codeReview'
-                ) &&
                 (((settings.myAssignment || settings.isInstructor) &&
                   periodHasEnded(assignment.peerReviewPeriod)) ||
                   (settings.peerReview &&
@@ -423,17 +446,6 @@ class SubmissionContainer extends Component {
                     </NavLink>
                   </NavItem>
                 )}
-              <NavItem>
-                <NavLink
-                  className={classnames({
-                    active: this.state.tabID === 'codeReview',
-                    clickable: true,
-                  })}
-                  onClick={() => this.setState({ tabID: 'codeReview' })}
-                >
-                  Code reviews
-                </NavLink>
-              </NavItem>
               {settings.teamReviewEnabled &&
                 ((settings.myAssignment &&
                   periodStarted(assignment.teamReviewPeriod)) ||
@@ -481,7 +493,14 @@ class SubmissionContainer extends Component {
                     />
                   </TabPane>
                 )}
-              {console.log('PEER REVIEW ENABLED!:', settings.peerReviewEnabled)}
+              {console.log(
+                'TRUE CI NIE:',
+                settings.peerReviewEnabled &&
+                  (((settings.myAssignment || settings.isInstructor) &&
+                    periodHasEnded(assignment.peerReviewPeriod)) ||
+                    (settings.peerReview &&
+                      periodStarted(assignment.peerReviewPeriod)))
+              )}
               {settings.peerReviewEnabled &&
                 (((settings.myAssignment || settings.isInstructor) &&
                   periodHasEnded(assignment.peerReviewPeriod)) ||
@@ -499,13 +518,17 @@ class SubmissionContainer extends Component {
                     />
                   </TabPane>
                 )}
-              {console.log(`history=${this.props.history}
-                  match=${this.props.match}
-                  tabID=${this.state.tabID}
-                  assignment=${this.state.assignment}
-                  settings=${this.state.settings}
-                  initialSubmission=${this.state.initialSubmission}
-                  improvedSubmission=${this.state.improvedSubmission}`)}
+              {/* <TabPane tabId={'codeReview'}>
+                <CodeReview
+                  history={this.props.history}
+                  match={this.props.match}
+                  tabID={this.state.tabID}
+                  assignment={this.state.assignment}
+                  settings={this.state.settings}
+                  initialSubmission={this.state.initialSubmission}
+                  improvedSubmission={this.state.improvedSubmission}
+                />
+              </TabPane> */}
               {settings.teamReviewEnabled &&
                 ((settings.myAssignment &&
                   periodStarted(assignment.teamReviewPeriod)) ||

@@ -2,37 +2,16 @@ import React, { Component } from 'react'
 import { Label, Table } from 'reactstrap'
 export default class Answers extends Component {
   render() {
-    console.log('A_PROPS:', this.props)
     return (
       <>
         {this.props.questionsWithAnswers.map((question, index) => (
-          <div key={question['@id']}>
-            <Label for="rating">Question:</Label>
-            {' ' + question.question}
-            <Table borderless>
-              <tbody>
-                {question.answers.map(answer => (
-                  <tr key={answer['@id']}>
-                    <td
-                      style={{
-                        whiteSpace: 'nowrap',
-                        width: '1%',
-                      }}
-                    >
-                      <Label className="no-m-p" for="rating">
-                        {answer.review.team.name}
-                      </Label>
-                      <br />
-                      <Label className="no-m-p" for="rating">
-                        Score:
-                      </Label>{' '}
-                      {answer.score}
-                    </td>
-                    <td>{answer.answer}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+          <div key={question['@id']} style={{ marginTop: '30px' }}>
+            <h6 style={{ fontWeight: 'bold' }}>{question.question}</h6>
+            {question.answers.map((answerObject, index) => (
+              <p key={index}>{`Review ${index + 1}: ${
+                answerObject.answer
+              }, score ${question.rated && answerObject.score}`}</p>
+            ))}
           </div>
         ))}
       </>

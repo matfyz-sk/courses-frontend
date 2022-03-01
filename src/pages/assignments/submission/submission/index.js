@@ -83,42 +83,37 @@ class Submission extends Component {
   }
 
   loadForm(initial, props) {
-    console.log('PROPS:', props)
     props.refreshAssignment()
-    console.log('PROPS:', props)
+
     let data = props.assignment.hasField.map(type => ({
       type,
       value: this.getTypeDefaultValue(type),
       error: false,
       exists: false,
     }))
-    // let existingResource = null
-    // if (!initial && props.improvedSubmission !== null) {
-    //   existingResource = props.improvedSubmission.submittedField
-    //   console.log('1:', existingResource)
-    // } else if (
-    //   (initial || props.improvedSubmission === null) &&
-    //   props.initialSubmission !== null
-    // ) {
-    //   existingResource = props.initialSubmission.submittedField
-    //   console.log('2:', existingResource)
-    // }
-    // if (existingResource !== null) {
-    //   console.log(existingResource)
-
-    //   console.log('DATA:', data)
-
-    //   Array.new(existingResource).forEach(submittedField => {
-    //     let field = data.find(
-    //       field => field.type['@id'] === submittedField.field
-    //     )
-    //     if (field !== undefined) {
-    //       field.value = submittedField.value
-    //       field.exists = true
-    //       field.fieldID = submittedField['@id']
-    //     }
-    //   })
-    // }
+    let existingResource = null
+    if (!initial && props.improvedSubmission !== null) {
+      existingResource = props.improvedSubmission.submittedField
+    } else if (
+      (initial || props.improvedSubmission === null) &&
+      props.initialSubmission !== null
+    ) {
+      existingResource = props.initialSubmission.submittedField
+    }
+    if (existingResource !== null) {
+      existingResource.forEach(submittedField => {
+        let field = data.find(
+          field =>
+            field.type['@id'] === submittedField.field ||
+            field.type['@id'] === submittedField.field[0]['@id']
+        )
+        if (field !== undefined) {
+          field.value = submittedField.value
+          field.exists = true
+          field.fieldID = submittedField['@id']
+        }
+      })
+    }
     return data
   }
 

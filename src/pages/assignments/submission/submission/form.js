@@ -18,6 +18,8 @@ export default class SubmissionForm extends Component {
     } = this.props
     return (
       <div>
+        {/* {console.log('FIELDS:', initialSubmission.submittedField[0].value)}
+        {console.log('SUBM_:', fields)} */}
         <Label className="mb-0">
           {this.props.isInitial ? 'Initial submission' : 'Improved submission'}
         </Label>

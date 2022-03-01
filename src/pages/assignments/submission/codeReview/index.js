@@ -27,10 +27,12 @@ import {
   getStudentName,
   getRandomRolor,
   datesComparator,
+  periodHasEnded,
 } from 'helperFunctions'
 import {
   assignmentsGetTestFileLocally,
   assignmentsSetTestFile,
+  setReviewProgress,
 } from 'redux/actions'
 
 class CodeReviewContainer extends Component {
@@ -74,12 +76,25 @@ class CodeReviewContainer extends Component {
     this.newID = 0
     this.getNewID.bind(this)
     this.setCurrentLocation.bind(this)
-    // FIXME - ze toto ma ukazovat file niekoho ineho, nie tvoj. teda asi podla toho, aka je akurat period.
-    // this.props.assignmentsSetTestFile(
-    //   this.props.initialSubmission.submittedField[0].value
-    // )
+    console.log('NOW:', this.props)
 
-    this.props.assignmentsGetTestFileLocally()
+    console.log(
+      'PERIOD:',
+      periodHasEnded(this.props.assignment.improvedSubmissionPeriod)
+    )
+
+    this.setCodeReviewFile()
+  }
+
+  setCodeReviewFile = () => {
+    const showImproved = periodHasEnded(
+      this.props.assignment.improvedSubmissionPeriod
+    )
+    this.props.assignmentsSetTestFile(
+      showImproved
+        ? this.props.improvedSubmission.submittedField[0].value
+        : this.props.initialSubmission.submittedField[0].value
+    )
   }
 
   getNewID() {
@@ -167,6 +182,10 @@ class CodeReviewContainer extends Component {
         commentsLoaded: true,
         messageColors,
       })
+      if (allComments.length > 0) {
+        console.log('TERAZ:', this.props)
+        this.props.setReviewProgress()
+      }
     })
   }
 
@@ -276,6 +295,7 @@ class CodeReviewContainer extends Component {
       return2 = -1
     }
     let sortFunction = () => {}
+    console.log('CODE', this.state)
     switch (this.state.sortBy) {
       case 'commentBy': {
         sortFunction = (comment1, comment2) => {
@@ -317,18 +337,8 @@ class CodeReviewContainer extends Component {
   }
 
   render() {
-    // this.setState({
-    //   currentFolder: '',
-    //   currentDocument: null,
-    //   testFileLoaded: true,
-    // })
-    // this.props.assignmentsSetTestFile(
-    //   this.props.initialSubmission.submittedField[0].value
-    // )
-    // console.log(
-    //   'THIS I CARE CODE:',
-    //   this.props.initialSubmission.submittedField[0].value
-    // )
+    console.log('STEJT', this.state)
+    console.log('STEJTP', this.props)
     const loading = !this.state.commentsLoaded
     // if (loading) {
     //   return (
@@ -339,20 +349,6 @@ class CodeReviewContainer extends Component {
     // }
     return (
       <div>
-        <button
-          onClick={() => {
-            this.setState({
-              currentFolder: '',
-              currentDocument: null,
-              testFileLoaded: true,
-            })
-            this.props.assignmentsSetTestFile(
-              this.props.initialSubmission.submittedField[0].value
-            )
-          }}
-        >
-          click me
-        </button>
         <div className="bottomSeparator">
           <Table hover className="table-folder not-highlightable">
             <tbody>
@@ -435,7 +431,6 @@ class CodeReviewContainer extends Component {
               ))}
             </tbody>
           </Table>
-
           <CodeReview
             currentDocument={this.state.currentDocument}
             loadingDocument={this.state.loadingDocument}
@@ -454,7 +449,7 @@ class CodeReviewContainer extends Component {
             }}
           />
 
-          <FormGroup>
+          {/* <FormGroup>
             <Label for={`codeReview-test`}>Load own test zip file</Label>
             <FormText color="muted">
               You wont be able to add comments as it could cause breaking
@@ -490,7 +485,7 @@ class CodeReviewContainer extends Component {
               show={this.state.testFileError}
               message="File is not zip file!"
             />
-          </FormGroup>
+          </FormGroup> */}
 
           <div>
             <div className="row">
@@ -765,6 +760,7 @@ class CodeReviewContainer extends Component {
 
 const mapStateToProps = ({ assignTestFileReducer }) => {
   const { file, fileLoaded } = assignTestFileReducer
+
   return {
     file,
     fileLoaded,
@@ -774,4 +770,5 @@ const mapStateToProps = ({ assignTestFileReducer }) => {
 export default connect(mapStateToProps, {
   assignmentsGetTestFileLocally,
   assignmentsSetTestFile,
+  setReviewProgress,
 })(CodeReviewContainer)

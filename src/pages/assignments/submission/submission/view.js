@@ -8,6 +8,9 @@ export default class SubmissionView extends Component {
   render() {
     const { assignment, improvedSubmission, initialSubmission, fields } =
       this.props
+    console.log('assi:', assignment)
+    console.log('ini:', initialSubmission.submittedField[0].value)
+    console.log('fiel:', fields)
     return (
       <div>
         <Label className="mb-0">
@@ -23,7 +26,10 @@ export default class SubmissionView extends Component {
           )}
         </Label>
         {fields.map(field => (
-          <GenerateView field={field} />
+          <GenerateView
+            field={field}
+            // value={initialSubmission.submittedField[0].value}
+          />
         ))}
         <Alert
           color="warning"
