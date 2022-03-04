@@ -243,3 +243,19 @@ function stringComparator(a, b) {
   b = b.toLowerCase()
   return a < b ? -1 : a > b ? 1 : 0
 }
+
+export const fileToBase64 = file => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = error => reject(error);
+});
+
+export const base64dataToFile = async (base64Data, filename, mimeType) => {
+  // todo ? 
+  return fetch(base64Data)
+      .then(res => res.blob())
+      .then(blob => {
+          return new File([blob], filename, { type: mimeType })
+      })
+}
