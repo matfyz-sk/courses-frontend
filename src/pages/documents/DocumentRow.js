@@ -12,6 +12,7 @@ const ICON_SIZE = 28
 const ICON_COLOR = '#237a23'
 
 const DocumentRow = props => {
+  // TODO destructure props
   return (
     <tr>
       <td style={{ fontWeight: 'bold' }}>{props.document.name}</td>
