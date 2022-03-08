@@ -9,7 +9,7 @@ export default class SubmissionView extends Component {
     const { assignment, improvedSubmission, initialSubmission, fields } =
       this.props
     console.log('assi:', assignment)
-    console.log('ini:', initialSubmission.submittedField[0].value)
+
     console.log('fiel:', fields)
     return (
       <div>

@@ -34,6 +34,7 @@ import {
   assignmentsSetTestFile,
   setReviewProgress,
 } from 'redux/actions'
+import JSZip from 'jszip'
 
 class CodeReviewContainer extends Component {
   constructor(props) {
@@ -90,11 +91,17 @@ class CodeReviewContainer extends Component {
     const showImproved = periodHasEnded(
       this.props.assignment.improvedSubmissionPeriod
     )
+
+    console.log('HERO:', showImproved)
     this.props.assignmentsSetTestFile(
       showImproved
         ? this.props.improvedSubmission.submittedField[0].value
         : this.props.initialSubmission.submittedField[0].value
     )
+
+    // return showImproved
+    //   ? this.props.improvedSubmission.submittedField[0].value
+    //   : this.props.initialSubmission.submittedField[0].value
   }
 
   getNewID() {
@@ -183,7 +190,6 @@ class CodeReviewContainer extends Component {
         messageColors,
       })
       if (allComments.length > 0) {
-        console.log('TERAZ:', this.props)
         this.props.setReviewProgress()
       }
     })
@@ -336,9 +342,29 @@ class CodeReviewContainer extends Component {
     )
   }
 
+  async base64Convert(base64File) {
+    const i = base64File.indexOf('base64,')
+    const buffer = Buffer.from(base64File.slice(i + 7), 'base64')
+    const blob = new Blob([buffer], { type: 'application/zip' })
+    var zip = new JSZip()
+    var help = null
+    zip
+      .loadAsync(blob)
+      .then(files => {
+        help = files
+      })
+      .catch(error => {
+        console.log(error)
+      })
+    return help
+  }
+
   render() {
     console.log('STEJT', this.state)
     console.log('STEJTP', this.props)
+    console.log('TOMAS:', this.feri)
+    // const feri = this.base64Convert(this.feri)
+    // console.log('JK:', feri)
     const loading = !this.state.commentsLoaded
     // if (loading) {
     //   return (
@@ -349,6 +375,10 @@ class CodeReviewContainer extends Component {
     // }
     return (
       <div>
+        {/* {console.log(
+          'FERO',
+          this.props.improvedSubmission.submittedField[0].value
+        )} */}
         <div className="bottomSeparator">
           <Table hover className="table-folder not-highlightable">
             <tbody>
@@ -759,7 +789,10 @@ class CodeReviewContainer extends Component {
 }
 
 const mapStateToProps = ({ assignTestFileReducer }) => {
-  const { file, fileLoaded } = assignTestFileReducer
+  var { file, fileLoaded, bonusFile } = assignTestFileReducer
+  if (!file) {
+    file = bonusFile
+  }
 
   return {
     file,
@@ -767,8 +800,13 @@ const mapStateToProps = ({ assignTestFileReducer }) => {
   }
 }
 
+const index = props => {
+  console.log('MAMM:', props)
+  return <div>index</div>
+}
+
 export default connect(mapStateToProps, {
   assignmentsGetTestFileLocally,
   assignmentsSetTestFile,
   setReviewProgress,
-})(CodeReviewContainer)
+})(index)

@@ -198,10 +198,10 @@ export const generateField = (field, onChange) => {
 
 export const GenerateView = ({ field, value }) => {
   // const [code, setCode] = useState('')
-  useEffect(() => {
-    convertFromBase64(field.value)
-    console.log('VALUE:', field.value)
-  }, [])
+  // useEffect(() => {
+  //   convertFromBase64(field.value)
+  //   console.log('VALUE:', field.value)
+  // }, [])
 
   const convertFromBase64 = base64File => {
     const i = base64File.indexOf('base64,')

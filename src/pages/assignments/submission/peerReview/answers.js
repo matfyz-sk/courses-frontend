@@ -1,7 +1,11 @@
 import React, { Component } from 'react'
 import { Label, Table } from 'reactstrap'
+import { Alert } from 'reactstrap'
 export default class Answers extends Component {
   render() {
+    if (this.props.questionsWithAnswers[0].answers.length === 0) {
+      return <Alert color="danger">This submission was not reviewed.</Alert>
+    }
     return (
       <>
         {this.props.questionsWithAnswers.map((question, index) => (

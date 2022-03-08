@@ -429,6 +429,23 @@ class SubmissionContainer extends Component {
                     (settings.peerReview &&
                       periodStarted(assignment.peerReviewPeriod)))
               )}
+              {console.log('SETIL:', settings)}
+              {settings.isInstructor &&
+                periodHasEnded(assignment.improvedSubmissionPeriod) && (
+                  <NavItem>
+                    <NavLink
+                      className={classnames({
+                        active: this.state.tabID === 'codeReviewInitial',
+                        clickable: true,
+                      })}
+                      onClick={() =>
+                        this.setState({ tabID: 'codeReviewInitial' })
+                      }
+                    >
+                      Code review (initial)
+                    </NavLink>
+                  </NavItem>
+                )}
               {settings.peerReviewEnabled &&
                 (((settings.myAssignment || settings.isInstructor) &&
                   periodHasEnded(assignment.peerReviewPeriod)) ||
@@ -442,7 +459,7 @@ class SubmissionContainer extends Component {
                       })}
                       onClick={() => this.setState({ tabID: 'codeReview' })}
                     >
-                      Code reviews
+                      Code review
                     </NavLink>
                   </NavItem>
                 )}
@@ -493,14 +510,21 @@ class SubmissionContainer extends Component {
                     />
                   </TabPane>
                 )}
-              {console.log(
-                'TRUE CI NIE:',
-                settings.peerReviewEnabled &&
-                  (((settings.myAssignment || settings.isInstructor) &&
-                    periodHasEnded(assignment.peerReviewPeriod)) ||
-                    (settings.peerReview &&
-                      periodStarted(assignment.peerReviewPeriod)))
-              )}
+              {settings.isInstructor &&
+                periodHasEnded(assignment.improvedSubmissionPeriod) && (
+                  // TWO CODE REVIEWS
+                  <TabPane tabId={'codeReviewInitial'}>
+                    <CodeReview
+                      history={this.props.history}
+                      match={this.props.match}
+                      tabID={this.state.tabID}
+                      assignment={this.state.assignment}
+                      settings={this.state.settings}
+                      initialSubmission={this.state.initialSubmission}
+                      showInitial={true}
+                    />
+                  </TabPane>
+                )}
               {settings.peerReviewEnabled &&
                 (((settings.myAssignment || settings.isInstructor) &&
                   periodHasEnded(assignment.peerReviewPeriod)) ||

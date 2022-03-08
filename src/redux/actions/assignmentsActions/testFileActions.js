@@ -34,7 +34,7 @@ export const assignmentsGetTestFileLocally = () => {
   }
 }
 
-export const assignmentsSetTestFile = base64File => {
+export const assignmentsSetTestFile = (base64File, bonusFile = false) => {
   return dispatch => {
     const i = base64File.indexOf('base64,')
     const buffer = Buffer.from(base64File.slice(i + 7), 'base64')
@@ -43,8 +43,11 @@ export const assignmentsSetTestFile = base64File => {
     zip
       .loadAsync(blob)
       .then(files => {
-        console.log(files)
-        dispatch({ type: SET_ASIGNMENTS_TEST_FILE, file: files })
+        if (bonusFile) {
+          dispatch({ type: SET_ASIGNMENTS_TEST_FILE, bonusFile: files })
+        } else {
+          dispatch({ type: SET_ASIGNMENTS_TEST_FILE, file: files })
+        }
       })
       .catch(error => {
         console.log(error)
