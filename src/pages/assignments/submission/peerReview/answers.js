@@ -12,9 +12,11 @@ export default class Answers extends Component {
           <div key={question['@id']} style={{ marginTop: '30px' }}>
             <h6 style={{ fontWeight: 'bold' }}>{question.question}</h6>
             {question.answers.map((answerObject, index) => (
-              <p key={index}>{`Review ${index + 1}: ${
-                answerObject.answer
-              }, score ${question.rated && answerObject.score}`}</p>
+              <p key={index} style={{ marginBottom: '10px' }}>
+                {answerObject.answer}
+                <br />
+                <em>{question.rated ? `${answerObject.score}/5` : ''}</em>
+              </p>
             ))}
           </div>
         ))}

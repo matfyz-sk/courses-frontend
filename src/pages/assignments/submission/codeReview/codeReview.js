@@ -51,11 +51,12 @@ export default class CodeReview extends Component {
           '.react-syntax-highlighter-line-number ',
           lineNumber
         )
+        console.log('ELL', element)
         this.setState({
           addComment: null,
           openAddComment: false,
           commentsLocation: {
-            top: element.offsetTop,
+            top: element.offsetTop || 350,
             left:
               element.parentElement.parentElement.offsetLeft +
               element.parentElement.parentElement.offsetWidth +
@@ -88,6 +89,7 @@ export default class CodeReview extends Component {
 
   findElement(selector, lineNumber) {
     let elements = document.querySelectorAll(selector)
+    console.log('EL', elements)
     return [].filter.call(elements, function (element) {
       return parseInt(element.textContent) === lineNumber
     })[0]
@@ -99,8 +101,14 @@ export default class CodeReview extends Component {
     return {
       style: {
         display: 'block',
-        backgroundColor: comments.length > 0 ? 'grey' : 'inherit',
+        backgroundColor:
+          comments.length > 0
+            ? `rgba(255, 255, 255, 0.${
+                comments.length < 5 ? comments.length : 5
+              })`
+            : 'inherit',
       },
+      class: comments.length > 0 ? 'clickable' : '',
       onClick() {
         if (
           self.state.addComment !== null &&
@@ -112,11 +120,12 @@ export default class CodeReview extends Component {
             '.react-syntax-highlighter-line-number ',
             lineNumber
           )
+          console.log('EL:', self)
           self.setState({
             addComment: null,
             openAddComment: false,
             commentsLocation: {
-              top: element.offsetTop,
+              top: element.offsetTop || 350,
               left:
                 element.parentElement.parentElement.offsetLeft +
                 element.parentElement.parentElement.offsetWidth +
@@ -219,13 +228,6 @@ export default class CodeReview extends Component {
     return (
       <div>
         <div>
-          <Alert
-            color="primary"
-            className="mt-3 small-alert"
-            isOpen={this.props.loadingDocument}
-          >
-            Loading file...
-          </Alert>
           {this.props.currentDocument !== null && (
             <div>
               <h5>Viewing file: {this.props.currentDocument.name}</h5>
@@ -239,6 +241,7 @@ export default class CodeReview extends Component {
               />
             </div>
           )}
+          {console.log('what', this.state.commentsLocation)}
           <div
             id="viewCodeCommentBlock"
             style={{
@@ -278,7 +281,8 @@ export default class CodeReview extends Component {
           </Button>
 
           {this.state.openAddComment &&
-            this.props.tabID === 'codeReview' &&
+            (this.props.tabID === 'codeReview' ||
+              this.props.tabID === 'codeReviewInitial') &&
             !this.props.disabled && (
               <Popover
                 placement="right"
@@ -358,7 +362,8 @@ export default class CodeReview extends Component {
               </Popover>
             )}
           {this.state.commentsLocation !== null &&
-            this.props.tabID === 'codeReview' &&
+            (this.props.tabID === 'codeReview' ||
+              this.props.tabID === 'codeReviewInitial') &&
             !this.props.disabled && (
               <Popover
                 placement="right"
@@ -368,6 +373,7 @@ export default class CodeReview extends Component {
                   this.setState({ commentsLocation: null })
                 }}
                 target="viewCodeCommentBlock"
+                style={{ left: 500 }}
               >
                 <PopoverHeader>Current comments</PopoverHeader>
                 <PopoverBody>

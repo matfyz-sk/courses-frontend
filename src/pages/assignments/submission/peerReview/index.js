@@ -50,6 +50,7 @@ class PeerReview extends Component {
       generalCommentSaving: false,
 
       saving: false,
+      saved: false,
     }
     this.submissionID = null
     if (this.props.initialSubmission !== null) {
@@ -403,7 +404,10 @@ class PeerReview extends Component {
       let newIDs = newResponses.map(response => getIRIFromAddResponse(response))
       if (this.state.myReview !== null) {
         if (newIDs.length === 0) {
-          this.setState({ saving: false })
+          this.setState({ saving: false, saved: true })
+          setTimeout(() => {
+            this.setState({ saved: false })
+          }, 3000)
         }
         console.log('UPDATE:', this.state.myReview)
         axiosUpdateEntity(
@@ -415,7 +419,10 @@ class PeerReview extends Component {
           },
           `peerReview/${getShortID(this.state.myReview['@id'])}`
         ).then(response => {
-          this.setState({ saving: false })
+          this.setState({ saving: false, saved: true })
+          setTimeout(() => {
+            this.setState({ saved: false })
+          }, 3000)
           this.fetchMyReview()
         })
       } else {
@@ -430,7 +437,10 @@ class PeerReview extends Component {
             this.props.toReview.student[0]['@id']
         }
         axiosAddEntity(newPeerReview, 'peerReview').then(response => {
-          this.setState({ saving: false })
+          this.setState({ saving: false, saved: true })
+          setTimeout(() => {
+            this.setState({ saved: false })
+          }, 3000)
           this.fetchMyReview()
         })
       }
@@ -512,6 +522,9 @@ class PeerReview extends Component {
 
     return (
       <div>
+        <Alert style={{ marginTop: '20px' }} isOpen={this.state.saved}>
+          Submission was saved successfully.
+        </Alert>
         {periodHappening(this.props.assignment.peerReviewPeriod) &&
           this.props.settings.peerReview && (
             <Questionare

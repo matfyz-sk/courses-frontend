@@ -521,7 +521,7 @@ class SubmissionContainer extends Component {
                       assignment={this.state.assignment}
                       settings={this.state.settings}
                       initialSubmission={this.state.initialSubmission}
-                      showInitial={true}
+                      improvedSubmission={null}
                     />
                   </TabPane>
                 )}

@@ -10,7 +10,7 @@ export default class SubmissionView extends Component {
       this.props
     console.log('assi:', assignment)
 
-    console.log('fiel:', fields)
+    console.log('fiel:', this.props)
     return (
       <div>
         <Label className="mb-0">

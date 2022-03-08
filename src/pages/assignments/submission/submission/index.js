@@ -36,6 +36,7 @@ class Submission extends Component {
       materials: [],
 
       savingSubmission: false,
+      savedSubmission: false,
       showOldSubmission: true,
 
       hasTeacherComment:
@@ -78,7 +79,11 @@ class Submission extends Component {
         props.improvedSubmission !== null)
     ) {
       this.setSubmission(props)
-      this.setState({ savingSubmission: false })
+      this.props.refreshAssignment()
+      this.setState({ savingSubmission: false, savedSubmission: true })
+      setTimeout(() => {
+        this.setState({ savedSubmission: false })
+      }, 3000)
     }
   }
 
@@ -160,25 +165,24 @@ class Submission extends Component {
   }
 
   fetchSubmissionBy() {
-    //DELETE
-    const ID = this.props.match.params.targetID || 'dvyaa'
+    const ID =
+      this.props.initialSubmission.submittedByStudent[0]['@id'] ||
+      this.props.improvedSubmission.submittedByStudent[0]['@id']
+    // const ID = this.props.match.params.targetID || 'dvyaa'
     const entity = this.props.settings.teamAssignment ? 'team' : 'user'
-    axiosGetEntities(`${entity}/${ID}`).then(response => {
+    axiosGetEntities(`${entity}/${getShortID(ID)}`).then(response => {
       const submissionBy = getResponseBody(response)[0]
-      if (this.props.settings.teamAssignment) {
-        this.setState({
-          submissionBy: `${submissionBy.firstName} ${submissionBy.lastName}`,
-        })
-      } else {
-        this.setState({ submissionBy: submissionBy.name })
-      }
+      this.setState({
+        submissionBy: `${submissionBy.firstName} ${submissionBy.lastName}`,
+      })
     })
   }
 
   componentWillMount() {
     this.loadForms(this.props)
     this.fetchMaterials()
-    if (this.props.isInstructor) {
+    console.log('fetchujem0', this.props.settings)
+    if (this.props.settings.isInstructor) {
       this.fetchSubmissionBy()
     }
   }
@@ -296,10 +300,16 @@ class Submission extends Component {
             `submission/${getShortID(update)}`
           ).then(response => {
             this.props.refreshAssignment()
-            this.setState({ savingSubmission: false })
+            this.setState({ savingSubmission: false, savedSubmission: true })
+            setTimeout(() => {
+              this.setState({ savedSubmission: false })
+            }, 3000)
           })
         } else {
-          this.setState({ savingSubmission: false })
+          this.setState({ savingSubmission: false, savedSubmission: true })
+          setTimeout(() => {
+            this.setState({ savedSubmission: false })
+          }, 3000)
         }
       })
     }
@@ -341,16 +351,17 @@ class Submission extends Component {
     const showViewerBoth =
       assignment.submissionImprovedSubmission &&
       periodHasEnded(assignment.improvedSubmissionPeriod)
-    // if (
-    //   instructorViewing &&
-    //   !periodHasEnded(assignment.initialSubmissionPeriod)
-    // ) {
-    //   return (
-    //     <Alert color="danger" className="mt-3">
-    //       Initial submission has not ended yet.
-    //     </Alert>
-    //   )
-    // }
+
+    if (
+      instructorViewing &&
+      !periodHasEnded(assignment.initialSubmissionPeriod)
+    ) {
+      return (
+        <Alert color="danger" className="mt-3">
+          Initial submission has not ended yet.
+        </Alert>
+      )
+    }
     if (studentViewing && !periodStarted(assignment.initialSubmissionPeriod)) {
       return (
         <Alert color="danger" className="mt-3">
@@ -360,6 +371,12 @@ class Submission extends Component {
     }
     return (
       <div className="submissionContainer">
+        <Alert
+          style={{ marginTop: '20px' }}
+          isOpen={this.state.savedSubmission}
+        >
+          Submission was saved successfully.
+        </Alert>
         {instructorViewing &&
           !periodHasEnded(assignment.initialSubmissionPeriod) && (
             <Alert color="danger" className="mt-3">
@@ -370,6 +387,8 @@ class Submission extends Component {
         {instructorViewing && (
           <Label>{settings.teamAssignment ? 'Team' : 'Student'}:</Label>
         )}{' '}
+        {console.log('LAST:', this.state)}
+        {console.log('LAST2:', this.props)}
         {this.state.submissionBy}
         {settings.myAssignment &&
           this.submission !== null &&
@@ -469,7 +488,7 @@ class Submission extends Component {
                 {!studentSubmitting && (
                   <SubmissionView
                     assignment={assignment}
-                    isInitial={true}
+                    isInitial={!showViewerBoth}
                     settings={settings}
                     improvedSubmission={improvedSubmission}
                     initialSubmission={initialSubmission}
