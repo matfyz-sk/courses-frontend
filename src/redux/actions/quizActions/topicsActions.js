@@ -36,7 +36,7 @@ import { SET_TOPICS_DATA } from '../../types'
 export const postTopic = (topic, token) => {
   return dispatch => {
     axios
-      .post(`${API_URL}/topic`, JSON.stringify(topic), {
+      .post(`${API_URL}/topic`, {...topic}, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',

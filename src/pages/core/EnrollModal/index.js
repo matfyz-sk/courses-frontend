@@ -1,23 +1,11 @@
-import React, { Component } from 'react'
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Alert,
-} from 'reactstrap'
+import React, {Component} from 'react'
+import {Alert, Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader,} from 'reactstrap'
 import './EnrollModal.css'
-import { authHeader, getUser, setUserProfile } from '../../../components/Auth'
-import { axiosRequest } from '../AxiosRequests'
-import { BASE_URL, USER_URL } from '../constants'
-import { Redirect } from 'react-router-dom'
-import { BACKEND_URL } from '../../../configuration/api'
-import { getShortID } from '../../../helperFunctions'
+import {authHeader, getUser, setUserProfile} from '../../../components/Auth'
+import {axiosRequest} from '../AxiosRequests'
+import {BASE_URL, USER_URL} from '../constants'
+import {Redirect} from 'react-router-dom'
+import {BACKEND_URL} from '../../../configuration/api'
 
 class EnrollModal extends Component {
   constructor(props) {
@@ -36,7 +24,7 @@ class EnrollModal extends Component {
   }
 
   render() {
-    const { course, courseInstance, className, user } = this.props
+    const {course, courseInstance, className, user} = this.props
     return (
       <div>
         <Button onClick={this.toggle} className="enroll-button">
@@ -49,7 +37,7 @@ class EnrollModal extends Component {
         >
           <ModalHeader toggle={this.toggle}>{course.name}</ModalHeader>
           <ModalBody>
-            <EnrollForm courseInstance={courseInstance} user={user} />
+            <EnrollForm courseInstance={courseInstance} user={user}/>
           </ModalBody>
           <ModalFooter>
             <Button color="secondary" onClick={this.toggle}>
@@ -77,7 +65,7 @@ class EnrollForm extends Component {
   }
 
   requestEnrollment = () => {
-    const { user, courseInstance } = this.props
+    const {user, courseInstance} = this.props
 
     if (user) {
       const newRequests = user.requests.map(userRequestedCourse => {
@@ -89,13 +77,13 @@ class EnrollForm extends Component {
 
       axiosRequest(
         'patch',
-        JSON.stringify({
+        {
           requests: newRequests,
-        }),
+        },
         url
       ).then(response => {
         if (response && response.status === 200) {
-          const newRequest = { '@id': courseInstance.fullId }
+          const newRequest = {'@id': courseInstance.fullId}
           user.requests.push(newRequest)
           setUserProfile(user)
           this.setState({
@@ -116,7 +104,7 @@ class EnrollForm extends Component {
 
   // eslint-disable-next-line react/sort-comp
   assignPrivacyToCourse(iri) {
-    const { courseInstance } = this.props
+    const {courseInstance} = this.props
     const personalSettings = []
     for (let i = 0; i < courseInstance.hasPersonalSettings.length; i++) {
       personalSettings.push(courseInstance.hasPersonalSettings[i]['@id'])
@@ -128,7 +116,7 @@ class EnrollForm extends Component {
       headers: authHeader(),
       mode: 'cors',
       credentials: 'omit',
-      body: JSON.stringify({ hasPersonalSettings: personalSettings }),
+      body: JSON.stringify({hasPersonalSettings: personalSettings}),
     })
       .then(response => {
         return response.json()
@@ -149,7 +137,7 @@ class EnrollForm extends Component {
   }
 
   requestPrivacy() {
-    const { globalPrivacy, specificNickname } = this.state
+    const {globalPrivacy, specificNickname} = this.state
     if (!globalPrivacy) {
       const post = {
         hasUser: getUser().fullURI,
@@ -167,7 +155,7 @@ class EnrollForm extends Component {
         })
         .then(data => {
           if (data.status) {
-            const { iri } = data.resource
+            const {iri} = data.resource
             this.assignPrivacyToCourse(iri)
           } else {
             const errors = []
@@ -185,7 +173,7 @@ class EnrollForm extends Component {
   }
 
   onSubmit = event => {
-    const { termsAndConditions, globalPrivacy, specificNickname } = this.state
+    const {termsAndConditions, globalPrivacy, specificNickname} = this.state
     event.preventDefault()
     const errors = this.validate(
       termsAndConditions,
@@ -193,7 +181,7 @@ class EnrollForm extends Component {
       specificNickname
     )
     if (errors.length > 0) {
-      this.setState({ errors })
+      this.setState({errors})
       event.preventDefault()
       return
     }
@@ -214,7 +202,7 @@ class EnrollForm extends Component {
   }
 
   onChange = event => {
-    this.setState({ [event.target.name]: event.target.value })
+    this.setState({[event.target.name]: event.target.value})
   }
 
   render() {
@@ -229,7 +217,7 @@ class EnrollForm extends Component {
     const isInvalid = termsAndConditions === false
 
     if (redirect) {
-      return <Redirect to={redirect} />
+      return <Redirect to={redirect}/>
     }
 
     return (
@@ -245,7 +233,7 @@ class EnrollForm extends Component {
                 id="useGlobal"
                 checked={globalPrivacy}
                 onChange={() =>
-                  this.setState({ globalPrivacy: !globalPrivacy })
+                  this.setState({globalPrivacy: !globalPrivacy})
                 }
                 type="checkbox"
               />{' '}
@@ -258,7 +246,7 @@ class EnrollForm extends Component {
                 name="useSpecific"
                 id="useSpecific"
                 onChange={() =>
-                  this.setState({ globalPrivacy: !globalPrivacy })
+                  this.setState({globalPrivacy: !globalPrivacy})
                 }
                 checked={!globalPrivacy}
                 type="checkbox"
@@ -274,7 +262,7 @@ class EnrollForm extends Component {
                 placeholder="My specific nickname"
                 value={specificNickname}
                 onChange={e =>
-                  this.setState({ specificNickname: e.target.value })
+                  this.setState({specificNickname: e.target.value})
                 }
                 type="text"
               />

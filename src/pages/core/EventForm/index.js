@@ -245,10 +245,9 @@ class EventForm extends Component {
       data.hasInstructor = hasInstructor
     }
 
-    axiosRequest(method, JSON.stringify(data), url)
+    axiosRequest(method, {...data}, url)
       .then(response => {
         if (response && response.status === 200) {
-          console.log(typeOfForm)
           if (typeOfForm === 'Edit') {
             callBack(id)
           } else {

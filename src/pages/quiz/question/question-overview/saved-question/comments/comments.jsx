@@ -1,17 +1,11 @@
 /* eslint-disable react/prefer-stateless-function */
-import React, { useState } from 'react'
-import {
-  FormGroup,
-  InputGroup,
-  Input,
-  InputGroupAddon,
-  Button,
-} from 'reactstrap'
+import React, {useState} from 'react'
+import {Button, FormGroup, Input, InputGroup, InputGroupAddon,} from 'reactstrap'
 import axios from 'axios'
-import { API_URL } from '../../../../../../configuration/api'
+import {API_URL} from '../../../../../../configuration/api'
 import Comment from './comment/comment'
 
-function Comments({ comments, questionAddress, token, callback }) {
+function Comments({comments, questionAddress, token, callback}) {
   const [newComment, setNewComment] = useState('')
 
   const onChangeNewComment = event => {
@@ -22,14 +16,14 @@ function Comments({ comments, questionAddress, token, callback }) {
     axios
       .put(
         `${API_URL}${questionAddress}`,
-        JSON.stringify({
+        {
           comment: [
             {
               _type: 'comment',
               commentText: `\"\"${newComment}\"\"`,
             },
           ],
-        }),
+        },
         {
           headers: {
             Accept: 'application/json',
@@ -38,7 +32,7 @@ function Comments({ comments, questionAddress, token, callback }) {
           },
         }
       )
-      .then(({ status: statusQuestionAssignment }) => {
+      .then(({status: statusQuestionAssignment}) => {
         if (statusQuestionAssignment === 200) {
           setNewComment('')
           callback()
@@ -49,7 +43,7 @@ function Comments({ comments, questionAddress, token, callback }) {
   return (
     <>
       {comments.map(comment => {
-        const { id, commentText, createdAt, createdBy } = comment
+        const {id, commentText, createdAt, createdBy} = comment
         return (
           <Comment
             key={id}
