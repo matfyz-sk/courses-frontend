@@ -32,6 +32,7 @@ import { redirect } from '../../constants/redirect'
 import Page404 from 'pages/errors/Page404'
 import { isValidHttpUrl } from '../../functions/validators'
 
+//TODO add conventional styling
 const ICON_SIZE = 56
 const ICON_COLOR = '#237a23'
 
@@ -41,14 +42,17 @@ const customErrorStyle = {
   color: '#dc3545',
 }
 
+const PAYLOAD_ENTITIES = [
+  DocumentEnums.file.entityName,
+  DocumentEnums.internalDocument.entityName,
+]
+
 function DocumentForm(props) {
-  // FIXME props.courseInstance is null
   // FIXME ?? operator and ?. compatibility
-  // FIXME empty fields are shown before they are filled... when editing existing one
+  // FIXME large base64 file uploads not working
 
   const [status, setStatus] = useState(200)
 
-  const [loading, setLoading] = useState(false)
   const [courseId, setCourseId] = useState(props.match.params.course_id ?? '')
 
   // when creating a brand new document
@@ -57,11 +61,19 @@ function DocumentForm(props) {
   // both used when document already exists
   const [id, setId] = useState(props.match.params.document_id ?? '')
   const [document, setDocument] = useState({})
+  const isInEditingMode = useCallback(() => id !== '', [id])
+
+  const [loadingCourseInstance, setLoadingCourseInstance] = useState(
+    props.courseInstance == null
+  )
+  const [loadingDocument, setLoadingDocument] = useState(isInEditingMode())
+  const [loading, setLoading] = useState(true)
 
   // shared among all document subclasses
   const [name, setName] = useState('')
 
   // document subclass specific
+  const [fileLoaded, setFileLoaded] = useState(false)
   const [file, setFile] = useState(null)
   const [filePath, setFilePath] = useState('')
   const [filename, setFilename] = useState('')
@@ -70,13 +82,14 @@ function DocumentForm(props) {
   const [mimeType, setMimeType] = useState('text/markdown')
 
   const fetchDocument = useCallback(() => {
-    if (!id) return
+    if (!isInEditingMode()) return
 
     setLoading(true)
-    const entityUrl = `document/${id}`
+    let entityUrl = `document/${id}?_join=payload`
     axiosGetEntities(entityUrl)
       .then(response => {
         if (response.failed) {
+          console.error(response.error)
           setStatus(response.response ? response.response.status : 500)
           return
         }
@@ -95,11 +108,10 @@ function DocumentForm(props) {
         }
         setDocument(responseDocument)
         setName(responseDocument.name)
-        setContent(responseDocument.content)
         switch (responseDocument['@type']) {
           case DocumentEnums.internalDocument.id:
             setEntityName(DocumentEnums.internalDocument.entityName)
-            setContent(responseDocument.content)
+            setContent(responseDocument.payload[0].content)
             setMimeType(responseDocument.mimeType)
             break
           case DocumentEnums.externalDocument.id:
@@ -109,25 +121,33 @@ function DocumentForm(props) {
           case DocumentEnums.file.id:
             setFilename(responseDocument.filename)
             setEntityName(DocumentEnums.file.entityName)
-            setContent(responseDocument.content)
+            setContent(responseDocument.payload[0].content)
             setMimeType(responseDocument.mimeType)
             break
           default:
             break
         }
-        setLoading(false || props.courseInstance == null)
+        setLoadingDocument(false)
       })
-  }, [courseId, id])
+  }, [courseId, isInEditingMode])
 
   useEffect(() => {
     fetchDocument()
   }, [fetchDocument])
 
   useEffect(() => {
-    setLoading(props.courseInstance == null) // TODO careful for bugs, looks like it introduced some ckeditor errors
+    setLoadingCourseInstance(props.courseInstance == null)
   }, [props.courseInstance])
 
-  const createNewVersionPayload = async () => {
+  useEffect(() => {
+    if (!loadingCourseInstance && !loadingDocument) setLoading(false)
+  }, [loadingCourseInstance, loadingDocument])
+
+  const canCreatePayload = () => {
+    return PAYLOAD_ENTITIES.includes(entityName)
+  }
+
+  const createNewVersionData = async () => {
     // destructuring previous version
     const {
       '@id': previousVersionId,
@@ -138,8 +158,33 @@ function DocumentForm(props) {
       ...properties
     } = document
 
+    if (canCreatePayload()) {
+      if (entityName === DocumentEnums.file.entityName) {
+        var payload = {
+          content,
+          // content: `""${content}""`, // needed for sparql/rdf
+        }
+      } else {
+        var payload = {
+          content: `""${content}""`, // needed for sparql/rdf
+        }
+      }
+      console.log({ payload })
+      var payloadId = await axiosAddEntity(payload, 'payload').then(
+        response => {
+          if (response.failed) {
+            console.error('payload', response.error)
+            setStatus(response.response ? response.response.status : 500)
+            return
+          }
+          return getIRIFromAddResponse(response)
+        }
+      )
+      console.log(payloadId)
+    }
+
     let newVersion = {
-      ...properties, // empty previous version still valid
+      ...properties,
       _type: entityName,
       name,
       isDeleted: false,
@@ -150,8 +195,9 @@ function DocumentForm(props) {
     // add addtional params
     switch (entityName) {
       case DocumentEnums.internalDocument.entityName:
+        console.log({ payloadId })
         const internalDocumentParams = {
-          content: `""${content}""`, // needed for sparql/rdf
+          payload: payloadId,
           mimeType,
         }
         newVersion = {
@@ -168,7 +214,7 @@ function DocumentForm(props) {
         break
       case DocumentEnums.file.entityName:
         const fileParams = {
-          content: id ? content : await fileToBase64(file),
+          payload: payloadId,
           filename,
           mimeType,
         }
@@ -181,7 +227,7 @@ function DocumentForm(props) {
         break
     }
 
-    if (id) {
+    if (isInEditingMode()) {
       newVersion = {
         ...newVersion,
         previousVersion: previousVersionId,
@@ -195,11 +241,11 @@ function DocumentForm(props) {
   }
 
   const createNewVersion = async newVersion => {
-    const entityUrl = 'document'
     console.log({ newVersion })
-    return await axiosAddEntity(newVersion, entityUrl).then(response => {
+    return await axiosAddEntity(newVersion, 'document').then(response => {
       if (response.failed) {
         console.error(response.error)
+        console.log('creating new ver')
         setStatus(response.response ? response.response.status : 500)
         return
       }
@@ -216,28 +262,31 @@ function DocumentForm(props) {
     axiosUpdateEntity(dataToUpdate, entityUrl).then(response => {
       if (response.failed) {
         console.error(response.error)
+        console.log('setting old version')
         setStatus(response.response ? response.response.status : 500)
       }
     })
   }
 
   const replaceInCurrentDocuments = (newVersionId, oldVersionId) => {
-    // ? works as intended when oldV is undefined... but maybe still add a condition?
-    const entityUrl = `courseInstance/${courseId}`
-    const newCurrentDocuments = {
-      hasDocument: [
-        newVersionId,
-        ...props.courseInstance.hasDocument
-          .map(doc => doc['@id'])
-          .filter(id => id !== oldVersionId),
-      ],
-    }
+    // ? works as intended when oldVersionId is undefined... but maybe still add a condition?
+      const newCurrentDocuments = {
+        hasDocument: [
+          newVersionId,
+          ...props.courseInstance.hasDocument
+            .map(doc => doc['@id'])
+            .filter(id => id !== oldVersionId),
+        ],
+      }
     // const newCurrentDocuments = {
     //     hasDocument: []
     // }
+    const entityUrl = `courseInstance/${courseId}`
 
     axiosUpdateEntity(newCurrentDocuments, entityUrl).then(response => {
       if (response.failed) {
+        console.log('update ci')
+        console.error(response.error)
         setStatus(response.response ? response.response.status : 500)
         return
       }
@@ -251,31 +300,33 @@ function DocumentForm(props) {
   }
 
   const handleEdit = async e => {
+    e.preventDefault()
     if (!formValid()) {
       return
     }
-    e.preventDefault()
-    const newVersion = await createNewVersionPayload()
-    const newVersionId = await createNewVersion(newVersion)
+    const data = await createNewVersionData()
+    const newVersionId = await createNewVersion(data)
     if (!newVersionId) {
       console.error('Editing was unsuccessful!')
       return
     }
-    if (id) {
+    if (isInEditingMode()) {
       setSuccessorOfOldVersion(newVersionId)
     }
     replaceInCurrentDocuments(newVersionId, document['@id'])
   }
 
   const mimeTypeOptions = ['text/html', 'text/markdown']
-  const nonEditorTypes = [
-    DocumentEnums.externalDocument.entityName,
-    DocumentEnums.file.entityName,
-  ]
-  const langModes = { 'text/html': 'html', 'text/markdown': 'markdown' }
+
+  // TODO change format selector accordingly
+  // const langModes = { 'text/html': 'html', 'text/markdown': 'markdown' }
 
   const onChangeFile = e => {
-    setFile(e.target.files[0])
+    fileToBase64(e.target.files[0]).then(base64Content => {
+      setContent(base64Content)
+      console.log({ base64Content })
+      setFileLoaded(true)
+    })
     setMimeType(e.target.files[0].type)
     setFilename(e.target.files[0].name)
     setFilePath(e.target.value)
@@ -326,7 +377,7 @@ function DocumentForm(props) {
   return (
     <Form style={{ maxWidth: '1000px', margin: '20px auto' }}>
       <h1 style={{ marginBottom: '2em' }}>
-        {id ? 'Edit' : 'Create'} Document // TODO redundant heading???
+        {isInEditingMode() ? 'Edit' : 'Create'} Document
       </h1>
       <FormGroup style={{ width: '40%' }}>
         <Label for="name">Name </Label>
@@ -347,7 +398,7 @@ function DocumentForm(props) {
             id="url"
             type="url"
             style={{ width: '40%' }}
-            invalid={uri.length === 0}
+            invalid={!isValidHttpUrl(uri)}
             value={uri}
             onChange={e => setUri(e.target.value)}
           />
@@ -355,17 +406,26 @@ function DocumentForm(props) {
         </FormGroup>
       )}
 
-      {entityName === DocumentEnums.file.entityName && id && (
-        <Label for="file-download">
-          Saved file:{' '}
-          <Link
-            id="file-download"
-            to={{ textDecoration: 'none' }}
-            onClick={onDownloadFile}
-          >
-            <HiDownload style={{ color: ICON_COLOR }} size={ICON_SIZE} />
-          </Link>
-        </Label>
+      {entityName === DocumentEnums.file.entityName && isInEditingMode() && (
+        <>
+          <Label for="file-download">
+            Saved file:{' '}
+            <Link
+              id="file-download"
+              to={{ textDecoration: 'none' }}
+              onClick={onDownloadFile}
+            >
+              <HiDownload style={{ color: ICON_COLOR }} size={ICON_SIZE} />
+            </Link>
+          </Label>
+        </>
+      )}
+      {fileLoaded && (
+        <>
+          <p>{filename}</p>
+          <p>{mimeType}</p>
+          <p>{filePath}</p>
+        </>
       )}
 
       <FormGroup
@@ -380,9 +440,7 @@ function DocumentForm(props) {
           label={filename || '...'}
           value={filePath}
           onChange={onChangeFile}
-        >
-          {/* <FormFeedback>File is required</FormFeedback> */}
-        </CustomInput>
+        />
         {filename.length === 0 && (
           <p style={customErrorStyle}>File is required</p>
         )}
@@ -411,13 +469,6 @@ function DocumentForm(props) {
             setContent={setContent}
             mimeType={mimeType}
           />
-          {/* <CustomEditor content={content} setContent={setContent}
-              ckeditor={CKSUPEREDITOR.HTMLClassicEditor}
-            />
-             <CustomEditor content={content} setContent={setContent}
-                ckeditor={CKSUPEREDITOR.MarkdownClassicEditor}
-            /> */}
-
           {content.length === 0 && (
             <p style={customErrorStyle}>Document can't be empty</p>
           )}
