@@ -26,15 +26,15 @@ class NavigationCourseClass extends React.Component {
 
     this.toggle = this.toggle.bind(this)
     this.state = {
-      isOpen: [false, false],
+      isOpen: [ false, false ],
       courseId: props.courseId,
       isAdmin: false,
     }
   }
 
   toggle(teacherNav = true) {
-    const { isOpen } = this.state
-    if (teacherNav) {
+    const {isOpen} = this.state
+    if(teacherNav) {
       isOpen[1] = !isOpen[1]
       isOpen[0] = false
     } else {
@@ -47,8 +47,8 @@ class NavigationCourseClass extends React.Component {
   }
 
   componentDidMount() {
-    const { user, courseInstance } = this.props
-    if (courseInstance && user && getInstructorRights(user, courseInstance)) {
+    const {user, courseInstance} = this.props
+    if(courseInstance && user && getInstructorRights(user, courseInstance)) {
       this.setState({
         isAdmin: true,
       })
@@ -56,12 +56,12 @@ class NavigationCourseClass extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { user, courseInstance } = this.props
-    if (
+    const {user, courseInstance} = this.props
+    if(
       prevProps.user !== user ||
       prevProps.courseInstance !== courseInstance
     ) {
-      if (courseInstance && user && getInstructorRights(user, courseInstance)) {
+      if(courseInstance && user && getInstructorRights(user, courseInstance)) {
         this.setState({
           isAdmin: true,
         })
@@ -71,13 +71,13 @@ class NavigationCourseClass extends React.Component {
 
   render() {
     const current = this.props.navReducer.current.sub
-    const { privileges, teacherNav, courseInstance, user } = this.props
-    const { isAdmin } = this.state
+    const {privileges, teacherNav, courseInstance, user} = this.props
+    const {isAdmin} = this.state
     let courseID = this.props.history.location.pathname.substring(8)
-    if (courseID.indexOf('/') !== -1) {
+    if(courseID.indexOf('/') !== -1) {
       courseID = courseID.substring(0, courseID.indexOf('/'))
     }
-    const ASSIGNMENTS = `/courses/${courseID}/assignments`
+    const ASSIGNMENTS = `/courses/${ courseID }/assignments`
 
     // const teacherMenu = []
     // for (let i = 0; i < teacherNav.menu.length; i++) {
@@ -100,48 +100,48 @@ class NavigationCourseClass extends React.Component {
       <Navbar className="sub-nav" expand="md">
         <div className="navbar-left">
           <NavbarBrand>
-            {this.props.abbr}{' '}
-            <img src={RightArrow} alt="right" className="arrow-right" />
+            { this.props.abbr }{ ' ' }
+            <img src={ RightArrow } alt="right" className="arrow-right"/>
           </NavbarBrand>
         </div>
 
-        {/*{teacherNav.menu.length > 0 ? (*/}
-        {/*  <NavbarToggler onClick={() => this.toggle(true)} className="ml-auto">*/}
-        {/*    <img src={Settings} alr="settings" style={{ width: '20px' }} />*/}
-        {/*  </NavbarToggler>*/}
-        {/*) : null}*/}
-        {/*<div class="navbar-container">*/}
+        {/*{teacherNav.menu.length > 0 ? (*/ }
+        {/*  <NavbarToggler onClick={() => this.toggle(true)} className="ml-auto">*/ }
+        {/*    <img src={Settings} alr="settings" style={{ width: '20px' }} />*/ }
+        {/*  </NavbarToggler>*/ }
+        {/*) : null}*/ }
+        {/*<div class="navbar-container">*/ }
 
         <NavbarToggler
-          onClick={() => this.toggle(false)}
-          className={isAdmin ? "bars-toggler" : ""}
+          onClick={ () => this.toggle(false) }
+          className={ isAdmin ? "bars-toggler" : "" }
         >
-          <img src={Bars} alr="bars" style={{ width: '30px' }} />
+          <img src={ Bars } alr="bars" style={ {width: '30px'} }/>
         </NavbarToggler>
 
-        <Collapse isOpen={this.state.isOpen[0]} navbar>
+        <Collapse isOpen={ this.state.isOpen[0] } navbar>
           <Nav>
             <NavItem>
               <NavLink
                 activeClassName="is-active"
-                to={redirect(ROUTES.TIMELINE, [
-                  { key: 'course_id', value: this.state.courseId },
+                to={ redirect(ROUTES.TIMELINE, [
+                  {key: 'course_id', value: this.state.courseId},
                   // { key: 'timeline_id', value: 1 },
-                ])}
-                className={`nav-link nav-button ${
+                ]) }
+                className={ `nav-link nav-button ${
                   current === 'timeline' ? 'active' : ''
-                }`}
+                }` }
               >
                 Timeline
               </NavLink>
             </NavItem>
-            {privileges.inCourseInstance !== 'visitor' ? (
+            { privileges.inCourseInstance !== 'visitor' ? (
               <NavItem>
-                {privileges.inCourseInstance === 'student' ? (
+                { privileges.inCourseInstance === 'student' ? (
                   <NavLink
-                    to={redirect(ROUTES.MY_RESULTS, [
-                      { key: 'course_id', value: this.state.courseId },
-                    ])}
+                    to={ redirect(ROUTES.MY_RESULTS, [
+                      {key: 'course_id', value: this.state.courseId},
+                    ]) }
                     activeClassName="is-active"
                     className="nav-link nav-button"
                   >
@@ -149,22 +149,22 @@ class NavigationCourseClass extends React.Component {
                   </NavLink>
                 ) : (
                   <NavLink
-                    to={redirect(ROUTES.RESULTS, [
-                      { key: 'course_id', value: this.state.courseId },
-                    ])}
+                    to={ redirect(ROUTES.RESULTS, [
+                      {key: 'course_id', value: this.state.courseId},
+                    ]) }
                     activeClassName="is-active"
                     className="nav-link nav-button"
                   >
                     Results
                   </NavLink>
-                )}
+                ) }
               </NavItem>
-            ) : null}
+            ) : null }
             <NavItem>
               <NavLink
-                to={redirect(ROUTES.ASSIGNMENTS, [
-                  { key: 'course_id', value: this.state.courseId },
-                ])}
+                to={ redirect(ROUTES.ASSIGNMENTS, [
+                  {key: 'course_id', value: this.state.courseId},
+                ]) }
                 className="nav-link nav-button"
               >
                 Assignments
@@ -173,7 +173,7 @@ class NavigationCourseClass extends React.Component {
             <NavItem>
               <NavLink
                 activeClassName="is-active"
-                to={ROUTES.DOCUMENTS}
+                to={ ROUTES.DOCUMENTS }
                 className="nav-link nav-button"
               >
                 Documents
@@ -182,49 +182,49 @@ class NavigationCourseClass extends React.Component {
             <NavItem>
               <NavLink
                 activeClassName="is-active"
-                to={redirect(ROUTES.QUIZ, [
-                  { key: 'course_id', value: this.state.courseId },
-                ])}
+                to={ redirect(ROUTES.QUIZ, [
+                  {key: 'course_id', value: this.state.courseId},
+                ]) }
                 className="nav-link nav-button"
               >
                 Quiz
               </NavLink>
             </NavItem>
-            {/*<NavItem>*/}
-            {/*  <NavLink*/}
-            {/*    activeClassName="is-active"*/}
-            {/*    to={ROUTES.INFO}*/}
-            {/*    className="nav-link nav-button"*/}
-            {/*  >*/}
-            {/*    Info*/}
-            {/*  </NavLink>*/}
-            {/*</NavItem>*/}
-            {privileges.inCourseInstance !== 'visitor' ? (
+            {/*<NavItem>*/ }
+            {/*  <NavLink*/ }
+            {/*    activeClassName="is-active"*/ }
+            {/*    to={ROUTES.INFO}*/ }
+            {/*    className="nav-link nav-button"*/ }
+            {/*  >*/ }
+            {/*    Info*/ }
+            {/*  </NavLink>*/ }
+            {/*</NavItem>*/ }
+            { privileges.inCourseInstance !== 'visitor' ? (
               <NavItem>
                 <NavLink
                   activeClassName="is-active"
-                  to={redirect(ROUTES.COURSE_TEAMS, [
-                    { key: 'course_id', value: this.state.courseId },
-                  ])}
+                  to={ redirect(ROUTES.COURSE_TEAMS, [
+                    {key: 'course_id', value: this.state.courseId},
+                  ]) }
                   className="nav-link nav-button"
                 >
                   Teams
                 </NavLink>
               </NavItem>
-            ) : null}
+            ) : null }
           </Nav>
         </Collapse>
-        {isAdmin && (
+        { isAdmin && (
           <UncontrolledDropdown className="dropdown-course">
             <DropdownToggle tag="a" className="settings">
-              <img src={Settings} alr="settings" className="setting-img mr-2" />
+              <img src={ Settings } alr="settings" className="setting-img mr-2"/>
             </DropdownToggle>
             <DropdownMenu right className="teacher-dropdown">
               <DropdownItem className="nav-button">
                 <NavLink
-                  to={redirect(ROUTES.USER_MANAGEMENT, [
-                    { key: 'course_id', value: this.state.courseId },
-                  ])}
+                  to={ redirect(ROUTES.USER_MANAGEMENT, [
+                    {key: 'course_id', value: this.state.courseId},
+                  ]) }
                   className="nav-link nav-button"
                 >
                   User Management
@@ -232,9 +232,9 @@ class NavigationCourseClass extends React.Component {
               </DropdownItem>
               <DropdownItem className="nav-button">
                 <NavLink
-                  to={redirect(ROUTES.COURSE_MIGRATION, [
-                    { key: 'course_id', value: this.state.courseId },
-                  ])}
+                  to={ redirect(ROUTES.COURSE_MIGRATION, [
+                    {key: 'course_id', value: this.state.courseId},
+                  ]) }
                   className="nav-link nav-button"
                 >
                   Course Migration
@@ -242,9 +242,9 @@ class NavigationCourseClass extends React.Component {
               </DropdownItem>
               <DropdownItem className="nav-button">
                 <NavLink
-                  to={redirect(ROUTES.CREATE_TIMELINE, [
-                    { key: 'course_id', value: this.state.courseId },
-                  ])}
+                  to={ redirect(ROUTES.CREATE_TIMELINE, [
+                    {key: 'course_id', value: this.state.courseId},
+                  ]) }
                   className="nav-link nav-button"
                 >
                   Edit Timeline
@@ -252,27 +252,27 @@ class NavigationCourseClass extends React.Component {
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
-        )}
-        {/*<div className="d-md-none d-sm-block w-100">*/}
-        {/*  <Collapse isOpen={this.state.isOpen[1]} navbar>*/}
-        {/*    <Nav>*/}
-        {/*      {teacherMenu}*/}
-        {/*    </Nav>*/}
-        {/*  </Collapse>*/}
-        {/*</div>*/}
-        {/*</div>*/}
+        ) }
+        {/*<div className="d-md-none d-sm-block w-100">*/ }
+        {/*  <Collapse isOpen={this.state.isOpen[1]} navbar>*/ }
+        {/*    <Nav>*/ }
+        {/*      {teacherMenu}*/ }
+        {/*    </Nav>*/ }
+        {/*  </Collapse>*/ }
+        {/*</div>*/ }
+        {/*</div>*/ }
       </Navbar>
     )
   }
 }
 
 const mapStateToProps = ({
-  navReducer,
-  privilegesReducer,
-  teacherNavReducer,
-  courseInstanceReducer,
-  authReducer,
-}) => {
+                           navReducer,
+                           privilegesReducer,
+                           teacherNavReducer,
+                           courseInstanceReducer,
+                           authReducer,
+                         }) => {
   return {
     navReducer,
     privileges: privilegesReducer,

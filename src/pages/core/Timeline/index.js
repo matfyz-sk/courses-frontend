@@ -1,17 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
-import { Container, Row, Col, Alert } from 'reactstrap'
+import { Alert, Col, Container, Row } from 'reactstrap'
 import Scroll from 'react-scroll'
-import EventsList, { BlockMenu, BlockMenuToggle } from '../Events'
+import EventsList, { BlockMenu } from '../Events'
 import { getInstructorRights, getShortId } from '../Helper'
-import {
-  getEvents,
-  sortEventsFunction,
-  getTimelineBlocks,
-  getNestedEvents,
-  getCurrentBlock,
-} from './timeline-helper'
+import { getCurrentBlock, getEvents, getNestedEvents, getTimelineBlocks, sortEventsFunction, } from './timeline-helper'
 // import NextCalendar from '../NextCalendar'
 import * as ROUTES from '../../../constants/routes'
 import './Timeline.css'
@@ -20,7 +14,7 @@ import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 // import TeacherNavigation from '../../../components/Navigation/TeacherNavigation'
 
-const { scroller } = Scroll
+const {scroller} = Scroll
 
 class Timeline extends Component {
   constructor(props) {
@@ -38,17 +32,17 @@ class Timeline extends Component {
 
   componentDidMount() {
     const {
-      match: { params },
+      match: {params},
     } = this.props
-    const { course, user } = this.props
+    const {course, user} = this.props
 
-    if (course && user && getInstructorRights(user, course)) {
+    if(course && user && getInstructorRights(user, course)) {
       this.setState({
         hasAccess: true,
       })
     }
 
-    const url = `${BASE_URL + EVENT_URL}?courseInstance=${
+    const url = `${ BASE_URL + EVENT_URL }?courseInstance=${
       params.course_id
     }&_join=courseInstance,uses,recommends`
 
@@ -57,7 +51,7 @@ class Timeline extends Component {
       this.setState({
         loading: false,
       })
-      if (data != null && data !== []) {
+      if(data != null && data !== []) {
         const events = getEvents(data).sort(sortEventsFunction)
 
         const timelineBlocks = getTimelineBlocks(events)
@@ -71,7 +65,7 @@ class Timeline extends Component {
 
         const currentBlock = getCurrentBlock(timelineBlocks)
 
-        if (currentBlock) {
+        if(currentBlock) {
           scroller.scrollTo(currentBlock, {
             duration: 500,
             // delay: 100,
@@ -84,9 +78,9 @@ class Timeline extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { user, course } = this.props
-    if (prevProps.user !== user || prevProps.course !== course) {
-      if (course && user && getInstructorRights(user, course)) {
+    const {user, course} = this.props
+    if(prevProps.user !== user || prevProps.course !== course) {
+      if(course && user && getInstructorRights(user, course)) {
         this.setState({
           hasAccess: true,
         })
@@ -102,10 +96,10 @@ class Timeline extends Component {
       hasAccess,
       loading,
     } = this.state
-    const { course } = this.props
+    const {course} = this.props
     const courseId = course ? getShortId(course['@id']) : ''
 
-    if (loading) {
+    if(loading) {
       return (
         <Alert color="secondary" className="empty-message">
           Loading...
@@ -114,56 +108,56 @@ class Timeline extends Component {
     }
     return (
       <>
-        {/* eslint-disable-next-line no-nested-ternary */}
-        {eventsSorted.length === 0 ? (
+        {/* eslint-disable-next-line no-nested-ternary */ }
+        { eventsSorted.length === 0 ? (
           <Alert color="secondary" className="empty-message">
             Timeline for this course is empty.
-            <br />
-            {hasAccess && (
+            <br/>
+            { hasAccess && (
               <NavLink
-                to={redirect(ROUTES.CREATE_TIMELINE, [
-                  { key: 'course_id', value: courseId },
-                ])}
+                to={ redirect(ROUTES.CREATE_TIMELINE, [
+                  {key: 'course_id', value: courseId},
+                ]) }
                 className="alert-link"
               >
-                Create NEW TIMELINE{' '}
+                Create NEW TIMELINE{ ' ' }
               </NavLink>
-            )}
+            ) }
           </Alert>
         ) : (
           <Container className="core-container">
             <Row className="timeline-row">
               <Col xs="3" className="timeline-left-col">
-                <BlockMenu courseEvents={timelineBlocks} />
-                {/*<BlockMenuToggle courseEvents={timelineBlocks} scroll />*/}
-                {/*{hasAccess &&*/}
-                {/*    <div className="button-container">*/}
-                {/*      <NavLink*/}
-                {/*        to={redirect(ROUTES.CREATE_TIMELINE, [*/}
-                {/*          { key: 'course_id', value: courseId },*/}
-                {/*        ])}*/}
-                {/*      >*/}
-                {/*        <Button className="new-session-button">*/}
-                {/*          Edit Timeline*/}
-                {/*        </Button>*/}
-                {/*      </NavLink>*/}
-                {/*    </div>*/}
-                {/*  )}*/}
-                {/*/!*<NextCalendar />*!/*/}
+                <BlockMenu courseEvents={ timelineBlocks }/>
+                {/*<BlockMenuToggle courseEvents={timelineBlocks} scroll />*/ }
+                {/*{hasAccess &&*/ }
+                {/*    <div className="button-container">*/ }
+                {/*      <NavLink*/ }
+                {/*        to={redirect(ROUTES.CREATE_TIMELINE, [*/ }
+                {/*          { key: 'course_id', value: courseId },*/ }
+                {/*        ])}*/ }
+                {/*      >*/ }
+                {/*        <Button className="new-session-button">*/ }
+                {/*          Edit Timeline*/ }
+                {/*        </Button>*/ }
+                {/*      </NavLink>*/ }
+                {/*    </div>*/ }
+                {/*  )}*/ }
+                {/*/!*<NextCalendar />*!/*/ }
               </Col>
               <Col className="event-list-col">
-                <EventsList courseEvents={nestedEvents} isAdmin={hasAccess} />
+                <EventsList courseEvents={ nestedEvents } isAdmin={ hasAccess }/>
               </Col>
-              {/*<TeacherNavigation currentKey={1} href_array={adminMenuRoutes} />*/}
+              {/*<TeacherNavigation currentKey={1} href_array={adminMenuRoutes} />*/ }
             </Row>
           </Container>
-        )}
+        ) }
       </>
     )
   }
 }
 
-const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
+const mapStateToProps = ({authReducer, courseInstanceReducer}) => {
   return {
     course: courseInstanceReducer.courseInstance,
     user: authReducer.user,

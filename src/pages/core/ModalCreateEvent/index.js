@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
 import EventForm from '../EventForm'
 import { INITIAL_EVENT_STATE } from '../constants'
 
@@ -27,32 +27,32 @@ class ModalCreateEvent extends React.Component {
   }
 
   render() {
-    const { from, to } = this.props
+    const {from, to} = this.props
 
     return (
       <div>
-        <Button onClick={this.toggle} className="new-session-button">
+        <Button onClick={ this.toggle } className="new-session-button">
           New Subevent
         </Button>
         <Modal
-          isOpen={this.state.modal}
-          toggle={this.toggle}
+          isOpen={ this.state.modal }
+          toggle={ this.toggle }
         >
-          <ModalHeader toggle={this.toggle}>New Subevent</ModalHeader>
+          <ModalHeader toggle={ this.toggle }>New Subevent</ModalHeader>
           <ModalBody>
             <EventForm
               typeOfForm="Create"
-              {...INITIAL_EVENT_STATE}
-              options={['Lab', 'Lecture', 'OralExam', 'TestTake']}
-              callBack={this.callback}
-              startDate={from}
-              endDate={to}
-              from={from}
-              to={to}
+              { ...INITIAL_EVENT_STATE }
+              options={ [ 'Lab', 'Lecture', 'OralExam', 'TestTake' ] }
+              callBack={ this.callback }
+              startDate={ from }
+              endDate={ to }
+              from={ from }
+              to={ to }
             />
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={this.toggle}>
+            <Button color="secondary" onClick={ this.toggle }>
               Cancel
             </Button>
           </ModalFooter>

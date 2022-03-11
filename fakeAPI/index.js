@@ -1,19 +1,19 @@
 var express = require('express');
 var cors = require('cors')
-module.exports =  startREST;
+module.exports = startREST;
 
-var whitelist = [ 'http://localhost:3000']
+var whitelist = [ 'http://localhost:3000' ]
 var corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
+  origin: function(origin, callback) {
+    if(whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
-      callback('Not allowed by CORS',false)
+      callback('Not allowed by CORS', false)
     }
   }
 }
 
-function startREST(){
+function startREST() {
   var app = express();
   app.use(cors());
 
@@ -25,10 +25,11 @@ function startREST(){
     res.end( JSON.stringify({message:'Nevyplnené všetky položky.'}) );
   });*/
 
-  app.get('/', (req, res) =>{
-    res.sendFile('test.zip', { root: __dirname });
+  app.get('/', (req, res) => {
+    res.sendFile('test.zip', {root: __dirname});
   })
 
   app.listen(8081, () => console.log(`Express listening on port 8081!`))
 }
+
 startREST();

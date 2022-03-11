@@ -8,31 +8,31 @@ import { RESULT_TYPE } from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
 
 const ResultTypes = props => {
-  const { courseInstanceReducer } = props
-  const { courseInstance } = courseInstanceReducer
+  const {courseInstanceReducer} = props
+  const {courseInstance} = courseInstanceReducer
   const renderTypes = []
-  if (courseInstance && courseInstance.hasResultType.length > 0) {
+  if(courseInstance && courseInstance.hasResultType.length > 0) {
     courseInstance.hasResultType.forEach(item => {
       renderTypes.push(
-        <tr className="border-bottom" key={`grading-list-${item['@id']}`}>
-          <th>{item.name}</th>
-          <td>{item.minPoints}</td>
+        <tr className="border-bottom" key={ `grading-list-${ item['@id'] }` }>
+          <th>{ item.name }</th>
+          <td>{ item.minPoints }</td>
           <td className="text-right">
-            <ResultTypeModal resultType={item} />
-            {courseInstance ? (
+            <ResultTypeModal resultType={ item }/>
+            { courseInstance ? (
               <Link
-                to={redirect(RESULT_TYPE, [
+                to={ redirect(RESULT_TYPE, [
                   {
                     key: 'course_id',
                     value: getShortID(courseInstance['@id']),
                   },
-                  { key: 'result_type_id', value: getShortID(item['@id']) },
-                ])}
+                  {key: 'result_type_id', value: getShortID(item['@id'])},
+                ]) }
                 className="btn btn-sm btn-link ml-2"
               >
                 Points
               </Link>
-            ) : null}
+            ) : null }
           </td>
         </tr>
       )
@@ -42,25 +42,25 @@ const ResultTypes = props => {
   return (
     <>
       <h2 className="mb-4">Result types</h2>
-      <ResultTypeModal />
+      <ResultTypeModal/>
       <Table hover size="sm" responsive>
         <thead>
-          <tr className="border-bottom">
-            <th>Name</th>
-            <th>Min points</th>
-            <th> </th>
-          </tr>
+        <tr className="border-bottom">
+          <th>Name</th>
+          <th>Min points</th>
+          <th></th>
+        </tr>
         </thead>
         <tbody>
-          {courseInstance && courseInstance.hasResultType.length === 0 ? (
-            <tr>
-              <td colSpan={4}>
-                <Alert color="info">No result type was set</Alert>
-              </td>
-            </tr>
-          ) : (
-            <>{renderTypes}</>
-          )}
+        { courseInstance && courseInstance.hasResultType.length === 0 ? (
+          <tr>
+            <td colSpan={ 4 }>
+              <Alert color="info">No result type was set</Alert>
+            </td>
+          </tr>
+        ) : (
+          <>{ renderTypes }</>
+        ) }
         </tbody>
       </Table>
     </>

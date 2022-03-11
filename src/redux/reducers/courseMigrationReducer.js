@@ -1,10 +1,10 @@
 import {
-  SET_COURSE_MIGRATION_STATE,
-  SET_COURSE_MIGRATION_STARTDATE,
+  SET_COURSE_MIGRATION_ALL_EVENTS,
+  SET_COURSE_MIGRATION_CHECKED_EVENTS,
   SET_COURSE_MIGRATION_ENDDATE,
   SET_COURSE_MIGRATION_INSTRUCTORS,
-  SET_COURSE_MIGRATION_CHECKED_EVENTS,
-  SET_COURSE_MIGRATION_ALL_EVENTS,
+  SET_COURSE_MIGRATION_STARTDATE,
+  SET_COURSE_MIGRATION_STATE,
 } from '../types'
 
 const initialState = {
@@ -22,7 +22,7 @@ const initialState = {
 }
 
 export default function courseMigrationReducer(state = initialState, action) {
-  switch (action.type) {
+  switch(action.type) {
     case SET_COURSE_MIGRATION_STATE:
       return {
         ...action.item,

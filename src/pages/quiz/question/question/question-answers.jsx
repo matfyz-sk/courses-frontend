@@ -11,16 +11,16 @@ const enText = {
   'add-answer': 'Add answer',
 }
 
-function QuestionAnswers ({
-                            answers,
-                            addNewAnswer,
-                            userAnswer,
-                            setUserAnswer,
-                            finalAnswer,
-                          }) {
+function QuestionAnswers({
+                           answers,
+                           addNewAnswer,
+                           userAnswer,
+                           setUserAnswer,
+                           finalAnswer,
+                         }) {
 
-  const handleUserAnswer = (id,answer) => {
-    let newUserAnswer = [...userAnswer]
+  const handleUserAnswer = (id, answer) => {
+    let newUserAnswer = [ ...userAnswer ]
     const index = userAnswer.map(ans => ans.predefinedAnswer).indexOf(id)
     newUserAnswer[index] = answer
     setUserAnswer(newUserAnswer)
@@ -29,39 +29,39 @@ function QuestionAnswers ({
   return (
     <>
       <fieldset>
-        {addNewAnswer && <legend>Answers</legend>}
-        {answers &&
-        answers.map(answer => {
-          const {
-            id,
-            correct,
-            text,
-            changeAnswerText,
-            changeAnswerChecked,
-            deleteAnswer,
-          } = answer
-          return (
-            <AnswerComponentPredefined
-              key={id}
-              id={id}
-              placeholder={enText['answer-placeholder']}
-              correct={correct}
-              text={text}
-              onChangeAnswerText={changeAnswerText}
-              onChangeAnswerChecked={changeAnswerChecked}
-              deleteAnswer={deleteAnswer}
-              userAnswer = {userAnswer && userAnswer.find(ans => ans.predefinedAnswer === id)}
-              handleUserAnswer = {handleUserAnswer}
-              finalAnswer = {finalAnswer}
-              // color={id > -1 ? }
-            />
-          )
-        })}
-        {addNewAnswer && (
-          <Button color="success" className="mt-3" onClick={addNewAnswer}>
-            {enText['add-answer']}
+        { addNewAnswer && <legend>Answers</legend> }
+        { answers &&
+          answers.map(answer => {
+            const {
+              id,
+              correct,
+              text,
+              changeAnswerText,
+              changeAnswerChecked,
+              deleteAnswer,
+            } = answer
+            return (
+              <AnswerComponentPredefined
+                key={ id }
+                id={ id }
+                placeholder={ enText['answer-placeholder'] }
+                correct={ correct }
+                text={ text }
+                onChangeAnswerText={ changeAnswerText }
+                onChangeAnswerChecked={ changeAnswerChecked }
+                deleteAnswer={ deleteAnswer }
+                userAnswer={ userAnswer && userAnswer.find(ans => ans.predefinedAnswer === id) }
+                handleUserAnswer={ handleUserAnswer }
+                finalAnswer={ finalAnswer }
+                // color={id > -1 ? }
+              />
+            )
+          }) }
+        { addNewAnswer && (
+          <Button color="success" className="mt-3" onClick={ addNewAnswer }>
+            { enText['add-answer'] }
           </Button>
-        )}
+        ) }
       </fieldset>
     </>
   )

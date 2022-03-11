@@ -21,190 +21,195 @@ const enText = {
 }
 
 function QuestionNew({
-  header,
-  metadata,
-  title,
-  setTitle,
-  question,
-  setQuestion,
-  topic,
-  setTopic,
-  topicOptions,
-  questionType,
-  questionTypeOptions,
-  setQuestionType,
-  answers,
-  setRegexp,
-  regexp,
-  setRegexpUserAnswer,
-  regexpUserAnswer,
-  setUserAnswer,
-  userAnswer,
-  addNewAnswer,
-  orderAnswers,
-  orderAnswersColumn,
-  addNewOrderAnswer,
-  setShowWarning,
-  setOrderAnswersColumn,
-  matchAnswers,
-  matchPairs,
-  addNewPair,
-  disabled,
-  children,
-  color,
-  showWarning,
-}) {
+                       header,
+                       metadata,
+                       title,
+                       setTitle,
+                       question,
+                       setQuestion,
+                       topic,
+                       setTopic,
+                       topicOptions,
+                       questionType,
+                       questionTypeOptions,
+                       setQuestionType,
+                       answers,
+                       setRegexp,
+                       regexp,
+                       setRegexpUserAnswer,
+                       regexpUserAnswer,
+                       setUserAnswer,
+                       userAnswer,
+                       addNewAnswer,
+                       orderAnswers,
+                       orderAnswersColumn,
+                       addNewOrderAnswer,
+                       setShowWarning,
+                       setOrderAnswersColumn,
+                       matchAnswers,
+                       matchPairs,
+                       addNewPair,
+                       disabled,
+                       children,
+                       color,
+                       showWarning,
+                     }) {
   return (
-    <Card className = 'mb-3' style={color && { backgroundColor: color }}>
+    <Card className='mb-3' style={ color && {backgroundColor: color} }>
       <CardBody>
-        {header && header()}
-        {title !== null && (setTitle || disabled) && (
+        { header && header() }
+        { title !== null && (setTitle || disabled) && (
           <FormGroup>
-            {setTitle && (
+            { setTitle && (
               <>
-                <Label for="title">{enText.title}</Label>
+                <Label for="title">{ enText.title }</Label>
                 <Input
                   type="text"
                   name="title"
-                  placeholder={enText['title-placeholder']}
-                  value={title}
-                  onChange={e => {setTitle(e.target.value)}}
+                  placeholder={ enText['title-placeholder'] }
+                  value={ title }
+                  onChange={ e => {
+                    setTitle(e.target.value)
+                  } }
                 />
                 <WarningMessage
                   className='mt-3'
-                  text = {showWarning.title}
-                  isOpen = {showWarning.title}
+                  text={ showWarning.title }
+                  isOpen={ showWarning.title }
                 />
               </>
-            )}
-            {disabled && <h3>{title}</h3>}
+            ) }
+            { disabled && <h3>{ title }</h3> }
           </FormGroup>
-        )}
-        {metadata && metadata()}
-        {question !== null && (setQuestion || disabled) && (
+        ) }
+        { metadata && metadata() }
+        { question !== null && (setQuestion || disabled) && (
           <FormGroup>
-            {setQuestion && (
+            { setQuestion && (
               <>
-                <Label for="question">{enText.question}</Label>
+                <Label for="question">{ enText.question }</Label>
                 <Input
                   id="question"
                   type="textarea"
-                  placeholder={enText['question-placeholder']}
-                  value={question}
-                  onChange={e => {setQuestion(e.target.value)}}
+                  placeholder={ enText['question-placeholder'] }
+                  value={ question }
+                  onChange={ e => {
+                    setQuestion(e.target.value)
+                  } }
                 />
                 <WarningMessage
                   className='mt-3'
-                  text={showWarning.question}
+                  text={ showWarning.question }
                   // isOpen = {showWarning.question}
                 />
               </>
-            )}
-            {disabled && (
-              <div style={{ whiteSpace: 'pre-line' }}>{question}</div>
-            )}
+            ) }
+            { disabled && (
+              <div style={ {whiteSpace: 'pre-line'} }>{ question }</div>
+            ) }
           </FormGroup>
-        )}
-        {topic !== null && (setTopic || disabled) && (
+        ) }
+        { topic !== null && (setTopic || disabled) && (
           <FormGroup>
-            {setTopic && (
+            { setTopic && (
               <>
-                <Label for="topic">{enText.topic}</Label>
+                <Label for="topic">{ enText.topic }</Label>
                 <Input
                   type="select"
                   name="topic"
                   id="topic"
-                  value={topic}
-                  onChange={e => setTopic(e.target.value)}
+                  value={ topic }
+                  onChange={ e => setTopic(e.target.value) }
                 >
-                  {topicOptions.map(topicOption => {
+                  { topicOptions.map(topicOption => {
                     return (
-                      <option key={topicOption.id} value={topicOption.id}>
-                        {topicOption.name}
+                      <option key={ topicOption.id } value={ topicOption.id }>
+                        { topicOption.name }
                       </option>
                     )
-                  })}
+                  }) }
                 </Input>
               </>
-            )}
+            ) }
           </FormGroup>
-        )}
-        {questionType !== null && setQuestionType && (
+        ) }
+        { questionType !== null && setQuestionType && (
           <>
-            {setTopic && (
+            { setTopic && (
               <FormGroup>
-                <Label for="questionType">{enText['question-type']}</Label>
+                <Label for="questionType">{ enText['question-type'] }</Label>
                 <Input
                   type="select"
                   name="questionType"
                   id="questionType"
-                  value={questionType}
-                  onChange={e => setQuestionType(e.target.value)}
+                  value={ questionType }
+                  onChange={ e => setQuestionType(e.target.value) }
                 >
-                  {questionTypeOptions.map(questionTypeOption => {
+                  { questionTypeOptions.map(questionTypeOption => {
                     return (
                       <option
-                        key={questionTypeOption.id}
-                        value={questionTypeOption.id}
+                        key={ questionTypeOption.id }
+                        value={ questionTypeOption.id }
                       >
-                        {questionTypeOption.name}
+                        { questionTypeOption.name }
                       </option>
                     )
-                  })}
+                  }) }
                 </Input>
               </FormGroup>
-            )}
+            ) }
           </>
-        )}
-        {questionType === QuestionTypesEnums.multiple.id && (
+        ) }
+        { questionType === QuestionTypesEnums.multiple.id && (
           <FormGroup>
             <QuestionAnswers
-              answers={answers}
-              addNewAnswer={addNewAnswer}
+              answers={ answers }
+              addNewAnswer={ addNewAnswer }
             />
           </FormGroup>
-        )}
-        {questionType === QuestionTypesEnums.open.id && (
+        ) }
+        { questionType === QuestionTypesEnums.open.id && (
           <FormGroup>
             <AnswerComponentOpen
-              setRegexp={setRegexp}
-              regexp={regexp}
-              setRegexpUserAnswer={setRegexpUserAnswer}
-              regexpUserAnswer={regexpUserAnswer}
-              setUserAnswer={setUserAnswer}
-              userAnswer={userAnswer}
+              setRegexp={ setRegexp }
+              regexp={ regexp }
+              setRegexpUserAnswer={ setRegexpUserAnswer }
+              regexpUserAnswer={ regexpUserAnswer }
+              setUserAnswer={ setUserAnswer }
+              userAnswer={ userAnswer }
             />
           </FormGroup>
-        )}
-        {/*{questionType === QuestionTypesEnums.essay.id && (*/}
-        {/*  null*/}
-        {/*)}*/}
-        {questionType === QuestionTypesEnums.ordering.id && (
+        ) }
+        {/*{questionType === QuestionTypesEnums.essay.id && (*/ }
+        {/*  null*/ }
+        {/*)}*/ }
+        { questionType === QuestionTypesEnums.ordering.id && (
           <FormGroup>
-              <AnswerComponentOrder
-              orderAnswers={orderAnswers}
-              orderAnswersColumn={orderAnswersColumn ||
+            <AnswerComponentOrder
+              orderAnswers={ orderAnswers }
+              orderAnswersColumn={ orderAnswersColumn ||
                 {
                   id: "answerColumn",
                   title: "Answers in correct order",
-                  answersPositions: orderAnswers.map(answer => answer.position),}
+                  answersPositions: orderAnswers.map(answer => answer.position),
                 }
-              addNewOrderAnswer={addNewOrderAnswer}
-              setShowWarning={setShowWarning}
-              setOrderAnswersColumn={setOrderAnswersColumn}
+              }
+              addNewOrderAnswer={ addNewOrderAnswer }
+              setShowWarning={ setShowWarning }
+              setOrderAnswersColumn={ setOrderAnswersColumn }
             />
           </FormGroup>
-        )}
-        {questionType === QuestionTypesEnums.matching.id && (
-         <FormGroup>
-           <AnswerComponentMatch
-             matchAnswers = {addNewPair && matchAnswers}
-             pairs = {matchPairs}
-             addNewPair = {addNewPair}
-           />
-         </FormGroup>
-        )}
-        {children}
+        ) }
+        { questionType === QuestionTypesEnums.matching.id && (
+          <FormGroup>
+            <AnswerComponentMatch
+              matchAnswers={ addNewPair && matchAnswers }
+              pairs={ matchPairs }
+              addNewPair={ addNewPair }
+            />
+          </FormGroup>
+        ) }
+        { children }
       </CardBody>
     </Card>
   )

@@ -1,19 +1,13 @@
 import React from 'react'
-import {Alert, Card, CardBody, CardHeader, CardSubtitle, Container, Table,} from 'reactstrap'
-import {connect} from 'react-redux'
-import {NavLink, Redirect} from 'react-router-dom'
+import { Alert, Card, CardBody, CardHeader, CardSubtitle, Container, Table, } from 'reactstrap'
+import { connect } from 'react-redux'
+import { NavLink, Redirect } from 'react-router-dom'
 import './Event.css'
-import {SubEventList} from '../Events'
-import {
-  getDisplayDateTime,
-  getIcon,
-  getInstructorRights,
-  getShortId,
-  mergeMaterials,
-} from '../Helper'
-import {BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, SESSIONS, TASKS_EXAMS,} from '../constants'
-import {axiosRequest, getData} from '../AxiosRequests'
-import {redirect} from '../../../constants/redirect'
+import { SubEventList } from '../Events'
+import { getDisplayDateTime, getIcon, getInstructorRights, getShortId, mergeMaterials, } from '../Helper'
+import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, SESSIONS, TASKS_EXAMS, } from '../constants'
+import { axiosRequest, getData } from '../AxiosRequests'
+import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 
 class Event extends React.Component {
@@ -30,18 +24,18 @@ class Event extends React.Component {
 
   componentDidMount() {
     const {
-      match: { params },
+      match: {params},
     } = this.props
 
-    const { user, courseInstance } = this.props
+    const {user, courseInstance} = this.props
 
-    if (courseInstance && user && getInstructorRights(user, courseInstance)) {
+    if(courseInstance && user && getInstructorRights(user, courseInstance)) {
       this.setState({
         hasAccess: true,
       })
     }
 
-    const url = `${BASE_URL + EVENT_URL}/${
+    const url = `${ BASE_URL + EVENT_URL }/${
       params.event_id
     }?_join=courseInstance,uses,recommends`
     axiosRequest('get', null, url).then(response => {
@@ -49,7 +43,7 @@ class Event extends React.Component {
       this.setState({
         loading: false,
       })
-      if (data != null && data !== []) {
+      if(data != null && data !== []) {
         const event = data.map(eventData => {
           return {
             id: getShortId(eventData['@id']),
@@ -82,7 +76,7 @@ class Event extends React.Component {
           }
         })[0]
 
-        if (
+        if(
           event.courseInstance !== '' &&
           params.course_id !== getShortId(event.courseInstance)
         ) {
@@ -104,12 +98,12 @@ class Event extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { user, courseInstance } = this.props
-    if (
+    const {user, courseInstance} = this.props
+    if(
       prevProps.user !== user ||
       prevProps.courseInstance !== courseInstance
     ) {
-      if (courseInstance && user && getInstructorRights(user, courseInstance)) {
+      if(courseInstance && user && getInstructorRights(user, courseInstance)) {
         this.setState({
           hasAccess: true,
         })
@@ -118,13 +112,13 @@ class Event extends React.Component {
   }
 
   render() {
-    const { event, redirectTo, hasAccess, loading } = this.state
+    const {event, redirectTo, hasAccess, loading} = this.state
 
-    if (redirectTo) {
-      return <Redirect to={redirectTo} />
+    if(redirectTo) {
+      return <Redirect to={ redirectTo }/>
     }
 
-    if (loading) {
+    if(loading) {
       return (
         <Alert color="secondary" className="empty-message">
           Loading...
@@ -136,105 +130,105 @@ class Event extends React.Component {
     return (
       <div>
         <Container className="container-view">
-          {event && <EventCard event={event} isAdmin={hasAccess} detail />}
+          { event && <EventCard event={ event } isAdmin={ hasAccess } detail/> }
         </Container>
       </div>
     )
   }
 }
 
-const EventCard = ({ event, isAdmin, detail }) => (
-  <Card id={`${event.id}`} name={`${event.id}`} className="event-card">
+const EventCard = ({event, isAdmin, detail}) => (
+  <Card id={ `${ event.id }` } name={ `${ event.id }` } className="event-card">
     <CardHeader className="event-card-header-flex">
       <NavLink
-        to={redirect(ROUTES.EVENT_ID, [
-          { key: 'course_id', value: getShortId(event.courseInstance) },
-          { key: 'event_id', value: event.id },
-        ])}
+        to={ redirect(ROUTES.EVENT_ID, [
+          {key: 'course_id', value: getShortId(event.courseInstance)},
+          {key: 'event_id', value: event.id},
+        ]) }
         className="subevent-name"
       >
         <div className="event-card-name">
-          {event.name} ({event.type})
+          { event.name } ({ event.type })
         </div>
       </NavLink>
-      {isAdmin &&
+      { isAdmin &&
         (SESSIONS.includes(event.type) ||
           TASKS_EXAMS.includes(event.type) ||
           event.type === 'Block') && (
           <NavLink
-            to={redirect(ROUTES.EDIT_EVENT_ID, [
-              { key: 'course_id', value: getShortId(event.courseInstance) },
-              { key: 'event_id', value: event.id },
-            ])}
+            to={ redirect(ROUTES.EDIT_EVENT_ID, [
+              {key: 'course_id', value: getShortId(event.courseInstance)},
+              {key: 'event_id', value: event.id},
+            ]) }
             className="edit-delete-buttons"
           >
             Edit
           </NavLink>
-        )}
+        ) }
     </CardHeader>
     <CardBody>
       <div className="event-dates-container">
         <div className="event-dates-col">
           <CardSubtitle className="event-card-subtitle-double">
             <div className="event-subtitle-double">From</div>
-            {getDisplayDateTime(event.startDate, true)}
+            { getDisplayDateTime(event.startDate, true) }
           </CardSubtitle>
         </div>
         <div className="event-dates-col">
           <CardSubtitle className="event-card-subtitle-double">
             <div className="event-subtitle-double">To</div>
-            {getDisplayDateTime(event.endDate, true)}
+            { getDisplayDateTime(event.endDate, true) }
           </CardSubtitle>
         </div>
       </div>
-      {/*<CardText className="event-card-text">{event.description}</CardText>*/}
+      {/*<CardText className="event-card-text">{event.description}</CardText>*/ }
       <CardSubtitle className="event-card-subtitle">Description</CardSubtitle>
-      <div className="fake-table">{event.description}</div>
-      {event.place && (
+      <div className="fake-table">{ event.description }</div>
+      { event.place && (
         <>
           <CardSubtitle className="event-card-subtitle-one-line">
             <div className="event-subtitle">Location</div>
-            <div className="event-one-line-text">{event.place}</div>
+            <div className="event-one-line-text">{ event.place }</div>
           </CardSubtitle>
         </>
-      )}
+      ) }
 
-      {event.type === 'Block' && !detail && (
+      { event.type === 'Block' && !detail && (
         <div className="timeline-sessions-tasks-container">
           <div className="subevents-col-left">
             <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
-            <SubEventList events={event.sessions} />
+            <SubEventList events={ event.sessions }/>
           </div>
           <div className="subevents-col-right">
             <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
-            <SubEventList events={event.tasks} />
+            <SubEventList events={ event.tasks }/>
           </div>
         </div>
-      )}
-      {event.materials && event.materials.length > 0 && (
+      ) }
+      { event.materials && event.materials.length > 0 && (
         <>
           <CardSubtitle className="event-card-table-subtitle">
             Materials
           </CardSubtitle>
-          <Table key={event.id} className="materials-table">
+          <Table key={ event.id } className="materials-table">
             <tbody>
-              {event.materials.map(material => (
-                <tr key={material.id} className="event-list-group-item">
-                  <td className="materials-td">
-                    {getIcon('Material')}
-                    <div className="material-name">{material.name}</div>
-                  </td>
-                </tr>
-              ))}
+            { event.materials.map(material => (
+              <tr key={ material.id } className="event-list-group-item">
+                <td className="materials-td">
+                  { getIcon('Material') }
+                  <div className="material-name">{ material.name }</div>
+                </td>
+              </tr>
+            )) }
             </tbody>
           </Table>
         </>
-      )}
+      ) }
     </CardBody>
   </Card>
 )
 
-const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
+const mapStateToProps = ({authReducer, courseInstanceReducer}) => {
   return {
     user: authReducer.user,
     courseInstance: courseInstanceReducer.courseInstance,

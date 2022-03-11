@@ -1,14 +1,14 @@
 import { SET_ASIGNMENTS_COURSE_INSTANCE, SET_ASIGNMENTS_COURSE_INSTANCE_LOADING } from '../../types'
 
 const initialState = {
-  courseInstance:null,
+  courseInstance: null,
   courseInstanceLoaded: false,
   courseInstanceLoading: false,
 };
 
 export default function assignmentscourseInstanceReducer(state = initialState, action) {
-  switch (action.type) {
-    case SET_ASIGNMENTS_COURSE_INSTANCE:{
+  switch(action.type) {
+    case SET_ASIGNMENTS_COURSE_INSTANCE: {
       return {
         ...state,
         courseInstance: action.courseInstance,
@@ -16,16 +16,16 @@ export default function assignmentscourseInstanceReducer(state = initialState, a
         courseInstanceLoading: false,
       };
     }
-    case SET_ASIGNMENTS_COURSE_INSTANCE_LOADING:{
+    case SET_ASIGNMENTS_COURSE_INSTANCE_LOADING: {
       return {
         ...state,
         courseInstanceLoading: true
       };
     }
-    case 'LOGOUT':{
+    case 'LOGOUT': {
       return initialState;
     }
-    default:{
+    default: {
       return state;
     }
   }

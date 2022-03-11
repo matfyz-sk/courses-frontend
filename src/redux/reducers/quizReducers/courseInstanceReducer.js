@@ -7,7 +7,7 @@ const initialState = {
 }
 
 export default function courseInstanceReducer(state = initialState, action) {
-  switch (action.type) {
+  switch(action.type) {
     case SET_COURSE_INSTANCE_DATA: {
       return {
         ...state,

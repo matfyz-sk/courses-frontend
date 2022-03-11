@@ -1,18 +1,7 @@
 import React, { useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import {
-  Modal,
-  ModalHeader,
-  Button,
-  ModalFooter,
-  ModalBody,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Alert,
-} from 'reactstrap'
+import { Alert, Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, } from 'reactstrap'
 import { BACKEND_URL } from '../../../configuration/api'
 import { authHeader } from '../../../components/Auth'
 import { getShortID } from '../../../helperFunctions'
@@ -24,26 +13,26 @@ import {
 } from '../../../redux/actions'
 
 const ResultTypeModal = props => {
-  const { resultType, courseInstance } = props
-  const [modal, setModal] = useState(false)
-  const [form, setForm] = useState({
+  const {resultType, courseInstance} = props
+  const [ modal, setModal ] = useState(false)
+  const [ form, setForm ] = useState({
     name: resultType ? resultType.name : '',
     minPoints: resultType ? resultType.minPoints : 0,
     description: resultType ? resultType.description : '',
     correctionFor: resultType ? resultType.correctionFor : '',
   })
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [ error, setError ] = useState(null)
+  const [ loading, setLoading ] = useState(false)
   const toggle = () => setModal(!modal)
 
   function validate() {
-    if (form.name.length === 0) {
+    if(form.name.length === 0) {
       setError('Name is required!')
       setLoading(false)
       return false
     }
     // eslint-disable-next-line no-restricted-globals
-    if (isNaN(parseFloat(form.minPoints)) || parseFloat(form.minPoints) < 0) {
+    if(isNaN(parseFloat(form.minPoints)) || parseFloat(form.minPoints) < 0) {
       setError('0 is minimal value for points')
       setLoading(false)
       return false
@@ -53,22 +42,22 @@ const ResultTypeModal = props => {
   }
 
   function getDetail(id, action = null) {
-    fetch(`${BACKEND_URL}/data/resultType/${id}`, {
+    fetch(`${ BACKEND_URL }/data/resultType/${ id }`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',
       credentials: 'omit',
     })
       .then(response => {
-        if (!response.ok) throw new Error(response)
+        if(!response.ok) throw new Error(response)
         else return response.json()
       })
       .then(data => {
         setLoading(false)
         setError(null)
-        if (data['@graph'] && data['@graph'].length > 0) {
+        if(data['@graph'] && data['@graph'].length > 0) {
           const result = data['@graph'][0]
-          switch (action) {
+          switch(action) {
             case 'add':
               store.dispatch(addCourseInstanceResultType(result))
               setError(null)
@@ -87,27 +76,27 @@ const ResultTypeModal = props => {
 
   function addResultTypeToCourse(iri) {
     const resultTypes = []
-    for (let i = 0; i < courseInstance.hasResultType.length; i++) {
+    for(let i = 0; i < courseInstance.hasResultType.length; i++) {
       resultTypes.push(courseInstance.hasResultType[i]['@id'])
     }
     resultTypes.push(iri)
 
     fetch(
-      `${BACKEND_URL}/data/courseInstance/${getShortID(courseInstance['@id'])}`,
+      `${ BACKEND_URL }/data/courseInstance/${ getShortID(courseInstance['@id']) }`,
       {
         method: 'PATCH',
         headers: authHeader(),
         mode: 'cors',
         credentials: 'omit',
-        body: JSON.stringify({ hasResultType: resultTypes }),
+        body: JSON.stringify({hasResultType: resultTypes}),
       }
     )
       .then(response => {
-        if (!response.ok) throw new Error(response)
+        if(!response.ok) throw new Error(response)
         else return response.json()
       })
       .then(data => {
-        if (data.status) {
+        if(data.status) {
           getDetail(getShortID(iri), 'add')
         } else {
           setLoading(false)
@@ -120,11 +109,11 @@ const ResultTypeModal = props => {
 
   function submitCreate() {
     setLoading(true)
-    if (validate()) {
-      if (form.correctionFor === '') {
+    if(validate()) {
+      if(form.correctionFor === '') {
         delete form.correctionFor
       }
-      fetch(`${BACKEND_URL}/data/resultType`, {
+      fetch(`${ BACKEND_URL }/data/resultType`, {
         method: 'POST',
         headers: authHeader(),
         mode: 'cors',
@@ -132,11 +121,11 @@ const ResultTypeModal = props => {
         body: JSON.stringify(form),
       })
         .then(response => {
-          if (!response.ok) throw new Error(response)
+          if(!response.ok) throw new Error(response)
           else return response.json()
         })
         .then(data => {
-          if (data.status) {
+          if(data.status) {
             addResultTypeToCourse(data.resource.iri)
           } else {
             setLoading(false)
@@ -150,8 +139,8 @@ const ResultTypeModal = props => {
 
   function submitUpdate() {
     setLoading(true)
-    if (validate()) {
-      fetch(`${BACKEND_URL}/data/resultType/${getShortID(resultType['@id'])}`, {
+    if(validate()) {
+      fetch(`${ BACKEND_URL }/data/resultType/${ getShortID(resultType['@id']) }`, {
         method: 'PATCH',
         headers: authHeader(),
         mode: 'cors',
@@ -159,12 +148,12 @@ const ResultTypeModal = props => {
         body: JSON.stringify(form),
       })
         .then(response => {
-          if (!response.ok) throw new Error(response)
+          if(!response.ok) throw new Error(response)
           else return response.json()
         })
         .then(data => {
           setLoading(false)
-          if (data.status) {
+          if(data.status) {
             const newResultType = {
               ...resultType,
               ...form,
@@ -183,19 +172,19 @@ const ResultTypeModal = props => {
 
   function submitDelete() {
     setLoading(true)
-    fetch(`${BACKEND_URL}/data/resultType/${getShortID(resultType['@id'])}`, {
+    fetch(`${ BACKEND_URL }/data/resultType/${ getShortID(resultType['@id']) }`, {
       method: 'DELETE',
       headers: authHeader(),
       mode: 'cors',
       credentials: 'omit',
     })
       .then(response => {
-        if (!response.ok) throw new Error(response)
+        if(!response.ok) throw new Error(response)
         else return response.json()
       })
       .then(data => {
         setLoading(false)
-        if (data.status) {
+        if(data.status) {
           store.dispatch(removeCourseInstanceResultType(resultType))
           setError(null)
           setModal(false)
@@ -213,19 +202,19 @@ const ResultTypeModal = props => {
       Without correction
     </option>
   )
-  if (courseInstance && courseInstance.hasResultType) {
-    for (let i = 0; i < courseInstance.hasResultType.length; i++) {
-      if (
+  if(courseInstance && courseInstance.hasResultType) {
+    for(let i = 0; i < courseInstance.hasResultType.length; i++) {
+      if(
         !resultType ||
         (resultType &&
           resultType['@id'] !== courseInstance.hasResultType[i]['@id'])
       ) {
         options.push(
           <option
-            value={courseInstance.hasResultType[i]['@id']}
-            key={courseInstance.hasResultType[i]['@id']}
+            value={ courseInstance.hasResultType[i]['@id'] }
+            key={ courseInstance.hasResultType[i]['@id'] }
           >
-            {courseInstance.hasResultType[i].name}
+            { courseInstance.hasResultType[i].name }
           </option>
         )
       }
@@ -235,21 +224,21 @@ const ResultTypeModal = props => {
   return (
     <>
       <Button
-        color={resultType ? 'link' : 'primary'}
+        color={ resultType ? 'link' : 'primary' }
         size="sm"
-        className={resultType ? 'text-right' : 'float-right mb-3'}
-        onClick={() => toggle()}
+        className={ resultType ? 'text-right' : 'float-right mb-3' }
+        onClick={ () => toggle() }
       >
-        {resultType ? 'Detail' : 'New result type'}
+        { resultType ? 'Detail' : 'New result type' }
       </Button>
-      <Modal isOpen={modal} toggle={toggle}>
-        <ModalHeader toggle={toggle}>
-          {resultType
-            ? `Change result type ${resultType.name}?`
-            : 'Add result type to course?'}
+      <Modal isOpen={ modal } toggle={ toggle }>
+        <ModalHeader toggle={ toggle }>
+          { resultType
+            ? `Change result type ${ resultType.name }?`
+            : 'Add result type to course?' }
         </ModalHeader>
         <ModalBody>
-          {error !== null ? <Alert color="danger">{error}</Alert> : null}
+          { error !== null ? <Alert color="danger">{ error }</Alert> : null }
           <Form>
             <FormGroup>
               <Label for="name">Name of result type *</Label>
@@ -258,10 +247,10 @@ const ResultTypeModal = props => {
                 name="name"
                 id="name"
                 placeholder="e.g. Midterm"
-                value={form.name}
-                onChange={e => {
-                  setForm({ ...form, name: e.target.value })
-                }}
+                value={ form.name }
+                onChange={ e => {
+                  setForm({...form, name: e.target.value})
+                } }
               />
             </FormGroup>
             <FormGroup>
@@ -270,10 +259,10 @@ const ResultTypeModal = props => {
                 type="textarea"
                 name="description"
                 id="description"
-                value={form.description}
-                onChange={e => {
-                  setForm({ ...form, description: e.target.value })
-                }}
+                value={ form.description }
+                onChange={ e => {
+                  setForm({...form, description: e.target.value})
+                } }
               />
             </FormGroup>
             <FormGroup>
@@ -282,10 +271,10 @@ const ResultTypeModal = props => {
                 type="number"
                 name="text"
                 id="minPoints"
-                value={form.minPoints}
-                onChange={e => {
-                  setForm({ ...form, minPoints: e.target.value })
-                }}
+                value={ form.minPoints }
+                onChange={ e => {
+                  setForm({...form, minPoints: e.target.value})
+                } }
               />
             </FormGroup>
             <FormGroup>
@@ -294,31 +283,31 @@ const ResultTypeModal = props => {
                 type="select"
                 name="correctionFor"
                 id="correctionFor"
-                value={form.correctionFor}
-                onChange={e => {
-                  setForm({ ...form, correctionFor: e.target.value })
-                }}
+                value={ form.correctionFor }
+                onChange={ e => {
+                  setForm({...form, correctionFor: e.target.value})
+                } }
               >
-                {options}
+                { options }
               </Input>
             </FormGroup>
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="secondary" onClick={toggle}>
+          <Button color="secondary" onClick={ toggle }>
             Cancel
           </Button>
-          {resultType ? (
-            <Button color="danger" onClick={submitDelete}>
+          { resultType ? (
+            <Button color="danger" onClick={ submitDelete }>
               Remove
             </Button>
-          ) : null}
+          ) : null }
           <Button
             color="primary"
-            onClick={resultType ? submitUpdate : submitCreate}
-            disabled={loading}
+            onClick={ resultType ? submitUpdate : submitCreate }
+            disabled={ loading }
           >
-            {resultType ? 'Update' : 'Create'} result type
+            { resultType ? 'Update' : 'Create' } result type
           </Button>
         </ModalFooter>
       </Modal>
@@ -326,8 +315,8 @@ const ResultTypeModal = props => {
   )
 }
 
-const mapStateToProps = ({ courseInstanceReducer }) => {
-  const { courseInstance } = courseInstanceReducer
+const mapStateToProps = ({courseInstanceReducer}) => {
+  const {courseInstance} = courseInstanceReducer
   return {
     courseInstance,
   }

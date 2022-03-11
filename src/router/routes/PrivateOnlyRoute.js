@@ -1,16 +1,16 @@
 import React from 'react';
-import { Route, Redirect, withRouter } from 'react-router-dom';
+import { Redirect, Route, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import {getToken} from "../../components/Auth";
+import { getToken } from "../../components/Auth";
 
-function PrivateOnlyRoute({ component: Component, ...rest }) {
+function PrivateOnlyRoute({component: Component, ...rest}) {
   const token = getToken();
   return (
-    <Route {...rest} render={(props) => (
+    <Route { ...rest } render={ (props) => (
       token !== null
-        ? <Component {...props} />
-        : <Redirect to='/login' />
-    )} />
+        ? <Component { ...props } />
+        : <Redirect to='/login'/>
+    ) }/>
   );
 }
 

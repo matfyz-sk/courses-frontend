@@ -7,18 +7,18 @@ import RegisterCompletion from './RegisterCompletion'
 import PrivateOnlyRoute from '../../router/routes/PrivateOnlyRoute'
 
 const AuthRoutes = [
-  <PublicOnlyRoute key="/login" exact path="/login" component={LoginPage} />,
+  <PublicOnlyRoute key="/login" exact path="/login" component={ LoginPage }/>,
   <PublicOnlyRoute
     key="/register"
     exact
     path="/register"
-    component={RegisterPage}
+    component={ RegisterPage }
   />,
   <PrivateOnlyRoute
     key="/register-completion"
     exact
-    path={ROUTES.REGISTER_COMPLETION}
-    component={RegisterCompletion}
+    path={ ROUTES.REGISTER_COMPLETION }
+    component={ RegisterCompletion }
   />,
 ]
 

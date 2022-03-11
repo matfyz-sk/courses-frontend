@@ -6,10 +6,10 @@ import CourseLayout from '../../layouts/CourseLayout'
 
 const QuizRoutes = [
   <RouteWrapper
-    key={ROUTES.QUIZ}
-    path={ROUTES.QUIZ}
-    component={Quiz}
-    layout={CourseLayout}
+    key={ ROUTES.QUIZ }
+    path={ ROUTES.QUIZ }
+    component={ Quiz }
+    layout={ CourseLayout }
     auth
   />,
 ];

@@ -1,26 +1,26 @@
 import React from 'react'
-import { Route, Redirect, withRouter } from 'react-router-dom'
+import { Redirect, Route, withRouter } from 'react-router-dom'
 import { getUser } from '../../components/Auth'
-import {connect} from "react-redux";
+import { connect } from "react-redux";
 
-function SuperAdminRoute({ component: Component, ...rest }) {
+function SuperAdminRoute({component: Component, ...rest}) {
   const user = getUser()
 
   return (
     <Route
-      {...rest}
-      render={props =>
+      { ...rest }
+      render={ props =>
         user && user.isSuperAdmin ? (
-          <Component {...props} />
+          <Component { ...props } />
         ) : (
-          <Redirect to="/" />
+          <Redirect to="/"/>
         )
       }
     />
   )
 }
 
-const mapStateToProps = ({ authReducer }) => {
+const mapStateToProps = ({authReducer}) => {
   return {
     token: authReducer._token,
   }

@@ -18,32 +18,32 @@ export const destroyTeamInstance = {
 
 export const fetchTeamInstance = teamInstance_id => {
   return dispatch => {
-    fetch(`${BACKEND_URL}/data/teamInstance/${teamInstance_id}`, {
+    fetch(`${ BACKEND_URL }/data/teamInstance/${ teamInstance_id }`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',
       credentials: 'omit',
     })
       .then(response => {
-        if (!response.ok) throw new Error(response)
+        if(!response.ok) throw new Error(response)
         else return response.json()
       })
       .then(data => {
-        if (data['@graph'].length > 0) {
+        if(data['@graph'].length > 0) {
           const teamInstance = data['@graph'][0]
           dispatch(setTeamInstance(teamInstance))
-          fetch(`${BACKEND_URL}/data/user?memberOf=${teamInstance_id}`, {
+          fetch(`${ BACKEND_URL }/data/user?memberOf=${ teamInstance_id }`, {
             method: 'GET',
             headers: authHeader(),
             mode: 'cors',
             credentials: 'omit',
           })
             .then(response => {
-              if (!response.ok) throw new Error(response)
+              if(!response.ok) throw new Error(response)
               else return response.json()
             })
             .then(data2 => {
-              if (data2['@graph'].length > 0) {
+              if(data2['@graph'].length > 0) {
                 const users = data2['@graph']
                 dispatch(setTeamInstanceUsers(users))
               }

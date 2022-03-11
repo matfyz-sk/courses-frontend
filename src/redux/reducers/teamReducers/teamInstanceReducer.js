@@ -6,7 +6,7 @@ const initialState = {
 }
 
 export default function teamInstanceReducer(state = initialState, action) {
-  switch (action.type) {
+  switch(action.type) {
     case TEAM_ACTIONS.SET_TEAM_INSTANCE:
       return {
         ...state,

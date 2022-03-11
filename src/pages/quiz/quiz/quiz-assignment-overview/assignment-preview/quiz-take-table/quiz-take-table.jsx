@@ -14,7 +14,7 @@ function QuizTakeTable({
 
   const goToReviewForStudent = () => {
     history.push({
-      pathname: `/courses/${match.params.courseId}/quiz/quizResult/${getShortID(quizAssignment.quizTake['@id'])}`,
+      pathname: `/courses/${ match.params.courseId }/quiz/quizResult/${ getShortID(quizAssignment.quizTake['@id']) }`,
       state: {
         quizAssignment: quizAssignment
       }
@@ -22,47 +22,47 @@ function QuizTakeTable({
   }
 
   return (
-    <ThemeProvider theme={customTheme}>
-      <Box marginBottom={4} width='100%'>
-        {quizAssignment.quizTake ?
+    <ThemeProvider theme={ customTheme }>
+      <Box marginBottom={ 4 } width='100%'>
+        { quizAssignment.quizTake ?
           <Box width='100%'>
             <Box display='flex' width='100%'>
-              <Box width='85%' display='flex' padding={1} minHeight='55px' paddingLeft={2}>
-                <Box display='flex' alignItems='center' width='40%' marginRight={2}>
-                  <Typography style={{ fontSize: 19 }}>Submitted</Typography>
+              <Box width='85%' display='flex' padding={ 1 } minHeight='55px' paddingLeft={ 2 }>
+                <Box display='flex' alignItems='center' width='40%' marginRight={ 2 }>
+                  <Typography style={ {fontSize: 19} }>Submitted</Typography>
                 </Box>
-                <Box display='flex' alignItems='center' width='40%' marginRight={2}>
-                  <Typography style={{ fontSize: 19 }}>Reviewed</Typography>
+                <Box display='flex' alignItems='center' width='40%' marginRight={ 2 }>
+                  <Typography style={ {fontSize: 19} }>Reviewed</Typography>
                 </Box>
-                <Box display='flex' alignItems='center' width='20%' marginRight={2}>
-                  <Typography style={{ fontSize: 19 }}>Score</Typography>
+                <Box display='flex' alignItems='center' width='20%' marginRight={ 2 }>
+                  <Typography style={ {fontSize: 19} }>Score</Typography>
                 </Box>
               </Box>
-              <Box display='flex' width='15%' padding={0} />
+              <Box display='flex' width='15%' padding={ 0 }/>
             </Box>
             <Box display='flex' width='100%'>
-              <Box width='85%' display='flex' padding={1} border={`1px solid ${grey[300]}`}
-                   minHeight='55px' paddingLeft={2}>
-                <Box display='flex' alignItems='center' width='40%' marginRight={2}>
-                  <Typography>{formatDateTime(quizAssignment.quizTake.createdAt)}</Typography>
+              <Box width='85%' display='flex' padding={ 1 } border={ `1px solid ${ grey[300] }` }
+                   minHeight='55px' paddingLeft={ 2 }>
+                <Box display='flex' alignItems='center' width='40%' marginRight={ 2 }>
+                  <Typography>{ formatDateTime(quizAssignment.quizTake.createdAt) }</Typography>
                 </Box>
-                <Box display='flex' alignItems='center' width='40%' marginRight={2}>
-                  {quizAssignment.quizTake.publishedReview &&
-                  <Typography>{formatDateTime(quizAssignment.quizTake.reviewedDate)}</Typography>}
+                <Box display='flex' alignItems='center' width='40%' marginRight={ 2 }>
+                  { quizAssignment.quizTake.publishedReview &&
+                    <Typography>{ formatDateTime(quizAssignment.quizTake.reviewedDate) }</Typography> }
                 </Box>
-                <Box display='flex' alignItems='center' width='20%' marginRight={2}>
-                  {quizAssignment.quizTake.publishedReview &&
-                  <Typography>{quizAssignment.quizTake.score} %</Typography>}
+                <Box display='flex' alignItems='center' width='20%' marginRight={ 2 }>
+                  { quizAssignment.quizTake.publishedReview &&
+                    <Typography>{ quizAssignment.quizTake.score } %</Typography> }
                 </Box>
               </Box>
-              <Box display='flex' width='15%' padding={0}>
+              <Box display='flex' width='15%' padding={ 0 }>
                 <Button
                   variant='outlined'
                   color='primary'
                   fullWidth
-                  disabled={!quizAssignment.quizTake.publishedReview}
-                  style={{ margin: 0, borderRadius: 0, boxShadow: 0, height: '100%' }}
-                  onClick={e => goToReviewForStudent()}
+                  disabled={ !quizAssignment.quizTake.publishedReview }
+                  style={ {margin: 0, borderRadius: 0, boxShadow: 0, height: '100%'} }
+                  onClick={ e => goToReviewForStudent() }
                 >
                   View review
                 </Button>
@@ -71,7 +71,7 @@ function QuizTakeTable({
           </Box>
           :
           <Box>
-            {/*<Typography style><em>Quiz not taken yet</em></Typography>*/}
+            {/*<Typography style><em>Quiz not taken yet</em></Typography>*/ }
           </Box>
         }
       </Box>

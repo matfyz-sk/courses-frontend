@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import {API_URL} from '../../../configuration/api'
+import { API_URL } from '../../../configuration/api'
 import { SET_TOPICS_DATA } from '../../types'
 
 // export const getTopics = (id, joins) => {
@@ -36,15 +36,15 @@ import { SET_TOPICS_DATA } from '../../types'
 export const postTopic = (topic, token) => {
   return dispatch => {
     axios
-      .post(`${API_URL}/topic`, {...topic}, {
+      .post(`${ API_URL }/topic`, {...topic}, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
           Authorization: token,
         },
       })
-      .then(({ data }) => {
-        dispatch({ type: SET_TOPICS_DATA, data })
+      .then(({data}) => {
+        dispatch({type: SET_TOPICS_DATA, data})
       })
       .catch(error => console.log(error))
   }

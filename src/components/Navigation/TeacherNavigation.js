@@ -2,11 +2,7 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { Col } from 'reactstrap'
 import { store } from '../../index'
-import {
-  setTeacherNav,
-  setTeacherNavCurrent,
-  unsetTeacherNav,
-} from '../../redux/actions'
+import { setTeacherNav, setTeacherNavCurrent, unsetTeacherNav, } from '../../redux/actions'
 
 export default class TeacherNavigation extends Component {
   constructor(props) {
@@ -26,31 +22,31 @@ export default class TeacherNavigation extends Component {
 
   render() {
     if(this.props.href_array.length > 0) {
-      return <SideTeacherNavigation {...this.props} />
+      return <SideTeacherNavigation { ...this.props } />
     }
     return null
   }
 }
 
-const SideTeacherNavigation = ({ currentKey, href_array }) => {
+const SideTeacherNavigation = ({currentKey, href_array}) => {
   const menu = []
-  for (let i = 0; i < href_array.length; i++) {
+  for(let i = 0; i < href_array.length; i++) {
     menu.push(
       <li
-        className={`block-menu-item list-group-item ${
+        className={ `block-menu-item list-group-item ${
           currentKey === href_array[i].key ? 'active' : ''
-        }`}
-        key={href_array[i].key}
+        }` }
+        key={ href_array[i].key }
       >
-        <Link to={href_array[i].href}>{href_array[i].name}</Link>
+        <Link to={ href_array[i].href }>{ href_array[i].name }</Link>
       </li>
     )
   }
   return (
-    <Col xs={3} className="timeline-left-col teacher-menu">
+    <Col xs={ 3 } className="timeline-left-col teacher-menu">
       <ul className="block-menu block-menu-non-toggle list-group">
         <li className="timeline list-group-item">Admin menu</li>
-        {menu}
+        { menu }
       </ul>
     </Col>
   )

@@ -14,57 +14,57 @@ function AnswerComponentOpen({
                                finalAnswer,
                              }) {
 
-  const [testRegExp, setTestRegExp] = useState("")
+  const [ testRegExp, setTestRegExp ] = useState("")
 
   function openAnswerVariant() {
-    if (setRegexp) {
+    if(setRegexp) {
       const regex = RegExp(regexp)
       return (
         <div>
           <Input
             type="text"
-            value={regexp}
-            placeholder = "Regular expression"
-            onChange={e => setRegexp(e.target.value)}
-            style={{marginBottom: 20}}
+            value={ regexp }
+            placeholder="Regular expression"
+            onChange={ e => setRegexp(e.target.value) }
+            style={ {marginBottom: 20} }
           />
           <Input
             type="text"
-            value={testRegExp}
-            placeholder = "Test regular expression"
-            onChange={e => setTestRegExp(e.target.value)}
-            valid={testRegExp !== '' && regex.test(testRegExp)}
-            invalid={testRegExp !== '' && !regex.test(testRegExp)}
+            value={ testRegExp }
+            placeholder="Test regular expression"
+            onChange={ e => setTestRegExp(e.target.value) }
+            valid={ testRegExp !== '' && regex.test(testRegExp) }
+            invalid={ testRegExp !== '' && !regex.test(testRegExp) }
           />
         </div>
       )
     }
-    if (setUserAnswer && !finalAnswer) {
+    if(setUserAnswer && !finalAnswer) {
       return (
         <div>
           <TextField
             fullWidth
             variant='outlined'
             size='small'
-            value={userAnswer}
-            onChange={e => setUserAnswer(e.target.value)}
+            value={ userAnswer }
+            onChange={ e => setUserAnswer(e.target.value) }
           />
         </div>
       )
     }
-    if (finalAnswer) {
+    if(finalAnswer) {
       return (
-        <Typography variant='subtitle1' style={{maxWidth: '100%'}}>{userAnswer}</Typography>
+        <Typography variant='subtitle1' style={ {maxWidth: '100%'} }>{ userAnswer }</Typography>
       )
     }
-    return(
-      <div style={{ whiteSpace: 'pre-line' }}>{regexp}</div>
+    return (
+      <div style={ {whiteSpace: 'pre-line'} }>{ regexp }</div>
     )
   }
 
   return (
     <div>
-      {setRegexp && <legend>Answer</legend>}
+      { setRegexp && <legend>Answer</legend> }
       { openAnswerVariant() }
     </div>
   )

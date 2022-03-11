@@ -56,15 +56,15 @@ class Question extends Component {
   }
 
   changeTitle = event => {
-    const { name } = event.target
-    const { value } = event.target
+    const {name} = event.target
+    const {value} = event.target
     this.setState({
       [name]: value,
     })
   }
 
   changeHandler = event => {
-    const { name } = event.target
+    const {name} = event.target
     const value =
       event.target.type === 'checkbox'
         ? event.target.checked
@@ -84,7 +84,7 @@ class Question extends Component {
     )
     updatedControls[name] = updatedFormElement
     let formIsValid = true
-    for (const inputIdentifier in updatedControls) {
+    for(const inputIdentifier in updatedControls) {
       formIsValid = formIsValid && updatedControls[inputIdentifier].valid
     }
     this.setState({
@@ -152,8 +152,8 @@ class Question extends Component {
   }
 
   addAnswer = (formControls, answers, answer, index, valid) => {
-    const answerInputName = `answerInput${index}`
-    const answerCheckboxName = `answerCheckbox${index}`
+    const answerInputName = `answerInput${ index }`
+    const answerCheckboxName = `answerCheckbox${ index }`
 
     formControls[answerInputName] = {
       value: answer.answer_text,
@@ -215,7 +215,7 @@ class Question extends Component {
   }
 
   populateSelect(response, selectElement, propValue) {
-    if (response.ok) {
+    if(response.ok) {
       response
         .json()
         .then(data => {
@@ -270,7 +270,7 @@ class Question extends Component {
   componentDidMount() {
     this.getTopics()
     this.getQuestionTypes()
-    if (this.props.questionId) this.addExistingAnswers(this.props.answers)
+    if(this.props.questionId) this.addExistingAnswers(this.props.answers)
   }
 
   render() {
@@ -285,10 +285,10 @@ class Question extends Component {
                 type="text"
                 name="title"
                 placeholder="Add title"
-                value={this.state.title}
-                onChange={this.changeTitle}
+                value={ this.state.title }
+                onChange={ this.changeTitle }
                 // touched={this.state.formControls.question.touched}
-                valid={this.state.title.length > 0}
+                valid={ this.state.title.length > 0 }
               />
             </FormGroup>
             <FormGroup>
@@ -297,11 +297,11 @@ class Question extends Component {
                 id="question"
                 type="text"
                 name="question"
-                placeholder={this.state.formControls.question.placeholder}
-                value={this.state.formControls.question.value}
-                onChange={this.changeHandler}
+                placeholder={ this.state.formControls.question.placeholder }
+                value={ this.state.formControls.question.value }
+                onChange={ this.changeHandler }
                 // touched={this.state.formControls.question.touched}
-                valid={this.state.formControls.question.valid}
+                valid={ this.state.formControls.question.valid }
               />
             </FormGroup>
             <FormGroup>
@@ -310,18 +310,18 @@ class Question extends Component {
                 type="select"
                 name="topic"
                 id="topic"
-                value={this.state.formControls.topic.value}
-                onChange={this.changeHandler}
+                value={ this.state.formControls.topic.value }
+                onChange={ this.changeHandler }
                 // touched={this.state.formControls.topic.touched}
-                valid={this.state.formControls.topic.valid}
+                valid={ this.state.formControls.topic.valid }
               >
-                {this.state.formControls.topic.options.map(option => {
+                { this.state.formControls.topic.options.map(option => {
                   return (
-                    <option key={option.id} value={option.id}>
-                      {option.name}
+                    <option key={ option.id } value={ option.id }>
+                      { option.name }
                     </option>
                   )
-                })}
+                }) }
               </Input>
             </FormGroup>
             <FormGroup>
@@ -330,27 +330,27 @@ class Question extends Component {
                 type="select"
                 name="questionType"
                 id="questionType"
-                value={this.state.formControls.questionType.value}
-                onChange={this.changeHandler}
+                value={ this.state.formControls.questionType.value }
+                onChange={ this.changeHandler }
                 // touched={this.state.formControls.questionType.touched}
-                valid={this.state.formControls.questionType.valid}
+                valid={ this.state.formControls.questionType.valid }
               >
-                {this.state.formControls.questionType.options.map(option => {
+                { this.state.formControls.questionType.options.map(option => {
                   return (
-                    <option key={option.id} value={option.id}>
-                      {option.name}
+                    <option key={ option.id } value={ option.id }>
+                      { option.name }
                     </option>
                   )
-                })}
+                }) }
               </Input>
             </FormGroup>
-            <Button onClick={this.addNewAnswer}>Add new answer</Button>
-            {this.state.answers.map(value => (
+            <Button onClick={ this.addNewAnswer }>Add new answer</Button>
+            { this.state.answers.map(value => (
               <AnswerComponent
-                key={value.answerId}
+                key={ value.answerId }
                 isTextEnabled
-                name={value.answerInputName}
-                checkboxName={value.answerCheckboxName}
+                name={ value.answerInputName }
+                checkboxName={ value.answerCheckboxName }
                 isCheckboxEnabled
                 placeholder={
                   this.state.formControls[value.answerInputName].placeholder
@@ -358,17 +358,17 @@ class Question extends Component {
                 correct={
                   this.state.formControls[value.answerCheckboxName].value
                 }
-                value={this.state.formControls[value.answerInputName].value}
-                onChange={this.changeHandler}
-                touched={this.state.formControls[value.answerInputName].touched}
-                valid={this.state.formControls[value.answerInputName].valid}
+                value={ this.state.formControls[value.answerInputName].value }
+                onChange={ this.changeHandler }
+                touched={ this.state.formControls[value.answerInputName].touched }
+                valid={ this.state.formControls[value.answerInputName].valid }
               />
-            ))}
+            )) }
             <Button
-              onClick={this.formSubmitHandler}
-              disabled={!this.state.formIsValid}
+              onClick={ this.formSubmitHandler }
+              disabled={ !this.state.formIsValid }
             >
-              {this.props.questionId ? 'Edit' : 'Create'}
+              { this.props.questionId ? 'Edit' : 'Create' }
             </Button>
           </CardBody>
         </Card>
@@ -377,8 +377,8 @@ class Question extends Component {
   }
 }
 
-const mapStateToProps = ({ userReducer }) => {
-  const { isAdmin } = userReducer
+const mapStateToProps = ({userReducer}) => {
+  const {isAdmin} = userReducer
   return {
     isAdmin,
   }

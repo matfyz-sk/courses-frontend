@@ -1,17 +1,7 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
-import {
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Container,
-  Row,
-  Col,
-  CardSubtitle,
-} from 'reactstrap'
+import { Button, CardSubtitle, Col, Container, Form, FormGroup, Input, Label, Row, } from 'reactstrap'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import './EventForm.css'
@@ -23,22 +13,17 @@ import {
   COURSE_URL,
   EVENT_URL,
   INITIAL_EVENT_STATE,
-  SESSIONS,
-  TASKS_EXAMS,
-  TASKS_DEADLINES,
-  USER_URL,
   MATERIAL_URL,
+  SESSIONS,
+  TASKS_DEADLINES,
+  TASKS_EXAMS,
+  USER_URL,
 } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { getDisplayDateTime, getShortId } from '../Helper'
 import ModalCreateEvent from '../ModalCreateEvent'
 import { SubEventList } from '../Events'
-import {
-  getEvents,
-  greaterEqual,
-  greater,
-  sortEventsFunction,
-} from '../Timeline/timeline-helper'
+import { getEvents, greater, greaterEqual, sortEventsFunction, } from '../Timeline/timeline-helper'
 import { connect } from 'react-redux'
 
 class EventForm extends Component {
@@ -58,26 +43,26 @@ class EventForm extends Component {
 
   componentDidMount() {
     const {
-      match: { params },
+      match: {params},
     } = this.props
 
-    const { options } = this.props
-    this.setState({ type: options[0] })
+    const {options} = this.props
+    this.setState({type: options[0]})
 
-    this.setState({ ...this.props, courseId: params.course_id })
+    this.setState({...this.props, courseId: params.course_id})
 
     this.getSubEvents()
 
     let url = BASE_URL + USER_URL
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
-      if (data != null) {
+      if(data != null) {
         const users = data.map(user => {
           return {
             fullId: user['@id'],
             name:
               user.firstName !== '' && user.lastName !== ''
-                ? `${user.firstName} ${user.lastName}`
+                ? `${ user.firstName } ${ user.lastName }`
                 : 'Noname',
           }
         })
@@ -90,7 +75,7 @@ class EventForm extends Component {
     url = BASE_URL + MATERIAL_URL
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
-      if (data != null) {
+      if(data != null) {
         const docs = data.map(doc => {
           return {
             fullId: doc['@id'],
@@ -105,12 +90,12 @@ class EventForm extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.name !== this.props.name) {
+    if(prevProps.name !== this.props.name) {
       //console.log(this.props)
 
-      this.setState({ ...this.props })
+      this.setState({...this.props})
     }
-    if (
+    if(
       prevState.startDate !== this.state.startDate ||
       prevState.endDate !== this.state.endDate
     ) {
@@ -119,29 +104,29 @@ class EventForm extends Component {
   }
 
   getSubEvents = () => {
-    const { startDate, endDate, courseId } = this.state
+    const {startDate, endDate, courseId} = this.state
 
-    if (courseId !== '') {
-      const url = `${BASE_URL + EVENT_URL}?courseInstance=${courseId}`
+    if(courseId !== '') {
+      const url = `${ BASE_URL + EVENT_URL }?courseInstance=${ courseId }`
 
       axiosRequest('get', null, url).then(response => {
         const data = getData(response)
-        if (data != null && data !== []) {
+        if(data != null && data !== []) {
           const events = getEvents(data).sort(sortEventsFunction)
           const tasks = []
           const sessions = []
 
-          for (const event of events) {
-            if (
+          for(const event of events) {
+            if(
               SESSIONS.includes(event.type) &&
               ((greaterEqual(event.startDate, startDate) &&
-                !greaterEqual(event.startDate, startDate)) ||
+                  !greaterEqual(event.startDate, startDate)) ||
                 (greater(event.endDate, startDate) &&
                   !greater(event.endDate, endDate)))
             ) {
               event.displayDateTime = getDisplayDateTime(event.startDate, false)
               sessions.push(event)
-            } else if (
+            } else if(
               (TASKS_EXAMS.includes(event.type) &&
                 greaterEqual(event.startDate, startDate) &&
                 !greaterEqual(event.startDate, endDate)) ||
@@ -149,7 +134,7 @@ class EventForm extends Component {
                 greater(event.endDate, startDate) &&
                 !greater(event.endDate, endDate))
             ) {
-              if (TASKS_EXAMS.includes(event.type)) {
+              if(TASKS_EXAMS.includes(event.type)) {
                 event.displayDateTime = getDisplayDateTime(
                   event.startDate,
                   false
@@ -184,28 +169,28 @@ class EventForm extends Component {
       uses,
       recommends,
     } = this.state
-    const { typeOfForm, callBack } = this.props
+    const {typeOfForm, callBack} = this.props
 
     const errors = this.validate(name, description, startDate, endDate)
-    if (errors.length > 0) {
-      this.setState({ errors })
+    if(errors.length > 0) {
+      this.setState({errors})
       event.preventDefault()
       return
     }
 
     const courseInstanceFullId = [
-      `http://www.courses.matfyz.sk/data${COURSE_INSTANCE_URL}/${courseId}`,
+      `http://www.courses.matfyz.sk/data${ COURSE_INSTANCE_URL }/${ courseId }`,
     ]
     const courseFullId = [
-      `http://www.courses.matfyz.sk/data${COURSE_URL}/${courseId}`,
+      `http://www.courses.matfyz.sk/data${ COURSE_URL }/${ courseId }`,
     ]
 
     //console.log(instructors)
     const hasInstructor = Array.isArray(instructors)
       ? instructors.map(instructor => {
-          return instructor.fullId
-        })
-      : [instructors]
+        return instructor.fullId
+      })
+      : [ instructors ]
 
     const usedMaterials = uses.map(doc => {
       return doc.fullId
@@ -216,7 +201,7 @@ class EventForm extends Component {
     })
 
     const typeLowerCase = this.lowerFirstLetter(type)
-    let url = `${BASE_URL}/${typeLowerCase}/${id}`
+    let url = `${ BASE_URL }/${ typeLowerCase }/${ id }`
 
     let method = 'patch'
     const data = {
@@ -229,16 +214,16 @@ class EventForm extends Component {
       recommends: recommendedMaterials,
     }
 
-    if (type === 'CourseInstance') {
+    if(type === 'CourseInstance') {
       data.hasInstructor = hasInstructor
     }
-    if (typeOfForm === 'Create') {
+    if(typeOfForm === 'Create') {
       url = BASE_URL + EVENT_URL
       method = 'post'
       // eslint-disable-next-line no-underscore-dangle
       data._type = type
       data.courseInstance = courseInstanceFullId
-    } else if (typeOfForm === 'New Course Instance') {
+    } else if(typeOfForm === 'New Course Instance') {
       url = BASE_URL + COURSE_INSTANCE_URL
       method = 'post'
       data.instanceOf = courseFullId
@@ -247,8 +232,8 @@ class EventForm extends Component {
 
     axiosRequest(method, {...data}, url)
       .then(response => {
-        if (response && response.status === 200) {
-          if (typeOfForm === 'Edit') {
+        if(response && response.status === 200) {
+          if(typeOfForm === 'Edit') {
             callBack(id)
           } else {
             const newEventId = getShortId(response.data.resource.iri)
@@ -273,27 +258,27 @@ class EventForm extends Component {
 
   validate = (name, description, startDate, endDate) => {
     const errors = []
-    if (name.length === 0) {
+    if(name.length === 0) {
       errors.push("Name can't be empty.")
     }
-    if (description.length === 0) {
+    if(description.length === 0) {
       errors.push("Description can't be empty.")
     }
-    if (new Date(startDate) > new Date(endDate)) {
+    if(new Date(startDate) > new Date(endDate)) {
       errors.push('The End date must be greater than the Start date.')
     }
     return errors
   }
 
   deleteEvent = () => {
-    const { type, id } = this.state
-    const { callBack } = this.props
+    const {type, id} = this.state
+    const {callBack} = this.props
 
     const typeLowerCase = this.lowerFirstLetter(type)
-    const url = `${BASE_URL}/${typeLowerCase}/${id}`
+    const url = `${ BASE_URL }/${ typeLowerCase }/${ id }`
 
     axiosRequest('delete', null, url).then(response => {
-      if (response && response.status === 200) {
+      if(response && response.status === 200) {
         callBack(null)
       } else {
         const errors = []
@@ -306,27 +291,27 @@ class EventForm extends Component {
   }
 
   onInstructorChange = (event, values) => {
-    this.setState({ instructors: values })
+    this.setState({instructors: values})
   }
 
   onUsesChange = (event, values) => {
-    this.setState({ uses: values })
+    this.setState({uses: values})
   }
 
   onRecommendsChange = (event, values) => {
-    this.setState({ recommends: values })
+    this.setState({recommends: values})
   }
 
   onChange = event => {
-    this.setState({ [event.target.name]: event.target.value })
+    this.setState({[event.target.name]: event.target.value})
   }
 
   handleChangeFrom = date => {
-    this.setState({ startDate: date })
+    this.setState({startDate: date})
   }
 
   handleChangeTo = date => {
-    this.setState({ endDate: date })
+    this.setState({endDate: date})
   }
 
   render() {
@@ -346,7 +331,7 @@ class EventForm extends Component {
       uses,
       recommends,
     } = this.state
-    const { typeOfForm, options, from, to, user } = this.props
+    const {typeOfForm, options, from, to, user} = this.props
 
     const isInvalid =
       name === '' ||
@@ -356,12 +341,12 @@ class EventForm extends Component {
 
     return (
       <>
-        {errors.map(error => (
-          <p key={error} className="form-error">
-            Error: {error}
+        { errors.map(error => (
+          <p key={ error } className="form-error">
+            Error: { error }
           </p>
-        ))}
-        <Form onSubmit={this.onSubmit}>
+        )) }
+        <Form onSubmit={ this.onSubmit }>
           <FormGroup className="new-event-formGroup">
             <Label for="name" className="new-event-label">
               Name *
@@ -369,8 +354,8 @@ class EventForm extends Component {
             <Input
               name="name"
               id="name"
-              value={name}
-              onChange={this.onChange}
+              value={ name }
+              onChange={ this.onChange }
               type="text"
             />
           </FormGroup>
@@ -382,14 +367,14 @@ class EventForm extends Component {
               id="type"
               type="select"
               name="type"
-              value={type}
-              onChange={this.onChange}
+              value={ type }
+              onChange={ this.onChange }
             >
-              {options.map(option => (
-                <option value={option} key={option}>
-                  {option}
+              { options.map(option => (
+                <option value={ option } key={ option }>
+                  { option }
                 </option>
-              ))}
+              )) }
             </Input>
           </FormGroup>
 
@@ -407,13 +392,13 @@ class EventForm extends Component {
                   <DatePicker
                     name="from"
                     id="from"
-                    selected={startDate}
-                    onChange={this.handleChangeFrom}
-                    minDate={from || ''}
-                    maxDate={to || endDate}
+                    selected={ startDate }
+                    onChange={ this.handleChangeFrom }
+                    minDate={ from || '' }
+                    maxDate={ to || endDate }
                     showTimeSelect
                     timeFormat="HH:mm"
-                    timeIntervals={15}
+                    timeIntervals={ 15 }
                     dateFormat="dd/MM/yyyy HH:mm"
                     timeCaption="time"
                   />
@@ -425,13 +410,13 @@ class EventForm extends Component {
                   <DatePicker
                     name="to"
                     id="to"
-                    selected={endDate}
-                    onChange={this.handleChangeTo}
-                    minDate={from || startDate}
-                    maxDate={to || ''}
+                    selected={ endDate }
+                    onChange={ this.handleChangeTo }
+                    minDate={ from || startDate }
+                    maxDate={ to || '' }
                     showTimeSelect
                     timeFormat="HH:mm"
-                    timeIntervals={15}
+                    timeIntervals={ 15 }
                     dateFormat="dd/MM/yyyy HH:mm"
                     timeCaption="time"
                   />
@@ -446,8 +431,8 @@ class EventForm extends Component {
             <Input
               name="description"
               id="description"
-              value={description}
-              onChange={this.onChange}
+              value={ description }
+              onChange={ this.onChange }
               type="textarea"
             />
           </FormGroup>
@@ -458,8 +443,8 @@ class EventForm extends Component {
             <Input
               name="place"
               id="place"
-              value={place}
-              onChange={this.onChange}
+              value={ place }
+              onChange={ this.onChange }
               type="text"
             />
           </FormGroup>
@@ -476,21 +461,21 @@ class EventForm extends Component {
               multiple
               name="usesMaterials"
               id="usesMaterials"
-              options={docs}
-              getOptionLabel={option => option.name}
-              onChange={this.onUsesChange}
-              value={uses}
-              style={{ minWidth: 200, maxWidth: 700 }}
-              renderInput={params => (
+              options={ docs }
+              getOptionLabel={ option => option.name }
+              onChange={ this.onUsesChange }
+              value={ uses }
+              style={ {minWidth: 200, maxWidth: 700} }
+              renderInput={ params => (
                 <TextField
-                  {...params}
+                  { ...params }
                   placeholder=""
-                  InputProps={{
+                  InputProps={ {
                     ...params.InputProps,
                     disableUnderline: true,
-                  }}
+                  } }
                 />
-              )}
+              ) }
             />
           </FormGroup>
 
@@ -506,36 +491,36 @@ class EventForm extends Component {
               multiple
               name="recommendsMaterials"
               id="recommendsMaterials"
-              options={docs}
-              getOptionLabel={option => option.name}
-              onChange={this.onRecommendsChange}
-              value={recommends}
-              style={{ minWidth: 200, maxWidth: 700 }}
-              renderInput={params => (
+              options={ docs }
+              getOptionLabel={ option => option.name }
+              onChange={ this.onRecommendsChange }
+              value={ recommends }
+              style={ {minWidth: 200, maxWidth: 700} }
+              renderInput={ params => (
                 <TextField
-                  {...params}
+                  { ...params }
                   placeholder=""
-                  InputProps={{
+                  InputProps={ {
                     ...params.InputProps,
                     disableUnderline: true,
-                  }}
+                  } }
                 />
-              )}
+              ) }
             />
           </FormGroup>
 
-          {type === 'Block' && (
+          { type === 'Block' && (
             <SubEvents
-              sessions={sessions}
-              tasks={tasks}
-              from={startDate}
-              to={endDate}
-              typeOfForm={typeOfForm}
-              callBack={this.getSubEvents}
+              sessions={ sessions }
+              tasks={ tasks }
+              from={ startDate }
+              to={ endDate }
+              typeOfForm={ typeOfForm }
+              callBack={ this.getSubEvents }
             />
-          )}
+          ) }
 
-          {type === 'CourseInstance' &&
+          { type === 'CourseInstance' &&
             user != null &&
             (instructors.findIndex(i => i.fullId === user.fullURI) === -1 ||
               user.isSuperAdmin) && (
@@ -547,41 +532,41 @@ class EventForm extends Component {
                   multiple
                   name="instructors"
                   id="instructors"
-                  options={users}
-                  getOptionLabel={option => option.name}
-                  onChange={this.onInstructorChange}
-                  value={instructors}
-                  style={{ minWidth: 200, maxWidth: 700 }}
-                  renderInput={params => (
+                  options={ users }
+                  getOptionLabel={ option => option.name }
+                  onChange={ this.onInstructorChange }
+                  value={ instructors }
+                  style={ {minWidth: 200, maxWidth: 700} }
+                  renderInput={ params => (
                     <TextField
-                      {...params}
+                      { ...params }
                       placeholder=""
-                      InputProps={{
+                      InputProps={ {
                         ...params.InputProps,
                         disableUnderline: true,
-                      }}
+                      } }
                     />
-                  )}
+                  ) }
                 />
               </FormGroup>
-            )}
+            ) }
 
           <div className="button-container">
             <Button
               className="new-event-button"
-              disabled={isInvalid}
+              disabled={ isInvalid }
               type="submit"
             >
-              {typeOfForm}
+              { typeOfForm }
             </Button>
-            {typeOfForm === 'Edit' && type !== 'CourseInstance' && (
+            { typeOfForm === 'Edit' && type !== 'CourseInstance' && (
               <Button
                 className="new-event-button"
-                onClick={e => this.deleteEvent()}
+                onClick={ e => this.deleteEvent() }
               >
                 Delete
               </Button>
-            )}
+            ) }
           </div>
         </Form>
       </>
@@ -589,16 +574,16 @@ class EventForm extends Component {
   }
 }
 
-const SubEvents = ({ sessions, tasks, from, to, typeOfForm, callBack }) => (
+const SubEvents = ({sessions, tasks, from, to, typeOfForm, callBack}) => (
   <div className="sessions-tasks-container">
     <div className="subevents-col-left">
       <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
-      <SubEventList events={sessions} />
-      {typeOfForm === 'Edit' && (
+      <SubEventList events={ sessions }/>
+      { typeOfForm === 'Edit' && (
         <div className="button-container">
-          <ModalCreateEvent from={from} to={to} callBack={callBack} />
+          <ModalCreateEvent from={ from } to={ to } callBack={ callBack }/>
         </div>
-      )}
+      ) }
     </div>
     <div
       className={
@@ -608,12 +593,12 @@ const SubEvents = ({ sessions, tasks, from, to, typeOfForm, callBack }) => (
       }
     >
       <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
-      <SubEventList events={tasks} />
+      <SubEventList events={ tasks }/>
     </div>
   </div>
 )
 
-const mapStateToProps = ({ authReducer }) => {
+const mapStateToProps = ({authReducer}) => {
   return {
     user: authReducer.user,
   }

@@ -19,7 +19,7 @@
 }
 
 .course-list-group {
-  border: 1px solid rgba(0,0,0,.125);
+  border: 1px solid rgba(0, 0, 0, .125);
   border-radius: .25rem;
 }
 
@@ -43,11 +43,11 @@
 }
 
 @media only screen and (max-width: 1000px) {
-   .container-view {
-     padding-left: 30px;
-     padding-right: 30px;
-     max-width: 900px
-   }
+  .container-view {
+    padding-left: 30px;
+    padding-right: 30px;
+    max-width: 900px
+  }
 }
 
 @media only screen and (max-width: 500px) {

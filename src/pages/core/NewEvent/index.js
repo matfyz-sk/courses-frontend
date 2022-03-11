@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Card, CardHeader, CardBody } from 'reactstrap'
+import { Card, CardBody, CardHeader, Container } from 'reactstrap'
 import EventForm from '../EventForm'
 import { INITIAL_EVENT_STATE } from '../constants'
 import { Redirect } from 'react-router-dom'
@@ -7,12 +7,12 @@ import { Redirect } from 'react-router-dom'
 class NewEvent extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { redirect: null, courseId: '' }
+    this.state = {redirect: null, courseId: ''}
   }
 
   componentDidMount() {
     const {
-      match: { params },
+      match: {params},
     } = this.props
 
     this.setState({
@@ -21,18 +21,18 @@ class NewEvent extends React.Component {
   }
 
   setRedirect = id => {
-    const { courseId } = this.state
+    const {courseId} = this.state
 
     this.setState({
-      redirect: `/courses/${courseId}/event/${id}`,
+      redirect: `/courses/${ courseId }/event/${ id }`,
     })
   }
 
   render() {
-    const { redirect } = this.state
+    const {redirect} = this.state
 
-    if (redirect) {
-      return <Redirect to={redirect} />
+    if(redirect) {
+      return <Redirect to={ redirect }/>
     }
 
     return (
@@ -43,9 +43,9 @@ class NewEvent extends React.Component {
             <CardBody className="form-cardbody">
               <EventForm
                 typeOfForm="Create"
-                {...INITIAL_EVENT_STATE}
-                options={['Block', 'Lab', 'Lecture', 'OralExam', 'TestTake']}
-                callBack={this.setRedirect}
+                { ...INITIAL_EVENT_STATE }
+                options={ [ 'Block', 'Lab', 'Lecture', 'OralExam', 'TestTake' ] }
+                callBack={ this.setRedirect }
               />
             </CardBody>
           </Card>

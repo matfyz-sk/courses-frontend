@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Card, CardHeader, CardBody } from 'reactstrap'
+import { Card, CardBody, CardHeader, Container } from 'reactstrap'
 import EventForm from '../EventForm'
 import { BASE_URL, COURSE_URL, INITIAL_EVENT_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
@@ -18,14 +18,14 @@ class NewCourseInstance extends React.Component {
 
   componentDidMount() {
     const {
-      match: { params },
+      match: {params},
     } = this.props
 
-    const url = `${BASE_URL + COURSE_URL}/${params.course_id}`
+    const url = `${ BASE_URL + COURSE_URL }/${ params.course_id }`
 
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
-      if (data != null) {
+      if(data != null) {
         const course = data.map(courseData => {
           return {
             fullId: courseData['@id'],
@@ -45,15 +45,15 @@ class NewCourseInstance extends React.Component {
 
   setRedirect = id => {
     this.setState({
-      redirect: `/courses/${id}/event/${id}`,
+      redirect: `/courses/${ id }/event/${ id }`,
     })
   }
 
   render() {
-    const { course, redirect } = this.state
+    const {course, redirect} = this.state
 
-    if (redirect) {
-      return <Redirect to={redirect} />
+    if(redirect) {
+      return <Redirect to={ redirect }/>
     }
 
     return (
@@ -62,14 +62,14 @@ class NewCourseInstance extends React.Component {
           <Card className="event-card">
             <CardHeader className="event-card-header">
               New Course Instance for Course
-              {course && ` "${course.name}"`}
+              { course && ` "${ course.name }"` }
             </CardHeader>
             <CardBody>
               <EventForm
                 typeOfForm="New Course Instance"
-                {...INITIAL_EVENT_STATE}
-                options={['CourseInstance']}
-                callBack={this.setRedirect}
+                { ...INITIAL_EVENT_STATE }
+                options={ [ 'CourseInstance' ] }
+                callBack={ this.setRedirect }
               />
             </CardBody>
           </Card>
@@ -78,4 +78,5 @@ class NewCourseInstance extends React.Component {
     )
   }
 }
+
 export default NewCourseInstance

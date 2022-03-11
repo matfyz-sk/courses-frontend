@@ -14,10 +14,10 @@ export function AnswerComponentOrder({
                                        userAnswer,
                                        setUserAnswer,
                                        finalAnswer,
-                                     }){
+                                     }) {
 
 
-  const [orderAnswerCol, setOrderAnswerCol] = useState(userAnswer && {
+  const [ orderAnswerCol, setOrderAnswerCol ] = useState(userAnswer && {
     id: "answerColumn",
     title: "answerColumn",
     answersPositions: userAnswer.map(uA => uA.orderingAnswer)
@@ -25,8 +25,8 @@ export function AnswerComponentOrder({
 
   const onDragEnd = result => {
     const {destination, source, draggableId} = result;
-    if (!destination) return
-    if (destination.index === source.index) return
+    if(!destination) return
+    if(destination.index === source.index) return
 
     if(userAnswer) {
       const newAnswersPos = orderAnswerCol.answersPositions
@@ -45,7 +45,9 @@ export function AnswerComponentOrder({
       })
       setUserAnswer(newUserAnswer)
     } else {
-      setShowWarning(prevState => {return ({...prevState, answers: ''})})
+      setShowWarning(prevState => {
+        return ({...prevState, answers: ''})
+      })
       const newAnswersPos = orderAnswersColumn.answersPositions
       newAnswersPos.splice(source.index, 1)
       newAnswersPos.splice(destination.index, 0, parseInt(draggableId))
@@ -61,28 +63,28 @@ export function AnswerComponentOrder({
     if(addNewOrderAnswer) {
       const answersMapped = orderAnswersColumn.answersPositions.map(answerPos => orderAnswers.find(ans => ans.position === answerPos))
       return (
-        <DragDropContext onDragEnd={onDragEnd}>
+        <DragDropContext onDragEnd={ onDragEnd }>
           <AnswerOrderColumn
-            orderAnswerColumn={orderAnswersColumn}
-            orderAnswers={answersMapped}
+            orderAnswerColumn={ orderAnswersColumn }
+            orderAnswers={ answersMapped }
           />
-          {addNewOrderAnswer &&
-          (<Button className="mt-3" color="success" onClick={addNewOrderAnswer}>
-            Add answer
-          </Button>)}
+          { addNewOrderAnswer &&
+            (<Button className="mt-3" color="success" onClick={ addNewOrderAnswer }>
+              Add answer
+            </Button>) }
         </DragDropContext>
       )
     }
-    if (setUserAnswer && !finalAnswer) {
+    if(setUserAnswer && !finalAnswer) {
       const answersSorted = userAnswer.sort((a, b) => {
         return a.userChoice - b.userChoice
       })
-      return(
-        <DragDropContext onDragEnd={onDragEnd}>
+      return (
+        <DragDropContext onDragEnd={ onDragEnd }>
           <AnswerOrderColumn
-            orderAnswerColumn={orderAnswerCol}
-            orderAnswers={answersSorted}
-            userAnswer={userAnswer}
+            orderAnswerColumn={ orderAnswerCol }
+            orderAnswers={ answersSorted }
+            userAnswer={ userAnswer }
           />
         </DragDropContext>
       )
@@ -99,16 +101,16 @@ export function AnswerComponentOrder({
       answersSorted.map(answer => {
         return (
           <ListItem
-            className = 'mb-2'
-            key={finalAnswer ? answer.orderingAnswer : answer.id}
-            style={{
+            className='mb-2'
+            key={ finalAnswer ? answer.orderingAnswer : answer.id }
+            style={ {
               backgroundColor: '#ffffff',
               border: `1px solid #d9d9d9`,
               justifyContent: 'center',
-            }}
+            } }
           >
             <ListItemText
-              primary={answer.text}
+              primary={ answer.text }
             />
           </ListItem>
         )
@@ -119,7 +121,7 @@ export function AnswerComponentOrder({
 
   return (
     <div>
-      {orderComponentVariant()}
+      { orderComponentVariant() }
     </div>
   )
 }

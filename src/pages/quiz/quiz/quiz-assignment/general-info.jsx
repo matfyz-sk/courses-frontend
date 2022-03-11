@@ -29,7 +29,7 @@ function GeneralInfo({
                        topicOptionsCovered,
                        topicOptionsRequired,
                        topicOptionsMentions,
-  loadedQuestions,
+                       loadedQuestions,
 
                      }) {
 
@@ -43,8 +43,8 @@ function GeneralInfo({
 
   const handleTimeLimitChange = (event) => {
     const newValue = event.target.value.replace(/^0+(?=\d)/, '')
-    if (newValue === '') setTimeLimit('')
-    else if (newValue.match(/^\d+$/)) {
+    if(newValue === '') setTimeLimit('')
+    else if(newValue.match(/^\d+$/)) {
       setTimeLimit(parseInt(newValue) === 0 ? '' : newValue)
     }
   }
@@ -58,8 +58,8 @@ function GeneralInfo({
       fullWidth
       variant='outlined'
       size='small'
-      value = {title}
-      onChange={e => handleTitleChange(e)}
+      value={ title }
+      onChange={ e => handleTitleChange(e) }
     />
   )
 
@@ -67,129 +67,129 @@ function GeneralInfo({
     <TextField
       fullWidth
       multiline
-      rows = {3}
-      rowsMax={15}
+      rows={ 3 }
+      rowsMax={ 15 }
       variant='outlined'
       size='small'
-      value = {description}
-      onChange={e => handleDescriptionChange(e)}
+      value={ description }
+      onChange={ e => handleDescriptionChange(e) }
     />
   )
 
   const datePicker = (dateData, setDateData) => (
-    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+    <MuiPickersUtilsProvider utils={ DateFnsUtils }>
       <DateTimePicker
         size="small"
         variant='inline'
         inputVariant='outlined'
         format='dd.MM.yyyy HH:mm'
-        ampm={false}
+        ampm={ false }
         autoOk
-        value={dateData}
-        onChange={setDateData}
+        value={ dateData }
+        onChange={ setDateData }
       />
     </MuiPickersUtilsProvider>
   )
 
   const timeLimitSection = () => (
     <Box display='flex' justifyContent='flex-start'>
-      <Box width={190} paddingRight={3} style={{borderRight: `2px solid ${customTheme.palette.info.grey_300}`}}>
+      <Box width={ 190 } paddingRight={ 3 } style={ {borderRight: `2px solid ${ customTheme.palette.info.grey_300 }`} }>
         <TextField
           size='small'
           variant='outlined'
-          value = {timeLimit}
-          disabled={unlimitedTime}
-          InputProps={{
+          value={ timeLimit }
+          disabled={ unlimitedTime }
+          InputProps={ {
             endAdornment:
               <InputAdornment
                 position='end'>
                 minutes
               </InputAdornment>,
-          }}
-          inputProps={{
+          } }
+          inputProps={ {
             min: 0,
             maxLength: 4,
             style: {textAlign: 'center'}
-          }}
-          onChange={e => handleTimeLimitChange(e)}
+          } }
+          onChange={ e => handleTimeLimitChange(e) }
         />
       </Box>
-      <Box paddingLeft={3} display='flex' alignItems='center'>
-        <Typography component='div'><Box fontSize={18}>Unlimited</Box></Typography>
+      <Box paddingLeft={ 3 } display='flex' alignItems='center'>
+        <Typography component='div'><Box fontSize={ 18 }>Unlimited</Box></Typography>
         <Switch
           color="primary"
-          checked={unlimitedTime}
-          onChange={handleSwitchChange}
+          checked={ unlimitedTime }
+          onChange={ handleSwitchChange }
         />
       </Box>
     </Box>
   )
 
   return (
-    <Grid container direction='column' spacing={3}>
+    <Grid container direction='column' spacing={ 3 }>
       <Grid item container direction='column'>
-        {/* TITLE */}
+        {/* TITLE */ }
         <Grid item>
           <h5>Title</h5>
         </Grid>
         <Grid item>
-          {titleTextField()}
+          { titleTextField() }
         </Grid>
       </Grid>
       <Grid item container direction='column'>
-        {/* Description */}
+        {/* Description */ }
         <Grid item>
           <h5>Description</h5>
         </Grid>
         <Grid item>
-          {descriptionTextField()}
+          { descriptionTextField() }
         </Grid>
       </Grid>
-      {/* START DATE END DATE */}
-      <Grid item container direction='row' spacing={3}>
-        <Grid item container xs={6} direction='column'>
+      {/* START DATE END DATE */ }
+      <Grid item container direction='row' spacing={ 3 }>
+        <Grid item container xs={ 6 } direction='column'>
           <Grid item>
             <h5>Start date</h5>
           </Grid>
           <Grid item>
-            {datePicker(startDate, setStartDate)}
+            { datePicker(startDate, setStartDate) }
           </Grid>
         </Grid>
-        <Grid item container xs={6} direction="column">
+        <Grid item container xs={ 6 } direction="column">
           <Grid item>
             <h5>End date</h5>
           </Grid>
           <Grid item>
-            {datePicker(endDate, setEndDate)}
+            { datePicker(endDate, setEndDate) }
           </Grid>
         </Grid>
       </Grid>
-      {/* TIME LIMIT */}
+      {/* TIME LIMIT */ }
       <Grid item container direction='column'>
         <Grid item>
           <h5>Time limit</h5>
         </Grid>
-        {timeLimitSection()}
+        { timeLimitSection() }
       </Grid>
       <Grid item container>
         <TopicSelection
-          courseName = {courseName}
-          topicsSelected = {topicsSelected}
-          setTopicsSelected = {setTopicsSelected}
-          topicOptionsCovered = {topicOptionsCovered}
-          topicOptionsRequired = {topicOptionsRequired}
-          topicOptionsMentions = {topicOptionsMentions}
-          loadedQuestions = {loadedQuestions}
+          courseName={ courseName }
+          topicsSelected={ topicsSelected }
+          setTopicsSelected={ setTopicsSelected }
+          topicOptionsCovered={ topicOptionsCovered }
+          topicOptionsRequired={ topicOptionsRequired }
+          topicOptionsMentions={ topicOptionsMentions }
+          loadedQuestions={ loadedQuestions }
         />
       </Grid>
       <Grid item container>
         <AgentSelection
-          courseName = {courseName}
-          agentOptionsUsers={agentOptionsUsers}
-          agentOptionsTeams={agentOptionsTeams}
-          agentsSelected={agentsSelected}
-          setAgentsSelected={setAgentsSelected}
-          loadedQuestions={loadedQuestions}
+          courseName={ courseName }
+          agentOptionsUsers={ agentOptionsUsers }
+          agentOptionsTeams={ agentOptionsTeams }
+          agentsSelected={ agentsSelected }
+          setAgentsSelected={ setAgentsSelected }
+          loadedQuestions={ loadedQuestions }
         />
       </Grid>
     </Grid>

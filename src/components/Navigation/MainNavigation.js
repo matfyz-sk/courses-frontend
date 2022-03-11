@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Navbar, Nav } from 'reactstrap';
+import { Nav, Navbar } from 'reactstrap';
 import { connect } from 'react-redux';
 import GlobalMenu from './types/GlobalMenu';
 import AuthOnlyMenu from './types/AuthOnlyMenu';
@@ -9,7 +9,7 @@ import NotLoggedOnly from './types/VisitorOnlyMenu';
 
 import './assets/Navigation.scss';
 import logo from './assets/matfyz-logo.svg';
-import {getUserAvatar, getUserName} from "../Auth";
+import { getUserAvatar, getUserName } from "../Auth";
 
 // eslint-disable-next-line react/prefer-stateless-function
 class MainNavigation extends Component {
@@ -20,19 +20,19 @@ class MainNavigation extends Component {
     return (
       <Navbar expand="md" className="main-nav">
         <Link className="navbar-brand" to="/">
-          <img src={logo} alt="logo" style={{paddingBottom: "8px"}}/>
+          <img src={ logo } alt="logo" style={ {paddingBottom: "8px"} }/>
           <span className="d-none d-sm-inline-block">MATFYZ.sk</span>
         </Link>
         <Nav navbar>
-          {!authenticated ? <NotLoggedOnly current={current} /> : null}
-          {authenticated ? <AuthOnlyMenu current={current} user={user}/> : null}
-          <GlobalMenu current={current} />
+          { !authenticated ? <NotLoggedOnly current={ current }/> : null }
+          { authenticated ? <AuthOnlyMenu current={ current } user={ user }/> : null }
+          <GlobalMenu current={ current }/>
         </Nav>
-        {authenticated ? (
+        { authenticated ? (
           <Nav className="ml-auto" navbar>
-            <UserDropdown name={getUserName()} avatar={getUserAvatar()} />
+            <UserDropdown name={ getUserName() } avatar={ getUserAvatar() }/>
           </Nav>
-        ) : null}
+        ) : null }
       </Navbar>
     );
   }

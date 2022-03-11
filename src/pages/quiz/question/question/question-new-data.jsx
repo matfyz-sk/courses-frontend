@@ -20,30 +20,34 @@ const enText = {
 }
 
 function QuestionNewData({
-  userId,
-  courseInstanceId,
-  isTeacher,
-  token,
-  history,
-  question,
-  creatingNewQuestionInChain,
-}) {
-  const [title, setTitleText] = useState((question && question.title) || '')
-  const [questionText, setQuestionText] = useState(
+                           userId,
+                           courseInstanceId,
+                           isTeacher,
+                           token,
+                           history,
+                           question,
+                           creatingNewQuestionInChain,
+                         }) {
+  const [ title, setTitleText ] = useState((question && question.title) || '')
+  const [ questionText, setQuestionText ] = useState(
     (question && question.questionText) || ''
   )
-  const [topic, setTopic] = useState((question && question.topic) || '')
-  const [topicOptions, setTopicOptions] = useState([])
-  const [questionType, setType] = useState((question && question.questionType) || '')
-  const [questionTypeOptions, setQuestionTypeOptions] = useState([])
+  const [ topic, setTopic ] = useState((question && question.topic) || '')
+  const [ topicOptions, setTopicOptions ] = useState([])
+  const [ questionType, setType ] = useState((question && question.questionType) || '')
+  const [ questionTypeOptions, setQuestionTypeOptions ] = useState([])
 
   const setTitle = (title) => {
-    setShowWarning(prevState => {return ({...prevState, title: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, title: ''})
+    })
     setTitleText(title)
   }
 
   const setQuestion = (question) => {
-    setShowWarning(prevState => {return ({...prevState, question: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, question: ''})
+    })
     setQuestionText(question)
   }
 
@@ -57,82 +61,84 @@ function QuestionNewData({
   }
 
   //Validation
-  const [modal, setModal] = useState(false)
+  const [ modal, setModal ] = useState(false)
   const toggleModal = () => setModal(!modal)
   const handleCloseModal = () => setModal(false)
-  const [showWarning, setShowWarning] = useState({
+  const [ showWarning, setShowWarning ] = useState({
     title: '',
     question: '',
     answers: '',
   })
   useEffect(() => {
-    if (showWarning.title === 'ok' && showWarning.question === 'ok' && showWarning.answers === 'ok') {
-      if (questionType === QuestionTypesEnums.multiple.id && answers.length > 0 && answers.filter(answer => answer.correct).length === 0) {
+    if(showWarning.title === 'ok' && showWarning.question === 'ok' && showWarning.answers === 'ok') {
+      if(questionType === QuestionTypesEnums.multiple.id && answers.length > 0 && answers.filter(answer => answer.correct).length === 0) {
         setModal(true)
       } else {
         formSubmitHandler()
       }
     }
-  },[showWarning])
+  }, [ showWarning ])
 
   //PredefinedAnswersQuestion
-  const [answers, setAnswers] = useState((question && question.answers) || [])
-  const [answerId, setAnswerId] = useState(-2)
+  const [ answers, setAnswers ] = useState((question && question.answers) || [])
+  const [ answerId, setAnswerId ] = useState(-2)
 
   //OpenQuestion
-  const [regexp, setRegexpText] = useState((question && question.regexp) || '')
-  const [regexpUserAnswer, setRegexpUserAnswer] = useState(
+  const [ regexp, setRegexpText ] = useState((question && question.regexp) || '')
+  const [ regexpUserAnswer, setRegexpUserAnswer ] = useState(
     (question && question.regexpUserAnswer !== undefined) || '')
 
   const setRegexp = (text) => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     setRegexpText(text)
   }
 
   //EssayQuestion
 
   //OrderQuestion
-  const [orderAnswers, setOrderAnswers] = useState(question && question.orderAnswers || [])
-  const [orderAnswerPos, setOrderAnswerPos] = useState(question && question.orderAnswers && question.orderAnswers.length || 0)
-  const [orderAnswersColumn, setOrderAnswersColumn] = useState( {
+  const [ orderAnswers, setOrderAnswers ] = useState(question && question.orderAnswers || [])
+  const [ orderAnswerPos, setOrderAnswerPos ] = useState(question && question.orderAnswers && question.orderAnswers.length || 0)
+  const [ orderAnswersColumn, setOrderAnswersColumn ] = useState({
     id: "answerColumn",
     title: "Answers in correct order",
     answersPositions: question && question.orderAnswers && question.orderAnswers.map(answer => answer.position) || [],
   })
 
   //MatchQuestion
-  const [matchAnswers, setMatchAnswers] = useState(question && question.matchPairs || [])
-  const [matchPairs, setMatchPairs] = useState([])
-  const [matchAnswerId, setMatchAnswerId] = useState(0)
-  const [matchPairPos, setMatchPairPos] = useState(question && question.matchPairs && question.matchPairs.length || 0)
+  const [ matchAnswers, setMatchAnswers ] = useState(question && question.matchPairs || [])
+  const [ matchPairs, setMatchPairs ] = useState([])
+  const [ matchAnswerId, setMatchAnswerId ] = useState(0)
+  const [ matchPairPos, setMatchPairPos ] = useState(question && question.matchPairs && question.matchPairs.length || 0)
 
   const saveTopics = useCallback(
     topicsMapped => {
       setTopicOptions(topicsMapped)
-      if (
+      if(
         topic === '' &&
         topicsMapped &&
         topicsMapped.length &&
         topicsMapped.length > 0
       ) {
-        if (topicsMapped[0].id) {
+        if(topicsMapped[0].id) {
           setTopic(topicsMapped[0].id)
         }
       }
     },
-    [topic]
+    [ topic ]
   )
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!isTeacher) {
+    const fetchData = async() => {
+      if(!isTeacher) {
         return axios
           .get(
-            `${API_URL}/questionAssignment?courseInstance=${courseInstanceId.substring(
+            `${ API_URL }/questionAssignment?courseInstance=${ courseInstanceId.substring(
               courseInstanceId.lastIndexOf('/') + 1
-            )}${
+            ) }${
               userId
-                ? `&assignedTo=${userId.substring(userId.lastIndexOf('/') + 1)}`
+                ? `&assignedTo=${ userId.substring(userId.lastIndexOf('/') + 1) }`
                 : ''
             }&_join=covers`,
             {
@@ -143,8 +149,8 @@ function QuestionNewData({
               },
             }
           )
-          .then(({ data }) => {
-            if (
+          .then(({data}) => {
+            if(
               data &&
               data['@graph'] &&
               data['@graph'].length &&
@@ -152,9 +158,9 @@ function QuestionNewData({
             ) {
               const topicsMapped = data['@graph'].reduce(
                 (accumulator, questionAssignment) => {
-                  if (questionAssignment) {
-                    const { covers } = questionAssignment
-                    if (covers && covers.length && covers.length > 0) {
+                  if(questionAssignment) {
+                    const {covers} = questionAssignment
+                    if(covers && covers.length && covers.length > 0) {
                       accumulator.push({
                         id: covers[0]['@id'],
                         name: covers[0].name,
@@ -172,15 +178,15 @@ function QuestionNewData({
       }
 
       return axios
-        .get(`${API_URL}/topic?covers=${courseInstanceId}`, {
+        .get(`${ API_URL }/topic?covers=${ courseInstanceId }`, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
             Authorization: token,
           },
         })
-        .then(({ data }) => {
-          if (
+        .then(({data}) => {
+          if(
             data &&
             data['@graph'] &&
             data['@graph'].length &&
@@ -188,7 +194,7 @@ function QuestionNewData({
           ) {
             const topicsMapped = data['@graph'].reduce(
               (accumulator, topicData) => {
-                if (topicData && topicData['@id'] && topicData.name) {
+                if(topicData && topicData['@id'] && topicData.name) {
                   accumulator.push({
                     id: topicData['@id'],
                     name: topicData.name,
@@ -203,23 +209,23 @@ function QuestionNewData({
         })
         .catch(error => console.log(error))
     }
-    if (courseInstanceId && isTeacher !== null && userId && token) {
+    if(courseInstanceId && isTeacher !== null && userId && token) {
       fetchData()
     }
-  }, [courseInstanceId, isTeacher, userId, token, saveTopics])
+  }, [ courseInstanceId, isTeacher, userId, token, saveTopics ])
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async() => {
       return axios
-        .get(`${API_URL}/question?_subclasses=true`, {
+        .get(`${ API_URL }/question?_subclasses=true`, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
             Authorization: token,
           },
         })
-        .then(({ data }) => {
-          if (
+        .then(({data}) => {
+          if(
             data &&
             data.value &&
             data.value.length &&
@@ -227,8 +233,8 @@ function QuestionNewData({
           ) {
             const questionTypesMapped = data.value.reduce(
               (accumulator, questionTypeData) => {
-                if (questionTypeData) {
-                  switch (questionTypeData) {
+                if(questionTypeData) {
+                  switch(questionTypeData) {
                     case QuestionTypesEnums.multiple.id:
                       accumulator.push(QuestionTypesEnums.multiple)
                       break
@@ -253,21 +259,21 @@ function QuestionNewData({
               []
             )
             setQuestionTypeOptions(questionTypesMapped)
-            if (questionType === '') {
+            if(questionType === '') {
               setQuestionType(questionTypesMapped[0].id)
             }
           }
         })
         .catch(error => console.log(error))
     }
-    if (token) {
+    if(token) {
       fetchData()
     }
-  }, [token])
+  }, [ token ])
 
   //PredefinedAnswersQuestion functions
   useEffect(() => {
-    if (answers === []) {
+    if(answers === []) {
       const answer = {
         id: -1,
         text: '',
@@ -277,7 +283,7 @@ function QuestionNewData({
           changeAnswerChecked(-1, changedChecked),
         deleteAnswer: () => deleteAnswer(-1),
       }
-      setAnswers([answer])
+      setAnswers([ answer ])
     } else {
       const answersMapped = answers.map((answer, index) => {
         const id = -Math.abs(index) - 1
@@ -297,7 +303,9 @@ function QuestionNewData({
   }, [])
 
   const addNewAnswer = () => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     const answer = {
       id: answerId,
       text: '',
@@ -306,7 +314,7 @@ function QuestionNewData({
       changeAnswerChecked: changedChecked =>
         setAnswers(prevState =>
           prevState.map(el => {
-            return el.id === answerId ? { ...el, correct: changedChecked } : el
+            return el.id === answerId ? {...el, correct: changedChecked} : el
           })
         ),
       deleteAnswer: () => deleteAnswer(answerId),
@@ -315,35 +323,42 @@ function QuestionNewData({
     setAnswerId(prevAnswerId => prevAnswerId - 1)
   }
 
-  const changeAnswerText = (id, text) =>{
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+  const changeAnswerText = (id, text) => {
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     setAnswers(prevState =>
       prevState.map(el => {
-        return el.id === id ? { ...el, text } : el
+        return el.id === id ? {...el, text} : el
       })
     )
   }
 
   const changeAnswerChecked = (id, correct) => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     setAnswers(prevState =>
       prevState.map(el => {
-        return el.id === id ? { ...el, correct } : el
+        return el.id === id ? {...el, correct} : el
       })
-    )}
+    )
+  }
 
   const deleteAnswer = id => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     setAnswers(prevState => prevState.filter(el => el.id !== id))
   }
 
   //OrderQuestion function
   useEffect(() => {
-    if (orderAnswers && orderAnswers.length > 0) {
+    if(orderAnswers && orderAnswers.length > 0) {
 
-      orderAnswers.sort((a,b) => a.position < b.position ? -1 : 1)
+      orderAnswers.sort((a, b) => a.position < b.position ? -1 : 1)
 
-      const orderAnswersMapped = orderAnswers.reduce((acc,answer) => {
+      const orderAnswersMapped = orderAnswers.reduce((acc, answer) => {
         const answerData = {
           ...answer,
           changeOrderAnswerText: text => changeOrderAnswerText(answer.position, text),
@@ -351,13 +366,15 @@ function QuestionNewData({
         }
         acc.push(answerData)
         return acc
-      },[])
+      }, [])
       setOrderAnswers(orderAnswersMapped)
     }
-  },[])
+  }, [])
 
   const addNewOrderAnswer = () => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     const orderAnswer = {
       position: orderAnswerPos,
       text: '',
@@ -366,28 +383,32 @@ function QuestionNewData({
     }
     const positions = orderAnswersColumn.answersPositions
     const newPositions = positions.concat(orderAnswerPos)
-    setOrderAnswersColumn( prevState => ({
+    setOrderAnswersColumn(prevState => ({
       ...prevState,
       answersPositions: newPositions
     }))
     setOrderAnswers(prevOrderAnswers => prevOrderAnswers.concat(orderAnswer))
-    setOrderAnswerPos(prevOrderAnswerPos => prevOrderAnswerPos+1)
+    setOrderAnswerPos(prevOrderAnswerPos => prevOrderAnswerPos + 1)
   }
 
   const changeOrderAnswerText = (position, text) => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     setOrderAnswers(prevState =>
       prevState.map(el => {
-        return el.position === position ? { ...el, text } : el
+        return el.position === position ? {...el, text} : el
       })
     )
   }
 
   const deleteOrderAnswer = position => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
-    setOrderAnswersColumn( prevState => ({
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
+    setOrderAnswersColumn(prevState => ({
       ...prevState,
-      answersPositions: prevState.answersPositions.filter(el=>el!==position)
+      answersPositions: prevState.answersPositions.filter(el => el !== position)
     }))
     setOrderAnswers(prevState => prevState.filter(el => el.position !== position))
   }
@@ -414,9 +435,9 @@ function QuestionNewData({
 
   //MatchQuestion function
   useEffect(() => {
-    if (question && question.matchPairs ) {
-      question.matchPairs.sort((a,b) => a.position < b.position ? -1 : 1)
-      const matchAnswersAdapted = question.matchPairs.reduce((acc,pair) => {
+    if(question && question.matchPairs) {
+      question.matchPairs.sort((a, b) => a.position < b.position ? -1 : 1)
+      const matchAnswersAdapted = question.matchPairs.reduce((acc, pair) => {
         const answer = {
           id: pair.position,
           text: pair.answer,
@@ -424,94 +445,127 @@ function QuestionNewData({
         }
         acc.push(answer)
         return acc
-      },[]).map(answer => answer.id === question.matchPairs.find(pair => pair.answer === answer.text).position ? answer : {...answer,text:''})
+      }, []).map(answer => answer.id === question.matchPairs.find(pair => pair.answer === answer.text).position ? answer : {
+        ...answer,
+        text: ''
+      })
 
-      const matchPairsAdapted = question.matchPairs.reduce((acc,pair) => {
+      const matchPairsAdapted = question.matchPairs.reduce((acc, pair) => {
         const pairAdapted = {
           position: pair.position,
           promptText: pair.prompt,
           answerId: matchAnswersAdapted.find(answer => answer.text === pair.answer).id,
-          changePromptText: text => changePromptText(pair.position,text),
+          changePromptText: text => changePromptText(pair.position, text),
           changePairAnswer: answerId => changePairAnswer(pair.position, answerId),
           deletePair: () => deletePair(pair.position)
         }
         acc.push(pairAdapted)
         return acc
-      },[])
+      }, [])
 
       setMatchAnswers(matchAnswersAdapted)
       setMatchPairs(matchPairsAdapted)
       setMatchAnswerId(matchAnswersAdapted.length)
       setMatchPairPos(matchPairsAdapted.length)
     }
-  },[])
+  }, [])
 
   const addNewPair = () => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     const answer = {
       id: matchAnswerId,
       text: '',
-      changeMatchAnswerText: text => changeMatchAnswerText(matchAnswerId,text),
+      changeMatchAnswerText: text => changeMatchAnswerText(matchAnswerId, text),
     }
-    setMatchAnswerId(prevVal => prevVal+1)
+    setMatchAnswerId(prevVal => prevVal + 1)
     setMatchAnswers(prevState => prevState.concat(answer))
 
     const pair = {
       position: matchPairPos,
       promptText: '',
       answerId: matchAnswerId,
-      changePromptText: text => changePromptText(matchPairPos,text),
-      changePairAnswer: answerId => changePairAnswer(matchPairPos,answerId),
+      changePromptText: text => changePromptText(matchPairPos, text),
+      changePairAnswer: answerId => changePairAnswer(matchPairPos, answerId),
       deletePair: () => deletePair(matchPairPos)
     }
-    setMatchPairPos(prevVal => prevVal+1)
+    setMatchPairPos(prevVal => prevVal + 1)
     setMatchPairs(prevState => prevState.concat(pair))
   }
 
   const changeMatchAnswerText = (id, text) => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     setMatchAnswers(prevState =>
-      prevState.map(answer => {return answer.id === id ? {...answer,text } : answer}))
+      prevState.map(answer => {
+        return answer.id === id ? {...answer, text} : answer
+      }))
   }
 
   const changePromptText = (position, promptText) => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     setMatchPairs(prevState =>
-      prevState.map(pair => {return pair.position === position ? {...pair,promptText} : pair}))
+      prevState.map(pair => {
+        return pair.position === position ? {...pair, promptText} : pair
+      }))
   }
 
   const changePairAnswer = (pairPos, answerId) => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     setMatchPairs(prevState =>
-      prevState.map(pair => {return pair.position === pairPos ? {...pair,answerId} : pair})
+      prevState.map(pair => {
+        return pair.position === pairPos ? {...pair, answerId} : pair
+      })
     )
   }
 
   const deletePair = (position) => {
-    setShowWarning(prevState => {return ({...prevState, answers: ''})})
+    setShowWarning(prevState => {
+      return ({...prevState, answers: ''})
+    })
     setMatchAnswers(prevState => prevState.filter(answer => answer.position !== position))
     setMatchPairs(prevState => prevState.filter(pair => pair.position !== position))
   }
 
   const validateOnSubmit = () => {
-    setShowWarning(prevState => {return ({...prevState, title: checkTextNotEmpty(title,'Title')})})
-    setShowWarning(prevState => {return ({...prevState, question: checkTextNotEmpty(questionText,'Question')})})
+    setShowWarning(prevState => {
+      return ({...prevState, title: checkTextNotEmpty(title, 'Title')})
+    })
+    setShowWarning(prevState => {
+      return ({...prevState, question: checkTextNotEmpty(questionText, 'Question')})
+    })
 
-    switch (questionType) {
+    switch(questionType) {
       case QuestionTypesEnums.multiple.id:
-        setShowWarning(prevState => {return ({...prevState, answers: checkAnswers(answers)})})
+        setShowWarning(prevState => {
+          return ({...prevState, answers: checkAnswers(answers)})
+        })
         break
       case QuestionTypesEnums.essay.id:
-        setShowWarning(prevState => {return ({...prevState, answers: 'ok'})})
+        setShowWarning(prevState => {
+          return ({...prevState, answers: 'ok'})
+        })
         break
       case QuestionTypesEnums.open.id:
-        setShowWarning(prevState => {return ({...prevState, answers: checkTextNotEmpty(regexp, 'Answer')})})
+        setShowWarning(prevState => {
+          return ({...prevState, answers: checkTextNotEmpty(regexp, 'Answer')})
+        })
         break
       case QuestionTypesEnums.ordering.id:
-        setShowWarning(prevState => {return ({...prevState, answers: checkAnswers(orderAnswers)})})
+        setShowWarning(prevState => {
+          return ({...prevState, answers: checkAnswers(orderAnswers)})
+        })
         break
       case QuestionTypesEnums.matching.id:
-        setShowWarning(prevState => {return ({...prevState, answers: checkPairs(matchPairs,matchAnswers)})})
+        setShowWarning(prevState => {
+          return ({...prevState, answers: checkPairs(matchPairs, matchAnswers)})
+        })
         break
       default:
         break
@@ -521,18 +575,18 @@ function QuestionNewData({
   const formSubmitHandler = () => {
     const questionToSubmit = {
       name: title,
-      text: `\"\"${questionText}\"\"`,
-      ofTopic: topic ? [topic] : [],
+      text: `\"\"${ questionText }\"\"`,
+      ofTopic: topic ? [ topic ] : [],
       courseInstance: courseInstanceId,
     }
-    if (question && question.id) {
+    if(question && question.id) {
       questionToSubmit.previous = question.id
     }
 
-    if (questionType === QuestionTypesEnums.multiple.id) {
+    if(questionType === QuestionTypesEnums.multiple.id) {
       const hasAnswer = answers.reduce((accumulator, answer, answerIndex) => {
-        const { correct, text } = answer
-        if (
+        const {correct, text} = answer
+        if(
           Number.isInteger(answerIndex) &&
           (correct === true || correct === false) &&
           (typeof text === 'string' || text instanceof String)
@@ -551,7 +605,7 @@ function QuestionNewData({
 
       axios
         .post(
-          `${API_URL}/questionWithPredefinedAnswer`,
+          `${ API_URL }/questionWithPredefinedAnswer`,
           JSON.stringify(questionToSubmit),
           {
             headers: {
@@ -561,59 +615,59 @@ function QuestionNewData({
             },
           }
         )
-        .then(({ status: statusQuestionAssignment }) => {
-          if (statusQuestionAssignment === 200) {
+        .then(({status: statusQuestionAssignment}) => {
+          if(statusQuestionAssignment === 200) {
             history.push(
-              `/courses/${courseInstanceId.substring(
+              `/courses/${ courseInstanceId.substring(
                 courseInstanceId.lastIndexOf('/') + 1
-              )}/quiz/questionGroups`
+              ) }/quiz/questionGroups`
             )
           }
         })
         .catch(error => console.log(error))
     }
-    if (questionType === QuestionTypesEnums.open.id) {
+    if(questionType === QuestionTypesEnums.open.id) {
       questionToSubmit.regexp = regexp
       axios
-        .post(`${API_URL}/openQuestion`, JSON.stringify(questionToSubmit), {
+        .post(`${ API_URL }/openQuestion`, JSON.stringify(questionToSubmit), {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
             Authorization: token,
           },
         })
-        .then(({ status: statusQuestionAssignment }) => {
-          if (statusQuestionAssignment === 200) {
+        .then(({status: statusQuestionAssignment}) => {
+          if(statusQuestionAssignment === 200) {
             history.push(
-              `/courses/${courseInstanceId.substring(
+              `/courses/${ courseInstanceId.substring(
                 courseInstanceId.lastIndexOf('/') + 1
-              )}/quiz/questionGroups`
+              ) }/quiz/questionGroups`
             )
           }
         })
         .catch(error => console.log(error))
     }
-    if (questionType === QuestionTypesEnums.essay.id) {
+    if(questionType === QuestionTypesEnums.essay.id) {
       axios
-        .post(`${API_URL}/essayQuestion`,JSON.stringify(questionToSubmit), {
+        .post(`${ API_URL }/essayQuestion`, JSON.stringify(questionToSubmit), {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
             Authorization: token,
-        },
-      })
-      .then (({ status: statusQuestionAssignment }) => {
-        if (statusQuestionAssignment === 200) {
-          history.push(
-            `/courses/${courseInstanceId.substring(
-              courseInstanceId.lastIndexOf('/') + 1
-            )}/quiz/questionGroups`
-          )
-        }
-      })
-      .catch(error => console.log(error))
+          },
+        })
+        .then(({status: statusQuestionAssignment}) => {
+          if(statusQuestionAssignment === 200) {
+            history.push(
+              `/courses/${ courseInstanceId.substring(
+                courseInstanceId.lastIndexOf('/') + 1
+              ) }/quiz/questionGroups`
+            )
+          }
+        })
+        .catch(error => console.log(error))
     }
-    if (questionType === QuestionTypesEnums.ordering.id) {
+    if(questionType === QuestionTypesEnums.ordering.id) {
       const answersMapped = orderAnswersColumn.answersPositions.map(position => orderAnswers[position])
       let pos = 0
       questionToSubmit.hasAnswer = answersMapped.reduce((acc, answer) => {
@@ -628,45 +682,8 @@ function QuestionNewData({
       }, [])
 
       axios
-      .post(
-        `${API_URL}/orderingQuestion`,
-        JSON.stringify(questionToSubmit),
-        {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-        }
-      )
-      .then(({ status: statusQuestionAssignment }) => {
-        if (statusQuestionAssignment === 200) {
-          history.push(
-            `/courses/${courseInstanceId.substring(
-              courseInstanceId.lastIndexOf('/') + 1
-            )}/quiz/questionGroups`
-          )
-        }
-      })
-      .catch(error => console.log(error))
-    }
-    if (questionType === QuestionTypesEnums.matching.id) {
-      let pos = 0
-      questionToSubmit.hasAnswer = matchPairs.reduce((acc,pair) => {
-        const pairData = {
-          type: 'matchPair',
-          position: pair.position,
-          prompt: pair.promptText,
-          answer: matchAnswers.find(a => a.position === pair.answerPos).text,
-        }
-        pos++
-        acc.push(pairData)
-        return acc
-      },[])
-
-      axios
         .post(
-          `${API_URL}/matchQuestion`,
+          `${ API_URL }/orderingQuestion`,
           JSON.stringify(questionToSubmit),
           {
             headers: {
@@ -676,12 +693,49 @@ function QuestionNewData({
             },
           }
         )
-        .then(({ status: statusQuestionAssignment }) => {
-          if (statusQuestionAssignment === 200) {
+        .then(({status: statusQuestionAssignment}) => {
+          if(statusQuestionAssignment === 200) {
             history.push(
-              `/courses/${courseInstanceId.substring(
+              `/courses/${ courseInstanceId.substring(
                 courseInstanceId.lastIndexOf('/') + 1
-              )}/quiz/questionGroups`
+              ) }/quiz/questionGroups`
+            )
+          }
+        })
+        .catch(error => console.log(error))
+    }
+    if(questionType === QuestionTypesEnums.matching.id) {
+      let pos = 0
+      questionToSubmit.hasAnswer = matchPairs.reduce((acc, pair) => {
+        const pairData = {
+          type: 'matchPair',
+          position: pair.position,
+          prompt: pair.promptText,
+          answer: matchAnswers.find(a => a.position === pair.answerPos).text,
+        }
+        pos++
+        acc.push(pairData)
+        return acc
+      }, [])
+
+      axios
+        .post(
+          `${ API_URL }/matchQuestion`,
+          JSON.stringify(questionToSubmit),
+          {
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: token,
+            },
+          }
+        )
+        .then(({status: statusQuestionAssignment}) => {
+          if(statusQuestionAssignment === 200) {
+            history.push(
+              `/courses/${ courseInstanceId.substring(
+                courseInstanceId.lastIndexOf('/') + 1
+              ) }/quiz/questionGroups`
             )
           }
         })
@@ -690,71 +744,71 @@ function QuestionNewData({
   }
   return (
     <QuestionNew
-      header={() => (
+      header={ () => (
         <>
-          {question ? (
-            <h2>{enText['new-question-version']}</h2>
+          { question ? (
+            <h2>{ enText['new-question-version'] }</h2>
           ) : (
-            <h2>{enText['new-question']}</h2>
-          )}
+            <h2>{ enText['new-question'] }</h2>
+          ) }
         </>
-      )}
-      title={title}
-      setTitle={setTitle}
-      question={questionText}
-      setQuestion={setQuestion}
-      topic={topic}
-      setTopic={setTopic}
-      topicOptions={topicOptions}
-      questionType={questionType}
-      questionTypeOptions={questionTypeOptions}
-      setQuestionType={setQuestionType}
-      setRegexp={setRegexp}
-      setRegexpUserAnswer={setRegexpUserAnswer}
-      answers={answers}
-      regexp={regexp}
-      regexpUserAnswer={regexpUserAnswer}
-      addNewAnswer={addNewAnswer}
+      ) }
+      title={ title }
+      setTitle={ setTitle }
+      question={ questionText }
+      setQuestion={ setQuestion }
+      topic={ topic }
+      setTopic={ setTopic }
+      topicOptions={ topicOptions }
+      questionType={ questionType }
+      questionTypeOptions={ questionTypeOptions }
+      setQuestionType={ setQuestionType }
+      setRegexp={ setRegexp }
+      setRegexpUserAnswer={ setRegexpUserAnswer }
+      answers={ answers }
+      regexp={ regexp }
+      regexpUserAnswer={ regexpUserAnswer }
+      addNewAnswer={ addNewAnswer }
       //OrderingQuestion
-      orderAnswers={orderAnswers}
-      orderAnswersColumn={orderAnswersColumn}
-      addNewOrderAnswer={addNewOrderAnswer}
-      setShowWarning={setShowWarning}
-      setOrderAnswersColumn={setOrderAnswersColumn}
+      orderAnswers={ orderAnswers }
+      orderAnswersColumn={ orderAnswersColumn }
+      addNewOrderAnswer={ addNewOrderAnswer }
+      setShowWarning={ setShowWarning }
+      setOrderAnswersColumn={ setOrderAnswersColumn }
       //MatchingQuestion
-      matchAnswers = {matchAnswers}
-      matchPairs = {matchPairs}
-      addNewPair = {addNewPair}
-      showWarning={showWarning}
-      formSubmitHandler={formSubmitHandler}
+      matchAnswers={ matchAnswers }
+      matchPairs={ matchPairs }
+      addNewPair={ addNewPair }
+      showWarning={ showWarning }
+      formSubmitHandler={ formSubmitHandler }
     >
       <WarningMessage
-        text = {showWarning.answers}
-        isOpen = {showWarning.answers}
+        text={ showWarning.answers }
+        isOpen={ showWarning.answers }
       />
 
       <Button
         className="mt-3"
         color="success"
-        onClick={validateOnSubmit}
+        onClick={ validateOnSubmit }
       >
-        {creatingNewQuestionInChain
+        { creatingNewQuestionInChain
           ? enText['create-new-question-version']
-          : enText['create-question']}
+          : enText['create-question'] }
       </Button>
 
-      <Modal isOpen={modal} toggle={toggleModal}>
+      <Modal isOpen={ modal } toggle={ toggleModal }>
         <ModalHeader>
-            No correct answer
+          No correct answer
         </ModalHeader>
         <ModalBody>
           Do you want to create this question with no correct answer?
         </ModalBody>
         <ModalFooter>
-          <Button color="success" onClick={formSubmitHandler}>
+          <Button color="success" onClick={ formSubmitHandler }>
             Yes
           </Button>
-          <Button color="danger" onClick={handleCloseModal}>
+          <Button color="danger" onClick={ handleCloseModal }>
             No
           </Button>
         </ModalFooter>

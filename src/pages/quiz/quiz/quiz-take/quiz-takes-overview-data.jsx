@@ -11,7 +11,8 @@ import { setAnswers, setExistingUserAnswers } from '../../common/functions/answe
 import { Alert } from '@material-ui/lab'
 import { QuestionTypesEnums } from '../../common/functions/type-enums'
 
-function QuizTakesOverviewData({courseInstanceId,
+function QuizTakesOverviewData({
+                                 courseInstanceId,
                                  userId,
                                  isTeacher,
                                  token,
@@ -23,19 +24,19 @@ function QuizTakesOverviewData({courseInstanceId,
   const quizAssignmentId = match.params.quizAssignmentId
   const quizAssignmentType = location.state.quizAssignmentType
   const quizAssignmentFullId = location.state.quizAssignmentFullId
-  const [loading, setLoading] = useState(true)
+  const [ loading, setLoading ] = useState(true)
 
-  const [quizTakesData, setQuizTakesData] = useState([])
-  const [quizAssignmentData, setQuizAssignmentData] = useState({})
+  const [ quizTakesData, setQuizTakesData ] = useState([])
+  const [ quizAssignmentData, setQuizAssignmentData ] = useState({})
 
   useEffect(() => {
 
-    const getData = async () => {
+    const getData = async() => {
       return await getQuizAssignmentInfo(quizAssignmentType, quizAssignmentId)
     }
 
 
-    if (location.state.quizTakesData === undefined) {
+    if(location.state.quizTakesData === undefined) {
       getData().then(r => setQuizAssignmentData(r))
       getQuizTakes().then(result => {
         setQuizTakesData(result)
@@ -47,19 +48,19 @@ function QuizTakesOverviewData({courseInstanceId,
       setLoading(false)
     }
 
-  },[location])
+  }, [ location ])
 
 
   async function getQuizTakes() {
     return await axiosGetEntities(`quizTake/?_join=orderedQuestion,createdBy`)
-      .then( async (response) => {
+      .then(async(response) => {
         const data = getResponseBody(response)
         const quizTakes = data
           .filter(qT => qT.quizAssignment.length > 0 &&
             qT.quizAssignment[0]['@id'] === quizAssignmentFullId &&
             qT.submittedDate
           )
-        if (quizTakes.length > 0) return await quizTakes.reduce(async (acc, quizTake) => {
+        if(quizTakes.length > 0) return await quizTakes.reduce(async(acc, quizTake) => {
           const currentAcc = await acc
           const quizTakeCompleteQuestions = await getQuizQuestions(quizTake.orderedQuestion)
           currentAcc.push({
@@ -74,10 +75,10 @@ function QuizTakesOverviewData({courseInstanceId,
   }
 
   async function getQuizQuestions(questionsRaw) {
-    return await questionsRaw.reduce(async (acc, orderedQuestion) => {
+    return await questionsRaw.reduce(async(acc, orderedQuestion) => {
       const currentAcc = await acc
-      await axiosGetEntities(`question/${getShortID(orderedQuestion.question)}?_join=hasAnswer`)
-        .then(async (response) => {
+      await axiosGetEntities(`question/${ getShortID(orderedQuestion.question) }?_join=hasAnswer`)
+        .then(async(response) => {
           const questionData = getResponseBody(response)[0]
           const question = {
             id: questionData['@id'],
@@ -102,7 +103,7 @@ function QuizTakesOverviewData({courseInstanceId,
   const handleOpenQuizTake = (quizTake) => {
     const quizTakeId = getShortID(quizTake['@id'])
     history.push({
-      pathname: `/courses/${match.params.courseId}/quiz/quizTakeReview/${quizTakeId}`,
+      pathname: `/courses/${ match.params.courseId }/quiz/quizTakeReview/${ quizTakeId }`,
       state: {
         quizTakesData: quizTakesData,
         quizTake: quizTake,
@@ -115,31 +116,31 @@ function QuizTakesOverviewData({courseInstanceId,
 
 
   return (
-    <ThemeProvider theme={customTheme}>
+    <ThemeProvider theme={ customTheme }>
       <Box>
-        {loading ?
-          <div style={{ marginTop: 20 }}>
-            <Alert severity='success' icon={false}>
+        { loading ?
+          <div style={ {marginTop: 20} }>
+            <Alert severity='success' icon={ false }>
               Loading...
             </Alert>
           </div>
           :
-          quizTakesData && <Paper variant='outlined' style={{ border: `0px solid ${green[100]}`}}>
-            <Grid container direction='column' spacing={1}>
+          quizTakesData && <Paper variant='outlined' style={ {border: `0px solid ${ green[100] }`} }>
+            <Grid container direction='column' spacing={ 1 }>
               <Grid item>
-                <h3 style={{ fontSize: 25 }}>Quiz assignment: </h3>
+                <h3 style={ {fontSize: 25} }>Quiz assignment: </h3>
               </Grid>
               <Grid item>
-                <h3 style={{ fontWeight: 'normal', fontSize: 25 }}>{quizAssignmentData.title}</h3>
+                <h3 style={ {fontWeight: 'normal', fontSize: 25} }>{ quizAssignmentData.title }</h3>
               </Grid>
             </Grid>
             <QuizTakesOverview
-              quizTakes={quizTakesData}
-              handleOpenQuizTake={handleOpenQuizTake}
-              containsEssay={quizTakesData.find(quizTake => !!quizTake.reviewedDate && quizTake.orderedQuestion
-                .some(ordQuestion => ordQuestion.question.questionType === QuestionTypesEnums.essay.id))}
+              quizTakes={ quizTakesData }
+              handleOpenQuizTake={ handleOpenQuizTake }
+              containsEssay={ quizTakesData.find(quizTake => !!quizTake.reviewedDate && quizTake.orderedQuestion
+                .some(ordQuestion => ordQuestion.question.questionType === QuestionTypesEnums.essay.id)) }
             />
-          </Paper>}
+          </Paper> }
       </Box>
     </ThemeProvider>
   )

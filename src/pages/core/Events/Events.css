@@ -10,7 +10,7 @@
 }
 
 .block-menu-item {
-  background-color: rgba(0,0,0,.03);
+  background-color: rgba(0, 0, 0, .03);
   font-weight: bold;
   margin-bottom: 2px;
 
@@ -174,11 +174,11 @@ a.active-scrolllink-item {
 }
 
 .event-card-header.card-header, .event-card-header-flex.card-header, .course-card-header.card-header {
-  background-color: rgba(0,0,0,.03);
+  background-color: rgba(0, 0, 0, .03);
 }
 
 .event-card.card {
-  border-color: rgba(0,0,0,.125);
+  border-color: rgba(0, 0, 0, .125);
 }
 
 @media only screen and (max-width: 700px) {

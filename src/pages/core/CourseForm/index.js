@@ -1,13 +1,13 @@
-import React, {Component} from 'react'
-import {Button, Form, FormGroup, Input, Label} from 'reactstrap'
+import React, { Component } from 'react'
+import { Button, Form, FormGroup, Input, Label } from 'reactstrap'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import './CourseForm.css'
-import {axiosRequest, getData} from '../AxiosRequests'
-import {BASE_URL, COURSE_URL, INITIAL_COURSE_STATE, USER_URL,} from '../constants'
-import {getShortId} from '../Helper'
-import {Redirect} from 'react-router-dom'
-import {connect} from 'react-redux'
+import { axiosRequest, getData } from '../AxiosRequests'
+import { BASE_URL, COURSE_URL, INITIAL_COURSE_STATE, USER_URL, } from '../constants'
+import { getShortId } from '../Helper'
+import { Redirect } from 'react-router-dom'
+import { connect } from 'react-redux'
 
 class CourseForm extends Component {
   constructor(props) {
@@ -27,7 +27,7 @@ class CourseForm extends Component {
     let url = BASE_URL + COURSE_URL
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
-      if (data != null) {
+      if(data != null) {
         const courses = data.map(course => {
           return {
             fullId: course['@id'],
@@ -43,13 +43,13 @@ class CourseForm extends Component {
     url = BASE_URL + USER_URL
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
-      if (data != null) {
+      if(data != null) {
         const users = data.map(user => {
           return {
             fullId: user['@id'],
             name:
               user.firstName !== '' && user.lastName !== ''
-                ? `${user.firstName} ${user.lastName}`
+                ? `${ user.firstName } ${ user.lastName }`
                 : 'Noname',
           }
         })
@@ -61,7 +61,7 @@ class CourseForm extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.name !== this.props.name) {
+    if(prevProps.name !== this.props.name) {
       this.setState({...this.props})
     }
   }
@@ -78,7 +78,7 @@ class CourseForm extends Component {
     const {typeOfForm} = this.props
 
     const errors = this.validate(name, description, abbreviation)
-    if (errors.length > 0) {
+    if(errors.length > 0) {
       this.setState({errors})
       event.preventDefault()
       return
@@ -95,8 +95,8 @@ class CourseForm extends Component {
     let url = BASE_URL + COURSE_URL
     let method = 'post'
 
-    if (typeOfForm === 'Edit') {
-      url += `/${id}`
+    if(typeOfForm === 'Edit') {
+      url += `/${ id }`
       method = 'patch'
     }
 
@@ -111,16 +111,16 @@ class CourseForm extends Component {
       },
       url
     ).then(response => {
-      if (response && response.status === 200) {
+      if(response && response.status === 200) {
         let newUrl
-        if (typeOfForm === 'Create') {
+        if(typeOfForm === 'Create') {
           const newCourseId = getShortId(response.data.resource.iri)
           newUrl = {
-            pathname: `/newcourseinstance/${newCourseId}`,
+            pathname: `/newcourseinstance/${ newCourseId }`,
             state: {courseName: name},
           }
         } else {
-          newUrl = `/course/${id}`
+          newUrl = `/course/${ id }`
         }
         this.setState({
           redirect: newUrl,
@@ -139,13 +139,13 @@ class CourseForm extends Component {
 
   validate = (name, description, abbreviation) => {
     const errors = []
-    if (name.length === 0) {
+    if(name.length === 0) {
       errors.push("Name can't be empty.")
     }
-    if (description.length === 0) {
+    if(description.length === 0) {
       errors.push("Description can't be empty.")
     }
-    if (abbreviation.length === 0) {
+    if(abbreviation.length === 0) {
       errors.push("Abbreviation can't be empty.")
     }
     return errors
@@ -177,17 +177,17 @@ class CourseForm extends Component {
     } = this.state
     const {typeOfForm, user} = this.props
 
-    if (redirect) {
-      return <Redirect to={redirect}/>
+    if(redirect) {
+      return <Redirect to={ redirect }/>
     }
 
     const isInvalid = name === '' || description === '' || abbreviation === ''
     return (
       <>
-        {errors.map(error => (
-          <p key={error}>Error: {error}</p>
-        ))}
-        <Form className="new-course-form" onSubmit={this.onSubmit}>
+        { errors.map(error => (
+          <p key={ error }>Error: { error }</p>
+        )) }
+        <Form className="new-course-form" onSubmit={ this.onSubmit }>
           <FormGroup>
             <Label for="name" className="form-label-subtitle">
               Name *
@@ -195,8 +195,8 @@ class CourseForm extends Component {
             <Input
               name="name"
               id="name"
-              value={name}
-              onChange={this.onChange}
+              value={ name }
+              onChange={ this.onChange }
               type="text"
               className="form-input"
             />
@@ -206,8 +206,8 @@ class CourseForm extends Component {
             <Input
               name="abbreviation"
               id="abbreviation"
-              value={abbreviation}
-              onChange={this.onChange}
+              value={ abbreviation }
+              onChange={ this.onChange }
               type="text"
               className="form-input"
             />
@@ -217,8 +217,8 @@ class CourseForm extends Component {
             <Input
               name="description"
               id="description"
-              value={description}
-              onChange={this.onChange}
+              value={ description }
+              onChange={ this.onChange }
               type="textarea"
               className="form-input"
             />
@@ -231,21 +231,21 @@ class CourseForm extends Component {
               multiple
               name="prerequisites"
               id="prerequisites"
-              options={courses}
-              getOptionLabel={option => option.name}
-              value={prerequisites}
-              onChange={this.onPrerequisitesChange}
-              style={{maxWidth: 700}}
-              renderInput={params => (
+              options={ courses }
+              getOptionLabel={ option => option.name }
+              value={ prerequisites }
+              onChange={ this.onPrerequisitesChange }
+              style={ {maxWidth: 700} }
+              renderInput={ params => (
                 <TextField
-                  {...params}
+                  { ...params }
                   placeholder=""
-                  InputProps={{...params.InputProps, disableUnderline: true}}
+                  InputProps={ {...params.InputProps, disableUnderline: true} }
                 />
-              )}
+              ) }
               className="form-input"
             />
-            {user && user.isSuperAdmin && (
+            { user && user.isSuperAdmin && (
               <>
                 <Label for="admins" className="form-label-subtitle">
                   Admins
@@ -255,32 +255,32 @@ class CourseForm extends Component {
                   name="admins"
                   id="admins"
                   className="form-input"
-                  options={users}
-                  getOptionLabel={option => option.name}
-                  onChange={this.onAdminsChange}
-                  value={admins}
-                  style={{maxWidth: 700}}
-                  renderInput={params => (
+                  options={ users }
+                  getOptionLabel={ option => option.name }
+                  onChange={ this.onAdminsChange }
+                  value={ admins }
+                  style={ {maxWidth: 700} }
+                  renderInput={ params => (
                     <TextField
-                      {...params}
+                      { ...params }
                       placeholder=""
-                      InputProps={{
+                      InputProps={ {
                         ...params.InputProps,
                         disableUnderline: true,
-                      }}
+                      } }
                     />
-                  )}
+                  ) }
                 />
               </>
-            )}
+            ) }
           </FormGroup>
           <div className="button-container">
             <Button
-              disabled={isInvalid}
+              disabled={ isInvalid }
               type="submit"
               className="create-button"
             >
-              {typeOfForm}
+              { typeOfForm }
             </Button>
           </div>
         </Form>

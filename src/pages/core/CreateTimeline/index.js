@@ -1,32 +1,16 @@
 import React from 'react'
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Container,
-  Row,
-  Col,
-  ListGroup,
-  ListGroupItem,
-  Alert,
-} from 'reactstrap'
+import { Alert, Button, Card, CardBody, CardHeader, Col, Container, ListGroup, ListGroupItem, Row, } from 'reactstrap'
 import { connect } from 'react-redux'
 import Scroll from 'react-scroll'
 import EventForm from '../EventForm'
-import {
-  BASE_URL,
-  EVENT_URL,
-  INITIAL_EVENT_STATE,
-  BLOCK_URL,
-} from '../constants'
+import { BASE_URL, BLOCK_URL, EVENT_URL, INITIAL_EVENT_STATE, } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import {
+  addDays,
   getEvents,
   getNestedEvents,
   getTimelineBlocks,
   sortEventsFunction,
-  addDays,
 } from '../Timeline/timeline-helper'
 import { BlockMenuToggle } from '../Events'
 
@@ -49,7 +33,7 @@ class CreateTimeline extends React.Component {
 
   componentDidMount() {
     const {
-      match: { params },
+      match: {params},
     } = this.props
 
     this.setState({
@@ -60,25 +44,25 @@ class CreateTimeline extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevState.courseId !== this.state.courseId) {
+    if(prevState.courseId !== this.state.courseId) {
       this.getBlockMenu()
     }
   }
 
   getBlockMenu = () => {
-    const { courseId } = this.state
+    const {courseId} = this.state
 
-    if (courseId !== '') {
+    if(courseId !== '') {
       const url = `${
         BASE_URL + EVENT_URL
-      }?courseInstance=${courseId}&_join=courseInstance,uses,recommends`
+      }?courseInstance=${ courseId }&_join=courseInstance,uses,recommends`
 
       axiosRequest('get', null, url).then(response => {
         const data = getData(response)
         this.setState({
           loading: false,
         })
-        if (data != null && data !== []) {
+        if(data != null && data !== []) {
           const events = getEvents(data).sort(sortEventsFunction)
 
           const timelineBlocks = getTimelineBlocks(events)
@@ -94,10 +78,10 @@ class CreateTimeline extends React.Component {
   }
 
   generateWeeklyBlocks = () => {
-    const { course } = this.props
+    const {course} = this.props
     const blocks = []
 
-    if (course) {
+    if(course) {
       const courseStartDate = new Date(course.startDate)
       const courseEndDate = new Date(course.endDate)
 
@@ -105,9 +89,9 @@ class CreateTimeline extends React.Component {
       let endDate = addDays(startDate, 7)
 
       let i = 1
-      if (startDate > courseStartDate) {
+      if(startDate > courseStartDate) {
         const block = {
-          name: `Week ${i}`,
+          name: `Week ${ i }`,
           desc: '...',
           startDate: courseStartDate,
           endDate: startDate,
@@ -116,9 +100,9 @@ class CreateTimeline extends React.Component {
         i++
       }
 
-      while (endDate < courseEndDate) {
+      while(endDate < courseEndDate) {
         const block = {
-          name: `Week ${i}`,
+          name: `Week ${ i }`,
           desc: '...',
           startDate,
           endDate,
@@ -129,9 +113,9 @@ class CreateTimeline extends React.Component {
         i++
       }
 
-      if (endDate > courseEndDate) {
+      if(endDate > courseEndDate) {
         const block = {
-          name: `Week ${i}`,
+          name: `Week ${ i }`,
           desc: '...',
           startDate,
           endDate: courseEndDate,
@@ -147,31 +131,31 @@ class CreateTimeline extends React.Component {
       disabled: true,
     })
 
-    const { course } = this.props
+    const {course} = this.props
     let errors = []
 
-    if (course) {
+    if(course) {
       const blocks = this.generateWeeklyBlocks()
 
-      for (let i = 0; i < blocks.length; i++) {
+      for(let i = 0; i < blocks.length; i++) {
         const block = blocks[i]
         block.courseInstance = course['@id']
         const url = BASE_URL + BLOCK_URL
         axiosRequest('post', {...block}, url)
           .then(response => {
-            if (response && response.status === 200) {
+            if(response && response.status === 200) {
             } else {
               errors.push(
-                `There was a problem with server while posting ${block.name}`
+                `There was a problem with server while posting ${ block.name }`
               )
             }
-            if (i === blocks.length - 1) {
+            if(i === blocks.length - 1) {
               this.getBlockMenu()
             }
           })
           .catch()
       }
-      if (errors.length > 0) {
+      if(errors.length > 0) {
         console.log(errors)
       }
     }
@@ -183,10 +167,10 @@ class CreateTimeline extends React.Component {
   }
 
   onBlockMenuClick = eventId => {
-    const { nestedEvents } = this.state
+    const {nestedEvents} = this.state
     let event
 
-    if (eventId != null) {
+    if(eventId != null) {
       event = nestedEvents.filter(e => e.id === eventId)[0]
     } else {
       event = null
@@ -198,7 +182,7 @@ class CreateTimeline extends React.Component {
   }
 
   setSavedAlert = id => {
-    if (id === null) {
+    if(id === null) {
       this.setState({
         event: null,
       })
@@ -211,9 +195,9 @@ class CreateTimeline extends React.Component {
   }
 
   render() {
-    const { timelineBlocks, event, saved, disabled, loading } = this.state
+    const {timelineBlocks, event, saved, disabled, loading} = this.state
 
-    if (loading) {
+    if(loading) {
       return (
         <Alert color="secondary" className="empty-message">
           Loading...
@@ -227,62 +211,62 @@ class CreateTimeline extends React.Component {
           <Row className="timeline-row">
             <Col xs="3" className="create-timeline-left-col">
               <BlockMenu
-                courseEvents={timelineBlocks}
-                onClick={this.onBlockMenuClick}
-                activeEvent={event}
+                courseEvents={ timelineBlocks }
+                onClick={ this.onBlockMenuClick }
+                activeEvent={ event }
               />
               <BlockMenuToggle
-                courseEvents={timelineBlocks}
-                onClick={this.onBlockMenuClick}
-                activeEvent={event}
-                scroll={false}
+                courseEvents={ timelineBlocks }
+                onClick={ this.onBlockMenuClick }
+                activeEvent={ event }
+                scroll={ false }
               />
-              {timelineBlocks.length === 0 && (
+              { timelineBlocks.length === 0 && (
                 <Button
                   className="timeline-block-button"
-                  disabled={disabled}
-                  onClick={this.postWeeklyBlocks}
+                  disabled={ disabled }
+                  onClick={ this.postWeeklyBlocks }
                 >
-                  {disabled ? 'Generatating...' : 'Generate Weekly Blocks'}
+                  { disabled ? 'Generatating...' : 'Generate Weekly Blocks' }
                 </Button>
-              )}
+              ) }
               <Button
                 className="timeline-block-button"
-                onClick={() => this.onBlockMenuClick(null)}
+                onClick={ () => this.onBlockMenuClick(null) }
               >
                 New Block
               </Button>
             </Col>
             <Col>
-              {saved && (
+              { saved && (
                 <Alert color="secondary">Event saved successfully!</Alert>
-              )}
+              ) }
               <Card className="event-card">
                 <CardHeader className="event-card-header">
-                  {event ? 'Edit Block' : 'New Event'}
+                  { event ? 'Edit Block' : 'New Event' }
                 </CardHeader>
                 <CardBody>
-                  {event ? (
+                  { event ? (
                     <EventForm
                       typeOfForm="Edit"
-                      {...event}
-                      options={[event.type]}
-                      callBack={this.setSavedAlert}
+                      { ...event }
+                      options={ [ event.type ] }
+                      callBack={ this.setSavedAlert }
                     />
                   ) : (
                     <EventForm
                       typeOfForm="Create"
-                      {...INITIAL_EVENT_STATE}
-                      options={[
+                      { ...INITIAL_EVENT_STATE }
+                      options={ [
                         'Block',
                         'Lab',
                         'Lecture',
                         'OralExam',
                         'TestTake',
-                      ]}
-                      callBack={this.setSavedAlert}
+                      ] }
+                      callBack={ this.setSavedAlert }
                     />
-                  )}
+                  ) }
                 </CardBody>
               </Card>
             </Col>
@@ -293,23 +277,23 @@ class CreateTimeline extends React.Component {
   }
 }
 
-const BlockMenu = ({ courseEvents, onClick, activeEvent }) => (
+const BlockMenu = ({courseEvents, onClick, activeEvent}) => (
   <ListGroup className="block-menu block-menu-non-toggle">
     <ListGroupItem className="timeline block-menu-item">Timeline</ListGroupItem>
-    {courseEvents.map(event => (
+    { courseEvents.map(event => (
       <ListGroupItem
-        id={event.id}
-        key={event.id}
+        id={ event.id }
+        key={ event.id }
         className={
           activeEvent && event.id === activeEvent.id
             ? 'block-menu-item block-menu-item-active'
             : 'block-menu-item'
         }
-        onClick={e => onClick(e.target.id)}
+        onClick={ e => onClick(e.target.id) }
       >
-        {event.name}
+        { event.name }
       </ListGroupItem>
-    ))}
+    )) }
   </ListGroup>
 )
 
@@ -322,7 +306,7 @@ const BlockMenu = ({ courseEvents, onClick, activeEvent }) => (
 // <Button className="new-event-button">Add Material</Button>
 // </div>
 
-const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
+const mapStateToProps = ({authReducer, courseInstanceReducer}) => {
   return {
     user: authReducer.user,
     course: courseInstanceReducer.courseInstance,

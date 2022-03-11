@@ -8,25 +8,27 @@ export class AnswerComponent extends Component {
       this.props.userChoice !== undefined
         ? this.props.userChoice
         : this.props.correct !== undefined
-        ? this.props.correct
-        : false;
+          ? this.props.correct
+          : false;
     this.state = {
       checkboxValue: checkboxValue
     };
   }
+
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.correct !== prevProps.correct) {
+    if(this.props.correct !== prevProps.correct) {
       const checkboxValue =
         this.props.userChoice !== undefined
           ? this.props.userChoice
           : this.props.correct !== undefined
-          ? this.props.correct
-          : false;
+            ? this.props.correct
+            : false;
       this.setState({
         checkboxValue: checkboxValue
       });
     }
   }
+
   render() {
     return (
       <div className="inline">
@@ -48,20 +50,20 @@ export class AnswerComponent extends Component {
                   addon
                   type="checkbox"
                   aria-label="Checkbox for following text input"
-                  name={this.props.checkboxName}
-                  checked={this.state.checkboxValue}
-                  onChange={this.props.onChange}
-                  readOnly={!this.props.isCheckboxEnabled}
+                  name={ this.props.checkboxName }
+                  checked={ this.state.checkboxValue }
+                  onChange={ this.props.onChange }
+                  readOnly={ !this.props.isCheckboxEnabled }
                 />
               </InputGroupText>
             </InputGroupAddon>
             <Input
-              name={this.props.name}
-              placeholder={this.props.placeholder}
-              value={this.props.value}
-              onChange={this.props.onChange}
-              valid={this.props.valid}
-              disabled={!this.props.isTextEnabled}
+              name={ this.props.name }
+              placeholder={ this.props.placeholder }
+              value={ this.props.value }
+              onChange={ this.props.onChange }
+              valid={ this.props.valid }
+              disabled={ !this.props.isTextEnabled }
             />
           </InputGroup>
         </Badge>

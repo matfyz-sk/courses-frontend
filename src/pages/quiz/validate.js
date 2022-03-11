@@ -17,8 +17,8 @@ const elementsAreRequired = value => {
 
 const validate = (value, rules) => {
   let isValid = true
-  for (const rule in rules) {
-    switch (rule) {
+  for(const rule in rules) {
+    switch(rule) {
       case 'minLength':
         isValid = isValid && minLengthValidator(value, rules[rule])
         break

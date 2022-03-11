@@ -7,7 +7,7 @@ const initialState = {
 }
 
 export default function privilegesReducer(state = initialState, action) {
-  switch (action.type) {
+  switch(action.type) {
     case PRIV_ACTIONS.SET_GLOBAL_PRIV:
       return {
         ...state,

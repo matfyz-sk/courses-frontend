@@ -10,13 +10,13 @@ const Dashboard = props => {
     <Container>
       <h1 className="mb-4">Dashboard</h1>
       <Row>
-        <Col sm={7}>
-          <MyInstructorCourses />
-          <MyCourses />
+        <Col sm={ 7 }>
+          <MyInstructorCourses/>
+          <MyCourses/>
         </Col>
-        <Col sm={5}>
-          <MyResults />
-          <MyTeams />
+        <Col sm={ 5 }>
+          <MyResults/>
+          <MyTeams/>
         </Col>
       </Row>
     </Container>

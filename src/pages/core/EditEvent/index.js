@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Card, CardHeader, CardBody, Alert } from 'reactstrap'
+import { Alert, Card, CardBody, CardHeader, Container } from 'reactstrap'
 import EventForm from '../EventForm'
 import { BASE_URL, EVENT_URL, INITIAL_EVENT_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
@@ -20,14 +20,14 @@ class EditEvent extends React.Component {
 
   componentDidMount() {
     const {
-      match: { params },
+      match: {params},
     } = this.props
 
     this.setState({
       courseId: params.course_id,
     })
 
-    const url = `${BASE_URL + EVENT_URL}/${
+    const url = `${ BASE_URL + EVENT_URL }/${
       params.event_id
     }?_join=hasInstructor,uses,recommends`
     axiosRequest('get', null, url).then(response => {
@@ -35,7 +35,7 @@ class EditEvent extends React.Component {
       this.setState({
         loading: false,
       })
-      if (data != null) {
+      if(data != null) {
         const event = data.map(eventData => {
           return {
             id: getShortId(eventData['@id']),
@@ -68,11 +68,11 @@ class EditEvent extends React.Component {
               : '',
             instructors: eventData.hasInstructor
               ? eventData.hasInstructor.map(instructor => {
-                  return {
-                    fullId: instructor['@id'],
-                    name: `${instructor.firstName} ${instructor.lastName}`,
-                  }
-                })
+                return {
+                  fullId: instructor['@id'],
+                  name: `${ instructor.firstName } ${ instructor.lastName }`,
+                }
+              })
               : [],
           }
         })[0]
@@ -81,7 +81,7 @@ class EditEvent extends React.Component {
           event,
         })
 
-        if (
+        if(
           event.courseInstance !== '' &&
           params.course_id !== getShortId(event.courseInstance)
         ) {
@@ -98,26 +98,26 @@ class EditEvent extends React.Component {
   }
 
   setRedirect = id => {
-    const { courseId } = this.state
-    if (id === null) {
+    const {courseId} = this.state
+    if(id === null) {
       this.setState({
-        redirect: `/courses/${courseId}/timeline`,
+        redirect: `/courses/${ courseId }/timeline`,
       })
     } else {
       this.setState({
-        redirect: `/courses/${courseId}/event/${id}`,
+        redirect: `/courses/${ courseId }/event/${ id }`,
       })
     }
   }
 
   render() {
-    const { event, redirect, loading } = this.state
+    const {event, redirect, loading} = this.state
 
-    if (redirect) {
-      return <Redirect to={redirect} />
+    if(redirect) {
+      return <Redirect to={ redirect }/>
     }
 
-    if (loading) {
+    if(loading) {
       return (
         <Alert color="secondary" className="empty-message">
           Loading...
@@ -133,9 +133,9 @@ class EditEvent extends React.Component {
             <CardBody className="form-cardbody">
               <EventForm
                 typeOfForm="Edit"
-                {...event}
-                options={[event.type]}
-                callBack={this.setRedirect}
+                { ...event }
+                options={ [ event.type ] }
+                callBack={ this.setRedirect }
               />
             </CardBody>
           </Card>

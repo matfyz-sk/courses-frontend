@@ -1,85 +1,85 @@
 @import "variables";
 
-.modal-customs{
-  max-width:900px;
+.modal-customs {
+  max-width: 900px;
 }
 
-.modal-customs-full{
+.modal-customs-full {
   max-width: none;
 }
 
-.row{
-  margin:0px;
+.row {
+  margin: 0px;
   display: flex;
   flex-wrap: wrap;
 }
 
-.center-hor{
+.center-hor {
   margin-top: auto;
   margin-bottom: auto;
 }
 
-.center-ver{
+.center-ver {
   margin-left: auto;
   margin-right: auto;
 }
 
-.no-border{
+.no-border {
   border-width: 0px;
 }
 
-.full-width{
-  width:100%
+.full-width {
+  width: 100%
 }
 
-.flex{
-  flex:1;
+.flex {
+  flex: 1;
 }
 
-.flex-row{
+.flex-row {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
 }
 
-.flex-column{
+.flex-column {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
-.clickable{
+.clickable {
   cursor: pointer;
 }
 
-.bold{
+.bold {
   font-weight: bold;
 }
 
-.bolder{
+.bolder {
   font-weight: bolder;
 }
 
-.error-style{
+.error-style {
   color: #ff1919;
   padding: 2px 10px;
   margin: 5px 0px;
   width: fit-content;
 }
 
-.small-alert{
+.small-alert {
   padding: 2px 10px;
   margin: 5px 0px;
   width: fit-content;
 }
 
-.form-check, .form-group{
-  label{
+.form-check, .form-group {
+  label {
     user-select: none;
   }
 }
 
-@for $value from 1 through 1000{
+@for $value from 1 through 1000 {
   //Margins
   .ml-#{$value} {
     margin-left: #{$value}px;
@@ -135,9 +135,18 @@ main {
   justify-content: left;
 }
 
-.pagination-wrapper {margin-top: 20px}
-.pagination {display: inline-flex}
-.pagination * {cursor: pointer}
+.pagination-wrapper {
+  margin-top: 20px
+}
+
+.pagination {
+  display: inline-flex
+}
+
+.pagination * {
+  cursor: pointer
+}
+
 .page-item.active .page-link {
   background-color: $green;
 }
@@ -151,22 +160,22 @@ main {
   border-radius: 50%;
 }
 
-.custom-slider{
-    padding: 10px 10px;
-    border: solid 1px #ced4da;
-    border-radius: .25rem;
-    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+.custom-slider {
+  padding: 10px 10px;
+  border: solid 1px #ced4da;
+  border-radius: .25rem;
+  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
-.rc-slider-track{
+.rc-slider-track {
   background-color: #1D661D !important;
 }
 
-.rc-slider-handle{
+.rc-slider-handle {
   border-color: #1D661D !important;
 }
 
-.word-wrapped-items{
+.word-wrapped-items {
   min-width: 100%;
   max-width: 300px;
   width: max-content;

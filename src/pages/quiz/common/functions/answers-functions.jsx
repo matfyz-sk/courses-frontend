@@ -2,13 +2,13 @@ import { QuestionTypesEnums } from './type-enums'
 import { shuffle } from './generation_functions'
 import { axiosGetEntities, getResponseBody, getShortID } from '../../../../helperFunctions'
 
-export function setAnswers (question, questionData) {
-  switch (question.questionType) {
+export function setAnswers(question, questionData) {
+  switch(question.questionType) {
     case QuestionTypesEnums.multiple.id:
       question.answers = questionData.hasAnswer.map(
         answer => {
-          const { correct, text, position } = answer
-          return { id: answer['@id'], correct, text, position }
+          const {correct, text, position} = answer
+          return {id: answer['@id'], correct, text, position}
         }
       )
       break
@@ -18,21 +18,25 @@ export function setAnswers (question, questionData) {
     case QuestionTypesEnums.essay.id:
       break
     case QuestionTypesEnums.ordering.id:
-      question.orderAnswers = questionData.hasAnswer.map (
+      question.orderAnswers = questionData.hasAnswer.map(
         answer => {
-          const { text, position } =
+          const {text, position} =
             answer
-          return {id: answer['@id'],
-            text, position }
+          return {
+            id: answer['@id'],
+            text, position
+          }
         }
       )
       break
     case QuestionTypesEnums.matching.id:
       question.matchPairs = questionData.hasAnswer.map(
         ans => {
-          const { prompt, answer, position } = ans
-          return {id: ans['@id'],
-            prompt, answer, position}
+          const {prompt, answer, position} = ans
+          return {
+            id: ans['@id'],
+            prompt, answer, position
+          }
         }
       )
       break
@@ -43,16 +47,16 @@ export function setAnswers (question, questionData) {
 }
 
 export function setUserAnswers(orderedQuestion) {
-  switch (orderedQuestion.question.questionType) {
+  switch(orderedQuestion.question.questionType) {
     case QuestionTypesEnums.multiple.id:
-      orderedQuestion.userAnswer = orderedQuestion.question.answers.reduce((acc,answer) => {
+      orderedQuestion.userAnswer = orderedQuestion.question.answers.reduce((acc, answer) => {
         acc.push({
           position: answer.position,
           predefinedAnswer: answer.id,
           userChoice: false,
         })
         return acc
-      },[])
+      }, [])
       orderedQuestion.answered = false
       break
     case QuestionTypesEnums.open.id:
@@ -64,26 +68,26 @@ export function setUserAnswers(orderedQuestion) {
       break
     case QuestionTypesEnums.ordering.id:
       let position = 0
-      orderedQuestion.userAnswer = shuffle(orderedQuestion.question.orderAnswers).reduce((acc,answer) => {
+      orderedQuestion.userAnswer = shuffle(orderedQuestion.question.orderAnswers).reduce((acc, answer) => {
         acc.push({
           orderingAnswer: answer.id,
           text: answer.text,
           userChoice: position,
         })
-        position+=1
+        position += 1
         return acc
-      },[])
+      }, [])
       orderedQuestion.answered = false
       break
     case QuestionTypesEnums.matching.id:
-      orderedQuestion.userAnswer = orderedQuestion.question.matchPairs.reduce((acc,pair) => {
+      orderedQuestion.userAnswer = orderedQuestion.question.matchPairs.reduce((acc, pair) => {
         acc.push({
           position: pair.position,
           matchPair: pair.id,
           userChoice: "",
         })
         return acc
-      },[])
+      }, [])
       orderedQuestion.answered = false
       break
     default:
@@ -95,16 +99,16 @@ export function setUserAnswers(orderedQuestion) {
 async function getUserAnswer(uA) {
   const userAnswerId = getShortID(uA)
   let userAnswer
-  await axiosGetEntities(`userAnswer/${userAnswerId}`)
+  await axiosGetEntities(`userAnswer/${ userAnswerId }`)
     .then(resp => userAnswer = getResponseBody(resp)[0])
     .catch(error => console.log(error))
   return userAnswer
 }
 
 export async function setExistingUserAnswers(orderedQuestion) {
-  switch (orderedQuestion.question.questionType) {
+  switch(orderedQuestion.question.questionType) {
     case QuestionTypesEnums.multiple.id:
-      orderedQuestion.userAnswer = await orderedQuestion.userAnswer.reduce( async(acc,uA) => {
+      orderedQuestion.userAnswer = await orderedQuestion.userAnswer.reduce(async(acc, uA) => {
         const currentAcc = await acc
         const uAData = await getUserAnswer(uA)
         currentAcc.push({
@@ -113,16 +117,18 @@ export async function setExistingUserAnswers(orderedQuestion) {
           userChoice: uAData.userChoice,
         })
         return currentAcc
-      },[]).then(result => {return result})
+      }, []).then(result => {
+        return result
+      })
       return await orderedQuestion
     case QuestionTypesEnums.open.id:
-       orderedQuestion.userAnswer = (await getUserAnswer(orderedQuestion.userAnswer)).text
+      orderedQuestion.userAnswer = (await getUserAnswer(orderedQuestion.userAnswer)).text
       return await orderedQuestion
     case QuestionTypesEnums.essay.id:
       orderedQuestion.userAnswer = (await getUserAnswer(orderedQuestion.userAnswer)).text
       return await orderedQuestion
     case QuestionTypesEnums.ordering.id:
-      orderedQuestion.userAnswer = await orderedQuestion.userAnswer.reduce( async(acc,uA) => {
+      orderedQuestion.userAnswer = await orderedQuestion.userAnswer.reduce(async(acc, uA) => {
         const currentAcc = await acc
         const uAData = await getUserAnswer(uA)
         currentAcc.push({
@@ -131,10 +137,12 @@ export async function setExistingUserAnswers(orderedQuestion) {
           userChoice: uAData.userChoice,
         })
         return currentAcc
-      },[]).then(result => {return result})
+      }, []).then(result => {
+        return result
+      })
       return await orderedQuestion
     case QuestionTypesEnums.matching.id:
-      orderedQuestion.userAnswer = await orderedQuestion.userAnswer.reduce( async(acc,uA) => {
+      orderedQuestion.userAnswer = await orderedQuestion.userAnswer.reduce(async(acc, uA) => {
         const currentAcc = await acc
         const uAData = await getUserAnswer(uA)
         currentAcc.push({
@@ -143,13 +151,15 @@ export async function setExistingUserAnswers(orderedQuestion) {
           userChoice: uAData.userChoice,
         })
         return currentAcc
-      },[]).then(result => {return result})
+      }, []).then(result => {
+        return result
+      })
       return await orderedQuestion
   }
 }
 
 export function createExportDataUserAnswer(question) {
-  switch (question.question.questionType) {
+  switch(question.question.questionType) {
     case QuestionTypesEnums.multiple.id:
       return question.userAnswer.reduce((acc, uA) => {
         acc.push({
@@ -159,26 +169,26 @@ export function createExportDataUserAnswer(question) {
         return acc
       }, [])
     case QuestionTypesEnums.open.id:
-      return [{
+      return [ {
         text: question.userAnswer,
         _type: 'directAnswer',
-      }]
+      } ]
     case QuestionTypesEnums.essay.id:
-      return [{
+      return [ {
         text: question.userAnswer,
         _type: 'directAnswer',
         score: 0,
 
-      }]
+      } ]
     case QuestionTypesEnums.ordering.id:
-      return question.userAnswer.reduce((acc,uA)=>{
+      return question.userAnswer.reduce((acc, uA) => {
         acc.push({
           userChoice: uA.userChoice,
           orderingAnswer: uA.orderingAnswer,
           _type: 'orderingUserAnswer',
         })
         return acc
-      },[])
+      }, [])
     case QuestionTypesEnums.matching.id:
       return question.userAnswer.reduce((acc, uA) => {
         acc.push({

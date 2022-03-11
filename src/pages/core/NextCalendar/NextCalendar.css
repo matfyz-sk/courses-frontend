@@ -1,60 +1,61 @@
 .next-calendar {
-    border: solid white 1px;
-    border-radius: .25rem;
+  border: solid white 1px;
+  border-radius: .25rem;
 }
 
 .next-calendar-above {
-    display: flex;
-    flex-direction: column;
-    font-size: x-small;
-    justify-content: center;
-    padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+  font-size: x-small;
+  justify-content: center;
+  padding-left: 10px;
 }
+
 .next-calendar-top {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .next-calendar-left, .next-calendar-right {
-    display: flex;
-    height: 33px;
-    padding: 0;
+  display: flex;
+  height: 33px;
+  padding: 0;
 }
 
 .next-calendar-date {
-    width: 33px;
-    height: 33px;
-    text-align: center;
-    line-height: 33px;
-    font-size: large;
-    font-weight: bold;
-    background-color: #555555;
+  width: 33px;
+  height: 33px;
+  text-align: center;
+  line-height: 33px;
+  font-size: large;
+  font-weight: bold;
+  background-color: #555555;
 }
 
 .next-calendar-time {
-    text-align: center;
-    line-height: 33px;
-    padding: 0 15px;
+  text-align: center;
+  line-height: 33px;
+  padding: 0 15px;
 }
 
 .next-calendar-name {
-    text-align: center;
-    height: 33px;
-    line-height: 33px;
-    padding: 0;
-    background-color: #eeeeee;
+  text-align: center;
+  height: 33px;
+  line-height: 33px;
+  padding: 0;
+  background-color: #eeeeee;
 }
 
 .next-calendar-header {
-    padding: 0;
-    background-color: #999999;
+  padding: 0;
+  background-color: #999999;
 }
 
 .next-calendar-header:first-child {
-    background-color: #F4B800;
+  background-color: #F4B800;
 }
 
 .next-calendar-header:first-child .next-calendar-date {
-    background-color: #E1901E;
+  background-color: #E1901E;
 }

@@ -13,18 +13,18 @@ export const destroyTeam = {
 
 export const fetchTeam = team_id => {
   return dispatch => {
-    fetch(`${BACKEND_URL}/data/team?id=${team_id}`, {
+    fetch(`${ BACKEND_URL }/data/team?id=${ team_id }`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',
       credentials: 'omit',
     })
       .then(response => {
-        if (!response.ok) throw new Error(response)
+        if(!response.ok) throw new Error(response)
         else return response.json()
       })
       .then(data => {
-        if (data['@graph'].length > 0) {
+        if(data['@graph'].length > 0) {
           const team = data['@graph'][0]
           dispatch(setTeam(team))
         }

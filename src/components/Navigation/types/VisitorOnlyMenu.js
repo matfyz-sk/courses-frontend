@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { NavItem } from 'reactstrap'
 
 const VisitorOnlyMenu = props => (
@@ -8,9 +8,9 @@ const VisitorOnlyMenu = props => (
       <NavLink
         to="/login"
         activeClassName="is-active"
-        className={`clickable nav-link ${
+        className={ `clickable nav-link ${
           props.current === 'login' ? 'active' : ''
-        }`}
+        }` }
       >
         Login
       </NavLink>
@@ -19,9 +19,9 @@ const VisitorOnlyMenu = props => (
       <NavLink
         to="/register"
         activeClassName="is-active"
-        className={`clickable nav-link ${
+        className={ `clickable nav-link ${
           props.current === 'register' ? 'active' : ''
-        }`}
+        }` }
       >
         Register
       </NavLink>

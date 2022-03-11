@@ -8,8 +8,8 @@ const initialState = {
 };
 
 export default function navReducer(state = initialState, action) {
-  const { current } = state;
-  switch (action.type) {
+  const {current} = state;
+  switch(action.type) {
     case NAV_ACTIONS.SET_MAIN:
       current.main = action.item;
       return {

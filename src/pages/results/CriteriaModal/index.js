@@ -1,16 +1,5 @@
 import React, { useState } from 'react'
-import {
-  Modal,
-  ModalHeader,
-  Button,
-  ModalFooter,
-  ModalBody,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Alert,
-} from 'reactstrap'
+import { Alert, Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, } from 'reactstrap'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { BACKEND_URL } from '../../../configuration/api'
@@ -24,24 +13,24 @@ import {
 } from '../../../redux/actions'
 
 const CriteriaModal = props => {
-  const { grading, courseInstance } = props
-  const [modal, setModal] = useState(false)
-  const [form, setForm] = useState({
+  const {grading, courseInstance} = props
+  const [ modal, setModal ] = useState(false)
+  const [ form, setForm ] = useState({
     grade: grading ? grading.grade : '',
     minPoints: grading ? grading.minPoints : 0,
   })
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [ error, setError ] = useState(null)
+  const [ loading, setLoading ] = useState(false)
   const toggle = () => setModal(!modal)
 
   function validate() {
-    if (form.grade.length === 0) {
+    if(form.grade.length === 0) {
       setError('Name of grade is required!')
       setLoading(false)
       return false
     }
     // eslint-disable-next-line no-restricted-globals
-    if (isNaN(parseFloat(form.minPoints)) || parseFloat(form.minPoints) < 0) {
+    if(isNaN(parseFloat(form.minPoints)) || parseFloat(form.minPoints) < 0) {
       setError('0 is minimal value for points')
       setLoading(false)
       return false
@@ -51,22 +40,22 @@ const CriteriaModal = props => {
   }
 
   function getDetail(id, action = null) {
-    fetch(`${BACKEND_URL}/data/courseGrading/${id}`, {
+    fetch(`${ BACKEND_URL }/data/courseGrading/${ id }`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',
       credentials: 'omit',
     })
       .then(response => {
-        if (!response.ok) throw new Error(response)
+        if(!response.ok) throw new Error(response)
         else return response.json()
       })
       .then(data => {
         setLoading(false)
         setError(null)
-        if (data['@graph'] && data['@graph'].length > 0) {
+        if(data['@graph'] && data['@graph'].length > 0) {
           const result = data['@graph'][0]
-          switch (action) {
+          switch(action) {
             case 'add':
               store.dispatch(addCourseInstanceGrading(result))
               setError(null)
@@ -85,27 +74,27 @@ const CriteriaModal = props => {
 
   function addGradingToCourse(iri) {
     const gradings = []
-    for (let i = 0; i < courseInstance.hasGrading.length; i++) {
+    for(let i = 0; i < courseInstance.hasGrading.length; i++) {
       gradings.push(courseInstance.hasGrading[i]['@id'])
     }
     gradings.push(iri)
 
     fetch(
-      `${BACKEND_URL}/data/courseInstance/${getShortID(courseInstance['@id'])}`,
+      `${ BACKEND_URL }/data/courseInstance/${ getShortID(courseInstance['@id']) }`,
       {
         method: 'PATCH',
         headers: authHeader(),
         mode: 'cors',
         credentials: 'omit',
-        body: JSON.stringify({ hasGrading: gradings }),
+        body: JSON.stringify({hasGrading: gradings}),
       }
     )
       .then(response => {
-        if (!response.ok) throw new Error(response)
+        if(!response.ok) throw new Error(response)
         else return response.json()
       })
       .then(data => {
-        if (data.status) {
+        if(data.status) {
           getDetail(getShortID(iri), 'add')
         } else {
           setLoading(false)
@@ -118,8 +107,8 @@ const CriteriaModal = props => {
 
   function submitCreate() {
     setLoading(true)
-    if (validate()) {
-      fetch(`${BACKEND_URL}/data/courseGrading`, {
+    if(validate()) {
+      fetch(`${ BACKEND_URL }/data/courseGrading`, {
         method: 'POST',
         headers: authHeader(),
         mode: 'cors',
@@ -127,11 +116,11 @@ const CriteriaModal = props => {
         body: JSON.stringify(form),
       })
         .then(response => {
-          if (!response.ok) throw new Error(response)
+          if(!response.ok) throw new Error(response)
           else return response.json()
         })
         .then(data => {
-          if (data.status) {
+          if(data.status) {
             addGradingToCourse(data.resource.iri)
           } else {
             setLoading(false)
@@ -145,8 +134,8 @@ const CriteriaModal = props => {
 
   function submitUpdate() {
     setLoading(true)
-    if (validate()) {
-      fetch(`${BACKEND_URL}/data/courseGrading/${getShortID(grading['@id'])}`, {
+    if(validate()) {
+      fetch(`${ BACKEND_URL }/data/courseGrading/${ getShortID(grading['@id']) }`, {
         method: 'PATCH',
         headers: authHeader(),
         mode: 'cors',
@@ -154,12 +143,12 @@ const CriteriaModal = props => {
         body: JSON.stringify(form),
       })
         .then(response => {
-          if (!response.ok) throw new Error(response)
+          if(!response.ok) throw new Error(response)
           else return response.json()
         })
         .then(data => {
           setLoading(false)
-          if (data.status) {
+          if(data.status) {
             const newGrading = {
               ...grading,
               ...form,
@@ -178,19 +167,19 @@ const CriteriaModal = props => {
 
   function submitDelete() {
     setLoading(true)
-    fetch(`${BACKEND_URL}/data/courseGrading/${getShortID(grading['@id'])}`, {
+    fetch(`${ BACKEND_URL }/data/courseGrading/${ getShortID(grading['@id']) }`, {
       method: 'DELETE',
       headers: authHeader(),
       mode: 'cors',
       credentials: 'omit',
     })
       .then(response => {
-        if (!response.ok) throw new Error(response)
+        if(!response.ok) throw new Error(response)
         else return response.json()
       })
       .then(data => {
         setLoading(false)
-        if (data.status) {
+        if(data.status) {
           store.dispatch(removeCourseInstanceGrading(grading))
           setError(null)
           setModal(false)
@@ -205,21 +194,21 @@ const CriteriaModal = props => {
   return (
     <>
       <Button
-        color={grading ? 'link' : 'primary'}
+        color={ grading ? 'link' : 'primary' }
         size="sm"
-        className={grading ? 'text-right' : 'float-right mb-3'}
-        onClick={() => toggle()}
+        className={ grading ? 'text-right' : 'float-right mb-3' }
+        onClick={ () => toggle() }
       >
-        {grading ? 'Detail' : 'New grading'}
+        { grading ? 'Detail' : 'New grading' }
       </Button>
-      <Modal isOpen={modal} toggle={toggle}>
-        <ModalHeader toggle={toggle}>
-          {grading
-            ? `Change grading ${grading.grade}?`
-            : 'Add grading to course?'}
+      <Modal isOpen={ modal } toggle={ toggle }>
+        <ModalHeader toggle={ toggle }>
+          { grading
+            ? `Change grading ${ grading.grade }?`
+            : 'Add grading to course?' }
         </ModalHeader>
         <ModalBody>
-          {error !== null ? <Alert color="danger">{error}</Alert> : null}
+          { error !== null ? <Alert color="danger">{ error }</Alert> : null }
           <Form>
             <FormGroup>
               <Label for="grade">Name of grading *</Label>
@@ -228,10 +217,10 @@ const CriteriaModal = props => {
                 name="grade"
                 id="grade"
                 placeholder="e.g. A, B, C, ..."
-                value={form.grade}
-                onChange={e => {
-                  setForm({ ...form, grade: e.target.value })
-                }}
+                value={ form.grade }
+                onChange={ e => {
+                  setForm({...form, grade: e.target.value})
+                } }
               />
             </FormGroup>
             <FormGroup>
@@ -242,29 +231,29 @@ const CriteriaModal = props => {
                 type="number"
                 name="minPoints"
                 id="minPoints"
-                value={form.minPoints}
-                onChange={e => {
-                  setForm({ ...form, minPoints: e.target.value })
-                }}
+                value={ form.minPoints }
+                onChange={ e => {
+                  setForm({...form, minPoints: e.target.value})
+                } }
               />
             </FormGroup>
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="secondary" onClick={toggle}>
+          <Button color="secondary" onClick={ toggle }>
             Cancel
           </Button>
-          {grading ? (
-            <Button color="danger" onClick={submitDelete}>
+          { grading ? (
+            <Button color="danger" onClick={ submitDelete }>
               Remove
             </Button>
-          ) : null}
+          ) : null }
           <Button
             color="primary"
-            onClick={grading ? submitUpdate : submitCreate}
-            disabled={loading}
+            onClick={ grading ? submitUpdate : submitCreate }
+            disabled={ loading }
           >
-            {grading ? 'Update' : 'Create'} grading
+            { grading ? 'Update' : 'Create' } grading
           </Button>
         </ModalFooter>
       </Modal>
@@ -272,8 +261,8 @@ const CriteriaModal = props => {
   )
 }
 
-const mapStateToProps = ({ courseInstanceReducer }) => {
-  const { courseInstance } = courseInstanceReducer
+const mapStateToProps = ({courseInstanceReducer}) => {
+  const {courseInstance} = courseInstanceReducer
   return {
     courseInstance,
   }
