@@ -19,6 +19,7 @@ jobs:
       TAG: courses:testing
       CONTAINER: courses-testing
       BRANCH: ${GITHUB_REF##*/}
+      PORT: 4000:4000
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}

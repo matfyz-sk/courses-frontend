@@ -4,12 +4,15 @@ on:
   workflow_dispatch:
   push:
     branches: [ master ]
+    paths-ignore:
+      - .github/**
+      - README.md
 
 jobs:
   release:
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
     with:
-      FOLDER: /home/www/devcourses3.matfyz.sk/
+      FOLDER: /home/www/courses3.matfyz.sk/
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}
