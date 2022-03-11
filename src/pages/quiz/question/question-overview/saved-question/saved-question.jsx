@@ -50,7 +50,7 @@ function SavedQuestion({
     axios
       .patch(
         `${ API_URL }${ id.substr(id.lastIndexOf('/', id.lastIndexOf('/') - 1)) }`,
-        JSON.stringify({approver: [ userId ], visibilityIsRestricted}),
+        {approver: [ userId ], visibilityIsRestricted},
         {
           headers: {
             Accept: 'application/json',
@@ -71,7 +71,7 @@ function SavedQuestion({
     axios
       .patch(
         `${ API_URL }${ id.substr(id.lastIndexOf('/', id.lastIndexOf('/') - 1)) }`,
-        JSON.stringify({approver: [],}),
+        {approver: [],},
         {
           headers: {
             Accept: 'application/json',

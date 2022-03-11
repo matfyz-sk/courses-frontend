@@ -158,10 +158,10 @@ class UserManagement extends Component {
     }
     axiosRequest(
       'patch',
-      JSON.stringify({
+      {
         studentOf: user.studentOf,
         requests: user.requests,
-      }),
+      },
       url
     )
       .then(response => {

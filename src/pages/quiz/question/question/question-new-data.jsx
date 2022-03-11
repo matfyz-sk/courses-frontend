@@ -606,7 +606,7 @@ function QuestionNewData({
       axios
         .post(
           `${ API_URL }/questionWithPredefinedAnswer`,
-          JSON.stringify(questionToSubmit),
+          {...questionToSubmit},
           {
             headers: {
               Accept: 'application/json',
@@ -629,7 +629,7 @@ function QuestionNewData({
     if(questionType === QuestionTypesEnums.open.id) {
       questionToSubmit.regexp = regexp
       axios
-        .post(`${ API_URL }/openQuestion`, JSON.stringify(questionToSubmit), {
+        .post(`${ API_URL }/openQuestion`, {...questionToSubmit}, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -649,7 +649,7 @@ function QuestionNewData({
     }
     if(questionType === QuestionTypesEnums.essay.id) {
       axios
-        .post(`${ API_URL }/essayQuestion`, JSON.stringify(questionToSubmit), {
+        .post(`${ API_URL }/essayQuestion`, {...questionToSubmit}, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -684,7 +684,7 @@ function QuestionNewData({
       axios
         .post(
           `${ API_URL }/orderingQuestion`,
-          JSON.stringify(questionToSubmit),
+          {...questionToSubmit},
           {
             headers: {
               Accept: 'application/json',
@@ -721,7 +721,7 @@ function QuestionNewData({
       axios
         .post(
           `${ API_URL }/matchQuestion`,
-          JSON.stringify(questionToSubmit),
+          {...questionToSubmit},
           {
             headers: {
               Accept: 'application/json',

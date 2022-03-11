@@ -347,13 +347,13 @@ export class QuestionAssignment extends Component {
         axios
           .patch(
             `${ API_URL }/questionAssignment/${ match.params.questionAssignmentId }`,
-            JSON.stringify({
+           {
               description,
               covers: topic ? [ topic ] : [],
               assignedTo: selectedAgentsIds,
               startDate,
               endDate,
-            }),
+            },
             {
               headers: {
                 Accept: 'application/json',
@@ -374,7 +374,7 @@ export class QuestionAssignment extends Component {
         axios
           .post(
             `${ API_URL }/questionAssignment`,
-            JSON.stringify({
+           {
               name: '',
               description,
               covers: topic ? [ topic ] : [],
@@ -382,7 +382,7 @@ export class QuestionAssignment extends Component {
               courseInstance: courseInstanceId,
               startDate,
               endDate,
-            }),
+            },
             {
               headers: {
                 Accept: 'application/json',

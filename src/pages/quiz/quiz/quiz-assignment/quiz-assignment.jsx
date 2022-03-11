@@ -367,14 +367,14 @@ function QuizAssignment({
     quizNewData.requires = topicsRequiredIds
 
     if(!isEdit()) {
-      axiosAddEntity(JSON.stringify(quizNewData), `${ quizAssignmentMode.middlename }`)
+      axiosAddEntity({...quizNewData}, `${ quizAssignmentMode.middlename }`)
         .then(response => {
           if(response.response.status === 200)
             history.push(`/courses/${ match.params.courseId }/quiz/quizAssignmentsOverview`)
         })
         .catch(error => console.log(error))
     } else {
-      axiosUpdateEntity(JSON.stringify(quizNewData), `${ quizAssignmentMode.middlename }/${ match.params.quizAssignmentId }`)
+      axiosUpdateEntity({...quizNewData}, `${ quizAssignmentMode.middlename }/${ match.params.quizAssignmentId }`)
         .then(response => {
           if(response.response.status === 200)
             history.push(`/courses/${ match.params.courseId }/quiz/quizAssignmentsOverview`)
