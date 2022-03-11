@@ -1,5 +1,5 @@
-import courseInstanceReducer from './courseInstanceReducer';
+// import courseInstanceReducer from './courseInstanceReducer';
 
 export default {
-    courseInstanceReducer
+    // courseInstanceReducer
 }

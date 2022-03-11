@@ -375,7 +375,7 @@ function DocumentForm(props) {
   }
 
   return (
-    <Form style={{ maxWidth: '1000px', margin: '20px auto' }}>
+    <Form style={{ maxWidth: '1000px', margin: '20px auto' }} onSubmit={handleEdit}>
       <h1 style={{ marginBottom: '2em' }}>
         {isInEditingMode() ? 'Edit' : 'Create'} Document
       </h1>
@@ -481,7 +481,7 @@ function DocumentForm(props) {
           There has been a server error, try again please!
         </Alert>
       )}
-      <Button color="success" onClick={handleEdit}>
+      <Button type="submit" color="success" >
         Save editing
       </Button>
       <pre>{JSON.stringify(document, null, 2)}</pre>
