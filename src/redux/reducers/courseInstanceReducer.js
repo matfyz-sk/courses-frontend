@@ -7,6 +7,7 @@ import {
   RESULTS_ADD_TYPE,
   RESULTS_UPDATE_TYPE,
   RESULTS_REMOVE_TYPE,
+  SET_CURRENT_DOCUMENTS,
 } from '../types'
 
 const initialState = {
@@ -16,6 +17,14 @@ const initialState = {
 export default function courseInstanceReducer(state = initialState, action) {
   const ci = state.courseInstance
   switch (action.type) {
+    case SET_CURRENT_DOCUMENTS: {
+      if (ci && ci.hasDocument)
+        ci.hasDocument = action.item
+      return {
+        ...state,
+        hasDocument: ci
+      };
+    }
     case SET_COURSE_INSTANCE:
       return {
         ...state,
