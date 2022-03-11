@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
-import { API_URL } from '../../../../configuration/api'
 import QuestionNew from './question-new'
 import { checkAnswers, checkPairs, checkTextNotEmpty } from '../../common/functions/validate-input'
 import { WarningMessage } from '../../common/warning-message'
 import { QuestionTypesEnums } from '../../common/functions/type-enums'
+import { API_URL } from "../../../../constants";
 
 const enText = {
   'open-question': 'Open question',

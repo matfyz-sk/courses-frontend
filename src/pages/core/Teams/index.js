@@ -5,8 +5,8 @@ import { Container, Table } from 'reactstrap'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import { authHeader } from '../../../components/Auth'
-import { BACKEND_URL } from '../../../configuration/api'
 import { formatDate, idFromURL } from '../../../functions/global';
+import { BACKEND_URL } from "../../../constants";
 
 class Teams extends Component {
   constructor(props) {

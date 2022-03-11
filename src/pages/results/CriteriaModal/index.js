@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Alert, Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, } from 'reactstrap'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { BACKEND_URL } from '../../../configuration/api'
 import { authHeader } from '../../../components/Auth'
 import { getShortID } from '../../../helperFunctions'
 import { store } from '../../../index'
@@ -11,6 +10,7 @@ import {
   removeCourseInstanceGrading,
   updateCourseInstanceGrading,
 } from '../../../redux/actions'
+import { BACKEND_URL } from "../../../constants";
 
 const CriteriaModal = props => {
   const {grading, courseInstance} = props

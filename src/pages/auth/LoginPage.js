@@ -5,7 +5,8 @@ import { withRouter } from 'react-router-dom';
 import { emailValidator, passwordValidator } from '../../functions/validators';
 import GithubAuth from '../../components/Auth/GithubAuth';
 import { registerData } from '../../components/Auth';
-import { BACKEND_URL } from '../../configuration/api';
+import { BACKEND_URL } from "../../constants";
+
 
 class LoginPage extends Component {
   constructor(props) {

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Alert, Button, Col, Collapse, Container, Form, FormFeedback, FormGroup, Input, Label, Row, } from 'reactstrap';
 import { emailValidator, passwordValidator, textValidator, } from '../../functions/validators';
 import { registerData } from '../../components/Auth';
-import { BACKEND_URL } from '../../configuration/api';
+import { BACKEND_URL } from "../../constants";
 
 export default class RegisterPage extends Component {
   constructor(props) {

@@ -5,7 +5,7 @@ import { authHeader, getUser, setUserProfile } from '../../../components/Auth'
 import { axiosRequest } from '../AxiosRequests'
 import { BASE_URL, USER_URL } from '../constants'
 import { Redirect } from 'react-router-dom'
-import { BACKEND_URL } from '../../../configuration/api'
+import { BACKEND_URL } from "../../../constants";
 
 class EnrollModal extends Component {
   constructor(props) {

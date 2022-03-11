@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { SET_SIGNED_IN, SET_USER, SET_USER_ADMIN, } from '../types'
-import { API_URL } from '../../configuration/api'
+import { API_URL } from "../../constants";
 
 export const setUser = user => {
   return dispatch => {

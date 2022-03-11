@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom'
 // import axios from 'axios'
 import { Button, CardBody, CardTitle, Col, Collapse, Row } from 'reactstrap'
 
-// import apiConfig from '../../../../../configuration/api'
 import InfoTable from './info-table/info-table'
 
 import AssignmentPreview from './assignment-preview/assignment-preview'

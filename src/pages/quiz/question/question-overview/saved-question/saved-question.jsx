@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Button, ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle, FormText, Input, } from 'reactstrap'
 
-import { API_URL } from '../../../../../configuration/api'
 import QuestionNew from '../../question/question-new'
 import Comments from './comments/comments'
+import { API_URL } from "../../../../../constants";
 
 const enText = {
   'edit-question': 'Edit question',

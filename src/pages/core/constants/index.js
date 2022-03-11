@@ -1,4 +1,5 @@
-import { API_URL } from '../../../configuration/api'
+import { API_URL } from "../../../constants";
+
 
 export const INITIAL_COURSE_STATE = {
   id: '',

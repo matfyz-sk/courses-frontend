@@ -3,10 +3,10 @@ import { withRouter } from 'react-router'
 import GitHubLogin from 'react-github-login'
 import GithubIcon from '../../images/icons/github.svg'
 import '../../scss/auth_btn.scss'
-import { BACKEND_URL } from '../../configuration/api'
 import { authHeader, registerData } from './index'
 import { REGISTER_COMPLETION } from '../../constants/routes'
 import { Alert } from 'reactstrap'
+import { BACKEND_URL } from "../../constants";
 
 const CLIENT_ID = 'f937b5e763fd295e11b9'
 const REDIRECT_URI = `http://localhost:3000`

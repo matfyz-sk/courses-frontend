@@ -1,4 +1,4 @@
-import { BACKEND_URL } from '../../configuration/api'
+import { BACKEND_URL } from "../../constants";
 import { authHeader } from '../../components/Auth'
 import { getShortID } from '../../helperFunctions'
 

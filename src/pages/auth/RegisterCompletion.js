@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { Alert, Button, Col, Collapse, Container, Form, FormFeedback, FormGroup, Input, Label, Row, } from 'reactstrap'
 import { emailValidator, textValidator } from '../../functions/validators'
 import { authHeader, getUser, getUserID, logout, setUserProfile, } from '../../components/Auth'
-import { BACKEND_URL } from '../../configuration/api'
+import { BACKEND_URL } from "../../constants";
 
 class RegisterCompletion extends Component {
   constructor(props) {

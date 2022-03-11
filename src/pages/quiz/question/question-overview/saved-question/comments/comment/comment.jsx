@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { FormText, ListGroupItem, ListGroupItemText } from 'reactstrap'
-import { API_URL } from '../../../../../../../configuration/api'
+import { API_URL } from "../../../../../../../constants";
 
 function Comments({id, commentText, createdAt, createdBy, token}) {
   const [ author, setAuthor ] = useState('')

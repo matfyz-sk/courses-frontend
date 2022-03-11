@@ -4,11 +4,11 @@ import { Link, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import * as ROUTES from '../../../constants/routes'
 import { authHeader, getUser, getUserID } from '../../../components/Auth'
-import { BACKEND_URL } from '../../../configuration/api'
 import { redirect } from '../../../constants/redirect'
 import withTeamHandler from './TeamDetailHOC'
 import { getShortID } from '../../../helperFunctions'
 import { isVisibleUser, showUserName } from '../../../components/Auth/userFunction';
+import { BACKEND_URL } from "../../../constants";
 
 class TeamsDetail extends Component {
   constructor(props) {

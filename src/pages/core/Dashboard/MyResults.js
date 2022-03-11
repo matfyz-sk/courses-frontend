@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, Badge, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, } from 'reactstrap'
 import { Link } from 'react-router-dom'
-import { BACKEND_URL } from '../../../configuration/api'
 import { authHeader, getUserID } from '../../../components/Auth'
 import { redirect } from '../../../constants/redirect'
 import { RESULT_DETAIL, RESULT_TYPE, TIMELINE } from '../../../constants/routes';
 import { getShortID } from '../../../helperFunctions'
 import { formatDate } from "../../../functions/global";
+import { BACKEND_URL } from "../../../constants";
 
 const MyResults = props => {
   const [ data, setData ] = useState(null)

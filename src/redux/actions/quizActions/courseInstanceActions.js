@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-import { API_URL } from '../../../configuration/api'
 import { SET_TOPICS_DATA } from '../../types'
+import { API_URL } from "../../../constants";
 
 export const getTopics = (id, joins, token) => {
   return dispatch => {

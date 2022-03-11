@@ -3,7 +3,7 @@ import ReactPaginate from 'react-paginate'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Container, Row } from 'reactstrap';
-import { BACKEND_URL } from '../../configuration/api'
+import { BACKEND_URL } from "../../constants";
 import { authHeader } from '../../components/Auth'
 import UserCard from './UserCard'
 import { isVisibleUser } from "../../components/Auth/userFunction";

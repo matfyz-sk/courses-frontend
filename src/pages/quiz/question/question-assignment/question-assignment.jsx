@@ -7,10 +7,10 @@ import axios from 'axios'
 import PropTypes from 'prop-types'
 import { Button, FormGroup, Input, Label } from 'reactstrap'
 
-import { API_URL } from '../../../../configuration/api'
 import AssignmentHeader from '../../common/assignment-header'
 import AgentOperatorNew from '../../common/agent-operator-new'
 import { checkDate, checkTextNotEmpty } from '../../common/functions/validate-input'
+import { API_URL } from "../../../../constants";
 
 export class QuestionAssignment extends Component {
   state = {

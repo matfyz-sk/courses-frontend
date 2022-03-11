@@ -2,8 +2,8 @@
 import React, { useState } from 'react'
 import { Button, FormGroup, Input, InputGroup, InputGroupAddon, } from 'reactstrap'
 import axios from 'axios'
-import { API_URL } from '../../../../../../configuration/api'
 import Comment from './comment/comment'
+import { API_URL } from "../../../../../../constants";
 
 function Comments({comments, questionAddress, token, callback}) {
   const [ newComment, setNewComment ] = useState('')
