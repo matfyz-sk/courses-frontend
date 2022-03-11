@@ -91,8 +91,6 @@ class EventForm extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if(prevProps.name !== this.props.name) {
-      //console.log(this.props)
-
       this.setState({...this.props})
     }
     if(
@@ -185,7 +183,6 @@ class EventForm extends Component {
       `http://www.courses.matfyz.sk/data${ COURSE_URL }/${ courseId }`,
     ]
 
-    //console.log(instructors)
     const hasInstructor = Array.isArray(instructors)
       ? instructors.map(instructor => {
         return instructor.fullId

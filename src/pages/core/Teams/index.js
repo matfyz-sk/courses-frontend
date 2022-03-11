@@ -39,13 +39,11 @@ class Teams extends Component {
 
   render() {
     const {teams, course_id} = this.state
-    const privileges = this.props.privilegesReducer
     const render_teams = []
     if(teams) {
       for(let i = 0; i < teams.length; i++) {
         const team = teams[i]
         const team_id = idFromURL(team['@id'])
-        console.log(team.courseInstance)
         render_teams.push(
           <tr key={ `team-${ i }` }>
             <th>{ team.name }</th>

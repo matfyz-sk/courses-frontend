@@ -42,9 +42,6 @@ class AgentOperator extends Component {
     let nextAgent = agent
     allAgents.forEach(agentFromAllAgents => {
       if(agentFromAllAgents.id === agent) {
-        console.log(agentFromAllAgents.id)
-        console.log(agent)
-        console.log('agentFromAllAgents.id === agent')
         currentSelectedAgents.push(agent)
         selectFind = !selectFind
       }
