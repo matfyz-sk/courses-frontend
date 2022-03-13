@@ -9,17 +9,19 @@ jobs:
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
     with:
       FOLDER: /home/www/devcourses3.matfyz.sk/
+      PORT: 6000
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
+      WEBSITE: ${{ secrets.WEBSITE }}
   deploy-backend:
     uses: matfyz-sk/courses-backend/.github/workflows/deploy.yml@master
     with:
       TAG: courses:testing
       CONTAINER: courses-testing
       BRANCH: ${GITHUB_REF##*/}
-      PORT: 4000:4000
+      PORT: 4000:3010
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}

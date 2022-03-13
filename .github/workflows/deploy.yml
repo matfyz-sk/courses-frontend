@@ -6,12 +6,17 @@ on:
       FOLDER:
         required: true
         type: string
+      PORT:
+        required: true
+        type: string
     secrets:
       SSH_PRIVATE_KEY:
         required: true
       SSH_HOST:
         required: true
       SSH_USER:
+        required: true
+      WEBSITE:
         required: true
 
 jobs:
@@ -26,6 +31,13 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16'
+      - name: Creating react env file
+        env:
+          WEBSITE: ${{ secrets.WEBSITE }}
+          PORT: ${{ inputs.PORT}}
+        run: echo "REACT_APP_BACKEND_URL=$WEBSITE:$PORT" >> .env
+      - name: Print .env
+        run: cat .env
       - name: Install dependencies
         run: yarn install
       - name: Build
