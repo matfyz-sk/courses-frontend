@@ -36,20 +36,18 @@ jobs:
           WEBSITE: ${{ secrets.WEBSITE }}
           PORT: ${{ inputs.PORT}}
         run: echo "REACT_APP_BACKEND_URL=$WEBSITE:$PORT" >> .env
-      - name: Print .env
-        run: cat .env
       - name: Install dependencies
         run: yarn install
       - name: Build
         run: yarn run build
       - name: Test
         run: yarn run test --passWithNoTests
-#      - name: Install SSH Key
-#        uses: shimataro/ssh-key-action@v2
-#        with:
-#          key: ${{ secrets.SSH_PRIVATE_KEY }} 
-#          known_hosts: 'placeholder'
-#      - name:  Adding Known Hosts
-#        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-#      - name: Deploy
-#        run: rsync -avz ./build/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ inputs.FOLDER }}
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }} 
+          known_hosts: 'placeholder'
+      - name:  Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: Deploy
+        run: rsync -avz ./build/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ inputs.FOLDER }}
