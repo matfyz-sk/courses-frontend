@@ -12,7 +12,7 @@ jobs:
   release:
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
     with:
-      FOLDER: /home/www/courses3.matfyz.sk/
+      FOLDER: /home/www/courses3.matfyz.sk/htdocs/
       PORT: 4430
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
