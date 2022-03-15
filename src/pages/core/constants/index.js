@@ -1,4 +1,4 @@
-import apiConfig from '../../../configuration/api'
+import {API_URL} from '../../../configuration/api'
 
 export const INITIAL_COURSE_STATE = {
   id: '',
@@ -35,7 +35,7 @@ export const INITIAL_EVENT_STATE = {
   recommends: [],
 }
 
-export const BASE_URL = apiConfig.API_URL
+export const BASE_URL = API_URL
 export const COURSE_URL = '/course'
 export const COURSE_INSTANCE_URL = '/courseInstance'
 export const EVENT_URL = '/event'
