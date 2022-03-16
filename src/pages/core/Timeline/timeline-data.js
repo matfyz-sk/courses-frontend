@@ -37,8 +37,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lecture', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -64,8 +64,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lab', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -91,8 +91,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lab', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -118,8 +118,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lecture', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -149,8 +149,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 2, name: 'Something Else Completely'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 2, name: 'Something Else Completely' },
     ],
 
     type: 'Lecture', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -176,7 +176,7 @@ export const Events = [
     subEvent: '', //Event
     superEvent: '', //Event
 
-    materials: [ {id: 0, name: 'How Dorothy Saved the Scarecrow'} ],
+    materials: [{ id: 0, name: 'How Dorothy Saved the Scarecrow' }],
 
     type: 'Lab', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
     //hasInstructor: '', //Session
@@ -249,8 +249,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Task', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -280,8 +280,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'OralExam', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -362,8 +362,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lecture', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -389,8 +389,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lab', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -416,8 +416,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lab', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -443,8 +443,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lecture', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -474,8 +474,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lecture', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -501,7 +501,7 @@ export const Events = [
     subEvent: '', //Event
     superEvent: '', //Event
 
-    materials: [ {id: 0, name: 'How Dorothy Saved the Scarecrow'} ],
+    materials: [{ id: 0, name: 'How Dorothy Saved the Scarecrow' }],
 
     type: 'Lab', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
     //hasInstructor: '', //Session
@@ -574,8 +574,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Task', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -605,8 +605,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'OralExam', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -691,8 +691,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Block', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -718,8 +718,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lecture', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -745,8 +745,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lab', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -772,8 +772,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lecture', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -803,8 +803,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lecture', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -830,7 +830,7 @@ export const Events = [
     subEvent: '', //Event
     superEvent: '', //Event
 
-    materials: [ {id: 0, name: 'How Dorothy Saved the Scarecrow'} ],
+    materials: [{ id: 0, name: 'How Dorothy Saved the Scarecrow' }],
 
     type: 'Lab', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
     //hasInstructor: '', //Session
@@ -879,8 +879,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Task', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -910,8 +910,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'OralExam', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)
@@ -971,8 +971,8 @@ export const Events = [
     superEvent: '', //Event
 
     materials: [
-      {id: 0, name: 'How Dorothy Saved the Scarecrow'},
-      {id: 1, name: 'The Council with the Munchkins'},
+      { id: 0, name: 'How Dorothy Saved the Scarecrow' },
+      { id: 1, name: 'The Council with the Munchkins' },
     ],
 
     type: 'Lab', //Block, Session (Lecture, Lab), TaskEvent, ExaminationEvent (OralExam, TestTake)

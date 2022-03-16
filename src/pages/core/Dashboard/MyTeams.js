@@ -1,22 +1,29 @@
 import React, { useEffect, useState } from 'react'
-import { Alert, Badge, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, } from 'reactstrap'
+import {
+  Alert,
+  Badge,
+  ListGroup,
+  ListGroupItem,
+  ListGroupItemHeading,
+  ListGroupItemText,
+} from 'reactstrap'
 import { Link } from 'react-router-dom'
 import { authHeader, getUserID } from '../../../components/Auth'
 import { redirect } from '../../../constants/redirect'
-import { COURSE_TEAM_DETAIL, TIMELINE } from '../../../constants/routes'
+import { COURSE_TEAM_DETAIL, TIMELINE}  from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
 import { BACKEND_URL } from "../../../constants";
 
 const MyTeams = props => {
-  const [ data, setData ] = useState(null)
+  const [data, setData] = useState(null)
 
   function fetchTeamDetail(fetched_data, index = 0) {
     const detail = fetched_data[index]
-    if(detail.instanceOf && detail.instanceOf.length > 0) {
+    if (detail.instanceOf && detail.instanceOf.length > 0) {
       fetch(
-        `${ BACKEND_URL }/data/team/${ getShortID(
+        `${BACKEND_URL}/data/team/${getShortID(
           detail.instanceOf[0]['@id']
-        ) }?_join=courseInstance`,
+        )}?_join=courseInstance`,
         {
           method: 'GET',
           headers: authHeader(),
@@ -25,11 +32,11 @@ const MyTeams = props => {
         }
       )
         .then(response => {
-          if(!response.ok) throw new Error(response)
+          if (!response.ok) throw new Error(response)
           else return response.json()
         })
         .then(_data => {
-          if(
+          if (
             _data['@graph'].length > 0 &&
             _data['@graph'][0].courseInstance.length > 0
           ) {
@@ -40,7 +47,7 @@ const MyTeams = props => {
             })
             setData(newData)
           }
-          if(fetched_data.length > index) {
+          if (fetched_data.length > index) {
             fetchTeamDetail(fetched_data, index + 1)
           }
         })
@@ -48,18 +55,18 @@ const MyTeams = props => {
   }
 
   function getData() {
-    fetch(`${ BACKEND_URL }/data/teamInstance?hasUser=${ getUserID() }`, {
+    fetch(`${BACKEND_URL}/data/teamInstance?hasUser=${getUserID()}`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',
       credentials: 'omit',
     })
       .then(response => {
-        if(!response.ok) throw new Error(response)
+        if (!response.ok) throw new Error(response)
         else return response.json()
       })
       .then(_data => {
-        if(_data['@graph'].length > 0) {
+        if (_data['@graph'].length > 0) {
           fetchTeamDetail(_data['@graph'])
         } else {
           setData(_data['@graph'])
@@ -71,39 +78,39 @@ const MyTeams = props => {
     getData()
   }, [])
 
-  if(data === null) {
+  if (data === null) {
     return null
   }
 
   const renderList = []
-  for(let i = 0; i < data.length; i++) {
+  for (let i = 0; i < data.length; i++) {
     const item = data[i]
     const course_link = (
       <Link
-        to={ redirect(TIMELINE, [
+        to={redirect(TIMELINE, [
           {
             key: 'course_id',
             value: getShortID(item.team.courseInstance[0]['@id']),
           },
-        ]) }
+        ])}
       >
-        { item.team.courseInstance[0].name }
+        {item.team.courseInstance[0].name}
       </Link>
     )
     renderList.push(
-      <ListGroupItem key={ `team${ item.teamInstance['@id'] }` }>
+      <ListGroupItem key={`team${item.teamInstance['@id']}`}>
         <ListGroupItemHeading>
-          { item.team.name }
+          {item.team.name}
           <Badge
-            color={ item.teamInstance.approved ? 'success' : 'danger' }
+            color={item.teamInstance.approved ? 'success' : 'danger'}
             className="float-right"
           >
-            { item.teamInstance.approved ? 'approved' : 'not approved' }
+            {item.teamInstance.approved ? 'approved' : 'not approved'}
           </Badge>
         </ListGroupItemHeading>
-        <ListGroupItemText>Team of course { course_link }</ListGroupItemText>
+        <ListGroupItemText>Team of course {course_link}</ListGroupItemText>
         <Link
-          to={ redirect(COURSE_TEAM_DETAIL, [
+          to={redirect(COURSE_TEAM_DETAIL, [
             {
               key: 'course_id',
               value: getShortID(item.team.courseInstance[0]['@id']),
@@ -112,7 +119,7 @@ const MyTeams = props => {
               key: 'team_id',
               value: getShortID(item.team['@id']),
             },
-          ]) }
+          ])}
           className="btn btn-sm btn-link float-right text-primary"
         >
           Team detail
@@ -124,11 +131,11 @@ const MyTeams = props => {
   return (
     <>
       <h2 className="h4 mb-4">My teams</h2>
-      { renderList.length === 0 ? (
+      {renderList.length === 0 ? (
         <Alert color="info">No teams yet!</Alert>
       ) : (
-        <ListGroup>{ renderList }</ListGroup>
-      ) }
+        <ListGroup>{renderList}</ListGroup>
+      )}
     </>
   )
 }

@@ -1,6 +1,14 @@
 /* eslint-disable react/prop-types */
 import React, { Component } from 'react'
-import { Button, FormGroup, Input, InputGroup, InputGroupAddon, Label, Table, } from 'reactstrap'
+import {
+  Button,
+  Label,
+  FormGroup,
+  Input,
+  InputGroup,
+  InputGroupAddon,
+  Table,
+} from 'reactstrap'
 
 class AgentOperatorNew extends Component {
   state = {
@@ -8,7 +16,7 @@ class AgentOperatorNew extends Component {
   }
 
   componentDidMount() {
-    const {agentOptions} = this.props
+    const { agentOptions } = this.props
     this.setState({
       agent:
         agentOptions && agentOptions.length && agentOptions.length > 0
@@ -18,8 +26,8 @@ class AgentOperatorNew extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const {agentOptions} = this.props
-    if(agentOptions !== prevProps.agentOptions) {
+    const { agentOptions } = this.props
+    if (agentOptions !== prevProps.agentOptions) {
       this.setState({
         agent:
           agentOptions && agentOptions.length && agentOptions.length > 0
@@ -30,11 +38,11 @@ class AgentOperatorNew extends Component {
   }
 
   deleteAgent = selectedAgentUri => {
-    const {selectedAgents, deleteSelectedAgent} = this.props
-    const currentSelectedAgents = [ ...selectedAgents ]
+    const { selectedAgents, deleteSelectedAgent } = this.props
+    const currentSelectedAgents = [...selectedAgents]
     let deletedAgentUri = ''
     const index = currentSelectedAgents.indexOf(selectedAgentUri)
-    if(index !== -1) {
+    if (index !== -1) {
       currentSelectedAgents.splice(index, 1)
       deletedAgentUri = selectedAgentUri
     }
@@ -45,40 +53,40 @@ class AgentOperatorNew extends Component {
   }
 
   selectAgent = e => {
-    const {agentOptions} = this.props
+    const { agentOptions } = this.props
     e.preventDefault()
-    const {agent} = this.state
+    const { agent } = this.state
 
     const selectedAgent = agentOptions.find(
       agentOption => agentOption.id === agent
     )
-    if(selectedAgent) {
+    if (selectedAgent) {
       selectedAgent.addSelectedAgent()
     }
   }
 
   handleChange = e => {
-    const {name} = e.target
-    const {value} = e.target
+    const { name } = e.target
+    const { value } = e.target
     this.setState({
       [name]: value,
     })
   }
 
   render() {
-    const {agent} = this.state
-    const {agentOptions, selectedAgents} = this.props
+    const { agent } = this.state
+    const { agentOptions, selectedAgents } = this.props
     const agentsTable = selectedAgents.map(selectedAgent => {
-      const {id, name, deleteSelectedAgent} = selectedAgent
+      const { id, name, deleteSelectedAgent } = selectedAgent
       return (
-        <tr key={ id }>
-          <td>{ name }</td>
+        <tr key={id}>
+          <td>{name}</td>
           <td>
-            { deleteSelectedAgent && (
-              <Button color="danger" onClick={ deleteSelectedAgent }>
+            {deleteSelectedAgent && (
+              <Button color="danger" onClick={deleteSelectedAgent}>
                 X
               </Button>
-            ) }
+            )}
           </td>
         </tr>
       )
@@ -93,19 +101,19 @@ class AgentOperatorNew extends Component {
               type="select"
               name="agent"
               id="agent"
-              value={ agent || '' }
-              onChange={ this.handleChange }
+              value={agent || ''}
+              onChange={this.handleChange}
             >
-              { agentOptions.map(agentOption => {
+              {agentOptions.map(agentOption => {
                 return (
-                  <option key={ agentOption.id } value={ agentOption.id }>
-                    { agentOption.name }
+                  <option key={agentOption.id} value={agentOption.id}>
+                    {agentOption.name}
                   </option>
                 )
-              }) }
+              })}
             </Input>
             <InputGroupAddon addonType="append">
-              <Button color="success" onClick={ this.selectAgent }>
+              <Button color="success" onClick={this.selectAgent}>
                 Add
               </Button>
             </InputGroupAddon>
@@ -115,12 +123,12 @@ class AgentOperatorNew extends Component {
           <Label for="agents">Assign to</Label>
           <Table>
             <thead>
-            <tr>
-              <th>Username</th>
-              <th>Delete</th>
-            </tr>
+              <tr>
+                <th>Username</th>
+                <th>Delete</th>
+              </tr>
             </thead>
-            <tbody>{ agentsTable }</tbody>
+            <tbody>{agentsTable}</tbody>
           </Table>
         </FormGroup>
       </>

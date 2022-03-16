@@ -24,21 +24,21 @@ function QuizTakesOverview({
                            }) {
 
   const style = useStyles()
-  const [ allPublished, setAllPublished ] = useState(0)
+  const [allPublished, setAllPublished] = useState(0)
 
-  const [ openConfirmDialog, setOpenConfirmDialog ] = useState(false)
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false)
 
-  const publishAllReviews = async(drafts_only) => {
-    await quizTakes.map(async(quizTake) => {
+  const publishAllReviews = async (drafts_only) => {
+    await quizTakes.map(async (quizTake) => {
       let qTData = {}
-      if(!drafts_only && !quizTake.reviewedDate) {
+      if (!drafts_only && !quizTake.reviewedDate) {
         quizTake.reviewedDate = new Date()
         qTData.reviewedDate = quizTake.reviewedDate
       }
-      if(quizTake.reviewedDate) {
+      if (quizTake.reviewedDate) {
         quizTake.publishedReview = true
         qTData.publishedReview = true
-        await axiosUpdateEntity(qTData, `quizTake/${ getShortID(quizTake['@id']) }`)
+        await axiosUpdateEntity(qTData, `quizTake/${getShortID(quizTake['@id'])}`)
           .then(response => console.log(response))
           .catch(error => console.log(error))
       }
@@ -54,25 +54,25 @@ function QuizTakesOverview({
       <Box display='flex' width='100%'>
         <Box width='35%' display='flex' justifyContent='flex-start'>
           <Typography
-            color={ quizTake.reviewedDate ? "textPrimary" : "textSecondary" }
-            style={ {
+            color={quizTake.reviewedDate ? "textPrimary" : "textSecondary"}
+            style={{
               marginRight: 5,
-            } }
+            }}
           >
-            { score }
+            {score}
           </Typography>
           <Typography>
-            / { maxScore }
+            / {maxScore}
           </Typography>
         </Box>
         <Typography
-          color={ quizTake.reviewedDate ? "textPrimary" : "textSecondary" }
-          style={ {
+          color={quizTake.reviewedDate ? "textPrimary" : "textSecondary"}
+          style={{
             width: '65%',
             marginLeft: 5,
-          } }
+          }}
         >
-          { percentage.toFixed(1) }%
+          {percentage.toFixed(1)}%
         </Typography>
       </Box>
     )
@@ -80,39 +80,39 @@ function QuizTakesOverview({
 
   function getQuizTakeRow(quizTake) {
     return (
-      <Box display='flex' width='100%' key={ quizTake['@id'] } marginBottom={ 2 }>
-        <Box width='92%' display='flex' padding={ 1 } border={ `1px solid ${ grey[300] }` }
+      <Box display='flex' width='100%' key={quizTake['@id']} marginBottom={2}>
+        <Box width='92%' display='flex' padding={1} border={`1px solid ${grey[300]}`}
              minHeight='55px'>
-          <Box display='flex' alignItems='center' width='45%' marginRight={ 2 } marginLeft={ 1 }>
+          <Box display='flex' alignItems='center' width='45%' marginRight={2} marginLeft={1}>
             <Typography>
-              { quizTake.createdBy.firstName } { quizTake.createdBy.lastName }
+              {quizTake.createdBy.firstName} {quizTake.createdBy.lastName}
             </Typography>
           </Box>
-          <Box display='flex' alignItems='center' width='25%' marginRight={ 2 }>
+          <Box display='flex' alignItems='center' width='25%' marginRight={2}>
             <Typography>
-              { formatDateTime(quizTake.createdAt) }
+              {formatDateTime(quizTake.createdAt)}
             </Typography>
           </Box>
-          <Box display='flex' alignItems='center' width='25%' marginRight={ 2 }>
-            { getScore(quizTake) }
+          <Box display='flex' alignItems='center' width='25%' marginRight={2}>
+            {getScore(quizTake)}
           </Box>
-          <Box display='flex' alignItems='center' width='5%' marginRight={ 1 }
+          <Box display='flex' alignItems='center' width='5%' marginRight={1}
                justifyContent='flex-end'>
-            { quizTake.reviewedDate &&
-              <Chip
-                color={ quizTake.publishedReview ? "primary" : "default" }
-                label={ quizTake.publishedReview ? "Published" : "Draft" }
-                size='small'
-              /> }
+            {quizTake.reviewedDate &&
+            <Chip
+              color={quizTake.publishedReview ? "primary" : "default"}
+              label={quizTake.publishedReview ? "Published" : "Draft"}
+              size='small'
+            />}
           </Box>
         </Box>
-        <Box display='flex' width='8%' padding={ 0 }>
+        <Box display='flex' width='8%' padding={0}>
           <Button
             variant='contained'
             color='primary'
             fullWidth
-            style={ {margin: 0, borderRadius: 0, boxShadow: 0, height: '100%'} }
-            onClick={ e => handleOpenQuizTake(quizTake) }
+            style={{ margin: 0, borderRadius: 0, boxShadow: 0, height: '100%' }}
+            onClick={e => handleOpenQuizTake(quizTake)}
           >
             Review
           </Button>
@@ -123,25 +123,25 @@ function QuizTakesOverview({
   const getConfirmDialogEssay = () => {
     return (
       <Dialog
-        open={ openConfirmDialog }
-        onClose={ e => setOpenConfirmDialog(false) }
+        open={openConfirmDialog}
+        onClose={e => setOpenConfirmDialog(false)}
       >
-        <DialogTitle>{ "Publish all reviews?" }</DialogTitle>
+        <DialogTitle>{"Publish all reviews?"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Some quiz takes contain essay questions that may not have been graded
           </DialogContentText>
         </DialogContent>
-        <DialogActions className={ style.centeredSection }>
-          <Button onClick={ e => setOpenConfirmDialog(false) } color="primary"
+        <DialogActions className={style.centeredSection}>
+          <Button onClick={e => setOpenConfirmDialog(false)} color="primary"
                   variant='outlined'>
             No
           </Button>
           <Button
-            onClick={ e => {
+            onClick={e => {
               setOpenConfirmDialog(false)
               publishAllReviews(false)
-            } }
+            }}
             color="primary" variant='contained' autoFocus
           >
             Yes
@@ -152,42 +152,42 @@ function QuizTakesOverview({
   }
 
   return (
-    <Box className={ style.sectionRoot }>
-      <Box marginBottom={ 2 }>
+    <Box className={style.sectionRoot}>
+      <Box marginBottom={2}>
         <h3>Quiz takes</h3>
       </Box>
-      { quizTakes.length > 0 ?
+      {quizTakes.length > 0 ?
         <Box>
           <Box display='flex' width='100%'>
-            <Box width='92%' display='flex' padding={ 1 } minHeight='55px'>
-              <Box display='flex' alignItems='center' width='45%' marginRight={ 2 } marginLeft={ 1 }>
+            <Box width='92%' display='flex' padding={1} minHeight='55px'>
+              <Box display='flex' alignItems='center' width='45%' marginRight={2} marginLeft={1}>
                 <Typography variant='h6'>Student</Typography>
               </Box>
-              <Box display='flex' alignItems='center' width='25%' marginRight={ 2 }>
+              <Box display='flex' alignItems='center' width='25%' marginRight={2}>
                 <Typography variant='h6'>Submitted</Typography>
               </Box>
-              <Box display='flex' alignItems='center' width='25%' marginRight={ 2 }>
+              <Box display='flex' alignItems='center' width='25%' marginRight={2}>
                 <Typography variant='h6'>Score</Typography>
               </Box>
-              <Box display='flex' alignItems='center' width='5%' marginRight={ 2 }
-                   justifyContent='flex-end'/>
+              <Box display='flex' alignItems='center' width='5%' marginRight={2}
+                   justifyContent='flex-end' />
             </Box>
-            <Box display='flex' width='8%' padding={ 0 }/>
+            <Box display='flex' width='8%' padding={0} />
           </Box>
-          { quizTakes.sort(
+          {quizTakes.sort(
             (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
           ).map(quizTake => {
             return (
               getQuizTakeRow(quizTake)
             )
-          }) }
-          <Box className={ style.centeredSection } marginTop={ 5 }>
+          })}
+          <Box className={style.centeredSection} marginTop={5}>
             <Button
               variant='outlined'
               color='primary'
               size='large'
-              style={ {fontSize: 17, marginRight: 24} }
-              onClick={ e => containsEssay ? setOpenConfirmDialog(true) : publishAllReviews(false) }
+              style={{ fontSize: 17, marginRight: 24 }}
+              onClick={e => containsEssay ? setOpenConfirmDialog(true) : publishAllReviews(false)}
             >
               Publish all reviews
             </Button>
@@ -195,21 +195,21 @@ function QuizTakesOverview({
               variant='contained'
               color='primary'
               size='large'
-              style={ {fontSize: 17} }
-              onClick={ e => publishAllReviews(true) }
+              style={{ fontSize: 17 }}
+              onClick={e => publishAllReviews(true)}
             >
               Publish all drafts
             </Button>
           </Box>
-          <Collapse in={ allPublished > 0 }>
-            <Box className={ style.centeredSection } marginTop={ 2 }>
-              <FaCheck color={ customTheme.palette.primary.main }/>
-              <Typography style={ {fontSize: 17, marginLeft: 5} }>
-                { allPublished === 1 ? 'All drafts were published' : 'All reviews were published' }
+          <Collapse in={allPublished > 0}>
+            <Box className={style.centeredSection} marginTop={2}>
+              <FaCheck color={customTheme.palette.primary.main} />
+              <Typography style={{ fontSize: 17, marginLeft: 5 }}>
+                {allPublished === 1 ? 'All drafts were published' : 'All reviews were published'}
               </Typography>
             </Box>
           </Collapse>
-          { getConfirmDialogEssay() }
+          {getConfirmDialogEssay()}
         </Box>
         :
         <Box>

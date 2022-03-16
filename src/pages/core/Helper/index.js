@@ -1,5 +1,11 @@
 import React from 'react'
-import { FaCalendarCheck, FaChalkboardTeacher, FaClipboardList, FaLaptopCode, FaRegFile, } from 'react-icons/fa'
+import {
+  FaChalkboardTeacher,
+  FaLaptopCode,
+  FaCalendarCheck,
+  FaClipboardList,
+  FaRegFile,
+} from 'react-icons/fa'
 import student_icon from '../../../images/student.svg'
 import teacher_icon from '../../../images/teacher.svg'
 import admin_icon from '../../../images/admin.svg'
@@ -22,33 +28,33 @@ export const getDisplayDateTime = (dateTime, fullVersion) => {
 }
 
 export const getIcon = name => {
-  switch(name) {
+  switch (name) {
     case 'Lab':
-      return <FaLaptopCode className="icon"/>
+      return <FaLaptopCode className="icon" />
     case 'Lecture':
-      return <FaChalkboardTeacher className="icon"/>
+      return <FaChalkboardTeacher className="icon" />
     case 'Task':
-      return <FaCalendarCheck className="icon"/>
+      return <FaCalendarCheck className="icon" />
     case 'OralExam':
     case 'TestTake':
-      return <FaClipboardList className="icon"/>
+      return <FaClipboardList className="icon" />
     case 'Material':
-      return <FaRegFile className="icon"/>
+      return <FaRegFile className="icon" />
     case 'Student':
-      return <img src={ student_icon } alt="student" width="20px" height="20px" className="icon"/>
+      return <img src={student_icon} alt="student" width="20px" height="20px" className="icon" />
     case 'Teacher':
-      return <img src={ teacher_icon } alt="teacher" width="20px" height="20px" className="icon"/>
+      return <img src={teacher_icon} alt="teacher" width="20px" height="20px" className="icon" />
     case 'Admin':
-      return <img src={ admin_icon } alt="admin" width="20px" height="20px" className="icon"/>
+      return <img src={admin_icon} alt="admin" width="20px" height="20px" className="icon" />
     default:
       return
   }
 }
 
 export const mergeMaterials = (arr1, arr2) => {
-  let arr3 = [ ...arr1 ]
+  let arr3 = [...arr1]
   arr2.map(element1 => {
-    if(
+    if (
       arr1.find(element => {
         return element.id === element1.id
       }) == null
@@ -65,27 +71,27 @@ export const getShortId = id => {
 
 export const getInstructorRights = (user, courseInstance) => {
   // const { user, courseInstance } = this.props
-  if(user) {
-    if(user.isSuperAdmin) {
+  if (user) {
+    if (user.isSuperAdmin) {
       return true
     }
     const instructors = courseInstance.hasInstructor.map(i => i['@id'])
-    if(Array.isArray(instructors)) {
-      if(instructors.includes(user.fullURI)) {
+    if (Array.isArray(instructors)) {
+      if (instructors.includes(user.fullURI)) {
         return true
       }
     } else {
-      if(instructors === user.fullURI) {
+      if (instructors === user.fullURI) {
         return true
       }
     }
     const admins = courseInstance.instanceOf.hasAdmin
-    if(Array.isArray(admins)) {
-      if(admins.includes(user.fullURI)) {
+    if (Array.isArray(admins)) {
+      if (admins.includes(user.fullURI)) {
         return true
       }
     } else {
-      if(admins === user.fullURI) {
+      if (admins === user.fullURI) {
         return true
       }
     }

@@ -1,5 +1,5 @@
 //FROM GENERAL
-.m-l-10 {
+.m-l-10{
   margin-left: 10px;
 }
 
@@ -7,67 +7,67 @@ label {
   font-weight: bolder;
 }
 
-.red-color {
+.red-color{
   color: #bd2130;
 }
 
-.light-red-color {
+.light-red-color{
   color: #f8d7da;
 }
 
-.green-color {
+.green-color{
   color: #1e7e34;
 }
 
-.scrollable {
+.scrollable{
   overflow-y: auto;
   overflow-x: auto;
 }
 
 // FROM ASSIGNMENTS
 
-.assignmentsContainer {
+.assignmentsContainer{
   max-width: 900px;
 }
 
-.assignmentContainer {
+.assignmentContainer{
   max-width: 900px;
 }
 
-.assignmentViewContainer {
+.assignmentViewContainer{
   margin: 20px 0px;
 }
 
-.submissionContainer {
+.submissionContainer{
   margin: 20px 0px;
 }
 
-.bigPopover {
+.bigPopover{
   max-width: 600px;
 }
 
-.codeBlock {
+.codeBlock{
   border: solid lightGrey 4px;
   border-radius: 10px;
-  margin: 10px 5px;
-  padding: 10px;
+  margin:10px 5px;
+  padding:10px;
 }
 
-.comment-reply-button {
+.comment-reply-button{
   display: none;
 }
 
-.comment-section:hover {
-  .comment-reply-button {
-    display: inherit;
+.comment-section:hover{
+  .comment-reply-button{
+    display:inherit;
   }
 }
 
-.sort-button {
+.sort-button{
   color: white;
 }
 
-.sort-title:hover {
+.sort-title:hover{
   .sort-button {
     color: inherit;
   }
@@ -81,72 +81,69 @@ label {
   max-height: 100%;
 }
 
-.hasError {
+.hasError{
   border: 2px solid #f7afa8 !important;
 }
 
-.red-text {
-  color: red;
+.red-text{
+  color:red;
 }
 
-.grey-text {
-  color: #D0D0D0;
+.grey-text{
+  color:#D0D0D0;
 }
 
-.table-folder {
+.table-folder{
   border: 1px solid #dee2e6;
-
-  td {
+  td{
     padding: 2px 4px;
   }
 }
 
 .not-highlightable {
   -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none; /* Safari */
-  -khtml-user-select: none; /* Konqueror HTML */
-  -moz-user-select: none; /* Old versions of Firefox */
-  -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none;
-  /* Non-prefixed version, currently
-                                   supported by Chrome, Opera and Firefox */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Opera and Firefox */
 }
-
-.popover-500 {
+.popover-500{
   min-width: 500px;
 }
 
-.popover-700 {
+.popover-700{
   min-width: 700px;
 }
 
-.popover-max-height-700 {
+.popover-max-height-700{
   max-height: 700px;
 }
 
-.m-r-285 {
+.m-r-285{
   margin-right: 285px !important;
 }
 
-.time-has-passed {
+.time-has-passed{
   color: #6c757d;
   border: 1px solid #6c757d;
   border-radius: 0.25rem;
-  padding: 3px;
+  padding:3px;
 }
 
-.upcomming-time {
+.upcomming-time{
   color: #28a745;
   border: 1px solid #28a745;
   border-radius: 0.25rem;
-  padding: 3px;
+  padding:3px;
 }
 
-.greyed-out {
+.greyed-out{
   color: #6c757d;
 }
 
-.center-cell {
+.center-cell{
   text-align: center;
 }
 
@@ -168,22 +165,22 @@ label {
   border-color: #c9ecc8;
 }
 
-.slider-100 {
+.slider-100{
   width: 100px;
   padding-top: 5px;
   padding-bottom: 5px;
 }
 
-hr {
+hr{
   border-color: #c9ecc8;
 }
 
-.muted-medium {
+.muted-medium{
   font-size: 15px;
   font-weight: bolder;
 }
 
-a label {
+a label{
   width: -webkit-fill-available;
   text-overflow: clip;
   cursor: pointer;
@@ -193,16 +190,14 @@ a label {
   padding-left: 0px;
 }
 
-.inner-table {
+.inner-table{
   margin: 0px;
-
   tr {
     th {
-      padding: 0px;
+      padding:0px;
     }
-
     td {
-      padding: 0px;
+      padding:0px;
     }
   }
 }
@@ -212,11 +207,10 @@ a label {
   padding: 0px;
 }
 
-.small-card {
+.small-card{
   margin-top: 5px;
 }
-
-.small-card-header {
+.small-card-header{
   padding: 0px 10px;
 
 }

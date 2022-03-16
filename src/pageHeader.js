@@ -1,16 +1,16 @@
 import React, { Component } from "react";
 import {
-  Collapse,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  Nav,
   Navbar,
   NavbarBrand,
-  NavbarToggler,
-  NavItem,
   NavLink,
-  UncontrolledDropdown
+  NavItem,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  Nav,
+  UncontrolledDropdown,
+  NavbarToggler,
+  Collapse
 } from "reactstrap";
 import { NavLink as NV } from "react-router-dom";
 import { connect } from "react-redux";
@@ -38,41 +38,41 @@ class PageHeader extends Component {
             Webdesign
           </DropdownMenu>
         </UncontrolledDropdown>
-        <NavbarToggler onClick={ this.toggle }/>
-        <Collapse isOpen={ this.state.isOpen } navbar>
+        <NavbarToggler onClick={this.toggle} />
+        <Collapse isOpen={this.state.isOpen} navbar>
           <Nav navbar>
             <NavItem>
-              <NavLink tag={ NV } to="/info">
+              <NavLink tag={NV} to="/info">
                 Info
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink tag={ NV } to="/lectures">
+              <NavLink tag={NV} to="/lectures">
                 Lectures
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink tag={ NV } to="/labs">
+              <NavLink tag={NV} to="/labs">
                 Labs
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink tag={ NV } to="/assignments">
+              <NavLink tag={NV} to="/assignments">
                 Assignments
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink tag={ NV } to="/results">
+              <NavLink tag={NV} to="/results">
                 Results
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink tag={ NV } to="/quiz">
+              <NavLink tag={NV} to="/quiz">
                 Quiz
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink tag={ NV } to="/files">
+              <NavLink tag={NV} to="/files">
                 Files
               </NavLink>
             </NavItem>
@@ -80,22 +80,22 @@ class PageHeader extends Component {
           <Nav className="ml-auto" navbar>
             <NavItem>
               <NavLink>
-                <i className="fa fa-envelope clickable"/>
+                <i className="fa fa-envelope clickable" />
               </NavLink>
             </NavItem>
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
-                { this.props.isAdmin ? "Admin" : "Student" }
+                {this.props.isAdmin ? "Admin" : "Student"}
               </DropdownToggle>
               <DropdownMenu right>
                 <DropdownItem>Account settings</DropdownItem>
                 <DropdownItem
                   className="clickable"
-                  onClick={ () => this.props.setUserAdmin(!this.props.isAdmin) }
+                  onClick={() => this.props.setUserAdmin(!this.props.isAdmin)}
                 >
-                  Change to { this.props.isAdmin ? "Student" : "Admin" }
+                  Change to {this.props.isAdmin ? "Student" : "Admin"}
                 </DropdownItem>
-                <DropdownItem divider/>
+                <DropdownItem divider />
                 <DropdownItem>Log out</DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
@@ -106,11 +106,11 @@ class PageHeader extends Component {
   }
 }
 
-const mapStateToProps = ({userReducer}) => {
-  const {isAdmin} = userReducer;
+const mapStateToProps = ({ userReducer }) => {
+  const { isAdmin } = userReducer;
   return {
     isAdmin
   };
 };
 
-export default connect(mapStateToProps, {setUserAdmin})(PageHeader);
+export default connect(mapStateToProps, { setUserAdmin })(PageHeader);

@@ -1,8 +1,11 @@
 import React from 'react'
 import { store } from '../../index'
-import { logoutRedux, setToken, setUser } from '../../redux/actions/authActions'
+import { setToken, setUser, logoutRedux } from '../../redux/actions/authActions'
 import { getShortID } from '../../helperFunctions'
-import { resetPrivileges, setGlobalPrivileges, } from '../../redux/actions/privilegesActions'
+import {
+  resetPrivileges,
+  setGlobalPrivileges,
+} from '../../redux/actions/privilegesActions'
 
 /**
  * Store data to storage and redux
@@ -11,9 +14,9 @@ import { resetPrivileges, setGlobalPrivileges, } from '../../redux/actions/privi
  * @return
  */
 export function registerData(_token, user) {
-  if(user !== null && _token !== '') {
-    store.dispatch(setToken({name: '_token', value: _token}))
-    store.dispatch(setUser({name: 'user', value: user}))
+  if (user !== null && _token !== '') {
+    store.dispatch(setToken({ name: '_token', value: _token }))
+    store.dispatch(setUser({ name: 'user', value: user }))
     localStorage.setItem('_token', _token)
     localStorage.setItem('user', JSON.stringify(user))
     if(user.isSuperAdmin) {
@@ -28,7 +31,7 @@ export function registerData(_token, user) {
 
 export function getUser() {
   const user = localStorage.getItem('user')
-  if(user && user !== '') {
+  if (user && user !== '') {
     return JSON.parse(user)
   }
   return null
@@ -36,7 +39,7 @@ export function getUser() {
 
 export function getToken() {
   const token = localStorage.getItem('_token')
-  if(token && token !== '') {
+  if (token && token !== '') {
     return token
   }
   return null
@@ -45,10 +48,10 @@ export function getToken() {
 export function synchronize() {
   const token = getToken()
   const user = getUser()
-  if(token && user) {
-    store.dispatch(setToken({name: '_token', value: token}))
-    store.dispatch(setUser({name: 'user', value: user}))
-    if(user.isSuperAdmin) {
+  if (token && user) {
+    store.dispatch(setToken({ name: '_token', value: token }))
+    store.dispatch(setUser({ name: 'user', value: user }))
+    if (user.isSuperAdmin) {
       store.dispatch(setGlobalPrivileges('admin'))
     } else {
       store.dispatch(setGlobalPrivileges('user'))
@@ -71,7 +74,7 @@ export function isLogged() {
 
 export function getUserType() {
   const user = getUser()
-  if(user) {
+  if (user) {
     return user.type
   }
   return null
@@ -79,8 +82,8 @@ export function getUserType() {
 
 export function getUserName() {
   const user = getUser()
-  if(user) {
-    if(user.useNickName) {
+  if (user) {
+    if (user.useNickName) {
       return user.nickname
     }
     return user.firstName
@@ -90,7 +93,7 @@ export function getUserName() {
 
 export function getUserAvatar() {
   const user = getUser()
-  if(user) {
+  if (user) {
     return user.avatar
   }
   return null
@@ -98,15 +101,15 @@ export function getUserAvatar() {
 
 export function getUserEmail() {
   const user = getUser()
-  if(user) {
+  if (user) {
     return user.email
   }
   return null
 }
 
 export function setUserToken(_token) {
-  if(_token && _token !== '') {
-    store.dispatch(setToken({name: '_token', value: _token}))
+  if (_token && _token !== '') {
+    store.dispatch(setToken({ name: '_token', value: _token }))
     localStorage.setItem('_token', _token)
     return true
   }
@@ -114,9 +117,9 @@ export function setUserToken(_token) {
 }
 
 export function setUserProfile(user) {
-  if(user !== null) {
-    const new_user = {...getUser(), ...user}
-    store.dispatch(setUser({name: 'user', value: new_user}))
+  if (user !== null) {
+    const new_user = { ...getUser(), ...user }
+    store.dispatch(setUser({ name: 'user', value: new_user }))
     localStorage.setItem('user', JSON.stringify(new_user))
     return true
   }
@@ -125,7 +128,7 @@ export function setUserProfile(user) {
 
 export function getUserID() {
   const user = getUser()
-  if(user) {
+  if (user) {
     return user.id
   }
   return null
@@ -133,12 +136,12 @@ export function getUserID() {
 
 export function authHeader() {
   const token = getToken()
-  if(token) {
+  if (token) {
     return {
       'Content-Type': 'application/json',
       Accept: 'application/json',
       'Cache-Control': 'no-cache',
-      Authorization: `Bearer ${ token }`,
+      Authorization: `Bearer ${token}`,
     }
   }
   return {
@@ -150,17 +153,17 @@ export function authHeader() {
 
 export function getUserInCourseType(course_id) {
   const user = getUser()
-  if(user.isSuperAdmin) {
+  if (user.isSuperAdmin) {
     return 'instructor'
   }
-  if(!course_id) {
+  if (!course_id) {
     return 'visitor'
   }
-  if(!user) {
+  if (!user) {
     return 'visitor'
   }
-  for(let i = 0; i < user.studentOf.length; i++) {
-    if(getShortID(user.studentOf[i]['@id']) === course_id) {
+  for (let i = 0; i < user.studentOf.length; i++) {
+    if (getShortID(user.studentOf[i]['@id']) === course_id) {
       return 'student'
     }
   }

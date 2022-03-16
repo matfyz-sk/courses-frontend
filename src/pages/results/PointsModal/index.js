@@ -1,29 +1,29 @@
 import React, { useState } from 'react'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import {
+  Modal,
+  ModalHeader,
   Button,
+  ModalFooter,
+  ModalBody,
   Form,
   FormGroup,
+  Label,
   Input,
   InputGroup,
   InputGroupAddon,
   InputGroupText,
-  Label,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
 } from 'reactstrap'
 import { getShortID } from '../../../helperFunctions'
 import { createUserResult, getUserByTypeResult, updateUserResult } from '../functions'
 import { getUser } from '../../../components/Auth'
 
 const PointsModal = props => {
-  const {user, courseInstance, userIndex, resultModifier} = props
-  const [ modal, setModal ] = useState(false)
-  const [ loading, setLoading ] = useState(false)
-  const [ form, setForm ] = useState({
+  const { user, courseInstance, userIndex, resultModifier } = props
+  const [modal, setModal] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [form, setForm] = useState({
     type: '',
     points: 0,
     description: '',
@@ -36,7 +36,7 @@ const PointsModal = props => {
     setLoading(true)
     getUserByTypeResult(getShortID(user['@id']), getShortID(type_id)).then(
       data => {
-        if(data['@graph'] && data['@graph'].length > 0) {
+        if (data['@graph'] && data['@graph'].length > 0) {
           setForm({
             ...form,
             type: type_id,
@@ -47,7 +47,7 @@ const PointsModal = props => {
             before: data['@graph'][0].points,
           })
         } else {
-          setForm({...form, type: type_id, update: null, before: 0})
+          setForm({ ...form, type: type_id, update: null, before: 0 })
         }
         setLoading(false)
       }
@@ -56,30 +56,30 @@ const PointsModal = props => {
 
   function changeType(e) {
     const typeID = e.target.value !== '' ? e.target.value : null
-    if(typeID && typeID !== '') {
+    if (typeID && typeID !== '') {
       getTypeDetail(typeID)
     } else {
-      setForm({...form, type: e.target.value, update: null, before: 0})
+      setForm({ ...form, type: e.target.value, update: null, before: 0 })
     }
   }
 
   const toggle = () => setModal(!modal)
 
   function modifyResultsIfNecessary() {
-    if(userIndex !== undefined && resultModifier !== undefined) {
+    if (userIndex !== undefined && resultModifier !== undefined) {
       resultModifier(userIndex, form.before, form.points)
     }
   }
 
   function saveChanges() {
-    if(form.update) {
+    if (form.update) {
       updateUserResult({
         ...form.update,
         points: form.points,
         description: form.description,
         reference: form.reference,
       }).then(data => {
-        if(data.status) {
+        if (data.status) {
           setLoading(false)
           modifyResultsIfNecessary()
           toggle()
@@ -109,14 +109,14 @@ const PointsModal = props => {
       Without result type
     </option>
   )
-  if(courseInstance) {
-    for(let i = 0; i < courseInstance.hasResultType.length; i++) {
+  if (courseInstance) {
+    for (let i = 0; i < courseInstance.hasResultType.length; i++) {
       options.push(
         <option
-          value={ courseInstance.hasResultType[i]['@id'] }
-          key={ courseInstance.hasResultType[i]['@id'] }
+          value={courseInstance.hasResultType[i]['@id']}
+          key={courseInstance.hasResultType[i]['@id']}
         >
-          { courseInstance.hasResultType[i].name }
+          {courseInstance.hasResultType[i].name}
         </option>
       )
     }
@@ -124,12 +124,12 @@ const PointsModal = props => {
 
   return (
     <>
-      <Button size="sm" onClick={ () => toggle() }>
+      <Button size="sm" onClick={() => toggle()}>
         Add points
       </Button>
-      <Modal isOpen={ modal } toggle={ toggle }>
-        <ModalHeader toggle={ toggle }>
-          { `Add points to student ${ user.firstName } ${ user.lastName }?` }
+      <Modal isOpen={modal} toggle={toggle}>
+        <ModalHeader toggle={toggle}>
+          {`Add points to student ${user.firstName} ${user.lastName}?`}
         </ModalHeader>
         <ModalBody>
           <Form>
@@ -139,11 +139,11 @@ const PointsModal = props => {
                 type="select"
                 name="select"
                 id="resultType"
-                value={ form.type }
-                disabled={ loading }
-                onChange={ changeType }
+                value={form.type}
+                disabled={loading}
+                onChange={changeType}
               >
-                { options }
+                {options}
               </Input>
             </FormGroup>
             <FormGroup>
@@ -153,9 +153,9 @@ const PointsModal = props => {
                 name="points"
                 id="points"
                 placeholder="e.g. 12"
-                value={ form.points }
-                disabled={ loading }
-                onChange={ e =>
+                value={form.points}
+                disabled={loading}
+                onChange={e =>
                   setForm({
                     ...form,
                     points: e.target.value,
@@ -169,9 +169,9 @@ const PointsModal = props => {
                 type="textarea"
                 name="description"
                 id="description"
-                value={ form.description }
-                disabled={ loading }
-                onChange={ e =>
+                value={form.description}
+                disabled={loading}
+                onChange={e =>
                   setForm({
                     ...form,
                     description: e.target.value,
@@ -189,9 +189,9 @@ const PointsModal = props => {
                   type="text"
                   name="reference"
                   id="reference"
-                  value={ form.reference }
-                  disabled={ loading }
-                  onChange={ e =>
+                  value={form.reference}
+                  disabled={loading}
+                  onChange={e =>
                     setForm({
                       ...form,
                       reference: e.target.value,
@@ -203,11 +203,11 @@ const PointsModal = props => {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="secondary" onClick={ toggle }>
+          <Button color="secondary" onClick={toggle}>
             Cancel
           </Button>
-          <Button color="primary" onClick={ saveChanges } disabled={ loading }>
-            { form.update ? 'Update points' : 'Add points' }
+          <Button color="primary" onClick={saveChanges} disabled={loading}>
+            {form.update ? 'Update points' : 'Add points'}
           </Button>
         </ModalFooter>
       </Modal>
@@ -215,8 +215,8 @@ const PointsModal = props => {
   )
 }
 
-const mapStateToProps = ({courseInstanceReducer}) => {
-  const {courseInstance} = courseInstanceReducer
+const mapStateToProps = ({ courseInstanceReducer }) => {
+  const { courseInstance } = courseInstanceReducer
   return {
     courseInstance,
   }

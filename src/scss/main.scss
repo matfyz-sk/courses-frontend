@@ -1,25 +1,25 @@
-body {
-  margin: 0px;
+body{
+  margin:0px;
 }
 
-.sidebarContainer {
-  width: $sidebar-width;
+.sidebarContainer{
+  width:$sidebar-width;
   height: $sidebar-height;
   background-color: lightGrey;
   padding: 20px 10px;
 }
 
-.header {
+.header{
   height: $header-height;
-  border-radius: 0;
+  border-radius:0;
   background-color: #8db9df;
   border-bottom: 2px solid #6aabed;
   color: black;
 }
 
-.headerDropdown {
-  background-color: inherit;
-  border-width: 0
+.headerDropdown{
+  background-color:inherit;
+  border-width:0
 }
 
 .tableInput {

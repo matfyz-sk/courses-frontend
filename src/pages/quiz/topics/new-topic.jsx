@@ -2,8 +2,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { Button, Form, FormGroup, Input, Label } from 'reactstrap'
-import { postTopic, } from '../../../redux/actions'
+import { Label, FormGroup, Input, Form, Button } from 'reactstrap'
+import {
+  // getTopics,
+  postTopic,
+} from '../../../redux/actions'
 
 class NewTopic extends Component {
   state = {
@@ -11,38 +14,38 @@ class NewTopic extends Component {
   }
 
   formSubmit = () => {
-    const {postTopicConnect, token} = this.props
-    const {topicName} = this.state
+    const { postTopicConnect, token } = this.props
+    const { topicName } = this.state
     const topic = {
       name: topicName,
     }
     postTopicConnect(topic, token)
-      .then(
-        response => {
-          this.props.history.push("/quiz/questionGroups");
-        }
-        // error => {
-        //   if (error.statusCode === 401) {
-        //     return <Redirect to="/login" />;
-        //   }
-        // }
-      );
+    .then(
+      response => {
+        this.props.history.push("/quiz/questionGroups");
+      }
+    // error => {
+    //   if (error.statusCode === 401) {
+    //     return <Redirect to="/login" />;
+    //   }
+    // }
+    );
   }
 
   changeHandler = e => {
-    const {name} = e.target
-    const {value} = e.target
+    const { name } = e.target
+    const { value } = e.target
     this.setState({
       [name]: value,
     })
   }
 
   render() {
-    const {topicName} = this.state
-    const {isTeacher} = this.props
+    const { topicName } = this.state
+    const { isTeacher } = this.props
     return (
       <>
-        { isTeacher ? (
+        {isTeacher ? (
           <Form>
             <FormGroup>
               <Label for="name">Topic name</Label>
@@ -50,18 +53,18 @@ class NewTopic extends Component {
                 type="textarea"
                 name="topicName"
                 id="topicName"
-                value={ topicName }
-                onChange={ this.changeHandler }
+                value={topicName}
+                onChange={this.changeHandler}
               />
             </FormGroup>
-            <Button color="success" onClick={ this.formSubmit }>
+            <Button color="success" onClick={this.formSubmit}>
               Create topic
             </Button>
           </Form>
         ) : (
           <div>Not authorized.</div>
           //   TODO add private route
-        ) }
+        )}
       </>
     )
   }
@@ -75,8 +78,8 @@ NewTopic.defaultProps = {
   postTopicConnect: null,
 }
 
-const mapStateToProps = ({userReducer}) => {
-  const {isAdmin} = userReducer
+const mapStateToProps = ({ userReducer }) => {
+  const { isAdmin } = userReducer
   return {
     isAdmin,
   }

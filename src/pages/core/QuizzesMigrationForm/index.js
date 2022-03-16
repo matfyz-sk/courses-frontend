@@ -1,8 +1,8 @@
 import { Button, CardSubtitle, Form, FormGroup, Input, Label } from 'reactstrap'
 import React from 'react'
 
-export const QuizzesMigrationForm = ({navigation}) => {
-  const {previous, next} = navigation
+export const QuizzesMigrationForm = ({ navigation }) => {
+  const { previous, next } = navigation
   return (
     <>
       <CardSubtitle className="card-subtitle-migrations">
@@ -17,15 +17,15 @@ export const QuizzesMigrationForm = ({navigation}) => {
               type="checkbox"
               checked
               disabled
-            />{ ' ' }
+            />{' '}
             I don't want to migrate any quizzes right now.
           </Label>
         </FormGroup>
         <div className="button-container-migrations">
-          <Button className="new-event-button" onClick={ previous }>
+          <Button className="new-event-button" onClick={previous}>
             Previous
           </Button>
-          <Button className="new-event-button" onClick={ next }>
+          <Button className="new-event-button" onClick={next}>
             Next
           </Button>
         </div>

@@ -12,10 +12,10 @@ const CLIENT_ID = 'f937b5e763fd295e11b9'
 const REDIRECT_URI = `http://localhost:3000`
 
 const GithubAuth = props => {
-  const [ error, setError ] = useState(null)
+  const [error, setError] = useState(null)
 
   function onSuccess(resp) {
-    fetch(`${ BACKEND_URL }/auth/github?code=${ resp.code }`, {
+    fetch(`${BACKEND_URL}/auth/github?code=${resp.code}`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',
@@ -25,9 +25,9 @@ const GithubAuth = props => {
         return response.json()
       })
       .then(data => {
-        if(data.status) {
+        if (data.status) {
           // eslint-disable-next-line no-underscore-dangle
-          if(registerData(data._token, data.user)) {
+          if (registerData(data._token, data.user)) {
             if(data.user.email === "") {
               // eslint-disable-next-line react/destructuring-assignment
               props.history.push(REGISTER_COMPLETION)
@@ -47,17 +47,17 @@ const GithubAuth = props => {
 
   return (
     <>
-      { error ? <Alert color="danger">{ error }</Alert> : null }
+      {error ? <Alert color="danger">{error}</Alert> : null}
       <GitHubLogin
-        clientId={ CLIENT_ID }
-        redirectUri={ REDIRECT_URI }
-        onSuccess={ e => onSuccess(e) }
-        onFailure={ e => onFailure(e) }
+        clientId={CLIENT_ID}
+        redirectUri={REDIRECT_URI}
+        onSuccess={e => onSuccess(e)}
+        onFailure={e => onFailure(e)}
         className="github"
       >
         <div className="content">
           <div className="icon">
-            <img src={ GithubIcon } alt="github"/>
+            <img src={GithubIcon} alt="github" />
           </div>
           <div className="title">Login with GitHub</div>
         </div>

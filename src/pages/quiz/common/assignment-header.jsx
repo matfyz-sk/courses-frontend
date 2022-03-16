@@ -1,45 +1,45 @@
 import React from 'react'
-import { FormGroup, Input, Label } from 'reactstrap'
+import { Label, FormGroup, Input } from 'reactstrap'
 import DatePicker from 'react-datepicker'
 import WarningMessage from './warning-message'
 
 const AssignmentHeader = ({
-                            startDate,
-                            endDate,
-                            description,
-                            onStartDateChange,
-                            onEndDateChange,
-                            handleChange,
-                            showWarning
-                          }) => {
+  startDate,
+  endDate,
+  description,
+  onStartDateChange,
+  onEndDateChange,
+  handleChange,
+  showWarning
+}) => {
   return (
     <>
       <FormGroup>
         <FormGroup>
           <Label for="startDate">Start date</Label>
-          <br/>
+          <br />
           <DatePicker
             id="startDate"
             name="startDate"
             dateFormat="dd/MM/yyyy"
-            selected={ startDate }
-            onChange={ onStartDateChange }
+            selected={startDate}
+            onChange={onStartDateChange}
           />
         </FormGroup>
         <FormGroup>
           <Label for="endDate">End date</Label>
-          <br/>
+          <br />
           <DatePicker
             id="endDate"
             name="endDate"
             dateFormat="dd/MM/yyyy"
-            selected={ endDate }
-            onChange={ onEndDateChange }
+            selected={endDate}
+            onChange={onEndDateChange}
           />
         </FormGroup>
-        { showWarning && <WarningMessage
-          text={ showWarning.date }
-        /> }
+        {showWarning && <WarningMessage 
+          text = {showWarning.date}
+        />}
       </FormGroup>
       <FormGroup>
         <Label for="description">Description</Label>
@@ -47,13 +47,13 @@ const AssignmentHeader = ({
           type="textarea"
           name="description"
           id="description"
-          value={ description }
-          onChange={ handleChange }
+          value={description}
+          onChange={handleChange}
         />
-        { showWarning && <WarningMessage
-          text={ showWarning.description }
-          className='mt-2'
-        /> }
+        {showWarning && <WarningMessage 
+          text = {showWarning.description}
+          className = 'mt-2'
+        />}
       </FormGroup>
     </>
   )

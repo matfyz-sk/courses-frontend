@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { Form, Label } from 'reactstrap'
+import { Button, Form, FormGroup, Label } from 'reactstrap'
 import Autocomplete from '@material-ui/lab/Autocomplete'
+import Chip from '@material-ui/core/Chip'
 import TextField from '@material-ui/core/TextField'
 import { BASE_URL, USER_URL } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
@@ -17,18 +18,18 @@ class AddInstructor extends Component {
   }
 
   componentDidMount() {
-    const {courseInstanceId} = this.props
+    const { courseInstanceId } = this.props
 
     let url = BASE_URL + USER_URL
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
-      if(data != null) {
+      if (data != null) {
         const users = data.map(user => {
           return {
             fullId: user['@id'],
             name:
               user.firstName !== '' && user.lastName !== ''
-                ? `${ user.firstName } ${ user.lastName }`
+                ? `${user.firstName} ${user.lastName}`
                 : 'Noname',
           }
         })
@@ -38,17 +39,17 @@ class AddInstructor extends Component {
       }
     })
 
-    if(courseInstanceId != null) {
-      url += `?instructorOf=${ courseInstanceId }`
+    if (courseInstanceId != null) {
+      url += `?instructorOf=${courseInstanceId}`
       axiosRequest('get', null, url).then(response => {
         const data = getData(response)
-        if(data != null) {
+        if (data != null) {
           const instructors = data.map(user => {
             return {
               fullId: user['@id'],
               name:
                 user.firstName !== '' && user.lastName !== ''
-                  ? `${ user.firstName } ${ user.lastName }`
+                  ? `${user.firstName} ${user.lastName}`
                   : 'Noname',
             }
           })
@@ -65,14 +66,14 @@ class AddInstructor extends Component {
   }
 
   onInstructorChange = (event, values) => {
-    this.setState({instructors: values})
+    this.setState({ instructors: values })
   }
 
   render() {
-    const {users, instructors} = this.state
+    const { users, instructors } = this.state
 
     return (
-      <Form className="add-instructors" onSubmit={ this.handleSubmit }>
+      <Form className="add-instructors" onSubmit={this.handleSubmit}>
         <Label id="instructors-label" for="instructors">
           Instructors
         </Label>
@@ -80,29 +81,26 @@ class AddInstructor extends Component {
           multiple
           name="instructors"
           id="instructors"
-          options={ users }
-          getOptionLabel={ option => option.name }
-          onChange={ this.onInstructorChange }
-          value={ instructors }
-          style={ {minWidth: 200, maxWidth: 500} }
-          renderInput={ params => (
+          options={users}
+          getOptionLabel={option => option.name}
+          onChange={this.onInstructorChange}
+          value={instructors}
+          style={{ minWidth: 200, maxWidth: 500 }}
+          renderInput={params => (
             <TextField
-              { ...params }
+              {...params}
               placeholder=""
-              InputProps={ {...params.InputProps, disableUnderline: true} }
+              InputProps={{ ...params.InputProps, disableUnderline: true }}
             />
-          ) }
+          )}
         />
-        <button type='submit' ref={ (button) => {
-          this.activityFormButton = button
-        } }>Submit
-        </button>
+        <button type='submit' ref={ (button) => { this.activityFormButton = button } } >Submit</button>
       </Form>
     )
   }
 }
 
-const mapStateToProps = ({authReducer}) => {
+const mapStateToProps = ({ authReducer }) => {
   return {
     user: authReducer.user,
   }

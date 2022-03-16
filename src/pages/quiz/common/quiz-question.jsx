@@ -23,14 +23,14 @@ function QuizQuestion({
 
   function getAnswerContent() {
     const finalVariant = variant === 'quizReview' || variant === 'quizResult' || variant === 'quizGradedUser'
-    switch(question.question.questionType) {
+    switch (question.question.questionType) {
       case QuestionTypesEnums.multiple.id:
         return (
           <QuestionAnswers
-            answers={ question.question.answers }
-            userAnswer={ question.userAnswer }
-            setUserAnswer={ question.setUserAnswer }
-            finalAnswer={ finalVariant ? true : undefined }
+            answers={question.question.answers}
+            userAnswer={question.userAnswer}
+            setUserAnswer={question.setUserAnswer}
+            finalAnswer={finalVariant ? true : undefined}
           />
         )
       case QuestionTypesEnums.open.id:
@@ -38,10 +38,10 @@ function QuizQuestion({
           finalVariant && question.userAnswer === "" ?
             <Typography color='textSecondary'><em>No answer</em></Typography> :
             <AnswerComponentOpen
-              regexp={ question.question.regexp }
-              userAnswer={ question.userAnswer }
-              setUserAnswer={ question.setUserAnswer }
-              finalAnswer={ finalVariant ? true : undefined }
+              regexp={question.question.regexp}
+              userAnswer={question.userAnswer}
+              setUserAnswer={question.setUserAnswer}
+              finalAnswer={finalVariant ? true : undefined}
             />
         )
       case QuestionTypesEnums.essay.id:
@@ -49,28 +49,28 @@ function QuizQuestion({
           finalVariant && question.userAnswer === "" ?
             <Typography color='textSecondary'><em>No answer</em></Typography> :
             <AnswerComponentEssay
-              userAnswer={ question.userAnswer }
-              setUserAnswer={ finalVariant ? undefined : question.setUserAnswer }
+              userAnswer={question.userAnswer}
+              setUserAnswer={finalVariant ? undefined : question.setUserAnswer}
             />
         )
       case QuestionTypesEnums.ordering.id:
         return (
           <AnswerComponentOrder
-            orderAnswers={ question.question.orderAnswers }
-            userAnswer={ question.userAnswer }
-            setUserAnswer={ question.setUserAnswer }
-            finalAnswer={ finalVariant ? true : undefined }
+            orderAnswers={question.question.orderAnswers}
+            userAnswer={question.userAnswer}
+            setUserAnswer={question.setUserAnswer}
+            finalAnswer={finalVariant ? true : undefined}
           />
         )
       case QuestionTypesEnums.matching.id:
-        const matchAnswers = [ ...new Set(question.question.matchPairs.map(pair => pair.answer)) ]
+        const matchAnswers = [...new Set(question.question.matchPairs.map(pair => pair.answer))]
         return (
           <AnswerComponentMatch
-            matchAnswers={ matchAnswers }
-            pairs={ question.question.matchPairs }
-            userAnswer={ question.userAnswer }
-            setUserAnswer={ question.setUserAnswer }
-            finalAnswer={ finalVariant ? true : undefined }
+            matchAnswers={matchAnswers}
+            pairs={question.question.matchPairs}
+            userAnswer={question.userAnswer}
+            setUserAnswer={question.setUserAnswer}
+            finalAnswer={finalVariant ? true : undefined}
           />
         )
       default:
@@ -79,44 +79,44 @@ function QuizQuestion({
   }
 
   const getQuestionItem = () => {
-    switch(variant) {
+    switch (variant) {
       case "answersRaw":
         return (
           <Box
-            key={ question.question.id }
-            padding={ 3 }
-            border={ `1px solid ${ grey[300] }` }
+            key={question.question.id}
+            padding={3}
+            border={`1px solid ${grey[300]}`}
           >
-            { getAnswerContent() }
+            {getAnswerContent()}
           </Box>
         )
       //quizAssignment + question
       case "questionPreview":
         return (
-          <Box padding={ 1 } marginTop={ 1 } marginBottom={ 1 }>
-            <Typography className={ style.QO_infoText }>
-              created { formatDate(question.question.createdAt) }
+          <Box padding={1} marginTop={1} marginBottom={1}>
+            <Typography className={style.QO_infoText}>
+              created {formatDate(question.question.createdAt)}
             </Typography>
-            <Typography className={ style.QQ_questionText }>
-              { question.question.questionText }
+            <Typography className={style.QQ_questionText}>
+              {question.question.questionText}
             </Typography>
             <Box width='100%'>
-              { getAnswerContent() }
+              {getAnswerContent()}
             </Box>
           </Box>
         )
       //quizAssignment overview
       case "quizOverview":
         return (
-          <Box padding={ 1 } marginTop={ 1 } marginBottom={ 1 }>
-            <Typography className={ style.QO_infoText }>
-              { question.points } { question.points === '1' ? 'point' : 'points' }
+          <Box padding={1} marginTop={1} marginBottom={1}>
+            <Typography className={style.QO_infoText}>
+              {question.points} {question.points === '1' ? 'point' : 'points'}
             </Typography>
-            <Typography className={ style.QQ_questionText }>
-              { question.question.questionText }
+            <Typography className={style.QQ_questionText}>
+              {question.question.questionText}
             </Typography>
             <Box width='100%'>
-              { getAnswerContent() }
+              {getAnswerContent()}
             </Box>
           </Box>
         )
@@ -126,37 +126,37 @@ function QuizQuestion({
         return (
           <Box>
             <Box
-              padding={ 3 }
-              marginBottom={ 1 }
-              bgcolor={ grey[100] }
+              padding={3}
+              marginBottom={1}
+              bgcolor={grey[100]}
             >
-              <Box display='flex' width='100%' marginBottom={ 3 }>
+              <Box display='flex' width='100%' marginBottom={3}>
                 <Box width='50%' display='flex' justifyContent='flex-start' alignItems='center'>
-                  <Typography>Question { index + 1 }</Typography>
-                  { variant === "quizTake" &&
-                    <Typography className={ style.QO_infoText }
-                                style={ {marginLeft: 5} }>
-                      | { question.points } { question.points === 1 ? 'point' : 'points' }</Typography> }
+                  <Typography>Question {index + 1}</Typography>
+                  {variant === "quizTake" &&
+                  <Typography className={style.QO_infoText}
+                              style={{ marginLeft: 5 }}>
+                    | {question.points} {question.points === 1 ? 'point' : 'points'}</Typography>}
                 </Box>
                 <Box width='50%' display='flex' justifyContent='flex-end'>
                   <Button
                     size='small'
-                    style={ {
+                    style={{
                       color: customTheme.palette.error.main,
                       borderColor: customTheme.palette.error.main,
                       height: 35
-                    } }
+                    }}
                     variant='outlined'
-                    onClick={ e => resetQuestion(question) }
+                    onClick={e => resetQuestion(question)}
                   >
                     Reset
                   </Button>
                 </Box>
               </Box>
-              <Typography><b>{ question.question.questionText }</b></Typography>
+              <Typography><b>{question.question.questionText}</b></Typography>
             </Box>
-            <Box padding={ 3 }>
-              { getAnswerContent() }
+            <Box padding={3}>
+              {getAnswerContent()}
             </Box>
           </Box>
         )
@@ -166,61 +166,61 @@ function QuizQuestion({
       case "quizGradedCorrect":
       case "quizReview":
         const correct = variant === "quizReview" ? question.ogScore === question.points : evaluate(question)
-        if(variant === 'quizGradedCorrect') question = {...question, userAnswer: null}
+        if (variant === 'quizGradedCorrect') question={ ...question, userAnswer: null }
         const borderStyle = "3px solid"
         return (
           <Box
-            key={ question.question.id }
-            marginTop={ 3 }
-            marginBottom={ variant === "quizResult" ? 6 : 0 }
-            border={ `1px solid ${ grey[300] }` }
-            borderBottom={ variant === "quizReview" ? 0 : `1px solid ${ grey[300] }` }
+            key={question.question.id}
+            marginTop={3}
+            marginBottom={variant === "quizResult" ? 6 : 0}
+            border={`1px solid ${grey[300]}`}
+            borderBottom={variant === "quizReview" ? 0 : `1px solid ${grey[300]}`}
           >
             <Box
-              padding={ 2 }
-              paddingLeft={ 3 }
-              paddingRight={ 3 }
-              bgcolor={ grey[100] }
-              borderBottom={ question.question.questionType === QuestionTypesEnums.essay.id ?
-                `${ borderStyle } ${ grey[500] }` : correct ?
-                  `${ borderStyle } ${ green[700] }` : `${ borderStyle } ${ red[500] }` }
+              padding={2}
+              paddingLeft={3}
+              paddingRight={3}
+              bgcolor={grey[100]}
+              borderBottom={question.question.questionType === QuestionTypesEnums.essay.id ?
+                `${borderStyle} ${grey[500]}` : correct ?
+                  `${borderStyle} ${green[700]}` : `${borderStyle} ${red[500]}`}
             >
-              { question.question.questionType === QuestionTypesEnums.essay.id ?
-                variant !== 'quizGraded' &&
+              {question.question.questionType === QuestionTypesEnums.essay.id ?
+                variant!=='quizGraded' &&
                 <Box display='flex' width='100%' alignItems='center'>
-                  <FaQuestionCircle color={ customTheme.palette.text.secondary }/>
+                  <FaQuestionCircle color={customTheme.palette.text.secondary} />
                   <Typography
                     variant='button'
-                    style={ {color: customTheme.palette.text.secondary, marginLeft: 5} }
+                    style={{ color: customTheme.palette.text.secondary, marginLeft: 5 }}
                   >
-                    { variant === "quizResult" ? "Question will be graded by the teacher" : variant === 'quizReview' ? "Requires grading" : "Graded by the teacher" }
+                    {variant === "quizResult" ? "Question will be graded by the teacher" : variant === 'quizReview' ? "Requires grading" : "Graded by the teacher"}
                   </Typography>
                 </Box>
                 :
                 <Box display='flex' width='100%' alignItems='flex-end'>
                   <Box width='50%' display='flex' justifyContent='flex-start' alignItems='center'>
-                    { correct ?
-                      <FaCheckCircle color={ customTheme.palette.primary.main }/> :
-                      <FaTimesCircle color={ customTheme.palette.error.main }/> }
+                    {correct ?
+                      <FaCheckCircle color={customTheme.palette.primary.main} /> :
+                      <FaTimesCircle color={customTheme.palette.error.main} />}
                     <Typography
                       variant='button'
-                      style={ {
+                      style={{
                         color: correct ? customTheme.palette.primary.main : customTheme.palette.error.main,
                         marginLeft: 5,
-                      } }
+                      }}
                     >
-                      { correct ? 'Correct' : 'Incorrect' }
+                      {correct ? 'Correct' : 'Incorrect'}
                     </Typography>
                   </Box>
-                </Box> }
-              <Box marginTop={ 3 }>
-                <Typography className={ style.QQR_questionText }>
-                  { question.question.questionText }
+                </Box>}
+              <Box marginTop={3}>
+                <Typography className={style.QQR_questionText}>
+                  {question.question.questionText}
                 </Typography>
               </Box>
             </Box>
-            <Box padding={ 3 }>
-              { getAnswerContent() }
+            <Box padding={3}>
+              {getAnswerContent()}
             </Box>
           </Box>
         )
@@ -229,7 +229,7 @@ function QuizQuestion({
 
   return (
     <Box width='100%'>
-      { getQuestionItem() }
+      {getQuestionItem()}
     </Box>
   )
 }

@@ -7,13 +7,13 @@ import { REGISTER_COMPLETION } from '../constants/routes'
 
 class MainLayout extends Component {
   componentDidMount() {
-    if(
+    if (
       getUser() &&
       getUser().email === '' &&
       window.location.pathname !== REGISTER_COMPLETION
     ) {
       this.props.history.push(REGISTER_COMPLETION)
-    } else if(window.location.pathname === REGISTER_COMPLETION) {
+    } else if (window.location.pathname === REGISTER_COMPLETION) {
       this.props.history.push('/dashboard')
     }
     synchronize()
@@ -22,9 +22,9 @@ class MainLayout extends Component {
   render() {
     return (
       <>
-        <MainNavigation { ...this.props } />
-        {/* eslint-disable-next-line react/destructuring-assignment */ }
-        { this.props.children }
+        <MainNavigation {...this.props} />
+        {/* eslint-disable-next-line react/destructuring-assignment */}
+        {this.props.children}
       </>
     )
   }

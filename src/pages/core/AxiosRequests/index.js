@@ -9,7 +9,7 @@ export const axiosRequest = (method, data, url) => {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: getToken() ? `Bearer ${ getToken() }` : '',
+        Authorization: getToken() ? `Bearer ${getToken()}` : '',
       },
       data,
     })
@@ -20,9 +20,9 @@ export const axiosRequest = (method, data, url) => {
 }
 
 export const getData = response => {
-  if(response && response.status === 200) {
-    const {data} = response
-    if(
+  if (response && response.status === 200) {
+    const { data } = response
+    if (
       data &&
       data['@graph'] &&
       data['@graph'].length &&

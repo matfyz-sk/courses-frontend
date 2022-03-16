@@ -1,7 +1,16 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
-import { Button, CardSubtitle, Form, Label, } from 'reactstrap'
+import {
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Container,
+  Row,
+  Col,
+  CardSubtitle,
+} from 'reactstrap'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import TextField from '@material-ui/core/TextField'
@@ -10,10 +19,10 @@ import { BASE_URL, USER_URL } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { connect } from 'react-redux'
 import {
+  setCourseMigrationState,
+  setCourseMigrationStartDate,
   setCourseMigrationEndDate,
   setCourseMigrationInstructors,
-  setCourseMigrationStartDate,
-  setCourseMigrationState,
 } from '../../../redux/actions'
 
 class CourseMigrationForm extends Component {
@@ -29,7 +38,7 @@ class CourseMigrationForm extends Component {
   }
 
   componentDidMount() {
-    const {startDate, endDate, instructors} = this.props
+    const { startDate, endDate, instructors } = this.props
     this.setState({
       startDate,
       endDate,
@@ -39,13 +48,13 @@ class CourseMigrationForm extends Component {
     const url = BASE_URL + USER_URL
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
-      if(data != null) {
+      if (data != null) {
         const users = data.map(user => {
           return {
             fullId: user['@id'],
             name:
               user.firstName !== '' && user.lastName !== ''
-                ? `${ user.firstName } ${ user.lastName }`
+                ? `${user.firstName} ${user.lastName}`
                 : 'Noname',
           }
         })
@@ -57,8 +66,8 @@ class CourseMigrationForm extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if(prevProps.startDate !== this.props.startDate) {
-      const {startDate, endDate, instructors} = this.props
+    if (prevProps.startDate !== this.props.startDate) {
+      const { startDate, endDate, instructors } = this.props
 
       this.setState({
         startDate,
@@ -69,42 +78,42 @@ class CourseMigrationForm extends Component {
   }
 
   onInstructorChange = (event, values) => {
-    this.setState({instructors: values})
+    this.setState({ instructors: values })
     this.props.setCourseMigrationInstructors(values)
   }
 
   handleChangeFrom = date => {
-    this.setState({startDate: date})
+    this.setState({ startDate: date })
     this.props.setCourseMigrationStartDate(date)
   }
 
   handleChangeTo = date => {
-    this.setState({endDate: date})
+    this.setState({ endDate: date })
     this.props.setCourseMigrationEndDate(date)
   }
 
   render() {
-    const {startDate, endDate, users, instructors} = this.state
-    const {next} = this.props.navigation
+    const { startDate, endDate, users, instructors } = this.state
+    const { next } = this.props.navigation
 
     return (
       <>
         <CardSubtitle className="card-subtitle-migrations">
           Course Details
         </CardSubtitle>
-        <Form onSubmit={ this.onSubmit } className="course-migration-container">
+        <Form onSubmit={this.onSubmit} className="course-migration-container">
           <Label id="from-label" for="from" className="new-event-label">
             From
           </Label>
           <DatePicker
             name="from"
             id="from"
-            selected={ startDate }
-            onChange={ this.handleChangeFrom }
-            maxDate={ endDate }
+            selected={startDate}
+            onChange={this.handleChangeFrom}
+            maxDate={endDate}
             showTimeSelect
             timeFormat="HH:mm"
-            timeIntervals={ 15 }
+            timeIntervals={15}
             dateFormat="dd/MM/yyyy HH:mm"
             timeCaption="time"
           />
@@ -114,12 +123,12 @@ class CourseMigrationForm extends Component {
           <DatePicker
             name="to"
             id="to"
-            selected={ endDate }
-            onChange={ this.handleChangeTo }
-            minDate={ startDate }
+            selected={endDate}
+            onChange={this.handleChangeTo}
+            minDate={startDate}
             showTimeSelect
             timeFormat="HH:mm"
-            timeIntervals={ 15 }
+            timeIntervals={15}
             dateFormat="dd/MM/yyyy HH:mm"
             timeCaption="time"
           />
@@ -131,24 +140,24 @@ class CourseMigrationForm extends Component {
             multiple
             name="instructors"
             id="instructors"
-            options={ users }
-            getOptionLabel={ option => option.name }
-            onChange={ this.onInstructorChange }
-            value={ instructors }
-            style={ {minWidth: 200, maxWidth: 500} }
-            renderInput={ params => (
+            options={users}
+            getOptionLabel={option => option.name}
+            onChange={this.onInstructorChange}
+            value={instructors}
+            style={{ minWidth: 200, maxWidth: 500 }}
+            renderInput={params => (
               <TextField
-                { ...params }
+                {...params}
                 placeholder=""
-                InputProps={ {
+                InputProps={{
                   ...params.InputProps,
                   disableUnderline: true,
-                } }
+                }}
               />
-            ) }
+            )}
           />
           <div className="button-container-migrations">
-            <Button className="new-event-button" onClick={ next }>
+            <Button className="new-event-button" onClick={next}>
               Next
             </Button>
           </div>
@@ -158,7 +167,7 @@ class CourseMigrationForm extends Component {
   }
 }
 
-const mapStateToProps = ({courseMigrationReducer}) => {
+const mapStateToProps = ({ courseMigrationReducer }) => {
   return {
     startDate: courseMigrationReducer.startDate,
     endDate: courseMigrationReducer.endDate,

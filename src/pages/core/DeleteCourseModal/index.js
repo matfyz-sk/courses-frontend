@@ -1,6 +1,16 @@
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
-import { Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, } from 'reactstrap'
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+} from 'reactstrap'
 import { BASE_URL, COURSE_INSTANCE_URL, COURSE_URL } from '../constants'
 import { axiosRequest } from '../AxiosRequests'
 import './DeleteCourseModal.css'
@@ -30,37 +40,37 @@ class DeleteCourseModal extends Component {
   }
 
   render() {
-    const {course, courseInstance, type, className, small} = this.props
-    const {redirect} = this.state
+    const { course, courseInstance, type, className, small } = this.props
+    const { redirect } = this.state
 
-    if(redirect) {
-      return <Redirect to={ redirect }/>
+    if (redirect) {
+      return <Redirect to={redirect} />
     }
 
     return (
       <div>
-        <Button onClick={ this.toggle } className={ `delete-button ${ small }` }>
+        <Button onClick={this.toggle} className={`delete-button ${small}`}>
           Delete
         </Button>
-        {/*<span onClick={this.toggle} className="edit-delete-buttons">*/ }
-        {/*  Delete*/ }
-        {/*</span>*/ }
+        {/*<span onClick={this.toggle} className="edit-delete-buttons">*/}
+        {/*  Delete*/}
+        {/*</span>*/}
         <Modal
-          isOpen={ this.state.modal }
-          toggle={ this.toggle }
-          className={ className }
+          isOpen={this.state.modal}
+          toggle={this.toggle}
+          className={className}
         >
-          <ModalHeader toggle={ this.toggle }>{ course.name }</ModalHeader>
+          <ModalHeader toggle={this.toggle}>{course.name}</ModalHeader>
           <ModalBody>
             <DeleteForm
-              course={ course }
-              courseInstance={ courseInstance }
-              type={ type }
-              callback={ this.callback }
+              course={course}
+              courseInstance={courseInstance}
+              type={type}
+              callback={this.callback}
             />
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={ this.toggle }>
+            <Button color="secondary" onClick={this.toggle}>
               Cancel
             </Button>
           </ModalFooter>
@@ -80,13 +90,13 @@ class DeleteForm extends Component {
   }
 
   deleteCourse = () => {
-    const {course, courseInstance, type, callback} = this.props
+    const { course, courseInstance, type, callback } = this.props
 
     const url = `${
       BASE_URL + (type === 'course' ? COURSE_URL : COURSE_INSTANCE_URL)
-    }/${ type === 'course' ? course.id : courseInstance.id }`
+    }/${type === 'course' ? course.id : courseInstance.id}`
     axiosRequest('delete', null, url).then(response => {
-      if(response && response.status === 200) {
+      if (response && response.status === 200) {
         callback()
       } else {
         const errors = []
@@ -99,11 +109,11 @@ class DeleteForm extends Component {
   }
 
   onSubmit = event => {
-    const {agreeWithDelete} = this.state
+    const { agreeWithDelete } = this.state
 
     const errors = this.validate(agreeWithDelete)
-    if(errors.length > 0) {
-      this.setState({errors})
+    if (errors.length > 0) {
+      this.setState({ errors })
       event.preventDefault()
       return
     }
@@ -114,41 +124,41 @@ class DeleteForm extends Component {
 
   validate = agreeWithDelete => {
     const errors = []
-    if(!agreeWithDelete) {
+    if (!agreeWithDelete) {
       errors.push('You must be sure to delete course.')
     }
     return errors
   }
 
   onChange = event => {
-    this.setState({[event.target.name]: event.target.value})
+    this.setState({ [event.target.name]: event.target.value })
   }
 
   render() {
-    const {agreeWithDelete, errors} = this.state
-    const {course} = this.props
+    const { agreeWithDelete, errors } = this.state
+    const { course } = this.props
 
     const isInvalid = agreeWithDelete === false
 
     return (
       <>
-        { errors.map(error => (
-          <p key={ error }>Error: { error }</p>
-        )) }
-        <Form onSubmit={ this.onSubmit } className="enroll-form-modal">
+        {errors.map(error => (
+          <p key={error}>Error: {error}</p>
+        ))}
+        <Form onSubmit={this.onSubmit} className="enroll-form-modal">
           <FormGroup check>
             <Label for="agreeWithDelete">
               <Input
                 name="agreeWithDelete"
                 id="agreeWithDelete"
-                onChange={ this.onChange }
+                onChange={this.onChange}
                 type="checkbox"
-              />{ ' ' }
-              I am sure I want to delete { course.name }.
+              />{' '}
+              I am sure I want to delete {course.name}.
             </Label>
           </FormGroup>
           <Button
-            disabled={ isInvalid }
+            disabled={isInvalid}
             type="submit"
             className="enroll-button-modal"
           >

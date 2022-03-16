@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, Card, CardBody, CardHeader, Container } from 'reactstrap'
+import {Container, Card, CardHeader, CardBody, Alert} from 'reactstrap'
 import CourseForm from '../CourseForm'
 import { BASE_URL, COURSE_URL, INITIAL_COURSE_STATE } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
@@ -19,10 +19,10 @@ class EditCourse extends React.Component {
 
   componentDidMount() {
     const {
-      match: {params},
+      match: { params },
     } = this.props
 
-    const url = `${ BASE_URL + COURSE_URL }/${
+    const url = `${BASE_URL + COURSE_URL}/${
       params.course_id
     }?_join=hasPrerequisite,hasAdmin`
     axiosRequest('get', null, url).then(response => {
@@ -30,7 +30,7 @@ class EditCourse extends React.Component {
       this.setState({
         loading: false,
       })
-      if(data != null && data !== []) {
+      if (data != null && data !== []) {
         const course = data.map(courseData => {
           return {
             id: courseData['@id'].substring(courseData['@id'].length - 5),
@@ -38,12 +38,12 @@ class EditCourse extends React.Component {
             abbreviation: courseData.abbreviation,
             description: courseData.description,
             prerequisites: courseData.hasPrerequisite.map(prerequisite => {
-              return {fullId: prerequisite['@id'], name: prerequisite.name}
+              return { fullId: prerequisite['@id'], name: prerequisite.name }
             }),
             admins: courseData.hasAdmin.map(admin => {
               return {
                 fullId: admin['@id'],
-                name: `${ admin.firstName } ${ admin.lastName }`,
+                name: `${admin.firstName} ${admin.lastName}`,
               }
             }),
           }
@@ -61,13 +61,13 @@ class EditCourse extends React.Component {
   }
 
   render() {
-    const {course, redirect, loading} = this.state
+    const { course, redirect, loading } = this.state
 
-    if(redirect) {
-      return <Redirect to={ redirect }/>
+    if (redirect) {
+      return <Redirect to={redirect} />
     }
 
-    if(loading) {
+    if (loading) {
       return (
         <Alert color="secondary" className="empty-message">
           Loading...
@@ -81,7 +81,7 @@ class EditCourse extends React.Component {
           <Card className="event-card">
             <CardHeader className="event-card-header event-card">Edit Course</CardHeader>
             <CardBody className="form-cardbody">
-              <CourseForm typeOfForm="Edit" { ...course } />
+              <CourseForm typeOfForm="Edit" {...course} />
             </CardBody>
           </Card>
         </Container>

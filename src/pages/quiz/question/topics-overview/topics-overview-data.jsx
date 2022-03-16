@@ -14,7 +14,7 @@ class TopicsOverviewData extends Component {
       token,
       history,
     } = this.props
-    if(courseInstanceId && token) {
+    if (courseInstanceId && token) {
       getCourseInstanceConnect(
         history,
         courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
@@ -30,7 +30,7 @@ class TopicsOverviewData extends Component {
       token,
       history,
     } = this.props
-    if(
+    if (
       courseInstanceId &&
       token &&
       (prevProps.courseInstanceId !== courseInstanceId ||
@@ -55,12 +55,12 @@ class TopicsOverviewData extends Component {
     } = this.props
     return (
       <TopicsOverview
-        courseInstanceId={ courseInstanceId }
-        token={ token }
-        isTeacher={ isTeacher }
-        topics={ courseInstance && courseInstance.covers }
-        userId={ userId }
-        match={ match }
+        courseInstanceId={courseInstanceId}
+        token={token}
+        isTeacher={isTeacher}
+        topics={courseInstance && courseInstance.covers}
+        userId={userId}
+        match={match}
       />
     )
   }
@@ -82,9 +82,9 @@ TopicsOverviewData.defaultProps = {
   courseInstance: null,
 }
 
-const mapStateToProps = ({userReducer, courseInstanceReducer}) => {
-  const {courseInstance, courseInstanceLoaded} = courseInstanceReducer
-  const {isAdmin} = userReducer
+const mapStateToProps = ({ userReducer, courseInstanceReducer }) => {
+  const { courseInstance, courseInstanceLoaded } = courseInstanceReducer
+  const { isAdmin } = userReducer
   return {
     isAdmin,
     courseInstance,

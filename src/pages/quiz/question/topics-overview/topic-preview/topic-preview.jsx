@@ -28,7 +28,7 @@ function TopicPreview(props) {
   let startTime
   let endTime = null
 
-  if(assignment) {
+  if (assignment) {
     assignmentId = assignment.id
     description = assignment.description
     startTime = assignment.startDate
@@ -37,15 +37,15 @@ function TopicPreview(props) {
   const deleteAssignment =
     isTeacher && assignmentId
       ? () => {
-        fetchDeleteAssignment(assignmentId)
-      }
+          fetchDeleteAssignment(assignmentId)
+        }
       : null
 
   const questionsApproved = []
   const questionsNotApproved = []
-  if(questions) {
+  if (questions) {
     questions.forEach(question => {
-      if(Array.isArray(question.approver) && question.approver.length > 0) {
+      if (Array.isArray(question.approver) && question.approver.length > 0) {
         questionsApproved.push(question)
       } else {
         questionsNotApproved.push(question)
@@ -57,81 +57,81 @@ function TopicPreview(props) {
   return (
     <>
       <CardBody>
-        <CardTitle className="h3">{ name }</CardTitle>
+        <CardTitle className="h3">{name}</CardTitle>
         { collapse
-          ? <Button color='success' onClick={ toggle }>
-            Collapse
-          </Button>
-          : <Button color='success' onClick={ toggle }>
-            Expand
-          </Button>
+          ? <Button color='success' onClick={toggle}>
+              Collapse
+            </Button>
+          : <Button color='success' onClick={toggle}>
+              Expand
+            </Button>
         }
       </CardBody>
-      <Collapse isOpen={ collapse }>
+      <Collapse isOpen={collapse}>
         <CardBody className="pt-0">
-          { !assignment && isTeacher && (
+          {!assignment && isTeacher && (
             <Button
               color="success"
-              tag={ Link }
-              to={ {
-                pathname: `/courses/${ match.params.courseId }/quiz/questionAssignment`,
-                state: {topic: id},
-              } }
+              tag={Link}
+              to={{
+                pathname: `/courses/${match.params.courseId}/quiz/questionAssignment`,
+                state: { topic: id },
+              }}
             >
               Create Question Assignment
             </Button>
-          ) }
-          { assignment && (
+          )}
+          {assignment && (
             <AssignmentPreview
-              id={ assignmentId.substring(assignmentId.lastIndexOf('/') + 1) }
-              description={ description }
-              startTime={ startTime }
-              endTime={ endTime }
-              isTeacher={ isTeacher }
-              topic={ id }
-              deleteAssignment={ deleteAssignment }
-              match={ match }
+              id={assignmentId.substring(assignmentId.lastIndexOf('/') + 1)}
+              description={description}
+              startTime={startTime}
+              endTime={endTime}
+              isTeacher={isTeacher}
+              topic={id}
+              deleteAssignment={deleteAssignment}
+              match={match}
             />
-          ) }
-          <hr/>
+          )}
+          <hr />
           <h3 className="mb-3">Questions</h3>
           <Row>
-            { questionsNotApproved ? (
+            {questionsNotApproved ? (
               <Col xs="12" md="6">
                 <InfoTable
                   headerText="In progress"
-                  questions={ questionsNotApproved }
-                  isTeacher={ isTeacher }
-                  link={ `/courses/${ match.params.courseId }/quiz/questionEdit` }
+                  questions={questionsNotApproved}
+                  isTeacher={isTeacher}
+                  link={`/courses/${match.params.courseId}/quiz/questionEdit`}
                 />
               </Col>
-            ) : null }
-            { questionsApproved ? (
+            ) : null}
+            {questionsApproved ? (
               <Col xs="12" md="6">
                 <InfoTable
                   headerText="Approved"
-                  questions={ questionsApproved }
-                  isTeacher={ isTeacher }
-                  link={ `/courses/${ match.params.courseId }/quiz/questionEdit` }
+                  questions={questionsApproved}
+                  isTeacher={isTeacher}
+                  link={`/courses/${match.params.courseId}/quiz/questionEdit`}
                 />
               </Col>
-            ) : null }
+            ) : null}
           </Row>
-          { (assignment &&
+           {(assignment &&
             new Date(startTime) < new Date() &&
             new Date(endTime) > new Date()) ||
           isTeacher ? (
             <Button
               color="success"
-              tag={ Link }
-              to={ {
-                pathname: `/courses/${ match.params.courseId }/quiz/question`,
+              tag={Link}
+              to={{
+                pathname: `/courses/${match.params.courseId}/quiz/question`,
                 topic: id,
-              } }
+              }}
             >
               Create Question
             </Button>
-          ) : null }
+          ) : null}
         </CardBody>
       </Collapse>
     </>

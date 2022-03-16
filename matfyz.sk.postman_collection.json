@@ -1,1908 +1,1908 @@
 {
-  "info": {
-    "_postman_id": "9be75094-decf-48d3-b3ec-ea29c74a5106",
-    "name": "matfyz.sk",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "Topic",
-      "item": [
-        {
-          "name": "/topic",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"name\": \"Odcitat\",\n\t\"description\": \"Naucime sa odcitat\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/topic",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "topic"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/topic",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/topic",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "topic"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/topic?covers=http://www.courses.matfyz.sk/data/courseInstance/wvQrF",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/topic?covers=http://www.courses.matfyz.sk/data/courseInstance/wvQrF",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "topic"
-              ],
-              "query": [
-                {
-                  "key": "covers",
-                  "value": "http://www.courses.matfyz.sk/data/courseInstance/wvQrF"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/topic/PQXeT",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/topic/PQXeT",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "topic",
-                "PQXeT"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/topic/PQXeT",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"hasQuestionAssignment\": [\"http://www.courses.matfyz.sk/data/questionAssignment/cEhvr\"]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/topic/PQXeT",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "topic",
-                "PQXeT"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Course",
-      "item": [
-        {
-          "name": "/course",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/course",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "course"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/course",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"name\": \"Matematika 9\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/course",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "course"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/course/EwYGf",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/course/EwYGf",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "course",
-                "EwYGf"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/course/8lOD3",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/course/8lOD3",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "course",
-                "8lOD3"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/course/EwYGf",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n\t\"name\": \"Matematika2\",\r\n\t\"covers\": [\"http://www.courses.matfyz.sk/data/topic/w14DB\"]\r\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/course/EwYGf",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "course",
-                "EwYGf"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/course/EwYGf",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n\t\"covers\": [\"http://www.courses.matfyz.sk/data/topic/NuUyB\"]\r\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/course/EwYGf",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "course",
-                "EwYGf"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "CourseInstance",
-      "item": [
-        {
-          "name": "/courseInstance",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "type": "text",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"instanceOf\": \"http://www.courses.matfyz.sk/data/course/EwYGf\",\n\t\"year\": \"2019/2020\",\n\t\"name\": \"courseInstance of EwYGf\",\n\t\"startDate\": \"10.10.2020\",\n\t\"endDate\": \"10.10.2020\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/courseInstance",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "courseInstance"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/courseInstance",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "type": "text",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"instanceOf\": \"http://www.courses.matfyz.sk/data/course/EwYGf\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/courseInstance/wvQrF",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "courseInstance",
-                "wvQrF"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/courseInstance",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{base_url}}/courseInstance",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "courseInstance"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/courseInstance/wvQrF",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "type": "text",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{base_url}}/courseInstance/wvQrF",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "courseInstance",
-                "wvQrF"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/courseInstance/wvQrF?_join=covers",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{base_url}}/courseInstance/wvQrF?_join=covers,instanceOf",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "courseInstance",
-                "wvQrF"
-              ],
-              "query": [
-                {
-                  "key": "_join",
-                  "value": "covers,instanceOf"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/courseInstance?instanceOf=EwYGf",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{base_url}}/courseInstance?instanceOf=EwYGf",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "courseInstance"
-              ],
-              "query": [
-                {
-                  "key": "instanceOf",
-                  "value": "EwYGf"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/courseInstance/wvQrF",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "type": "text",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"covers\": [\"http://www.courses.matfyz.sk/data/topic/tZfMx\"]\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/courseInstance/wvQrF",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "courseInstance",
-                "wvQrF"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "TaskEvent",
-      "item": [
-        {
-          "name": "/taskEvent",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"name\": \"assignmentPeriod funguje?\",\n\t\"startDate\": \"10.10.2020\",\n    \"endDate\": \"11.10.2020\",\n    \"courseInstance\": \"http://www.courses.matfyz.sk/data/courseInstance/wvQrF\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/taskEvent",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "taskEvent"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/taskEvent",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/taskEvent",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "taskEvent"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/taskEvent/:id",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/taskEvent/lvw0m",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "taskEvent",
-                "lvw0m"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/taskEvent/:id",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"startDate\": \"2020-04-02T16:47:57.390Z\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/taskEvent/lvw0m",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "taskEvent",
-                "lvw0m"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/taskEvent/:id(lastPart)",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/taskEvent/oXVAG",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "taskEvent",
-                "oXVAG"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "protocolProfileBehavior": {}
-    },
-    {
-      "name": "Task",
-      "item": [
-        {
-          "name": "/task",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/task",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "task"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "protocolProfileBehavior": {}
-    },
-    {
-      "name": "QuestionAssignment",
-      "item": [
-        {
-          "name": "/questionAssignment",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/questionAssignment",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "questionAssignment"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/questionAssignment",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"description\": \"Vyrobte banany\",\n\t\"assignedTo\": [],\n\t\"name\": \"\",\n\t\"courseInstance\": \"http://www.courses.matfyz.sk/data/courseInstance/wvQrF\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/questionAssignment",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "questionAssignment"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/questionAssignment",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/questionAssignment/Plx4T",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "questionAssignment",
-                "Plx4T"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/questionAssignment/QQyKF?_join=creationPeriod,covers",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/questionAssignment/c74Zs?_join=covers,assignedTo",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "questionAssignment",
-                "c74Zs"
-              ],
-              "query": [
-                {
-                  "key": "_join",
-                  "value": "covers,assignedTo"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/questionAssignment?courseInstance=wvQrF",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/questionAssignment?courseInstance=wvQrF",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "questionAssignment"
-              ],
-              "query": [
-                {
-                  "key": "courseInstance",
-                  "value": "wvQrF"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/questionAssignment/QQyKF",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"courseInstance\": [\"http://www.courses.matfyz.sk/data/courseInstance/pWYIl\"]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/questionAssignment/c74Zs",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "questionAssignment",
-                "c74Zs"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/questionAssignment/QQyKF",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "name": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"startDate\": \"2020-03-09T21:33:56.472Z\",\n    \"endDate\": \"2020-04-28T21:33:56.472Z\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/questionAssignment/c74Zs",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "questionAssignment",
-                "c74Zs"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "protocolProfileBehavior": {}
-    },
-    {
-      "name": "Question",
-      "item": [
-        {
-          "name": "QuestionWithPredefinedAnswer",
-          "item": [
-            {
-              "name": "/questionWithPredefinedAnswer",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{user_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n\t\"name\": \"tile otazky\",\n\t\"text\": \"text otazky\",\n\t\"ofTopic\": [\"http://www.courses.matfyz.sk/data/topic/PQXeT\"],\n\t\"hasAnswer\": [\n\t\t{\n\t\t\t\"text\": \"predefined Answer 14\",\n\t\t\t\"correct\": true,\n\t\t\t\"position\": 0\n\t\t}\n\t]\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{base_url}}/questionWithPredefinedAnswer",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "questionWithPredefinedAnswer"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "/questionWithPredefinedAnswer",
-              "protocolProfileBehavior": {
-                "disableBodyPruning": true
-              },
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{user_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n\t\"name\": \"predefined\",\n\t\"hasAnswer\": \"http://www.courses.matfyz.sk/data/predefinedAnswer/3S6Nl\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{base_url}}/questionWithPredefinedAnswer",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "questionWithPredefinedAnswer"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "/questionWithPredefinedAnswer/:id?_join=hasAnswer",
-              "protocolProfileBehavior": {
-                "disableBodyPruning": true
-              },
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{user_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n\t\"name\": \"predefined\",\n\t\"hasAnswer\": \"http://www.courses.matfyz.sk/data/predefinedAnswer/3S6Nl\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{base_url}}/questionWithPredefinedAnswer",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "questionWithPredefinedAnswer"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "/questionWithPredefinedAnswer/:id",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{user_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "DELETE",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{base_url}}/questionWithPredefinedAnswer/68qbO",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "questionWithPredefinedAnswer",
-                    "68qbO"
-                  ]
-                }
-              },
-              "response": []
-            }
-          ],
-          "protocolProfileBehavior": {},
-          "_postman_isSubFolder": true
-        },
-        {
-          "name": "EssayQuestion",
-          "item": [
-            {
-              "name": "/essayQuestion",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{user_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n\tname: baboocha\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/essayQuestion",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "essayQuestion"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "/essayQuestion/xmH2Y",
-              "protocolProfileBehavior": {
-                "disableBodyPruning": true
-              },
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{user_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "name": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": ""
-                },
-                "url": {
-                  "raw": "{{base_url}}/essayQuestion/xmH2Y",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "essayQuestion",
-                    "xmH2Y"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "/essayQuestion/:id",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{user_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "DELETE",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "name": "Content-Type",
-                    "type": "text",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": ""
-                },
-                "url": {
-                  "raw": "{{base_url}}/essayQuestion/xmH2Y",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "essayQuestion",
-                    "xmH2Y"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "/essayQuestion/xmH2Y",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{user_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "name": "Content-Type",
-                    "type": "text",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n\t\"ofTopic\": \"http://www.courses.matfyz.sk/data/topic/w14DB\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/essayQuestion/xmH2Y",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "essayQuestion",
-                    "xmH2Y"
-                  ]
-                }
-              },
-              "response": []
-            }
-          ],
-          "_postman_isSubFolder": true
-        },
-        {
-          "name": "/question",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/question",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "question"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/question?ofTopic=",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/question?ofTopic=PQXeT",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "question"
-              ],
-              "query": [
-                {
-                  "key": "ofTopic",
-                  "value": "PQXeT"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/question?subclasses=true",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/question?subclasses=true",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "question"
-              ],
-              "query": [
-                {
-                  "key": "subclasses",
-                  "value": "true"
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "protocolProfileBehavior": {}
-    },
-    {
-      "name": "PredefinedAnswer",
-      "item": [
-        {
-          "name": "/predefinedAnswer",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/predefinedAnswer",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "predefinedAnswer"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/predefinedAnswer/:id",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/predefinedAnswer/DRKZr",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "predefinedAnswer",
-                "DRKZr"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/predefinedAnswer",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"text\": \"predefined Answer 2\",\n\t\"correct\": true,\n\t\"position\": 0\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/predefinedAnswer",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "predefinedAnswer"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "/predefinedAnswer",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/predefinedAnswer/SGKzr",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "predefinedAnswer",
-                "SGKzr"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "protocolProfileBehavior": {}
-    },
-    {
-      "name": "User",
-      "item": [
-        {
-          "name": "user",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/user",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "user"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "user/OQQ4p",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"@context\":\"http://www.courses.matfyz.sk/ontology#\",\"@graph\":[[{\"@id\":\"http://www.courses.matfyz.sk/data/user/5QzvA\",\"@type\":\"http://www.courses.matfyz.sk/ontology#User\",\"createdBy\":\"http://www.courses.matfyz.sk/data/user/pt1oK\",\"createdAt\":\"2020-04-04T12:52:29.576Z\",\"memberOf\":[],\"requests\":[],\"studentOf\":[],\"instructorOf\":[{\"@id\":\"http://www.courses.matfyz.sk/data/courseInstance/wvQrF\"}],\"understands\":[],\"name\":\"Teacher Humbert\"}]]}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/user/5QzvA",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "user",
-                "5QzvA"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "user?studentOf=wvQrF",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/user?studentOf=wvQrF",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "user"
-              ],
-              "query": [
-                {
-                  "key": "studentOf",
-                  "value": "wvQrF"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "user",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"name\": \"Alojz\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/user",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "user"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "user",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"instructorOf\": [\"http://www.courses.matfyz.sk/data/courseInstance/wvQrF\"]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/user/5QzvA",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "user",
-                "5QzvA"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "user",
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{user_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n\t\"studentOf\": [\"something\"],\n\t\"instructorOf\": [\"http://www.courses.matfyz.sk/data/courseInstance/wvQrF\"]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/user/5QzvA",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "user",
-                "5QzvA"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "protocolProfileBehavior": {}
-    }
-  ]
+	"info": {
+		"_postman_id": "9be75094-decf-48d3-b3ec-ea29c74a5106",
+		"name": "matfyz.sk",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Topic",
+			"item": [
+				{
+					"name": "/topic",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Odcitat\",\n\t\"description\": \"Naucime sa odcitat\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/topic",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"topic"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/topic",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/topic",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"topic"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/topic?covers=http://www.courses.matfyz.sk/data/courseInstance/wvQrF",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/topic?covers=http://www.courses.matfyz.sk/data/courseInstance/wvQrF",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"topic"
+							],
+							"query": [
+								{
+									"key": "covers",
+									"value": "http://www.courses.matfyz.sk/data/courseInstance/wvQrF"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/topic/PQXeT",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/topic/PQXeT",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"topic",
+								"PQXeT"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/topic/PQXeT",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"hasQuestionAssignment\": [\"http://www.courses.matfyz.sk/data/questionAssignment/cEhvr\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/topic/PQXeT",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"topic",
+								"PQXeT"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Course",
+			"item": [
+				{
+					"name": "/course",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/course",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/course",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Matematika 9\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/course",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/course/EwYGf",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/course/EwYGf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course",
+								"EwYGf"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/course/8lOD3",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/course/8lOD3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course",
+								"8lOD3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/course/EwYGf",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"name\": \"Matematika2\",\r\n\t\"covers\": [\"http://www.courses.matfyz.sk/data/topic/w14DB\"]\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/course/EwYGf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course",
+								"EwYGf"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/course/EwYGf",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"covers\": [\"http://www.courses.matfyz.sk/data/topic/NuUyB\"]\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/course/EwYGf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course",
+								"EwYGf"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CourseInstance",
+			"item": [
+				{
+					"name": "/courseInstance",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"instanceOf\": \"http://www.courses.matfyz.sk/data/course/EwYGf\",\n\t\"year\": \"2019/2020\",\n\t\"name\": \"courseInstance of EwYGf\",\n\t\"startDate\": \"10.10.2020\",\n\t\"endDate\": \"10.10.2020\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/courseInstance",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"courseInstance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/courseInstance",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"instanceOf\": \"http://www.courses.matfyz.sk/data/course/EwYGf\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/courseInstance/wvQrF",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"courseInstance",
+								"wvQrF"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/courseInstance",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/courseInstance",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"courseInstance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/courseInstance/wvQrF",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/courseInstance/wvQrF",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"courseInstance",
+								"wvQrF"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/courseInstance/wvQrF?_join=covers",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/courseInstance/wvQrF?_join=covers,instanceOf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"courseInstance",
+								"wvQrF"
+							],
+							"query": [
+								{
+									"key": "_join",
+									"value": "covers,instanceOf"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/courseInstance?instanceOf=EwYGf",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/courseInstance?instanceOf=EwYGf",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"courseInstance"
+							],
+							"query": [
+								{
+									"key": "instanceOf",
+									"value": "EwYGf"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/courseInstance/wvQrF",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"covers\": [\"http://www.courses.matfyz.sk/data/topic/tZfMx\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/courseInstance/wvQrF",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"courseInstance",
+								"wvQrF"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TaskEvent",
+			"item": [
+				{
+					"name": "/taskEvent",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"assignmentPeriod funguje?\",\n\t\"startDate\": \"10.10.2020\",\n    \"endDate\": \"11.10.2020\",\n    \"courseInstance\": \"http://www.courses.matfyz.sk/data/courseInstance/wvQrF\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/taskEvent",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"taskEvent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/taskEvent",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/taskEvent",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"taskEvent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/taskEvent/:id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/taskEvent/lvw0m",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"taskEvent",
+								"lvw0m"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/taskEvent/:id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"startDate\": \"2020-04-02T16:47:57.390Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/taskEvent/lvw0m",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"taskEvent",
+								"lvw0m"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/taskEvent/:id(lastPart)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/taskEvent/oXVAG",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"taskEvent",
+								"oXVAG"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Task",
+			"item": [
+				{
+					"name": "/task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/task",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"task"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "QuestionAssignment",
+			"item": [
+				{
+					"name": "/questionAssignment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/questionAssignment",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"questionAssignment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/questionAssignment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"description\": \"Vyrobte banany\",\n\t\"assignedTo\": [],\n\t\"name\": \"\",\n\t\"courseInstance\": \"http://www.courses.matfyz.sk/data/courseInstance/wvQrF\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/questionAssignment",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"questionAssignment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/questionAssignment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/questionAssignment/Plx4T",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"questionAssignment",
+								"Plx4T"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/questionAssignment/QQyKF?_join=creationPeriod,covers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/questionAssignment/c74Zs?_join=covers,assignedTo",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"questionAssignment",
+								"c74Zs"
+							],
+							"query": [
+								{
+									"key": "_join",
+									"value": "covers,assignedTo"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/questionAssignment?courseInstance=wvQrF",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/questionAssignment?courseInstance=wvQrF",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"questionAssignment"
+							],
+							"query": [
+								{
+									"key": "courseInstance",
+									"value": "wvQrF"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/questionAssignment/QQyKF",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"courseInstance\": [\"http://www.courses.matfyz.sk/data/courseInstance/pWYIl\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/questionAssignment/c74Zs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"questionAssignment",
+								"c74Zs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/questionAssignment/QQyKF",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"startDate\": \"2020-03-09T21:33:56.472Z\",\n    \"endDate\": \"2020-04-28T21:33:56.472Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/questionAssignment/c74Zs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"questionAssignment",
+								"c74Zs"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Question",
+			"item": [
+				{
+					"name": "QuestionWithPredefinedAnswer",
+					"item": [
+						{
+							"name": "/questionWithPredefinedAnswer",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"name\": \"tile otazky\",\n\t\"text\": \"text otazky\",\n\t\"ofTopic\": [\"http://www.courses.matfyz.sk/data/topic/PQXeT\"],\n\t\"hasAnswer\": [\n\t\t{\n\t\t\t\"text\": \"predefined Answer 14\",\n\t\t\t\"correct\": true,\n\t\t\t\"position\": 0\n\t\t}\n\t]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/questionWithPredefinedAnswer",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"questionWithPredefinedAnswer"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/questionWithPredefinedAnswer",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"name\": \"predefined\",\n\t\"hasAnswer\": \"http://www.courses.matfyz.sk/data/predefinedAnswer/3S6Nl\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/questionWithPredefinedAnswer",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"questionWithPredefinedAnswer"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/questionWithPredefinedAnswer/:id?_join=hasAnswer",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"name\": \"predefined\",\n\t\"hasAnswer\": \"http://www.courses.matfyz.sk/data/predefinedAnswer/3S6Nl\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/questionWithPredefinedAnswer",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"questionWithPredefinedAnswer"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/questionWithPredefinedAnswer/:id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/questionWithPredefinedAnswer/68qbO",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"questionWithPredefinedAnswer",
+										"68qbO"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "EssayQuestion",
+					"item": [
+						{
+							"name": "/essayQuestion",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\tname: baboocha\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/essayQuestion",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"essayQuestion"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/essayQuestion/xmH2Y",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/essayQuestion/xmH2Y",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"essayQuestion",
+										"xmH2Y"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/essayQuestion/:id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/essayQuestion/xmH2Y",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"essayQuestion",
+										"xmH2Y"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/essayQuestion/xmH2Y",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{user_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"ofTopic\": \"http://www.courses.matfyz.sk/data/topic/w14DB\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/essayQuestion/xmH2Y",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"essayQuestion",
+										"xmH2Y"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "/question",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/question",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"question"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/question?ofTopic=",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/question?ofTopic=PQXeT",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"question"
+							],
+							"query": [
+								{
+									"key": "ofTopic",
+									"value": "PQXeT"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/question?subclasses=true",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/question?subclasses=true",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"question"
+							],
+							"query": [
+								{
+									"key": "subclasses",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "PredefinedAnswer",
+			"item": [
+				{
+					"name": "/predefinedAnswer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/predefinedAnswer",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"predefinedAnswer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/predefinedAnswer/:id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/predefinedAnswer/DRKZr",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"predefinedAnswer",
+								"DRKZr"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/predefinedAnswer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"text\": \"predefined Answer 2\",\n\t\"correct\": true,\n\t\"position\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/predefinedAnswer",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"predefinedAnswer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/predefinedAnswer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/predefinedAnswer/SGKzr",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"predefinedAnswer",
+								"SGKzr"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user/OQQ4p",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"@context\":\"http://www.courses.matfyz.sk/ontology#\",\"@graph\":[[{\"@id\":\"http://www.courses.matfyz.sk/data/user/5QzvA\",\"@type\":\"http://www.courses.matfyz.sk/ontology#User\",\"createdBy\":\"http://www.courses.matfyz.sk/data/user/pt1oK\",\"createdAt\":\"2020-04-04T12:52:29.576Z\",\"memberOf\":[],\"requests\":[],\"studentOf\":[],\"instructorOf\":[{\"@id\":\"http://www.courses.matfyz.sk/data/courseInstance/wvQrF\"}],\"understands\":[],\"name\":\"Teacher Humbert\"}]]}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/5QzvA",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"5QzvA"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user?studentOf=wvQrF",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user?studentOf=wvQrF",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user"
+							],
+							"query": [
+								{
+									"key": "studentOf",
+									"value": "wvQrF"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Alojz\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"instructorOf\": [\"http://www.courses.matfyz.sk/data/courseInstance/wvQrF\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/5QzvA",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"5QzvA"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{user_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"studentOf\": [\"something\"],\n\t\"instructorOf\": [\"http://www.courses.matfyz.sk/data/courseInstance/wvQrF\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/5QzvA",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"5QzvA"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	]
 }

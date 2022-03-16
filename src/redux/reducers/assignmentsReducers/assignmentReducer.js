@@ -6,18 +6,18 @@ const initialState = {
 };
 
 export default function assignmentsAssignmentReducer(state = initialState, action) {
-  switch(action.type) {
-    case SET_ASSIGNMENT: {
+  switch (action.type) {
+    case SET_ASSIGNMENT:{
       return {
         ...state,
         assignment: action.assignment,
         assignmentLoaded: true
       };
     }
-    case 'LOGOUT': {
+    case 'LOGOUT':{
       return initialState;
     }
-    default: {
+    default:{
       return state;
     }
   }

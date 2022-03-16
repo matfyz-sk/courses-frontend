@@ -2,50 +2,50 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import { Button, CardText, Row } from 'reactstrap'
-import { FaTrashAlt } from 'react-icons/fa'
+import { Table, CardText, Button, Row, Col } from 'reactstrap'
+import { FaTrash, FaTrashAlt } from 'react-icons/fa'
 
 export default function AssignmentPreview({
-                                            id,
-                                            description,
-                                            startTime,
-                                            endTime,
-                                            isTeacher,
-                                            deleteAssignment,
-                                            match,
-                                          }) {
+  id,
+  description,
+  startTime,
+  endTime,
+  isTeacher,
+  deleteAssignment,
+  match,
+}) {
   return (
     <>
       <h4 className="h4">Assignment</h4>
-      <CardText>{ description }</CardText>
+      <CardText>{description}</CardText>
       <CardText>
         <label>Start date: </label>
-        { ` ${ new Date(startTime).toLocaleDateString() }` }
+        {` ${new Date(startTime).toLocaleDateString()}`}
         <br/>
         <label>End date:</label>
-        { ` ${ new Date(endTime).toLocaleDateString() }` }
+          {` ${new Date(endTime).toLocaleDateString()}`}
       </CardText>
       <Row>
-        { isTeacher ? (
+        {isTeacher ? (
           <Button
             color="success"
-            tag={ Link }
-            to={ `/courses/${
+            tag={Link}
+            to={`/courses/${
               match.params.courseId
-            }/quiz/questionAssignment/${ encodeURIComponent(id) }` }
+            }/quiz/questionAssignment/${encodeURIComponent(id)}`}
           >
             Edit assignment
           </Button>
-        ) : null }
-        { deleteAssignment && (
+        ) : null}
+        {deleteAssignment && (
           <Button
             color="danger"
-            onClick={ deleteAssignment }
+            onClick={deleteAssignment}
             className="ml-2"
           >
             <FaTrashAlt/>
           </Button>
-        ) }
+        )}
       </Row>
     </>
   )

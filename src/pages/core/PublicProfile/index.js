@@ -1,9 +1,9 @@
 import React from 'react'
-import { Link, withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import {
   Alert,
-  Badge,
+  Badge, Button,
   Col,
   Container,
   ListGroup,
@@ -24,80 +24,80 @@ import { redirect } from '../../../constants/redirect'
 import { getShortID } from '../../../helperFunctions'
 
 const PublicProfile = ({
-                         user,
-                         user_id,
-                         privileges,
-                         role,
-                         courses,
-                         instruct,
-                         allowContact,
-                         showCourses,
-                         showBadges,
-                         ...props
-                       }) => {
+  user,
+  user_id,
+  privileges,
+  role,
+  courses,
+  instruct,
+  allowContact,
+  showCourses,
+  showBadges,
+  ...props
+}) => {
   return (
     <Container>
       <Row className="mt-5">
-        <Col lg={ 3 } sm={ 4 } xs={ 12 }>
+        <Col lg={3} sm={4} xs={12}>
           <div
             className="rounded-image mb-5"
-            style={ {
-              backgroundImage: `url(${ user.avatar ? user.avatar : Avatar })`,
-            } }
+            style={{
+              backgroundImage: `url(${user.avatar ? user.avatar : Avatar})`,
+            }}
           />
           <div className="">
-            { allowContact ? (
+            {allowContact ? (
               <Alert
                 color="warning"
-                style={ {padding: '8px 10px'} }
+                style={{ padding: '8px 10px' }}
                 className="text-center"
               >
                 <h3 className="text-center">
-                  <FiMail/>
+                  <FiMail />
                 </h3>
                 Feel free to contact me
-                <br/>
-                <a href={ `mailto:${ user.email }` }>{ user.email }</a>
+                <br />
+                <a href={`mailto:${user.email}`}>{user.email}</a>
               </Alert>
             ) : (
-              <PrivateField name="Contact email" sm/>
-            ) }
+              <PrivateField name="Contact email" sm />
+            )}
           </div>
         </Col>
-        <Col sm={ 8 } xs={ 12 }>
-          <h1>{ showUserName(user, privileges) }</h1>
+        <Col sm={8} xs={12}>
+          <h1>{showUserName(user, privileges)}</h1>
           <h4>
-            <Badge color={ role.color }>{ role.name }</Badge>
+            <Badge color={role.color}>{role.name}</Badge>
           </h4>
           <div className="mt-4">
             <h5>About me</h5>
-            { user.description && user.description.length > 0 ? (
+            {user.description && user.description.length > 0 ? (
               user.description
             ) : (
               <>
                 Nothing much to say.
-                { allowContact ? (
+                {allowContact ? (
                   <>
                     &nbsp;Ask me for more information here&nbsp;
-                    <a href={ `mailto:${ user.email }` }>{ user.email }</a>.
+                    <a href={`mailto:${user.email}`}>{user.email}</a>.
                   </>
                 ) : (
                   ''
-                ) }
+                )}
               </>
-            ) }
+            )}
           </div>
           <div className="mt-4">
             <h5>My courses</h5>
-            { showCourses ? (
-              <ShowList list={ courses }/>
+            {showCourses ? (
+              <ShowList list={courses} />
             ) : (
-              <PrivateField name="My courses" pl/>
-            ) }
+              <PrivateField name="My courses" pl />
+            )}
           </div>
           <div className="mt-4">
             <h5>My badges</h5>
-            { showBadges ? <EmptyField/> : <PrivateField name="My badges" pl/> }
+            {showBadges ? <EmptyField /> : <PrivateField name="My badges" pl />}
           </div>
         </Col>
       </Row>
@@ -105,30 +105,30 @@ const PublicProfile = ({
   )
 }
 
-const ShowList = ({list, ...props}) => {
+const ShowList = ({ list, ...props }) => {
   if(!list || list.length === 0) {
-    return <EmptyField/>
+    return <EmptyField />
   } else {
     const renderList = []
-    for(let i = 0; i < list.length; i++) {
+    for (let i = 0; i < list.length; i++) {
       renderList.push(
-        <ListGroupItem key={ `list-${ i }` }>
+        <ListGroupItem key={`list-${i}`}>
           <ListGroupItemHeading>
             <Link
-              to={ redirect(INFO_PAGE, [
-                {key: 'course_id', value: getShortID(list[i]['@id'])},
-              ]) }
+              to={redirect(INFO_PAGE, [
+                { key: 'course_id', value: getShortID(list[i]['@id']) },
+              ])}
             >
-              { list[i].name }
+              {list[i].name}
             </Link>
           </ListGroupItemHeading>
           <ListGroupItemText>
-            { list[i].description }
+            {list[i].description}
           </ListGroupItemText>
         </ListGroupItem>
       )
     }
-    return <ListGroup className="mt-3">{ renderList }</ListGroup>
+    return <ListGroup className="mt-3">{renderList}</ListGroup>
   }
 }
 

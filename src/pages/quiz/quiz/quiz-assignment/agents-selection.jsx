@@ -18,23 +18,23 @@ import { FaAngleDown, FaAngleUp, FaTimes } from 'react-icons/fa'
 import { Skeleton } from '@material-ui/lab'
 import { intersection, not, union } from '../../common/functions/common-functions'
 
-function AgentSelection({
-                          courseName,
-                          agentOptionsUsers,
-                          agentOptionsTeams,
-                          agentsSelected,
-                          setAgentsSelected,
-                          loadedQuestions,
-                        }) {
+function AgentSelection ({
+                           courseName,
+                           agentOptionsUsers,
+                           agentOptionsTeams,
+                           agentsSelected,
+                           setAgentsSelected,
+                           loadedQuestions,
+                         }) {
 
   const style = useStyles()
 
-  const [ openCategory, setOpenCategory ] = useState([])
+  const [openCategory, setOpenCategory] = useState([])
 
   const handleCategoryCollapse = (index) => () => {
     const currentIndex = openCategory.indexOf(index);
-    const newOpen = [ ...openCategory ];
-    if(currentIndex === -1) {
+    const newOpen = [...openCategory];
+    if (currentIndex === -1) {
       newOpen.push(index);
     } else {
       newOpen.splice(currentIndex, 1);
@@ -43,20 +43,16 @@ function AgentSelection({
   }
 
   const handleRemoveSelected = (agent) => {
-    const index = agentsSelected.map(a => {
-      return a.id
-    }).indexOf(agent.id)
-    const newState = [ ...agentsSelected ]
+    const index = agentsSelected.map(a => {return a.id}).indexOf(agent.id)
+    const newState = [...agentsSelected]
     newState.splice(index, 1)
     setAgentsSelected(newState)
   }
 
   const handleCheckedAgent = (agent) => {
-    const index = agentsSelected.map(a => {
-      return a.id
-    }).indexOf(agent.id)
-    const newState = [ ...agentsSelected ]
-    if(index === -1) {
+    const index = agentsSelected.map(a => {return a.id}).indexOf(agent.id)
+    const newState = [...agentsSelected]
+    if (index === -1) {
       newState.push(agent)
     } else {
       newState.splice(index, 1)
@@ -65,77 +61,74 @@ function AgentSelection({
   }
 
   const handleCheckedCategory = (agents) => {
-    setAgentsSelected(prevState => intersection(prevState, agents).length === agents.length ? not(prevState, agents) : union(prevState, agents))
+    setAgentsSelected(prevState => intersection(prevState, agents).length === agents.length ? not(prevState, agents) : union(prevState, agents) )
   }
 
   const agentCategory = (title, agents, index) => {
     return (
       <Box>
-        { loadedQuestions ?
-          <ListItem className={ style.options_listHeader } button onClick=
-            { handleCategoryCollapse(index) }>
+        {loadedQuestions ?
+          <ListItem className={style.options_listHeader} button onClick=
+            {handleCategoryCollapse(index)}>
             <ListItemIcon>
               <Checkbox
-                checked={ agentsSelected.length > 0 && intersection(agentsSelected, agents).length === agents.length }
-                indeterminate={ intersection(agents, agentsSelected).length > 0 && intersection(agents, agentsSelected).length < agents.length }
-                onClick={ e => {
+                checked={agentsSelected.length > 0 && intersection(agentsSelected, agents).length === agents.length}
+                indeterminate={intersection(agents, agentsSelected).length > 0 && intersection(agents, agentsSelected).length < agents.length}
+                onClick={e => {
                   e.stopPropagation()
                   handleCheckedCategory(agents)
-                } }
+                }}
               />
             </ListItemIcon>
             <ListItemText
-              primaryTypographyProps={ {style: {fontSize: 19}} }
-              primary={ title }
+              primaryTypographyProps={{ style: { fontSize: 19 } }}
+              primary={title}
             />
-            { openCategory.indexOf(index) !== -1 ? <FaAngleUp/> : <FaAngleDown/> }
+            {openCategory.indexOf(index) !== -1 ? <FaAngleUp /> : <FaAngleDown />}
           </ListItem>
           :
-          <Skeleton variant='rect' width='100%' animation="wave" className={ style.options_listHeader }>
-            <ListItem className={ style.options_listHeader }>
+          <Skeleton variant='rect' width='100%' animation="wave" className={style.options_listHeader}>
+            <ListItem className={style.options_listHeader}>
               <ListItemIcon>
                 <Checkbox/>
               </ListItemIcon>
               <ListItemText
-                primaryTypographyProps={ {style: {fontSize: 19}} }
+                primaryTypographyProps={{ style: { fontSize: 19 } }}
                 primary="Dummy skeleton"
               />
             </ListItem>
           </Skeleton>
         }
         <Collapse
-          in={ openCategory.indexOf(index) !== -1 }
-          style={ {paddingTop: 4, paddingBottom: 4} }
+          in={openCategory.indexOf(index) !== -1}
+          style={{paddingTop: 4, paddingBottom: 4}}
         >
           <List component="div" disablePadding>
-            { agents.length > 0 ?
+            {agents.length > 0 ?
               agents.map((agent) => {
-                  return (
-                    <ListItem
-                      button
-                      key={ agent.id }
-                      onClick={ e => handleCheckedAgent(agent) }
-                    >
-                      <ListItemIcon>
-                        <Checkbox
-                          color='primary'
-                          checked={ agentsSelected.map(a => {
-                            return a.id
-                          }).indexOf(agent.id) !== -1 }
-                        />
-                      </ListItemIcon>
-                      <ListItemText
-                        primaryTypographyProps={ {style: {fontSize: 17}} }
-                        primary={ agent.name }
+                return (
+                  <ListItem
+                    button
+                    key={agent.id}
+                    onClick={e => handleCheckedAgent(agent)}
+                  >
+                    <ListItemIcon>
+                      <Checkbox
+                        color='primary'
+                        checked={agentsSelected.map(a => {return a.id}).indexOf(agent.id) !== -1}
                       />
-                    </ListItem>
-                  )
-                }
+                    </ListItemIcon>
+                    <ListItemText
+                      primaryTypographyProps={{style: {fontSize: 17}}}
+                      primary={agent.name}
+                    />
+                  </ListItem>
+                )}
               ) :
               <ListItem>
                 <ListItemText
-                  style={ {textTransform: 'lowercase'} }
-                  secondary={ `This course has no ${ title }` }
+                  style={{textTransform: 'lowercase'}}
+                  secondary={`This course has no ${title}`}
                 />
               </ListItem>
             }
@@ -145,51 +138,51 @@ function AgentSelection({
     )
   }
 
-  return (
+  return(
     <Grid item container direction='column'>
       <Grid item>
         <h5>Assign to</h5>
       </Grid>
 
-      <Grid container spacing={ 3 }>
-        <Grid item xs={ 6 }>
+      <Grid container spacing={3}>
+        <Grid item xs={6}>
           <Card variant='outlined'>
             <CardHeader
-              subheader={ courseName }
+              subheader={courseName}
             />
-            <Divider/>
-            <List className={ style.options_list }>
-              { agentCategory('Students', agentOptionsUsers, 0) }
-              { agentCategory('Teams', agentOptionsTeams, 1) }
+            <Divider />
+            <List className={style.options_list}>
+              {agentCategory('Students',agentOptionsUsers, 0)}
+              {agentCategory('Teams',agentOptionsTeams, 1)}
             </List>
           </Card>
         </Grid>
 
-        <Grid item xs={ 6 }>
+        <Grid item xs={6}>
           <Card variant='outlined'>
             <CardHeader
-              title='Selected'
-              titleTypographyProps={ {style: {fontSize: 19}} }
+              title = 'Selected'
+              titleTypographyProps= {{style:{fontSize: 19}}}
             />
-            <Divider/>
-            <List className={ style.options_list }>
-              { agentsSelected.map((agent) => {
+            <Divider />
+            <List className={style.options_list}>
+              {agentsSelected.map((agent) => {
                 return (
-                  <ListItem button key={ agent.id }>
+                  <ListItem button key={agent.id}>
                     <ListItemText
-                      primary={ agent.type === "http://www.courses.matfyz.sk/ontology#Team" ?
-                        `${ agent.name } (team)` : agent.name }/>
+                      primary={agent.type === "http://www.courses.matfyz.sk/ontology#Team" ?
+                        `${agent.name} (team)` : agent.name} />
                     <IconButton
-                      onClick={ e => handleRemoveSelected(agent) }
+                      onClick = {e => handleRemoveSelected(agent)}
                     >
                       <FaTimes
                         fontSize='medium'
-                        color={ customTheme.palette.error.main }
+                        color={customTheme.palette.error.main}
                       />
                     </IconButton>
                   </ListItem>
                 )
-              }) }
+              })}
             </List>
           </Card>
         </Grid>

@@ -3,11 +3,14 @@ import { Alert, Card, CardBody, CardHeader, Container } from 'reactstrap'
 import './CourseMigration.css'
 import { connect } from 'react-redux'
 import { MultiStepForm } from '../MultiStepForm'
-import { BASE_URL, EVENT_URL } from '../constants'
+import { BASE_URL, EVENT_URL, INITIAL_MIGRATION_STATE } from '../constants'
 import { getShortId } from '../Helper'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { getEvents, sortEventsFunction } from '../Timeline/timeline-helper'
-import { setCourseMigrationAllEvents, setCourseMigrationState, } from '../../../redux/actions'
+import {
+  setCourseMigrationState,
+  setCourseMigrationAllEvents,
+} from '../../../redux/actions'
 
 class CourseMigration extends React.Component {
   constructor() {
@@ -19,22 +22,22 @@ class CourseMigration extends React.Component {
   }
 
   componentDidMount() {
-    if(!this.props.initialized) {
+    if (!this.props.initialized) {
       this.setCourseInstance()
     }
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if(prevProps.courseInstance !== this.props.courseInstance) {
-      if(!this.props.initialized) {
+    if (prevProps.courseInstance !== this.props.courseInstance) {
+      if (!this.props.initialized) {
         this.setCourseInstance()
       }
     }
   }
 
   setCourseInstance = () => {
-    const {courseInstance} = this.props
-    if(courseInstance) {
+    const { courseInstance } = this.props
+    if (courseInstance) {
       const state = {
         initialized: true,
         name: courseInstance.name,
@@ -45,11 +48,11 @@ class CourseMigration extends React.Component {
         endDate: new Date(courseInstance.endDate),
         instructors: courseInstance.hasInstructor
           ? courseInstance.hasInstructor.map(instructor => {
-            return {
-              fullId: instructor['@id'],
-              name: `${ instructor.firstName } ${ instructor.lastName }`,
-            }
-          })
+              return {
+                fullId: instructor['@id'],
+                name: `${instructor.firstName} ${instructor.lastName}`,
+              }
+            })
           : [],
         instanceOf: courseInstance.instanceOf,
         quizzes: [],
@@ -63,20 +66,20 @@ class CourseMigration extends React.Component {
   }
 
   getEvents = () => {
-    const {courseInstance} = this.props
+    const { courseInstance } = this.props
 
     const courseInstanceId = getShortId(courseInstance['@id'])
 
     const url = `${
       BASE_URL + EVENT_URL
-    }?courseInstance=${ courseInstanceId }&_join=uses,recommends`
+    }?courseInstance=${courseInstanceId}&_join=uses,recommends`
 
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       this.setState({
         loading: false,
       })
-      if(data != null && data !== []) {
+      if (data != null && data !== []) {
         const allEvents = getEvents(data).sort(sortEventsFunction)
 
         this.props.setCourseMigrationAllEvents(allEvents)
@@ -85,10 +88,10 @@ class CourseMigration extends React.Component {
   }
 
   render() {
-    const {courseInstance} = this.props
-    const {loading} = this.state
+    const { courseInstance } = this.props
+    const { loading } = this.state
 
-    if(loading) {
+    if (loading) {
       return (
         <Alert color="secondary" className="empty-message">
           Loading...
@@ -102,10 +105,10 @@ class CourseMigration extends React.Component {
           <Card className="course-migration-card event-card">
             <CardHeader className="event-card-header">
               Course Migration
-              { courseInstance && <> - { courseInstance.instanceOf[0].name }</> }
+              {courseInstance && <> - {courseInstance.instanceOf[0].name}</>}
             </CardHeader>
             <CardBody className="course-migration-card">
-              <MultiStepForm/>
+              <MultiStepForm />
             </CardBody>
           </Card>
         </Container>
@@ -114,7 +117,7 @@ class CourseMigration extends React.Component {
   }
 }
 
-const mapStateToProps = ({courseInstanceReducer, courseMigrationReducer}) => {
+const mapStateToProps = ({ courseInstanceReducer, courseMigrationReducer }) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
     initialized: courseMigrationReducer.initialized,

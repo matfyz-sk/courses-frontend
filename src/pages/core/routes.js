@@ -34,161 +34,161 @@ import ResultDetail from '../results/ResultDetail'
 
 const CoreRoutes = [
   <RouteWrapper
-    key={ ROUTES.DASHBOARD }
-    path={ ROUTES.DASHBOARD }
-    component={ LandingPage }
-    layout={ CourseLayout }
+    key={ROUTES.DASHBOARD}
+    path={ROUTES.DASHBOARD}
+    component={LandingPage}
+    layout={CourseLayout}
     auth
   />,
   <StudentRoute
-    key={ ROUTES.TIMELINE }
-    path={ ROUTES.TIMELINE }
-    component={ Timeline }
-    layout={ CourseLayout }
+    key={ROUTES.TIMELINE}
+    path={ROUTES.TIMELINE}
+    component={Timeline}
+    layout={CourseLayout}
     auth
   />,
   <RouteWrapper
-    key={ ROUTES.COURSE_TEAM_CREATE }
-    path={ ROUTES.COURSE_TEAM_CREATE }
-    component={ TeamDetail }
-    layout={ CourseLayout }
+    key={ROUTES.COURSE_TEAM_CREATE}
+    path={ROUTES.COURSE_TEAM_CREATE}
+    component={TeamDetail}
+    layout={CourseLayout}
     exact
     auth
   />,
   <RouteWrapper
-    key={ ROUTES.COURSE_TEAM_DETAIL }
-    path={ ROUTES.COURSE_TEAM_DETAIL }
-    component={ TeamDetail }
-    layout={ CourseLayout }
+    key={ROUTES.COURSE_TEAM_DETAIL}
+    path={ROUTES.COURSE_TEAM_DETAIL}
+    component={TeamDetail}
+    layout={CourseLayout}
     exact
     auth
   />,
   <RouteWrapper
-    key={ ROUTES.COURSE_TEAMS }
-    path={ ROUTES.COURSE_TEAMS }
-    component={ Teams }
-    layout={ CourseLayout }
+    key={ROUTES.COURSE_TEAMS}
+    path={ROUTES.COURSE_TEAMS}
+    component={Teams}
+    layout={CourseLayout}
     exact
     auth
   />,
   <PrivateOnlyRoute
-    key={ ROUTES.PROFILE_SETTINGS }
-    path={ ROUTES.PROFILE_SETTINGS }
-    component={ Profile }
+    key={ROUTES.PROFILE_SETTINGS}
+    path={ROUTES.PROFILE_SETTINGS}
+    component={Profile}
   />,
 
   <RouteWrapper
-    key={ ROUTES.RESULTS }
-    path={ ROUTES.RESULTS }
-    component={ ResultsInstructor }
-    layout={ CourseLayout }
+    key={ROUTES.RESULTS}
+    path={ROUTES.RESULTS}
+    component={ResultsInstructor}
+    layout={CourseLayout}
     exact
     auth
   />,
   <RouteWrapper
-    key={ ROUTES.MY_RESULTS }
-    path={ ROUTES.MY_RESULTS }
-    component={ StudentOverview }
-    layout={ CourseLayout }
+    key={ROUTES.MY_RESULTS}
+    path={ROUTES.MY_RESULTS}
+    component={StudentOverview}
+    layout={CourseLayout}
     exact
     auth
   />,
   <RouteWrapper
-    key={ ROUTES.RESULT_TYPE }
-    path={ ROUTES.RESULT_TYPE }
-    component={ ResultsTypeDetail }
-    layout={ CourseLayout }
+    key={ROUTES.RESULT_TYPE}
+    path={ROUTES.RESULT_TYPE}
+    component={ResultsTypeDetail}
+    layout={CourseLayout}
     exact
     auth
   />,
   <RouteWrapper
-    key={ ROUTES.RESULT_USER }
-    path={ ROUTES.RESULT_USER }
-    component={ StudentOverview }
-    layout={ CourseLayout }
+    key={ROUTES.RESULT_USER}
+    path={ROUTES.RESULT_USER}
+    component={StudentOverview}
+    layout={CourseLayout}
     exact
     auth
   />,
   <RouteWrapper
-    key={ ROUTES.RESULT_DETAIL }
-    path={ ROUTES.RESULT_DETAIL }
-    component={ ResultDetail }
-    layout={ CourseLayout }
+    key={ROUTES.RESULT_DETAIL}
+    path={ROUTES.RESULT_DETAIL}
+    component={ResultDetail}
+    layout={CourseLayout}
     exact
     auth
   />,
 
   <PrivateOnlyRoute
-    key={ ROUTES.USER_DASHBOARD }
-    path={ ROUTES.USER_DASHBOARD }
-    component={ Dashboard }
+    key={ROUTES.USER_DASHBOARD}
+    path={ROUTES.USER_DASHBOARD}
+    component={Dashboard}
   />,
 
   <InstructorRoute
-    key={ ROUTES.CREATE_TIMELINE }
-    path={ ROUTES.CREATE_TIMELINE }
-    component={ CreateTimeline }
-    layout={ CourseLayout }
+    key={ROUTES.CREATE_TIMELINE}
+    path={ROUTES.CREATE_TIMELINE}
+    component={CreateTimeline}
+    layout={CourseLayout}
   />,
   <StudentRoute
-    key={ ROUTES.EVENT_ID }
-    path={ ROUTES.EVENT_ID }
-    component={ Event }
-    layout={ CourseLayout }
+    key={ROUTES.EVENT_ID}
+    path={ROUTES.EVENT_ID}
+    component={Event}
+    layout={CourseLayout}
     auth
   />,
   <InstructorRoute
-    key={ ROUTES.EDIT_EVENT_ID }
-    path={ ROUTES.EDIT_EVENT_ID }
-    component={ EditEvent }
-    layout={ CourseLayout }
+    key={ROUTES.EDIT_EVENT_ID}
+    path={ROUTES.EDIT_EVENT_ID}
+    component={EditEvent}
+    layout={CourseLayout}
   />,
   <InstructorRoute
-    key={ ROUTES.NEW_EVENT }
-    path={ ROUTES.NEW_EVENT }
-    component={ NewEvent }
-    layout={ CourseLayout }
+    key={ROUTES.NEW_EVENT}
+    path={ROUTES.NEW_EVENT}
+    component={NewEvent}
+    layout={CourseLayout}
   />,
   <InstructorRoute
-    key={ ROUTES.USER_MANAGEMENT }
-    path={ ROUTES.USER_MANAGEMENT }
-    component={ UserManagement }
-    layout={ CourseLayout }
+    key={ROUTES.USER_MANAGEMENT}
+    path={ROUTES.USER_MANAGEMENT}
+    component={UserManagement}
+    layout={CourseLayout}
   />,
   <InstructorRoute
-    key={ ROUTES.COURSE_MIGRATION }
-    path={ ROUTES.COURSE_MIGRATION }
-    component={ CourseMigration }
-    layout={ CourseLayout }
+    key={ROUTES.COURSE_MIGRATION}
+    path={ROUTES.COURSE_MIGRATION}
+    component={CourseMigration}
+    layout={CourseLayout}
   />,
   <RouteWrapper
-    key={ ROUTES.ASSIGNMENTS }
-    path={ ROUTES.ASSIGNMENTS }
-    component={ Assignments }
-    layout={ CourseLayout }
+    key={ROUTES.ASSIGNMENTS}
+    path={ROUTES.ASSIGNMENTS}
+    component={Assignments}
+    layout={CourseLayout}
     auth
   />,
-  <Route key={ ROUTES.COURSES } path={ ROUTES.COURSES } component={ CoursesPage }/>,
-  <Route key={ ROUTES.INFO_PAGE } path={ ROUTES.INFO_PAGE } component={ InfoPage }/>,
+  <Route key={ROUTES.COURSES} path={ROUTES.COURSES} component={CoursesPage} />,
+  <Route key={ROUTES.INFO_PAGE} path={ROUTES.INFO_PAGE} component={InfoPage} />,
   <AdminRoute
-    key={ ROUTES.COURSE_ID }
-    path={ ROUTES.COURSE_ID }
-    component={ Course }
+    key={ROUTES.COURSE_ID}
+    path={ROUTES.COURSE_ID}
+    component={Course}
   />,
   <SuperAdminRoute
-    key={ ROUTES.NEW_COURSE }
-    path={ ROUTES.NEW_COURSE }
-    component={ NewCourse }
+    key={ROUTES.NEW_COURSE}
+    path={ROUTES.NEW_COURSE}
+    component={NewCourse}
   />,
   <AdminRoute
-    key={ ROUTES.EDIT_COURSE_ID }
-    path={ ROUTES.EDIT_COURSE_ID }
-    component={ EditCourse }
+    key={ROUTES.EDIT_COURSE_ID}
+    path={ROUTES.EDIT_COURSE_ID}
+    component={EditCourse}
   />,
   <AdminRoute
-    key={ ROUTES.NEW_COURSE_INSTANCE }
-    path={ ROUTES.NEW_COURSE_INSTANCE }
-    component={ NewCourseInstance }
+    key={ROUTES.NEW_COURSE_INSTANCE}
+    path={ROUTES.NEW_COURSE_INSTANCE}
+    component={NewCourseInstance}
   />,
 ]
 

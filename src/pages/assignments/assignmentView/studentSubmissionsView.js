@@ -1,17 +1,17 @@
 import React, { Component } from 'react'
-import { Button, Table } from 'reactstrap';
-import { getShortID, periodHappening, periodHasEnded, periodStarted } from '../../../helperFunctions';
+import { Table, Button } from 'reactstrap';
+import { getShortID, periodHappening, periodStarted, periodHasEnded } from '../../../helperFunctions';
 
 export default class StudentTeamSubmissionsView extends Component {
 
-  getButtonText(settings) {
+  getButtonText( settings ){
     if(settings.canUpdate) return 'Update';
     if(settings.noInitialSubmission) return 'Submit';
     if(settings.noImprovedSubmission) return 'Submit improved';
     return 'View';
   }
 
-  getButtonColor(settings) {
+  getButtonColor( settings ){
     if(settings.canUpdate) return 'primary';
     if(settings.noInitialSubmission || settings.noImprovedSubmission) return 'success';
     return 'primary';
@@ -23,56 +23,54 @@ export default class StudentTeamSubmissionsView extends Component {
     let improvedSubmission = this.props.improvedSubmissions.length === 0 ? null : this.props.improvedSubmissions[0];
     const settings = {
       canUpdate: (
-          periodHappening(assignment.initialSubmissionPeriod) && initialSubmission !== null
-        ) ||
-        (
-          assignment.submissionImprovedSubmission && periodHappening(assignment.improvedSubmissionPeriod) && improvedSubmission !== null
-        ),
+        periodHappening(assignment.initialSubmissionPeriod) && initialSubmission !== null
+      ) ||
+      (
+        assignment.submissionImprovedSubmission && periodHappening(assignment.improvedSubmissionPeriod) && improvedSubmission !== null
+      ),
       noInitialSubmission: periodHappening(assignment.initialSubmissionPeriod) && initialSubmission === null,
       noImprovedSubmission: assignment.submissionImprovedSubmission && periodHappening(assignment.improvedSubmissionPeriod) && improvedSubmission === null,
     }
 
     const canBeRated = (
-      (!assignment.submissionImprovedSubmission && periodHasEnded(assignment.initialSubmissionPeriod)) ||
-      (assignment.submissionImprovedSubmission && periodHasEnded(assignment.improvedSubmissionPeriod))
-    );
+      (!assignment.submissionImprovedSubmission && periodHasEnded( assignment.initialSubmissionPeriod )) ||
+      (assignment.submissionImprovedSubmission && periodHasEnded( assignment.improvedSubmissionPeriod ))
+  );
 
-    const scoredSubmission = [ initialSubmission, improvedSubmission ].find((submission) => submission !== null && submission.teacherRating !== undefined);
-    const score = scoredSubmission !== undefined ? `${ scoredSubmission.teacherRating } points` : `Not rated yet`
+  const scoredSubmission = [initialSubmission, improvedSubmission].find((submission) => submission !== null  && submission.teacherRating !== undefined );
+  const score = scoredSubmission !== undefined ? `${scoredSubmission.teacherRating} points` : `Not rated yet`
 
     return (
       <Table>
         <thead>
-        <tr>
-          <th className="center-cell">Initial</th>
-          { assignment.submissionImprovedSubmission && periodStarted(assignment.improvedSubmissionPeriod) &&
-            <th className="center-cell">Improved</th> }
-          { canBeRated && <th className="center-cell">Score</th> }
-          <th width="80"></th>
-        </tr>
+          <tr>
+            <th className="center-cell">Initial</th>
+              { assignment.submissionImprovedSubmission && periodStarted( assignment.improvedSubmissionPeriod ) && <th className="center-cell">Improved</th>}
+              { canBeRated && <th className="center-cell">Score</th>}
+            <th width="80"></th>
+          </tr>
         </thead>
-        <tbody>
+      <tbody>
         <tr>
+        <td className="center-cell">
+        { initialSubmission ? <i className="fa fa-check green-color" /> : <i className="fa fa-times red-color" /> }
+        </td>
+        { assignment.submissionImprovedSubmission && periodStarted( assignment.improvedSubmissionPeriod ) &&
           <td className="center-cell">
-            { initialSubmission ? <i className="fa fa-check green-color"/> : <i className="fa fa-times red-color"/> }
+          { improvedSubmission ? <i className="fa fa-check green-color" /> : <i className="fa fa-times red-color" /> }
           </td>
-          { assignment.submissionImprovedSubmission && periodStarted(assignment.improvedSubmissionPeriod) &&
-            <td className="center-cell">
-              { improvedSubmission ? <i className="fa fa-check green-color"/> : <i className="fa fa-times red-color"/> }
-            </td>
-          }
-          { canBeRated &&
-            <td className="center-cell">
-              { score }
-            </td>
-          }
-          <td>
-            <Button color={ this.getButtonColor(settings) }
-                    onClick={ () => this.props.history.push(`./assignments/assignment/${ getShortID(this.props.assignment['@id']) }/submission/submission`) }>{ this.getButtonText(settings) }</Button>
-          </td>
+        }
+        { canBeRated &&
+        <td className="center-cell">
+          { score }
+        </td>
+        }
+        <td>
+        <Button color={ this.getButtonColor(settings)} onClick={()=>this.props.history.push(`./assignments/assignment/${getShortID(this.props.assignment['@id'])}/submission/submission`)}>{ this.getButtonText(settings) }</Button>
+      </td>
         </tr>
-        </tbody>
-      </Table>
+      </tbody>
+    </Table>
     )
   }
 }

@@ -1,22 +1,22 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {
-  Button,
-  ButtonDropdown,
-  Card,
-  CardBody,
-  CardTitle,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  FormGroup,
-  Input,
-  InputGroup,
-  InputGroupAddon,
   Label,
+  FormGroup,
+  CardTitle,
+  Input,
   ListGroupItem,
   ListGroupItemHeading,
   ListGroupItemText,
+  InputGroup,
+  InputGroupAddon,
+  Card,
+  CardBody,
+  Button,
+  ButtonDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from 'reactstrap'
 import AnswerComponent from '../question/common/answer-component/answer-component'
 import api from '../../../api'
@@ -28,8 +28,8 @@ class SavedQuestion extends Component {
   }
 
   changeHandler = e => {
-    const {name} = e.target
-    const {value} = e.target
+    const { name } = e.target
+    const { value } = e.target
     this.setState({
       [name]: value,
     })
@@ -58,12 +58,12 @@ class SavedQuestion extends Component {
         isPrivate,
       }),
     }).then(response => {
-      if(response.ok) {
+      if (response.ok) {
         this.props.history.push('/quiz/questionGroups')
       }
     })
   }
-
+  
   render() {
     const {
       isQuizTake,
@@ -90,18 +90,18 @@ class SavedQuestion extends Component {
       <div className="question">
         <Card>
           <CardBody>
-            { isApprovedAsPublic ? <div>Approved as Public</div> : null }
-            { isApprovedAsPrivate ? <div>Approved as Private</div> : null }
-            { isQuizTake || isSubmited || isReviewed ? (
-              <CardTitle>{ title }</CardTitle>
+            {isApprovedAsPublic ? <div>Approved as Public</div> : null}
+            {isApprovedAsPrivate ? <div>Approved as Private</div> : null}
+            {isQuizTake || isSubmited || isReviewed ? (
+              <CardTitle>{title}</CardTitle>
             ) : (
               <FormGroup>
                 <Label for="title">Title</Label>
-                <Input type="text" name="title" disabled value={ title }/>
+                <Input type="text" name="title" disabled value={title} />
               </FormGroup>
-            ) }
-            { (isQuizTake || isSubmited || isReviewed) && text ? (
-              <CardTitle>{ text.value }</CardTitle>
+            )}
+            {(isQuizTake || isSubmited || isReviewed) && text ? (
+              <CardTitle>{text.value}</CardTitle>
             ) : (
               <FormGroup>
                 <Label for="question">Question</Label>
@@ -109,120 +109,120 @@ class SavedQuestion extends Component {
                   type="text"
                   name="question"
                   disabled
-                  value={ text && text.value }
+                  value={text && text.value}
                 />
               </FormGroup>
-            ) }
-            { topic ? (
+            )}
+            {topic ? (
               <FormGroup>
                 <Label for="topic">Topic</Label>
                 <Input type="select" name="topic" disabled>
-                  <option>{ topic }</option>
+                  <option>{topic}</option>
                 </Input>
               </FormGroup>
-            ) : null }
-            { questionType ? (
+            ) : null}
+            {questionType ? (
               <FormGroup>
                 <Label for="questionType">Question type</Label>
                 <Input type="select" name="questionType" disabled>
-                  <option>{ questionType }</option>
+                  <option>{questionType}</option>
                 </Input>
               </FormGroup>
-            ) : null }
+            ) : null}
             <FormGroup tag="fieldset">
               <legend>Answers</legend>
-              { answers
+              {answers
                 ? answers.map(answer => {
-                  const userAnswer =
-                    userAnswers &&
-                    userAnswers.find(x => x.predefinedAnswer === answer.id)
-                      .userChoice
-                  return (
-                    <FormGroup key={ answer.id }>
-                      <AnswerComponent
-                        checkboxName={ answer.id }
-                        isQuizTake={ isQuizTake }
-                        onChange={ onChange }
-                        correct={ answer.correct }
-                        userChoice={ userAnswer }
-                        value={ answer.text.value }
-                        isTextEnabled={ !isQuizTake && !isPreview }
-                        showAll={ !!((!isTeacher && isReviewed) || isTeacher) }
-                        isCheckboxEnabled={ !isPreview }
-                      />
-                    </FormGroup>
-                  )
-                })
-                : null }
+                    const userAnswer =
+                      userAnswers &&
+                      userAnswers.find(x => x.predefinedAnswer === answer.id)
+                        .userChoice
+                    return (
+                      <FormGroup key={answer.id}>
+                        <AnswerComponent
+                          checkboxName={answer.id}
+                          isQuizTake={isQuizTake}
+                          onChange={onChange}
+                          correct={answer.correct}
+                          userChoice={userAnswer}
+                          value={answer.text.value}
+                          isTextEnabled={!isQuizTake && !isPreview}
+                          showAll={!!((!isTeacher && isReviewed) || isTeacher)}
+                          isCheckboxEnabled={!isPreview}
+                        />
+                      </FormGroup>
+                    )
+                  })
+                : null}
             </FormGroup>
-            { score !== undefined &&
+            {score !== undefined &&
             (isTeacher || (!isTeacher && isReviewed)) ? (
               <FormGroup>
                 <Label for="score">Score</Label>
                 <Input
                   type="text"
                   name="score"
-                  value={ score }
-                  onChange={ onScore }
-                  disabled={ !isTeacher && isReviewed }
+                  value={score}
+                  onChange={onScore}
+                  disabled={!isTeacher && isReviewed}
                 />
               </FormGroup>
-            ) : null }
-            { comments
+            ) : null}
+            {comments
               ? comments.map(comment => {
-                return (
-                  <ListGroupItem key={ comment.id } color="warning">
-                    <ListGroupItemHeading>
-                      { comment.author.name }
-                    </ListGroupItemHeading>
-                    <ListGroupItemText>{ comment.text }</ListGroupItemText>
-                    <ListGroupItemText>
-                      { new Date(comment.date).toLocaleDateString() }
-                    </ListGroupItemText>
-                  </ListGroupItem>
-                )
-              })
-              : null }
-            { isQuizTake || isReviewed || isSubmited ? null : (
+                  return (
+                    <ListGroupItem key={comment.id} color="warning">
+                      <ListGroupItemHeading>
+                        {comment.author.name}
+                      </ListGroupItemHeading>
+                      <ListGroupItemText>{comment.text}</ListGroupItemText>
+                      <ListGroupItemText>
+                        {new Date(comment.date).toLocaleDateString()}
+                      </ListGroupItemText>
+                    </ListGroupItem>
+                  )
+                })
+              : null}
+            {isQuizTake || isReviewed || isSubmited ? null : (
               <FormGroup color="warning">
                 <InputGroup>
                   <Input
                     type="text"
                     name="newComment"
                     placeholder="Write a comment..."
-                    onChange={ this.changeHandler }
+                    onChange={this.changeHandler}
                   />
                   <InputGroupAddon addonType="append">
                     <Button
                       color="warning"
-                      onClick={ () => onSendComment(id, this.state.newComment) }
+                      onClick={() => onSendComment(id, this.state.newComment)}
                     >
                       Send
                     </Button>
                   </InputGroupAddon>
                 </InputGroup>
               </FormGroup>
-            ) }
-            { isTeacher && !isSubmited && !isReviewed ? (
+            )}
+            {isTeacher && !isSubmited && !isReviewed ? (
               <FormGroup color="success">
                 <ButtonDropdown
-                  isOpen={ this.state.dropdownOpen }
-                  toggle={ this.toggle }
+                  isOpen={this.state.dropdownOpen}
+                  toggle={this.toggle}
                 >
                   <DropdownToggle caret color="success">
                     Approve as
                   </DropdownToggle>
                   <DropdownMenu>
-                    <DropdownItem onClick={ () => this.onApprove(false) }>
+                    <DropdownItem onClick={() => this.onApprove(false)}>
                       Approve as public
                     </DropdownItem>
-                    <DropdownItem onClick={ () => this.onApprove(true) }>
+                    <DropdownItem onClick={() => this.onApprove(true)}>
                       Approve as private
                     </DropdownItem>
                   </DropdownMenu>
                 </ButtonDropdown>
               </FormGroup>
-            ) : null }
+            ) : null}
           </CardBody>
         </Card>
       </div>
@@ -230,8 +230,8 @@ class SavedQuestion extends Component {
   }
 }
 
-const mapStateToProps = ({userReducer}) => {
-  const {isAdmin} = userReducer
+const mapStateToProps = ({ userReducer }) => {
+  const { isAdmin } = userReducer
   return {
     isAdmin,
   }

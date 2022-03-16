@@ -6,8 +6,12 @@ import { NavigationCourse } from '../components/Navigation/NavigationCourse'
 import { store } from '../index'
 import { setMainNav } from '../redux/actions/navigationActions'
 // eslint-disable-next-line import/no-cycle
-import { fetchCourseInstance, setCourseInstancePrivileges } from '../redux/actions'
-import { idFromURL } from "../functions/global";
+import {
+  fetchCourseInstance,
+  setCourseInstancePrivileges,
+  clearCourseInstance
+} from '../redux/actions'
+import {idFromURL} from "../functions/global";
 
 class CourseLayout extends Component {
   constructor(props) {
@@ -21,12 +25,12 @@ class CourseLayout extends Component {
   componentDidMount() {
     store.dispatch(setMainNav('courses'))
     // eslint-disable-next-line react/destructuring-assignment
-    const {course_id} = this.state
-    if(course_id) {
-      this.setState({course_id})
-      const {course} = this.props
-      if(!course || idFromURL(course['@id']) !== course_id) {
-        store.dispatch(setCourseInstancePrivileges({course_id}))
+    const { course_id } = this.state
+    if (course_id) {
+      this.setState({ course_id })
+      const { course } = this.props
+      if (!course || idFromURL(course['@id']) !== course_id) {
+        store.dispatch(setCourseInstancePrivileges({ course_id }))
         this.props.fetchCourseInstance(this.props.history, course_id)
       }
     }
@@ -37,19 +41,19 @@ class CourseLayout extends Component {
   }
 
   render() {
-    const {course, privileges} = this.props
-    const {course_id} = this.state
+    const { course, privileges } = this.props
+    const { course_id } = this.state
     return (
       <>
         <NavigationCourse
-          history={ this.props.history }
-          match={ this.props.match }
+          history = { this.props.history }
+          match = { this.props.match }
           abbr={
             course && course.instanceOf
               ? course.instanceOf[0].abbreviation
               : '...'
           }
-          courseId={ course_id }
+          courseId={course_id}
         />
         { this.props.children }
       </>
@@ -57,7 +61,7 @@ class CourseLayout extends Component {
   }
 }
 
-const mapStateToProps = ({courseInstanceReducer, privilegesReducer}) => {
+const mapStateToProps = ({ courseInstanceReducer, privilegesReducer }) => {
   return {
     course: courseInstanceReducer.courseInstance,
     privileges: privilegesReducer.inCourseInstance,
@@ -65,5 +69,5 @@ const mapStateToProps = ({courseInstanceReducer, privilegesReducer}) => {
 }
 
 export default withRouter(
-  connect(mapStateToProps, {fetchCourseInstance})(CourseLayout)
+  connect(mapStateToProps, { fetchCourseInstance })(CourseLayout)
 )

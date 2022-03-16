@@ -27,29 +27,29 @@ import { API_URL } from "../../constants";
 class Quiz extends Component {
   componentDidMount() {
     store.dispatch(setSubNav('quiz'))
-    const {user} = this.props
-    if(user && user.user) {
-      const {_token: token} = user
-      const {id: userId} = user.user
-      if(token && userId) {
+    const { user } = this.props
+    if (user && user.user) {
+      const { _token: token } = user
+      const { id: userId } = user.user
+      if (token && userId) {
         this.getUser(
           userId.substring(userId.lastIndexOf('/') + 1),
-          `Bearer ${ token }`
+          `Bearer ${token}`
         )
       }
     }
   }
 
   componentDidUpdate(prevProps) {
-    const {user} = this.props
-    if(JSON.stringify(user) !== JSON.stringify(prevProps.user)) {
-      if(user && user.user) {
-        const {_token: token} = user
-        const {id: userId} = user.user
-        if(token && userId) {
+    const { user } = this.props
+    if (JSON.stringify(user) !== JSON.stringify(prevProps.user)) {
+      if (user && user.user) {
+        const { _token: token } = user
+        const { id: userId } = user.user
+        if (token && userId) {
           this.getUser(
             userId.substring(userId.lastIndexOf('/') + 1),
-            `Bearer ${ token }`
+            `Bearer ${token}`
           )
         }
       }
@@ -57,60 +57,60 @@ class Quiz extends Component {
   }
 
   getUser = (userId, token) => {
-    return axios
-      .get(`${ API_URL }/user/${ userId }`, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-      })
-      .then(({data}) => {
-        if(
-          data &&
-          data['@graph'] &&
-          data['@graph'].length &&
-          data['@graph'].length > 0
-        ) {
-          const user = data['@graph'][0]
-          const {
-            studentOf: studentOfData,
-            instructorOf: instructorOfData,
-          } = user
-          const id = user['@id']
-          const studentOf = studentOfData.map(courseInstance => {
-            return courseInstance['@id']
-          })
-          const instructorOf = instructorOfData.map(courseInstance => {
-            return courseInstance['@id']
-          })
-          const activeUserMapped = {
-            id,
-            studentOf,
-            instructorOf,
+      return axios
+        .get(`${API_URL}/user/${userId}`, {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        })
+        .then(({ data }) => {
+          if (
+            data &&
+            data['@graph'] &&
+            data['@graph'].length &&
+            data['@graph'].length > 0
+          ) {
+            const user = data['@graph'][0]
+            const {
+              studentOf: studentOfData,
+              instructorOf: instructorOfData,
+            } = user
+            const id = user['@id']
+            const studentOf = studentOfData.map(courseInstance => {
+              return courseInstance['@id']
+            })
+            const instructorOf = instructorOfData.map(courseInstance => {
+              return courseInstance['@id']
+            })
+            const activeUserMapped = {
+              id,
+              studentOf,
+              instructorOf,
+            }
+            this.setState({
+              activeUser: activeUserMapped,
+            })
           }
-          this.setState({
-            activeUser: activeUserMapped,
-          })
-        }
-      })
-      .catch(error => console.log(error))
+        })
+        .catch(error => console.log(error))
   }
 
   render() {
-    const {user, match, history, courseInstance} = this.props
+    const { user, match, history, courseInstance } = this.props
     // eslint-disable-next-line no-underscore-dangle
-    const token = user._token ? `Bearer ${ user._token }` : null
+    const token = user._token ? `Bearer ${user._token}` : null
     let userId = null
-    if(user && user.user && user.user.fullURI) {
+    if (user && user.user && user.user.fullURI) {
       userId = user.user.fullURI
     }
 
     const courseInstanceId = match?.params?.course_id
-      ? `http://www.courses.matfyz.sk/data/courseInstance/${ match.params.course_id }`
+      ? `http://www.courses.matfyz.sk/data/courseInstance/${match.params.course_id}`
       : null
     let isTeacher = null
-    if(
+    if (
       courseInstance &&
       courseInstance.hasInstructor &&
       courseInstance.hasInstructor.length
@@ -119,238 +119,238 @@ class Quiz extends Component {
     }
     return (
       <div className="container">
-        <QuizNav match={ match }/>
+        <QuizNav match={match}/>
         <Switch>
           <Route
             exact
             path="/courses/:courseId/quiz"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <TopicsOverviewData
-                courseInstanceId={ courseInstanceId }
-                isTeacher={ isTeacher }
-                token={ token }
-                userId={ userId }
-                match={ matchChild }
-                history2={ history }
+                courseInstanceId={courseInstanceId}
+                isTeacher={isTeacher}
+                token={token}
+                userId={userId}
+                match={matchChild}
+                history2={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/createTopic"
-            render={ () => (
-              <NewTopic isTeacher={ isTeacher } token={ token } userId={ userId }/>
-            ) }
+            render={() => (
+              <NewTopic isTeacher={isTeacher} token={token} userId={userId} />
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/questionGroups"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <TopicsOverviewData
-                courseInstanceId={ courseInstanceId }
-                isTeacher={ isTeacher }
-                token={ token }
-                userId={ userId }
-                match={ matchChild }
+                courseInstanceId={courseInstanceId}
+                isTeacher={isTeacher}
+                token={token}
+                userId={userId}
+                match={matchChild}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/question"
-            render={ () => (
+            render={() => (
               <QuestionNewData
-                courseInstanceId={ courseInstanceId }
-                isTeacher={ isTeacher }
-                token={ token }
-                userId={ userId }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                isTeacher={isTeacher}
+                token={token}
+                userId={userId}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/questionEdit/:questionType/:questionId"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <QuestionOverview
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/questionAssignment"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <QuestionAssignment
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/questionAssignment/:questionAssignmentId"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <QuestionAssignment
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/quizAssignmentsOverview"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <QuizAssignmentsOverview
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                match={ matchChild }
-                token={ token }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                match={matchChild}
+                token={token}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/quizAssignment"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <QuizAssignment
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/quizAssignmentEdit/:quizAssignmentType/:quizAssignmentId"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <QuizAssignment
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/quizTakeIntro/:quizAssignmentId"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               // TODO delete later, just for testing
               <QuizTakeIntro
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
           //TODO
           <Route
             exact
             path="/courses/:courseId/quiz/quizTake/:quizTakeId"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <QuizTakeNew
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/quizTakesOverview/:quizAssignmentId"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <QuizTakesOverviewData
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/quizTakeReview/:quizTakeId"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <QuizTakeReview
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/quizResult/:quizTakeId"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <QuizTakeStudentResult
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/selfQuizzes"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <SelfQuizzes
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
           <Route
             exact
             path="/courses/:courseId/quiz/selfQuiz"
-            render={ ({match: matchChild}) => (
+            render={({ match: matchChild }) => (
               <SelfQuizNew
-                courseInstanceId={ courseInstanceId }
-                userId={ userId }
-                isTeacher={ isTeacher }
-                token={ token }
-                match={ matchChild }
-                history={ history }
+                courseInstanceId={courseInstanceId}
+                userId={userId}
+                isTeacher={isTeacher}
+                token={token}
+                match={matchChild}
+                history={history}
               />
-            ) }
+            )}
           />
         </Switch>
       </div>
@@ -360,10 +360,10 @@ class Quiz extends Component {
 }
 
 const mapStateToProps = ({
-                           userReducer,
-                           courseInstanceReducer,
-                           authReducer,
-                         }) => {
+  userReducer,
+  courseInstanceReducer,
+  authReducer,
+}) => {
   return {
     isSignedIn: userReducer.isSignedIn,
     isAdmin: userReducer.isAdmin,

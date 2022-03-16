@@ -13,26 +13,16 @@
   user-select: none;
   height: 50px;
   background: rgb(51, 51, 51);
-
   &:hover {
     background: lighten(rgb(51, 51, 51), 10);
   }
-
   .content {
-    align-items: center;
-    display: flex;
-    height: 100%;
-
+    align-items: center; display: flex; height: 100%;
     .icon {
-      display: flex;
-      justify-content: center;
-      min-width: 26px;
-      margin-right: 10px;
+      display: flex; justify-content: center; min-width: 26px; margin-right: 10px;
     }
-
     .title {
-      text-align: left;
-      width: 100%;
+      text-align: left; width: 100%;
     }
   }
 }

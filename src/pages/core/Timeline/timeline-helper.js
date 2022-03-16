@@ -2,16 +2,16 @@ import { getDisplayDateTime, getShortId, mergeMaterials } from '../Helper'
 import { SESSIONS, TASKS_DEADLINES, TASKS_EXAMS } from '../constants'
 
 export const sortEventsFunction = (e1, e2) => {
-  if(new Date(e1.startDate) > new Date(e2.startDate)) {
+  if (new Date(e1.startDate) > new Date(e2.startDate)) {
     return 1
   }
-  if(new Date(e1.startDate) < new Date(e2.startDate)) {
+  if (new Date(e1.startDate) < new Date(e2.startDate)) {
     return -1
   }
-  if(e1.type > e2.type) {
+  if (e1.type > e2.type) {
     return 1
   }
-  if(e1.type < e2.type) {
+  if (e1.type < e2.type) {
     return -1
   }
   return 0
@@ -67,10 +67,10 @@ export const getTimelineBlocks = events => {
   const timelineBlocks = []
   timelineBlocks.push(events[0])
   // eslint-disable-next-line no-plusplus
-  for(let i = 1; i < events.length; i++) {
+  for (let i = 1; i < events.length; i++) {
     const event = events[i]
     const block = timelineBlocks[timelineBlocks.length - 1]
-    if(
+    if (
       event.type === 'Block' ||
       new Date(event.startDate) >= new Date(block.endDate) ||
       block.type !== 'Block'
@@ -83,8 +83,8 @@ export const getTimelineBlocks = events => {
 
 export const getCurrentBlock = blocks => {
   let currentBlock = blocks[0]
-  for(let block of blocks) {
-    if(block.startDate >= new Date()) {
+  for (let block of blocks) {
+    if (block.startDate >= new Date()) {
       return currentBlock.id
     }
     currentBlock = block
@@ -93,27 +93,27 @@ export const getCurrentBlock = blocks => {
 }
 
 export const getNestedEvents = (events, timelineBlocks) => {
-  if(events.length === 0 || timelineBlocks === 0) {
+  if (events.length === 0 || timelineBlocks === 0) {
     return timelineBlocks
   }
-  for(const block of timelineBlocks) {
-    if(block.type === 'Block') {
+  for (const block of timelineBlocks) {
+    if (block.type === 'Block') {
       block.sessions = []
       block.tasks = []
 
-      for(const event of events) {
-        if(block.id !== event.id && event.type !== 'Block') {
-          if(
+      for (const event of events) {
+        if (block.id !== event.id && event.type !== 'Block') {
+          if (
             SESSIONS.includes(event.type) &&
             ((greaterEqual(event.startDate, block.startDate) &&
-                !greaterEqual(event.startDate, block.startDate)) ||
+              !greaterEqual(event.startDate, block.startDate)) ||
               (greater(event.endDate, block.startDate) &&
                 !greater(event.endDate, block.endDate)))
           ) {
             event.displayDateTime = getDisplayDateTime(event.startDate, false)
             block.sessions.push(event)
             block.materials = mergeMaterials(block.materials, event.materials)
-          } else if(
+          } else if (
             (TASKS_EXAMS.includes(event.type) &&
               greaterEqual(event.startDate, block.startDate) &&
               !greaterEqual(event.startDate, block.endDate)) ||
@@ -121,7 +121,7 @@ export const getNestedEvents = (events, timelineBlocks) => {
               greater(event.endDate, block.startDate) &&
               !greater(event.endDate, block.endDate))
           ) {
-            if(TASKS_EXAMS.includes(event.type)) {
+            if (TASKS_EXAMS.includes(event.type)) {
               event.displayDateTime = getDisplayDateTime(event.startDate, false)
             } else {
               event.displayDateTime = getDisplayDateTime(event.endDate, false)

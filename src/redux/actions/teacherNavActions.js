@@ -1,4 +1,8 @@
-import { SET_TEACHER_NAV, SET_TEACHER_NAV_CURRENT, UNSET_TEACHER_NAV, } from '../types/teacherNavTypes'
+import {
+  UNSET_TEACHER_NAV,
+  SET_TEACHER_NAV_CURRENT,
+  SET_TEACHER_NAV,
+} from '../types/teacherNavTypes'
 
 export const setTeacherNav = item => ({
   type: SET_TEACHER_NAV,

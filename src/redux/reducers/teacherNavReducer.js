@@ -1,4 +1,8 @@
-import { SET_TEACHER_NAV, SET_TEACHER_NAV_CURRENT, UNSET_TEACHER_NAV, } from '../types'
+import {
+  SET_TEACHER_NAV,
+  UNSET_TEACHER_NAV,
+  SET_TEACHER_NAV_CURRENT,
+} from '../types'
 
 const initialState = {
   menu: [],
@@ -6,7 +10,7 @@ const initialState = {
 }
 
 export default function teacherNavReducer(state = initialState, action) {
-  switch(action.type) {
+  switch (action.type) {
     case SET_TEACHER_NAV:
       return {
         ...state,

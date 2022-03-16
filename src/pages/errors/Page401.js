@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Card, Container } from 'reactstrap'
+import {Card, CardBody, Container} from 'reactstrap'
 import './ErrorStyle.css';
 
 const Page401 = () => (

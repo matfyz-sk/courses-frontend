@@ -14,8 +14,8 @@ const initialState = window.__INITIAL_STATE__;
 export const store = createStore(reducers, initialState);
 
 ReactDOM.render(
-  <Provider store={ store }>
-    <Router/>
+  <Provider store={store}>
+    <Router />
   </Provider>,
   document.getElementById('root')
 );
