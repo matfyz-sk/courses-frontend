@@ -4,7 +4,7 @@ import {
   SET_SIGNED_IN,
   SET_USER,
 } from '../types'
-import apiConfig from '../../configuration/api'
+import {API_URL} from '../../configuration/api'
 
 export const setUser = user => {
   return dispatch => {
@@ -27,7 +27,7 @@ export const setSignedInUser = isSignedIn => {
 export const fetchUser = (token, userId) => {
   return dispatch => {
     return axios
-      .get(`${apiConfig.API_URL}/user/${userId}`, {
+      .get(`${API_URL}/user/${userId}`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
