@@ -35,7 +35,7 @@ jobs:
         env:
           WEBSITE: ${{ secrets.WEBSITE }}
           WEBSITE_PORT: ${{ inputs.WEBSITE_PORT}}
-        run: echo "REACT_APP_BACKEND_URL=$WEBSITE:$WEBSITE_PORT" >> .env
+        run: echo "REACT_APP_BACKEND_URL=$WEBSITE:$WEBSITE_PORT" > .env
       - name: Install dependencies
         run: yarn install
       - name: Build
@@ -50,4 +50,4 @@ jobs:
       - name:  Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
       - name: Deploy
-        run: rsync -avz --no-perms --omit-dir-times ./build/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ inputs.FOLDER }}
+        run: rsync -avz --no-group --no-owner ./build/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ inputs.FOLDER }}
