@@ -6,9 +6,9 @@ on:
       FOLDER:
         required: true
         type: string
-      PORT:
+      WEBSITE_PORT:
         required: true
-        type: string
+        type: number
     secrets:
       SSH_PRIVATE_KEY:
         required: true
@@ -34,8 +34,8 @@ jobs:
       - name: Creating react env file
         env:
           WEBSITE: ${{ secrets.WEBSITE }}
-          PORT: ${{ inputs.PORT}}
-        run: echo "REACT_APP_BACKEND_URL=$WEBSITE:$PORT" >> .env
+          WEBSITE_PORT: ${{ inputs.WEBSITE_PORT}}
+        run: echo "REACT_APP_BACKEND_URL=$WEBSITE:$WEBSITE_PORT" >> .env
       - name: Install dependencies
         run: yarn install
       - name: Build
