@@ -1,43 +1,286 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Alert } from 'reactstrap'
+import { Alert, ListGroup, ListGroupItem } from 'reactstrap'
 import { withRouter } from 'react-router'
 import { connect } from 'react-redux'
-import { axiosGetEntities, getResponseBody } from 'helperFunctions'
+import {
+  axiosGetEntities,
+  getResponseBody,
+  getShortType,
+  timestampToString2,
+} from 'helperFunctions'
 import { redirect } from '../../constants/redirect'
 import * as ROUTES from '../../constants/routes'
+import { setCurrentDocumentsOfCourseInstance } from '../../redux/actions'
+import ReactHtmlParser from 'react-html-parser'
+import diff from 'node-htmldiff'
+import { DocumentEnums } from './enums/document-enums'
+import editDocument from './functions/documentCreation'
+import './styles/diff.css'
+import './styles/mdStyling.css'
+import { marked } from 'marked'
+import { Radio } from '@material-ui/core'
+
+// TODO conventional styling
+const sidebar = {
+  overflowY: 'scroll',
+  // position: "fixed",
+  // left: 0,
+  // right: 0,
+
+  display: 'table-cell',
+  width: '20%',
+  verticalAlign: 'top',
+  borderLeft: '1px solid',
+}
+
+const sidebarRow = {
+  // borderBottom: '3px solid',
+  borderWidth: '0 0 1px',
+  padding: '5px',
+}
+
+const mainPage = {
+  display: 'table',
+  width: '100%',
+}
+
+const versionContentContainer = {
+  overflowY: 'scroll',
+  // position: "fixed",
+  // left: 0,
+  // right: 0,
+
+  display: 'table-cell',
+  width: '80%',
+  verticalAlign: 'top',
+}
+
+const versionContent = {
+  width: '80%',
+  margin: '20px auto',
+}
+
+const isNewestVersion = version => {
+  return !version.isDeleted && version.nextVersion.length === 0
+}
+
+function RevisionsSidebar({
+  versions,
+  setPickedVersionA,
+  setPickedVersionB,
+  handleRestore,
+}) {
+  const [selectedBefore, setSelectedBefore] = useState(1)
+  const [selectedAfter, setSelectedAfter] = useState(0)
+
+  const handleChangeA = e => {
+    const vIndex = parseInt(e.target.value)
+    setPickedVersionA(versions[vIndex])
+    setSelectedAfter(vIndex)
+  }
+
+  const handleChangeB = e => {
+    const vIndex = parseInt(e.target.value)
+    setPickedVersionB(versions[vIndex])
+    setSelectedBefore(vIndex)
+  }
+
+  return (
+    <ListGroup flush style={sidebar} className="versions-sidebar">
+      {versions.map((v, i) => {
+        return (
+          <ListGroupItem style={sidebarRow} key={i}>
+            {timestampToString2(v.createdAt)}
+            {selectedAfter < i && (
+              <Radio
+                style={{ color: GREENISH_COLOR }}
+                checked={selectedBefore === i}
+                onChange={handleChangeB}
+                value={i}
+                name="before-revisions"
+                inputProps={{
+                  'aria-label': `before from ${timestampToString2(
+                    v.createdAt
+                  )}`,
+                }}
+              />
+            )}
+            {i < selectedBefore && (
+              <Radio
+                style={
+                  i <= selectedAfter
+                    ? { marginLeft: '42px', color: GREENISH_COLOR }
+                    : { color: GREENISH_COLOR }
+                }
+                checked={selectedAfter === i}
+                onChange={handleChangeA}
+                value={i}
+                name="after-revisions"
+                inputProps={{
+                  'aria-label': `after all revisions up to ${timestampToString2(
+                    v.createdAt
+                  )}`,
+                }}
+              />
+            )}
+
+            {i === 0 && <p>Current version</p>}
+
+            {v.restoredFrom && (
+              <p>Restored from {timestampToString2(v.restoredFrom)}</p>
+            )}
+            {i > 0 && i < versions.length - 1 && (
+              <p>
+                <a
+                  style={{ color: GREENISH_COLOR }}
+                  href="#"
+                  onClick={e => handleRestore(e, v)}
+                >
+                  restore
+                </a>
+              </p>
+            )}
+          </ListGroupItem>
+        )
+      })}
+    </ListGroup>
+  )
+}
+
+var GREENISH_COLOR = '#28a745'
 
 function DocumentHistory(props) {
+  // FIXME performance!
+  // FIXME enlarged version content div?
+  // TODO needs ins and dels: <hr> and page break?
+
   const [newestVersionId, setNewestVersionId] = useState(
     props.match.params.document_id
   )
   const [courseId, setCourseId] = useState(props.match.params.course_id)
+  const [status, setStatus] = useState(200)
+  const [entityName, setEntityName] = useState('')
   const [versions, setVersions] = useState([])
   const [loading, setLoading] = useState(true)
+  const [pickedVersionA, setPickedVersionA] = useState({})
+  const [pickedVersionB, setPickedVersionB] = useState({})
 
-  const fetchAllVersions = useCallback(() => {
+  const latestVersion = () => versions[0]
+
+  const getPayloadContent = version => version.payload[0].content
+
+  const createOriginDummyVersion = firstVersion => {
+    var dummy = {
+      createdAt: firstVersion.createdAt,
+      restoredFrom: '',
+    }
+    switch (getShortType(firstVersion['@type'])) {
+      case DocumentEnums.internalDocument.entityName:
+        var subclassSpecificParams = {
+          mimeType: '',
+          payload: [
+            {
+              content: '',
+            },
+          ],
+        }
+        break
+      case DocumentEnums.externalDocument.entityName:
+        var subclassSpecificParams = { uri: '' }
+        break
+      case DocumentEnums.file.entityName:
+        var subclassSpecificParams = {
+          filename: '',
+          mimeType: '',
+          payload: [
+            {
+              content: '',
+            },
+          ],
+        }
+        break
+      default:
+        break
+    }
+    console.log({xdd: {
+      ...dummy,
+      ...subclassSpecificParams,
+    }})
+    return {
+      ...dummy,
+      ...subclassSpecificParams,
+    }
+  }
+
+  useEffect(() => {
     setLoading(true)
-    const url = `document/${newestVersionId}?_chain=previousVersion`
-    axiosGetEntities(url).then(response => {
+    const entitiesUrl = `document/${newestVersionId}?_join=payload&_chain=previousVersion`
+    axiosGetEntities(entitiesUrl).then(response => {
       if (response.failed) {
         console.error("There was a problem getting this document's history")
         setLoading(false)
-        return // ? snackbar
+        setStatus(response.response ? response.response.status : 500)
+        return
       }
       const data = getResponseBody(response)
-      if (data[0].isDeleted || data[0].nextVersion.length !== 0) {
+      if (!isNewestVersion(data[0])) {
         props.history.push(
           redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])
         )
         return
       }
-      setVersions(data)
+      setEntityName(getShortType(data[0]['@type']))
+      const paddedData = [...data, createOriginDummyVersion(data[data.length - 1])]
+      setPickedVersionA(paddedData[0])
+      setPickedVersionB(paddedData[1]) // ?
+      setVersions(paddedData)
       setLoading(false)
     })
   }, [newestVersionId, courseId])
 
-  useEffect(() => {
-    fetchAllVersions()    
-  }, [fetchAllVersions])
+  const handleRestore = async (e, versionToRestore) => {
+    e.preventDefault()
+    const editProps = {
+      entityName,
+      setStatus,
+      isInEditingMode: true,
+      restoredFrom: versionToRestore.createdAt,
+      courseId: props.match.params.course_id,
+      ...props,
+    }
+    const newVersionId = await editDocument(
+      versionToRestore,
+      latestVersion(),
+      editProps
+    )
+    if (!newVersionId) return
+    props.history.push(
+      redirect(ROUTES.EDIT_DOCUMENT, [
+        { key: 'course_id', value: courseId },
+        { key: 'document_id', value: newVersionId },
+      ])
+    )
+  }
+
+  const diffVersions = () => {
+    console.log('ticked')
+    if (!pickedVersionA.payload || !pickedVersionB.payload) {
+      // ? have these constraint to loading?
+      console.log({pickedVersionA, pickedVersionB})
+      return
+    }
+
+    var before = getPayloadContent(pickedVersionB)
+    var after = getPayloadContent(pickedVersionA)
+    if (pickedVersionA.mimeType === 'text/markdown') {
+      return diff(marked.parse(before), marked.parse(after), 'revisions-diff')
+    }
+    return diff(before, after, 'revisions-diff')
+  }
+
+  if (status === 404) {
+    return <Page404 />
+  }
 
   if (loading) {
     return (
@@ -48,21 +291,57 @@ function DocumentHistory(props) {
   }
 
   return (
-    <div>
-      <h1>Document version history</h1>
-      <ul>
-        {versions.map((version, i) => (
-          <li key={i}>
-            {version.name}, {version.createdAt}
-          </li>
-        ))}
-      </ul>
+    <div style={mainPage}>
+      <div style={versionContentContainer}>
+        <div style={versionContent}>
+          <h1>History</h1>
+          <br />
+          <h4 style={{ display: 'inline-block' }}>{pickedVersionA.name}</h4>
+          {status !== 200 && (
+            <Alert color="warning">
+              There has been a server error, try again please!
+            </Alert>
+          )}
+          <br />
+          <br />
+          {entityName === DocumentEnums.internalDocument.entityName && (
+            <>
+              {/* want to use ckeditor styling but not its data processor */}
+              <div className="ck ck-editor__main" role="presentation">
+                <div
+                  className="ck-blurred ck ck-content ck-editor__editable ck-rounded-corners ck-editor__editable_inline ck-read-only"
+                  dir="ltr"
+                  role="textbox"
+                  aria-label="Rich Text Editor, main"
+                  lang="en"
+                  contentEditable={false}
+                >
+                  {ReactHtmlParser(diffVersions())}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      <RevisionsSidebar
+        setPickedVersionA={setPickedVersionA}
+        setPickedVersionB={setPickedVersionB}
+        versions={versions}
+        handleRestore={handleRestore}
+      />
     </div>
   )
 }
 
-const mapStateToProps = state => {
-  return state
+const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
+  return {
+    user: authReducer.user,
+    courseInstance: courseInstanceReducer.courseInstance,
+  }
 }
 
-export default withRouter(connect(mapStateToProps)(DocumentHistory))
+export default withRouter(
+  connect(mapStateToProps, { setCurrentDocumentsOfCourseInstance })(
+    DocumentHistory
+  )
+)
