@@ -14,11 +14,15 @@
 
 .ck-content ins img  {
   border: 3px solid var(--ck-color-suggestion-marker-insertion-border);
+  max-width:100%;
+  max-height:100%;
 }
 
 
 .ck-content del img  {
   border: 3px solid var(--ck-color-suggestion-marker-deletion-border);
+  max-width:100%;
+  max-height:100%;
 }
 
 .ck-content ins iframe  {
@@ -35,7 +39,7 @@
   background: var(--ck-color-suggestion-marker-insertion-background);
 } */
 
-
+/* TODO ins and del tags in img don't fit */
 .diffing ins.revisions-diff  {
   border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
   border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
