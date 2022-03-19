@@ -36,17 +36,14 @@
 } */
 
 
-.ck-content ins.revisions-diff  {
+.diffing ins.revisions-diff  {
   border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
   border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
   background: var(--ck-color-suggestion-marker-insertion-background);
   text-decoration: none;
-  
-  /* test */
-  display: inline-block;
 }
 
-.ck-content del.revisions-diff  {
+.diffing del.revisions-diff  {
   border-top: 3px solid var(--ck-color-suggestion-marker-deletion-border);
   border-bottom: 3px solid var(--ck-color-suggestion-marker-deletion-border);
   text-decoration: line-through;
@@ -55,4 +52,8 @@
   text-decoration-color: var(--ck-color-suggestion-marker-deletion-stroke);
   text-decoration-thickness: 3px;
   background: var(--ck-color-suggestion-marker-deletion-background);
+}
+
+.diffing h5 {
+  color: slategray
 }
