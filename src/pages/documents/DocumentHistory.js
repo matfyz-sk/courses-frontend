@@ -10,6 +10,7 @@ import {
 } from 'helperFunctions'
 import { redirect } from '../../constants/redirect'
 import * as ROUTES from '../../constants/routes'
+import { Link } from 'react-router-dom'
 import { setCurrentDocumentsOfCourseInstance } from '../../redux/actions'
 import ReactHtmlParser from 'react-html-parser'
 import diff from 'node-htmldiff'
@@ -19,6 +20,9 @@ import './styles/diff.css'
 import './styles/mdStyling.css'
 import { marked } from 'marked'
 import { Radio } from '@material-ui/core'
+import { MdChevronRight } from 'react-icons/md'
+import { HiDownload } from 'react-icons/hi'
+import downloadBase64File from './functions/downloadBase64File'
 
 // TODO conventional styling
 const sidebar = {
@@ -93,7 +97,7 @@ function RevisionsSidebar({
             {timestampToString2(v.createdAt)}
             {selectedAfter < i && (
               <Radio
-                style={{ color: GREENISH_COLOR }}
+                style={{ marginLeft: '21px', color: GREENISH_COLOR }}
                 checked={selectedBefore === i}
                 onChange={handleChangeB}
                 value={i}
@@ -109,7 +113,7 @@ function RevisionsSidebar({
               <Radio
                 style={
                   i <= selectedAfter
-                    ? { marginLeft: '42px', color: GREENISH_COLOR }
+                    ? { marginLeft: '63px', color: GREENISH_COLOR }
                     : { color: GREENISH_COLOR }
                 }
                 checked={selectedAfter === i}
@@ -161,16 +165,17 @@ function DocumentHistory(props) {
   const [status, setStatus] = useState(200)
   const [entityName, setEntityName] = useState('')
   const [versions, setVersions] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [pickedVersionA, setPickedVersionA] = useState({})
   const [pickedVersionB, setPickedVersionB] = useState({})
 
   const latestVersion = () => versions[0]
-
   const getPayloadContent = version => version.payload[0].content
+  const hasEmptyContent = version => version.payload[0].content.length === 0
 
   const createOriginDummyVersion = firstVersion => {
     var dummy = {
+      name: '',
       createdAt: firstVersion.createdAt,
       restoredFrom: '',
     }
@@ -202,10 +207,6 @@ function DocumentHistory(props) {
       default:
         break
     }
-    console.log({xdd: {
-      ...dummy,
-      ...subclassSpecificParams,
-    }})
     return {
       ...dummy,
       ...subclassSpecificParams,
@@ -230,7 +231,10 @@ function DocumentHistory(props) {
         return
       }
       setEntityName(getShortType(data[0]['@type']))
-      const paddedData = [...data, createOriginDummyVersion(data[data.length - 1])]
+      const paddedData = [
+        ...data,
+        createOriginDummyVersion(data[data.length - 1]),
+      ]
       setPickedVersionA(paddedData[0])
       setPickedVersionB(paddedData[1]) // ?
       setVersions(paddedData)
@@ -262,11 +266,9 @@ function DocumentHistory(props) {
     )
   }
 
-  const diffVersions = () => {
-    console.log('ticked')
+  const diffPayloads = () => {
     if (!pickedVersionA.payload || !pickedVersionB.payload) {
       // ? have these constraint to loading?
-      console.log({pickedVersionA, pickedVersionB})
       return
     }
 
@@ -276,6 +278,11 @@ function DocumentHistory(props) {
       return diff(marked.parse(before), marked.parse(after), 'revisions-diff')
     }
     return diff(before, after, 'revisions-diff')
+  }
+
+  const onDownloadFile = (e, v) => {
+    e.preventDefault() //? needed
+    downloadBase64File(v, window)
   }
 
   if (status === 404) {
@@ -293,20 +300,134 @@ function DocumentHistory(props) {
   return (
     <div style={mainPage}>
       <div style={versionContentContainer}>
-        <div style={versionContent}>
-          <h1>History</h1>
-          <br />
-          <h4 style={{ display: 'inline-block' }}>{pickedVersionA.name}</h4>
+        <div className="diffing" style={versionContent}>
+          <h5>Name:</h5>
+          {ReactHtmlParser(
+            diff(
+              `<p>${pickedVersionB.name}</p>`,
+              `<p>${pickedVersionA.name}</p>`,
+              'revisions-diff'
+            )
+          )}
           {status !== 200 && (
             <Alert color="warning">
               There has been a server error, try again please!
             </Alert>
           )}
-          <br />
-          <br />
+          {entityName === DocumentEnums.externalDocument.entityName && (
+            <>
+              <h5>Url:</h5>
+              {pickedVersionB.uri.length !== 0 &&
+                pickedVersionB.uri !== pickedVersionA.uri && (
+                  <>
+                    <a href={pickedVersionB.uri}>{pickedVersionB.uri}</a>
+                    <MdChevronRight
+                      size={28}
+                      style={{
+                        color: GREENISH_COLOR,
+                        margin: '0 2em 0 2em',
+                      }}
+                    />
+                  </>
+                )}
+              <a href={pickedVersionA.uri}>{pickedVersionA.uri}</a>
+            </>
+          )}
+          {entityName === DocumentEnums.file.entityName && (
+            <>
+              <h5>Filename:</h5>
+              {ReactHtmlParser(
+                diff(
+                  `<p>${pickedVersionB.filename}</p>`,
+                  `<p>${pickedVersionA.filename}</p>`,
+                  'revisions-diff'
+                )
+              )}
+              <h5>File mime:</h5>
+              {ReactHtmlParser(
+                diff(
+                  `<p>${pickedVersionB.mimeType}</p>`,
+                  `<p>${pickedVersionA.mimeType}</p>`,
+                  'revisions-diff'
+                )
+              )}
+              <h5>File:</h5>
+
+              {pickedVersionA.mimeType.startsWith('image') ? (
+                <>
+                  {!hasEmptyContent(pickedVersionB) &&
+                    getPayloadContent(pickedVersionB) !==
+                      getPayloadContent(pickedVersionA) && (
+                      <>
+                        <Link
+                          id="file-download"
+                          to={{ textDecoration: 'none' }}
+                          onClick={e => onDownloadFile(e, pickedVersionB)}
+                        >
+                          <img
+                            style={{ display: 'inline', maxWidth: '150px' }}
+                            src={getPayloadContent(pickedVersionB)}
+                          />
+                        </Link>
+                        <MdChevronRight
+                          size={56}
+                          style={{
+                            color: GREENISH_COLOR,
+                            margin: '0 2em 0 2em',
+                          }}
+                        />
+                      </>
+                    )}
+                  <Link
+                    id="file-download"
+                    to={{ textDecoration: 'none' }}
+                    onClick={e => onDownloadFile(e, pickedVersionB)}
+                  >
+                    <img
+                      style={{ maxWidth: '150px' }}
+                      src={getPayloadContent(pickedVersionA)}
+                    />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  {!hasEmptyContent(pickedVersionB) &&
+                    getPayloadContent(pickedVersionB) !==
+                      getPayloadContent(pickedVersionA) && (
+                      <>
+                        <Link
+                          id="file-download"
+                          to={{ textDecoration: 'none' }}
+                          onClick={e => onDownloadFile(e, pickedVersionB)}
+                        >
+                          <HiDownload
+                            style={{ color: GREENISH_COLOR }}
+                            size={42}
+                          />
+                        </Link>
+                        <MdChevronRight
+                          size={28}
+                          style={{
+                            color: GREENISH_COLOR,
+                            margin: '0 2em 0 2em',
+                          }}
+                        />
+                      </>
+                    )}
+                  <Link
+                    id="file-download"
+                    to={{ textDecoration: 'none' }}
+                    onClick={e => onDownloadFile(e, pickedVersionA)}
+                  >
+                    <HiDownload style={{ color: GREENISH_COLOR }} size={42} />
+                  </Link>
+                </>
+              )}
+            </>
+          )}
           {entityName === DocumentEnums.internalDocument.entityName && (
             <>
-              {/* want to use ckeditor styling but not its data processor */}
+              {/*   want to use ckeditor styling but not its data processor */}
               <div className="ck ck-editor__main" role="presentation">
                 <div
                   className="ck-blurred ck ck-content ck-editor__editable ck-rounded-corners ck-editor__editable_inline ck-read-only"
@@ -316,7 +437,7 @@ function DocumentHistory(props) {
                   lang="en"
                   contentEditable={false}
                 >
-                  {ReactHtmlParser(diffVersions())}
+                  {ReactHtmlParser(diffPayloads())}
                 </div>
               </div>
             </>
