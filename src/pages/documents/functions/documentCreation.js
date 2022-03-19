@@ -22,7 +22,9 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
   } = oldDocument
   
   const { name, mimeType, uri, filename } = newDocument
-  const content = newDocument.payload[0].content
+  if (newDocument.payload) {
+    var content = newDocument.payload[0].content
+  }
 
   if (canCreatePayload(props.entityName)) {
     if (props.entityName === DocumentEnums.file.entityName) {
