@@ -10,6 +10,7 @@ import {
   DropdownMenu,
   DropdownItem,
 } from 'reactstrap'
+import { TextField } from '@material-ui/core';
 import {
   axiosGetEntities,
   axiosUpdateEntity,
@@ -33,8 +34,11 @@ const THEAD_COLOR = '#237a23'
 
 function DocumentsManager(props) {
   const [documents, setDocuments] = useState([])
+  const [courseDocs, setCourseDocs] = useState([])
   const [courseId, setCourseId] = useState(props.match.params.course_id)
 
+  const [search, setSearch] = useState("")
+  const [searchedDocs, setSearchedDocs] = useState([])
   const [status, setStatus] = useState(200)
   const [dropdownIsOpen, setDropdownIsOpen] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -55,6 +59,7 @@ function DocumentsManager(props) {
 
   useEffect(() => {
     setLoading(true)
+    setSearch("")
     const entitiesUrl = `courseInstance/${courseId}?_join=hasDocument`
     axiosGetEntities(entitiesUrl)
       .then(response => {
@@ -74,12 +79,20 @@ function DocumentsManager(props) {
             )
           )
         )
+        setSearchedDocs(
+          sortDocuments(
+            data[0].hasDocument.filter(
+              doc => doc.isDeleted === props.showingDeleted
+            )
+          )
+        )
         setLoading(false)
       })
   }, [courseId, props.showingDeleted])
 
   useEffect(() => {
     setDocuments(sortDocuments(documents))
+    setSearchedDocs(sortDocuments(searchedDocs))
   }, [sortBy, sortIsAscending])
 
   const invertDeletionFlag = document => {
@@ -95,6 +108,11 @@ function DocumentsManager(props) {
       } else {
         setDocuments(
           documents.filter(
+            document => document.isDeleted === props.showingDeleted
+          )
+        )
+        setSearchedDocs(
+          searchedDocs.filter(
             document => document.isDeleted === props.showingDeleted
           )
         )
@@ -117,6 +135,18 @@ function DocumentsManager(props) {
     )
   }
 
+  const filterSearchedDocuments = e => {
+    const val = e.target.value
+    setSearch(val)
+    if (val) {
+      setSearchedDocs(
+        documents.filter(doc => doc.name.toLowerCase().includes(val))
+      )
+    } else {
+      setSearchedDocs(documents)
+    }
+  }
+
   return (
     <div
       className="documentManager"
@@ -124,7 +154,7 @@ function DocumentsManager(props) {
     >
       {status !== 200 && (
         <>
-          <br/>
+          <br />
           <Alert color="warning">
             There has been a server error, try again please!
           </Alert>
@@ -132,6 +162,7 @@ function DocumentsManager(props) {
       )}
       {!props.showingDeleted && (
         <>
+          <br />
           <Link
             to={redirect(ROUTES.DELETED_DOCUMENTS, [
               { key: 'course_id', value: courseId },
@@ -139,6 +170,7 @@ function DocumentsManager(props) {
           >
             <Button>Deleted documents</Button>
           </Link>
+          <br />
           <Dropdown toggle={toggleDropdown} isOpen={dropdownIsOpen}>
             <DropdownToggle caret color="success">
               Create new document
@@ -172,6 +204,15 @@ function DocumentsManager(props) {
           </Dropdown>
         </>
       )}
+      <br/>
+        <TextField
+          label="search"
+          variant="outlined"
+          size="small"
+          value={search}
+          onChange={filterSearchedDocuments}
+        />
+      <br />
       <br />
       <Table>
         <thead>
@@ -224,7 +265,7 @@ function DocumentsManager(props) {
           </tr>
         </thead>
         <tbody>
-          {documents.map((document, i) => (
+          {searchedDocs.map((document, i) => (
             <DocumentRow
               key={i}
               document={document}
