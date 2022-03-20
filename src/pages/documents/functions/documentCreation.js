@@ -114,13 +114,12 @@ const createNewVersion = async (newVersion, props) => {
       props.setStatus(response.response ? response.response.status : 500)
       return
     }
-    console.log({})
     return getIRIFromAddResponse(response)
   })
 }
 
 const setSuccessorOfOldVersion = (successorId, oldVersionId, props) => {
-  const entityUrl = `${props.entityName}/${oldVersionId}`
+  const entityUrl = `${props.entityName}/${getShortID(oldVersionId)}`
   const dataToUpdate = {
     nextVersion: successorId,
   }
@@ -133,49 +132,43 @@ const setSuccessorOfOldVersion = (successorId, oldVersionId, props) => {
   })
 }
 
-const replaceInCurrentDocuments = (newVersionId, oldVersionId, props) => {
-    const newCurrentDocuments = {
-      hasDocument: [
-        newVersionId,
-        ...props.courseInstance.hasDocument
-          .map(doc => doc['@id'])
-          .filter(id => id !== oldVersionId),
-      ],
-    }
+const replaceInCurrentDocuments = async (newVersionId, oldVersionId, props) => {
+  const newCurrentDocuments = {
+    hasDocument: [
+      newVersionId,
+      ...props.courseInstance.hasDocument
+        .map(doc => doc['@id'])
+        .filter(id => id !== oldVersionId),
+    ],
+  }
+  // * easy deletion
   // const newCurrentDocuments = {
   //     hasDocument: []
   // }
   const entityUrl = `courseInstance/${props.courseId}`
 
-  axiosUpdateEntity(newCurrentDocuments, entityUrl).then(response => {
-    if (response.failed) {
-      console.error(response.error)
-      props.setStatus(response.response ? response.response.status : 500)
-      return
-    }
-    props.setCurrentDocumentsOfCourseInstance(
-      newCurrentDocuments.hasDocument.map(doc => ({ '@id': doc }))
-    )
-    // props.history.push(
-    //   redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: props.courseId }])
-    // )
-  })
+  const response = await axiosUpdateEntity(newCurrentDocuments, entityUrl)
+  if (response.failed) {
+    console.error(response.error)
+    props.setStatus(response.response ? response.response.status : 500)
+    return
+  }
+  props.setCurrentDocumentsOfCourseInstance(
+    newCurrentDocuments.hasDocument.map(doc => ({ '@id': doc }))
+  )
 }
 
 const editDocument = async (newDocument, oldDocument, props) => {
-  console.log({newDocument, oldDocument, props})
   const data = await createNewVersionData(newDocument, oldDocument, props)
-  console.log({data})
   const newVersionId = await createNewVersion(data, props)
-  console.log("yasfinanlly", {newVersionId})
   if (!newVersionId) {
     console.error('Editing was unsuccessful!')
     return
   }
   if (props.isInEditingMode) {
-    setSuccessorOfOldVersion(newVersionId, getShortID(oldDocument["@id"]), props)
+    setSuccessorOfOldVersion(newVersionId, oldDocument["@id"], props)
   }
-  replaceInCurrentDocuments(newVersionId, oldDocument["@id"], props)
+  await replaceInCurrentDocuments(newVersionId, oldDocument["@id"], props)
   return getShortID(newVersionId)
 }
 
