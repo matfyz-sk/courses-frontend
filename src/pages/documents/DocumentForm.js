@@ -4,13 +4,9 @@ import { withRouter } from 'react-router'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import {
-  axiosAddEntity,
   axiosGetEntities,
-  axiosUpdateEntity,
   getResponseBody,
-  getIRIFromAddResponse,
   fileToBase64,
-  base64dataToFile,
 } from 'helperFunctions'
 
 import {
@@ -51,19 +47,18 @@ const PAYLOAD_ENTITIES = [
 ]
 
 function DocumentForm(props) {
-  // FIXME ?? operator and ?. compatibility
   // FIXME large base64 file uploads not working
   // FIXME only owner can do
 
   const [status, setStatus] = useState(200)
 
-  const [courseId, setCourseId] = useState(props.match.params.course_id ?? '')
+  const [courseId, setCourseId] = useState(props.match.params.course_id)
 
   // when creating a brand new document
-  const [entityName, setEntityName] = useState(props.entityName ?? '')
+  const [entityName, setEntityName] = useState(props.entityName || '')
 
   // both used when document already exists
-  const [id, setId] = useState(props.match.params.document_id ?? '')
+  const [id, setId] = useState(props.match.params.document_id || '')
   const [document, setDocument] = useState({})
   const isInEditingMode = useCallback(() => id !== '', [id])
 
