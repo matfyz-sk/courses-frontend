@@ -25,7 +25,7 @@ import { DocumentEnums } from './enums/document-enums'
 import { setCurrentDocumentsOfCourseInstance } from '../../redux/actions'
 import * as ROUTES from '../../constants/routes'
 import { redirect } from '../../constants/redirect'
-import Page404 from 'pages/errors/Page404'
+import Page404 from '../errors/Page404'
 import { isValidHttpUrl } from '../../functions/validators'
 import editDocument  from './functions/documentCreation'
 import downloadBase64File from './functions/downloadBase64File'
@@ -78,7 +78,7 @@ function DocumentForm(props) {
   const [filename, setFilename] = useState('')
   const [uri, setUri] = useState('')
   const [content, setContent] = useState('')
-  const [mimeType, setMimeType] = useState('text/markdown')
+  const [mimeType, setMimeType] = useState('text/html')
 
   const fetchDocument = useCallback(() => {
     if (!isInEditingMode()) return
@@ -128,10 +128,10 @@ function DocumentForm(props) {
         }
         setLoadingDocument(false)
       })
-  }, [courseId, isInEditingMode])
+  }, [courseId, isInEditingMode]) // ? shouldn't id be there as well?
 
   useEffect(() => {
-    fetchDocument()
+    fetchDocument()    
   }, [fetchDocument])
 
   useEffect(() => {

@@ -23,6 +23,7 @@ import DocumentRow from './DocumentRow'
 import { HiSortAscending, HiSortDescending } from 'react-icons/hi'
 import { redirect } from '../../constants/redirect'
 import * as ROUTES from '../../constants/routes'
+import Page404 from '../errors/Page404'
 
 const SORTING_KEY_IS_CREATED_AT = 'createdAt'
 const SORTING_KEY_IS_NAME = 'name'
@@ -34,6 +35,7 @@ function DocumentsManager(props) {
   const [documents, setDocuments] = useState([])
   const [courseId, setCourseId] = useState(props.match.params.course_id)
 
+  const [status, setStatus] = useState(200)
   const [dropdownIsOpen, setDropdownIsOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState(SORTING_KEY_IS_NAME)
@@ -59,13 +61,12 @@ function DocumentsManager(props) {
         if (response.failed) {
           console.error("Couldn't fetch documents, try again")
           setLoading(false)
-          return // ? show error to user?
+          setStatus(response.response ? response.response.status : 500)
+          return
         }
         return getResponseBody(response)
       })
       .then(data => {
-        // * i could, as a precaution, check if they are current
-        console.log({ fetchedDocuments: data[0].hasDocument })
         setDocuments(
           sortDocuments(
             data[0].hasDocument.filter(
@@ -90,7 +91,7 @@ function DocumentsManager(props) {
     axiosUpdateEntity({ isDeleted: document.isDeleted }, url).then(response => {
       if (response.failed) {
         console.error('Inverting was unsuccessful')
-        // ? snackbar?
+        setStatus(response.response ? response.response.status : 500)
       } else {
         setDocuments(
           documents.filter(
@@ -102,6 +103,11 @@ function DocumentsManager(props) {
   }
 
   const toggleDropdown = () => setDropdownIsOpen(state => !state)
+
+
+  if (status === 404) {
+    return <Page404 />
+  }
 
   if (loading) {
     return (
@@ -116,6 +122,14 @@ function DocumentsManager(props) {
       className="documentManager"
       style={{ maxWidth: '50%', margin: 'auto' }}
     >
+      {status !== 200 && (
+        <>
+          <br/>
+          <Alert color="warning">
+            There has been a server error, try again please!
+          </Alert>
+        </>
+      )}
       {!props.showingDeleted && (
         <>
           <Link
