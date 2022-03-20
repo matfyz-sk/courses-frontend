@@ -170,7 +170,7 @@ class PeerReview extends Component {
       )}&${peerReviewCondition}&_join=hasQuestionAnswer`
     ).then(response => {
       let review = getResponseBody(response)
-      console.log('UPDATED:', review)
+
       this.setState(
         {
           myReview: review.length === 0 ? null : review[0],
@@ -224,7 +224,7 @@ class PeerReview extends Component {
       )}&_join=hasQuestionAnswer,createdBy`
     ).then(response => {
       let reviews = getResponseBody(response)
-      console.log('AA', reviews)
+
       if (
         this.props.assignment.reviewsVisibility === 'open' ||
         this.props.settings.isInstructor
@@ -293,9 +293,6 @@ class PeerReview extends Component {
   }
 
   getQuestionAnswers() {
-    console.log('Qs:', this.state.questions)
-    console.log('Ans:', this.state.answers)
-    console.log('id:', this.submissionID)
     const qAndA = this.state.questions.map(question => {
       return {
         ...question,
@@ -307,7 +304,7 @@ class PeerReview extends Component {
       }
     })
     return qAndA
-    console.log('q&a', qAndA)
+
     if (this.submissionID === null) {
       return []
     }
@@ -375,7 +372,7 @@ class PeerReview extends Component {
     if (this.submissionID === null) {
       return
     }
-    console.log()
+
     this.setState({ saving: true })
     let existingReviews = this.state.questionare.filter(review => review.exists)
     let newReviews = this.state.questionare.filter(review => !review.exists)
@@ -410,7 +407,7 @@ class PeerReview extends Component {
             this.setState({ saved: false })
           }, 3000)
         }
-        console.log('UPDATE:', this.state.myReview)
+
         axiosUpdateEntity(
           {
             hasQuestionAnswer: [
@@ -461,8 +458,6 @@ class PeerReview extends Component {
   */
 
   render() {
-    console.log('RENDER PEER REVIEW')
-    console.log('REW Props', this.props)
     if (!periodStarted(this.props.assignment.teamReviewPeriod)) {
       return (
         <Alert color="danger" className="mt-3">
@@ -547,7 +542,6 @@ class PeerReview extends Component {
               }
             />
           )}
-        {console.log('A:', this.getQuestionAnswers())}
 
         <h3>
           <Label className="bold">General comments</Label>

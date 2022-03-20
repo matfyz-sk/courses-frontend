@@ -51,7 +51,7 @@ export default class CodeReview extends Component {
           '.react-syntax-highlighter-line-number ',
           lineNumber
         )
-        console.log('ELL', element)
+
         this.setState({
           addComment: null,
           openAddComment: false,
@@ -89,7 +89,7 @@ export default class CodeReview extends Component {
 
   findElement(selector, lineNumber) {
     let elements = document.querySelectorAll(selector)
-    console.log('EL', elements)
+
     return [].filter.call(elements, function (element) {
       return parseInt(element.textContent) === lineNumber
     })[0]
@@ -120,7 +120,7 @@ export default class CodeReview extends Component {
             '.react-syntax-highlighter-line-number ',
             lineNumber
           )
-          console.log('EL:', self)
+
           self.setState({
             addComment: null,
             openAddComment: false,
@@ -241,7 +241,7 @@ export default class CodeReview extends Component {
               />
             </div>
           )}
-          {console.log('what', this.state.commentsLocation)}
+
           <div
             id="viewCodeCommentBlock"
             style={{
@@ -346,7 +346,7 @@ export default class CodeReview extends Component {
                           commentedText: this.state.addComment.text,
                           commentText: this.state.newCodeComment,
                         }
-                        console.log('COMMENT:', newCodeComment)
+
                         this.setState({
                           openAddComment: false,
                           addComment: null,

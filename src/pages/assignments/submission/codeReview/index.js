@@ -91,37 +91,27 @@ const Index = props => {
   var newID = 0
 
   useEffect(() => {
-    console.log('NOW:', props.initialSubmission)
-    console.log('NOW2:', props.improvedSubmission)
     fetchComments()
     setCodeReviewFile()
   }, [])
 
   useEffect(() => {
-    console.log('FAJL', state.file)
     if (state.file != null) {
       setCurrentLocation()
     }
   }, [state.file])
 
-  console.log('FAJL ANYtime', state.file)
-
-  console.log('testme', state)
-  // console.log('testme2', props)
-
   const convertFromBase64 = base64File => {
     const i = base64File.indexOf('base64,')
-    console.log('WW-file', base64File)
-    console.log('WW-file', base64File.slice(i + 7))
+
     const buffer = Buffer.from(base64File.slice(i + 7), 'base64')
-    console.log('WW-buffer', buffer)
+
     const blob = new Blob([buffer], { type: 'application/zip' })
-    console.log('WW-blob', blob)
+
     var zip = new JSZip()
     zip
       .loadAsync(blob)
       .then(files => {
-        console.log('BASE', files)
         setState(state => {
           return { ...state, file: files, fileLoaded: 'raketak' }
         })
@@ -139,7 +129,7 @@ const Index = props => {
       return2 = -1
     }
     let sortFunction = () => {}
-    console.log('CODE', state.sortBy)
+
     switch (state.sortBy) {
       case 'commentBy': {
         sortFunction = (comment1, comment2) => {
@@ -278,7 +268,6 @@ const Index = props => {
 
   const addCodeComment = comment => {
     if (props.initialSubmission === null) {
-      console.log('THIS BREAKS')
       return
     }
     setState({ ...state, codeCommentSaving: true })
@@ -289,7 +278,7 @@ const Index = props => {
       ofSubmission: props.initialSubmission['@id'],
       _type: 'codeComment',
     }
-    console.log('THIS BREAKS?', newComment)
+
     axiosAddEntity(newComment, 'codeComment')
       .then(response => {
         setState({ ...state, codeCommentSaving: false })
@@ -337,7 +326,7 @@ const Index = props => {
       const showImproved =
         periodHasEnded(props.assignment.improvedSubmissionPeriod) &&
         props.improvedSubmission != null
-      // console.log('ZS:', props)
+
       setState({
         ...state,
         file: showImproved
@@ -361,8 +350,6 @@ const Index = props => {
   // }
 
   const setCurrentLocation = () => {
-    console.log('FAJL2', state.file)
-
     const entries = Object.keys(state.file.files).map(name => {
       return state.file.files[name]
     })
@@ -586,8 +573,7 @@ const Index = props => {
                     key={comment['@id']}
                     // className="clickable"
                     // onClick={() => {
-                    //   console.log('KOMvzdy', comment)
-                    //   console.log('KOMstate', state.loadingDocument)
+
                     //   if (!state.loadingDocument) {
                     //     let folder = ''
                     //     if (comment.filePath.includes('/')) {
@@ -604,7 +590,7 @@ const Index = props => {
                     //       state.currentDocument !== null &&
                     //       name === state.currentDocument.name
                     //     ) {
-                    //       console.log('open the comment bro')
+
                     //       state.forceOpenComment(19)
                     //       return
                     //     }

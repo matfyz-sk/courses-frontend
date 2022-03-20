@@ -5,8 +5,6 @@ import ErrorMessage from 'components/error'
 import JSZip, { file } from 'jszip'
 
 export const generateField = (field, onChange) => {
-  console.log('field_HERE:', field)
-  // console.log(onChange)
   const onChangeWithTaget = event => {
     onChange({ ...field, value: event.target.value })
   }
@@ -16,7 +14,6 @@ export const generateField = (field, onChange) => {
   }
 
   const onChangeWithFile = async e => {
-    console.log(e.target.files)
     if (e.target.files.length === 1) {
       let file = e.target.files[0]
       if (
@@ -105,7 +102,6 @@ export const generateField = (field, onChange) => {
       )
     }
     case 'codeReview': {
-      console.log(field)
       return (
         <FormGroup key={field.type['@id']}>
           <Label for={`codeReview-${field.id}`}>{field.type.name}</Label>
@@ -197,36 +193,6 @@ export const generateField = (field, onChange) => {
 // export default generateSubmission
 
 export const GenerateView = ({ field, value }) => {
-  // const [code, setCode] = useState('')
-  // useEffect(() => {
-  //   convertFromBase64(field.value)
-  //   console.log('VALUE:', field.value)
-  // }, [])
-
-  const convertFromBase64 = base64File => {
-    const i = base64File.indexOf('base64,')
-    const buffer = Buffer.from(base64File.slice(i + 7), 'base64')
-    console.log(buffer)
-    const blob = new Blob([buffer], { type: 'application/zip' })
-    console.log('BLOB: ', blob)
-
-    console.log('SET_TEST_FILE')
-    var zip = new JSZip()
-    zip
-      .loadAsync(blob)
-      .then(files => {
-        console.log('FILES AGAIN', files)
-        // dispatch({ type: SET_ASIGNMENTS_TEST_FILE, file: files })
-      })
-      .catch(error => {
-        console.log(error)
-      })
-
-    // blob.text().then(text => {
-    //   setCode(text.split('\n'))
-    // })
-  }
-
   switch (field.type.fieldType) {
     case 'text area': {
       return (
@@ -369,29 +335,4 @@ export const GenerateView = ({ field, value }) => {
       return <div key={field.type['@id']}>{field.type.fieldType}</div>
     }
   }
-}
-
-const Code = ({ code }) => {
-  console.log('teraz ide kod')
-  console.log('kod:', code)
-  if (!code.length) {
-    return <div>nacitavam/prazdny</div>
-  }
-  return (
-    <section className="code-review-box">
-      {code.map((line, index) => (
-        <CodeLine line={line} key={index} />
-      ))}
-    </section>
-  )
-}
-
-const CodeLine = ({ line }) => {
-  console.log('line', line)
-  console.log(line == '')
-
-  if (line == '') {
-    return <br />
-  }
-  return <div className="code-review-line">{line}</div>
 }

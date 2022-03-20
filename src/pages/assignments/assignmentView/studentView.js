@@ -98,12 +98,12 @@ class StudentAssignmentView extends Component {
           toReview =>
             toReview.submission[0].ofAssignment === this.props.assignment['@id']
         )
-      console.log('TOREVIEW:', toReviews)
+
       let axiosReviews = []
       let axiosCreators = []
       if (assignment.teamsDisabled) {
         axiosReviews = toReviews.map(toReview => axiosGetEntities(`peerReview`))
-        console.log('mam?', axiosReviews)
+
         axiosCreators = toReviews.map(toReview =>
           axiosGetEntities(
             `user/${getShortID(toReview.submission[0].submittedByStudent)}`
@@ -136,8 +136,6 @@ class StudentAssignmentView extends Component {
               return acc.concat(value)
             }, [])
 
-          console.log('FINAL_R:', reviews)
-          console.log('FINAL_C:', creators)
           toReviews = this.assignReviews(
             toReviews,
             reviews,
@@ -146,15 +144,6 @@ class StudentAssignmentView extends Component {
           )
           this.setState({ toReviews, reviewsLoaded: true })
           this.setState({ reviewsTemporary: reviews })
-          // console.log('TUTOK', this.state.initialSubmissions)
-          // console.log(
-          //   'OBSAHUJE',
-          //   reviews.find(
-          //     review =>
-          //       review.ofSubmission[0]['@id'] ===
-          //       'http://www.courses.matfyz.sk/data/submission/GP4dN'
-          //   )
-          // )
         }
       )
     })
@@ -175,7 +164,6 @@ class StudentAssignmentView extends Component {
   }
 
   assignReviews(toReviews, reviews, creators, individual) {
-    console.log('ZAC:', toReviews)
     return toReviews.map(toReviewItem => ({
       ...toReviewItem,
       review: reviews.find(
@@ -184,25 +172,6 @@ class StudentAssignmentView extends Component {
       ),
       name: this.getCreatorsName(creators, toReviewItem, individual),
     }))
-  }
-
-  checkMySubmissionsReview() {}
-
-  fetchAnything = async (model, id) => {
-    // console.log('POKUS:')
-    try {
-      const axiosPokus = await axiosGetEntities(`${model}`)
-      if (axiosPokus.failed) {
-        // console.log('it failed')
-        // console.log('FAIL:', axiosPokus)
-      }
-      console.log('PROCES:', axiosPokus)
-      const data = await getResponseBody(axiosPokus)[0]
-      // console.log('AXIOS_DATA:', data)
-      return data
-    } catch (err) {
-      console.log('FETCH_ERROR:', err)
-    }
   }
 
   componentWillMount() {
@@ -228,9 +197,6 @@ class StudentAssignmentView extends Component {
   }
 
   setWasReviewed(reviews, initialSubmissions) {
-    console.log('10', reviews)
-    console.log('11', initialSubmissions[0])
-
     if (initialSubmissions.length > 0) {
       const wasReviewed = reviews.find(
         review => review.ofSubmission[0]['@id'] === initialSubmissions[0]['@id']
@@ -242,7 +208,6 @@ class StudentAssignmentView extends Component {
   }
 
   render() {
-    console.log('UZPOD:', this.state.reviewsTemporary)
     const wasReviewed = this.setWasReviewed(
       this.state.reviewsTemporary,
       this.state.initialSubmissions
@@ -430,25 +395,12 @@ class StudentAssignmentView extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  {console.log('REVS:', this.state.toReviews)}
                   {this.state.toReviews.map(toReview => (
                     <tr key={toReview['@id']}>
                       {['blind', 'open'].includes(
                         assignment.reviewsVisibility
                       ) && <td>{toReview.name}</td>}
                       <td className="center-cell">
-                        {/* {console.log(
-                          'UWU1',
-                          toReview.review.reviewedByStudent &&
-                            toReview.review.reviewedByStudent[0]['@id']
-                        )} */}
-                        {console.log('UWU2', this.props.user.fullURI)}
-                        {console.log(
-                          'UWU3',
-                          toReview.review &&
-                            toReview.review.reviewedByStudent[0]['@id'] ==
-                              this.props.user.fullURI
-                        )}
                         {toReview.review &&
                         toReview.review.reviewedByStudent[0]['@id'] ==
                           this.props.user.fullURI ? (
@@ -481,7 +433,7 @@ class StudentAssignmentView extends Component {
                           {this.getToReviewButtonText(toReview.review)}
                         </Button>
                       </td>
-                      {console.log(this.state)}
+
                       <td>{this.state.raketa}</td>
                     </tr>
                   ))}

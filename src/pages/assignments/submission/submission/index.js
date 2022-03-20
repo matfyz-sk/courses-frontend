@@ -148,22 +148,6 @@ class Submission extends Component {
     })
   }
 
-  fetchAnything = async (model, id) => {
-    console.log('POKUS:')
-    try {
-      const axiosPokus = await axiosGetEntities(`${model}`)
-      if (axiosPokus.failed) {
-        console.log('it failed')
-        console.log('FAIL:', axiosPokus)
-      }
-      console.log('PROCES:', axiosPokus)
-      const data = await getResponseBody(axiosPokus)[0]
-      console.log('AXIOS_DATA:', data)
-    } catch (err) {
-      console.log('ERROR:', err)
-    }
-  }
-
   fetchSubmissionBy() {
     const ID =
       this.props.initialSubmission.submittedByStudent[0]['@id'] ||
@@ -181,7 +165,7 @@ class Submission extends Component {
   componentWillMount() {
     this.loadForms(this.props)
     this.fetchMaterials()
-    console.log('fetchujem0', this.props.settings)
+
     if (this.props.settings.isInstructor) {
       this.fetchSubmissionBy()
     }
@@ -195,7 +179,6 @@ class Submission extends Component {
   }
 
   onSubmit() {
-    console.log('DATA', this.state.data)
     const filteredData = this.state.data
       .filter(field => !['file'].includes(field.type.fieldType))
       .map(field => {
@@ -332,8 +315,6 @@ class Submission extends Component {
   }
 
   render() {
-    console.log(this.props)
-    // this.fetchAnything('assignment', 'POhGl')
     const { assignment, settings, improvedSubmission, initialSubmission } =
       this.props
     const studentSubmitting =
@@ -387,8 +368,6 @@ class Submission extends Component {
         {instructorViewing && (
           <Label>{settings.teamAssignment ? 'Team' : 'Student'}:</Label>
         )}{' '}
-        {console.log('LAST:', this.state)}
-        {console.log('LAST2:', this.props)}
         {this.state.submissionBy}
         {settings.myAssignment &&
           this.submission !== null &&

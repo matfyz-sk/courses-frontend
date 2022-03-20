@@ -93,20 +93,18 @@ class SubmissionContainer extends Component {
         return
       }
       let assignment = getResponseBody(response)[0]
-      console.log('ASS:', assignment)
+
       let periodsIDs = getAssignmentPeriods(assignment)
-      console.log('PER_IDS:', periodsIDs)
 
       Promise.all(
         periodsIDs.map(period =>
           axiosGetEntities(`assignmentPeriod/${getShortID(period)}`)
         )
       ).then(periodResponses => {
-        console.log(periodResponses)
         let periods = periodResponses.map(
           response => getResponseBody(response)[0]
         )
-        console.log('ASSI:', assignment, [periods[0]])
+
         assignment = assignPeriods(assignment, periods)
         const settings = this.getAssignmentSettings(assignment)
         if (
@@ -178,10 +176,6 @@ class SubmissionContainer extends Component {
           `submittedField/${getShortID(initialSubmission.submittedField)}`
         ).then(response => {
           const submittedField = getResponseBody(response)[0]
-          console.log('TAKYTO TVAR:', {
-            ...initialSubmission,
-            submittedField: [submittedField],
-          })
 
           this.setState({
             toReview: toReview,
@@ -214,7 +208,7 @@ class SubmissionContainer extends Component {
       const initialSubmission = submissions.find(
         submission => !submission.isImproved
       )
-      console.log('TAKYTO TVAR:', initialSubmission)
+
       const improvedSubmission = submissions.find(
         submission => submission.isImproved
       )
@@ -338,7 +332,6 @@ class SubmissionContainer extends Component {
 
     return (
       <div className="assignmentContainer center-ver mt-3">
-        {console.log('SUBMISTION', this.state)}
         <Card className="assignmentsContainer center-ver">
           <CardHeader className="row">
             <Button
@@ -407,29 +400,7 @@ class SubmissionContainer extends Component {
                     </NavLink>
                   </NavItem>
                 )}
-              {/* <NavItem>
-                <NavLink
-                  className={classnames({
-                    active: this.state.tabID === 'codeReview',
-                    clickable: true,
-                  })}
-                  onClick={() => this.setState({ tabID: 'codeReview' })}
-                >
-                  Code reviews
-                </NavLink>
-              </NavItem> */}
-              {console.log(
-                'TRUE AJ:',
-                settings.peerReviewEnabled &&
-                  !assignment.hasField.some(
-                    field => field.fieldType === 'codeReview'
-                  ) &&
-                  (((settings.myAssignment || settings.isInstructor) &&
-                    periodHasEnded(assignment.peerReviewPeriod)) ||
-                    (settings.peerReview &&
-                      periodStarted(assignment.peerReviewPeriod)))
-              )}
-              {console.log('SETIL:', settings)}
+
               {settings.isInstructor &&
                 periodHasEnded(assignment.improvedSubmissionPeriod) && (
                   <NavItem>
