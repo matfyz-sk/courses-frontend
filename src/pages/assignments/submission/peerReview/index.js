@@ -221,9 +221,10 @@ class PeerReview extends Component {
     axiosGetEntities(
       `peerReview?ofSubmission=${getShortID(
         this.submissionID
-      )}&_join=hasQuestionAnswer`
+      )}&_join=hasQuestionAnswer,createdBy`
     ).then(response => {
       let reviews = getResponseBody(response)
+      console.log('AA', reviews)
       if (
         this.props.assignment.reviewsVisibility === 'open' ||
         this.props.settings.isInstructor
@@ -523,7 +524,7 @@ class PeerReview extends Component {
     return (
       <div>
         <Alert style={{ marginTop: '20px' }} isOpen={this.state.saved}>
-          Review was saved successfully.
+          Submission was saved successfully.
         </Alert>
         {periodHappening(this.props.assignment.peerReviewPeriod) &&
           this.props.settings.peerReview && (
