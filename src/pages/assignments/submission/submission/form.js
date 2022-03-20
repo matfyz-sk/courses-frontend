@@ -34,6 +34,21 @@ export default class SubmissionForm extends Component {
         </Label>
         {fields.map(field => generateField(field, onChange))}
         <Alert
+          color="success"
+          isOpen={
+            settings.myAssignment &&
+            ((periodHappening(assignment.initialSubmissionPeriod) &&
+              initialSubmission !== null) ||
+              (periodHappening(assignment.improvedSubmissionPeriod) &&
+                improvedSubmission !== null))
+          }
+          className="my-3 small-alert"
+        >
+          You have already submitted
+          {improvedSubmission ? ' improved' : ' initial'} submission but you can
+          submit newer version.
+        </Alert>
+        <Alert
           color="warning"
           isOpen={
             assignment.submissionImprovedSubmission &&

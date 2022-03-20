@@ -111,8 +111,12 @@ const Index = props => {
 
   const convertFromBase64 = base64File => {
     const i = base64File.indexOf('base64,')
+    console.log('WW-file', base64File)
+    console.log('WW-file', base64File.slice(i + 7))
     const buffer = Buffer.from(base64File.slice(i + 7), 'base64')
+    console.log('WW-buffer', buffer)
     const blob = new Blob([buffer], { type: 'application/zip' })
+    console.log('WW-blob', blob)
     var zip = new JSZip()
     zip
       .loadAsync(blob)

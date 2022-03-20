@@ -115,7 +115,7 @@ export const generateField = (field, onChange) => {
           <Input
             name="codeReview"
             type="file"
-            // accept=".zip"
+            accept=".zip"
             id={`codeReview-${field.id}`}
             onChange={onChangeWithFile}
           />

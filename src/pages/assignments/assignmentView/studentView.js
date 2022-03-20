@@ -212,7 +212,10 @@ class StudentAssignmentView extends Component {
 
   getToReviewButtonText(review) {
     if (periodHappening(this.props.assignment.peerReviewPeriod)) {
-      return review ? 'Update Review' : 'Review'
+      return review &&
+        review.reviewedByStudent[0]['@id'] == this.props.user.fullURI
+        ? 'Update Review'
+        : 'Review'
     }
     return 'View'
   }
@@ -434,7 +437,21 @@ class StudentAssignmentView extends Component {
                         assignment.reviewsVisibility
                       ) && <td>{toReview.name}</td>}
                       <td className="center-cell">
-                        {toReview.review !== undefined ? (
+                        {/* {console.log(
+                          'UWU1',
+                          toReview.review.reviewedByStudent &&
+                            toReview.review.reviewedByStudent[0]['@id']
+                        )} */}
+                        {console.log('UWU2', this.props.user.fullURI)}
+                        {console.log(
+                          'UWU3',
+                          toReview.review &&
+                            toReview.review.reviewedByStudent[0]['@id'] ==
+                              this.props.user.fullURI
+                        )}
+                        {toReview.review &&
+                        toReview.review.reviewedByStudent[0]['@id'] ==
+                          this.props.user.fullURI ? (
                           <i className="fa fa-check green-color" />
                         ) : (
                           <i className="fa fa-times red-color" />
