@@ -1,4 +1,5 @@
-import {API_URL} from '../../../configuration/api'
+import { API_URL } from "../../../constants";
+
 
 export const INITIAL_COURSE_STATE = {
   id: '',
@@ -43,7 +44,7 @@ export const BLOCK_URL = '/block'
 export const USER_URL = '/user'
 export const MATERIAL_URL = '/material'
 
-export const TASKS_EXAMS = ['OralExam', 'TestTake']
+export const TASKS_EXAMS = [ 'OralExam', 'TestTake' ]
 
 export const TASKS_DEADLINES = [
   'AssignmentPeriod',
@@ -52,7 +53,7 @@ export const TASKS_DEADLINES = [
   'ManualQuizAssignment',
 ]
 
-export const SESSIONS = ['Lab', 'Lecture']
+export const SESSIONS = [ 'Lab', 'Lecture' ]
 
 export const INITIAL_MIGRATION_STATE = {
   initialized: false,

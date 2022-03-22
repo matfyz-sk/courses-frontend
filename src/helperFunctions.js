@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { getToken } from './components/Auth';
-import { API_URL as REST_URL } from './configuration/api';
+import { API_URL as REST_URL } from './constants';
 import moment from 'moment';
 
 //time manipulation

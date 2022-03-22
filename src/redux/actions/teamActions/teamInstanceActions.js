@@ -1,6 +1,6 @@
 import { TEAM_ACTIONS } from '../../types'
 import { authHeader } from '../../../components/Auth'
-import { BACKEND_URL } from '../../../configuration/api'
+import { BACKEND_URL } from "../../../constants";
 
 export const setTeamInstance = item => ({
   type: TEAM_ACTIONS.SET_TEAM_INSTANCE,

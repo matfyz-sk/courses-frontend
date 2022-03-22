@@ -8,11 +8,11 @@ import {
   ListGroupItemText,
 } from 'reactstrap'
 import { Link } from 'react-router-dom'
-import { BACKEND_URL } from '../../../configuration/api'
 import { authHeader, getUserID } from '../../../components/Auth'
 import { redirect } from '../../../constants/redirect'
 import { COURSE_TEAM_DETAIL, TIMELINE}  from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
+import { BACKEND_URL } from "../../../constants";
 
 const MyTeams = props => {
   const [data, setData] = useState(null)

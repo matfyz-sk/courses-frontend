@@ -7,10 +7,10 @@ import axios from 'axios'
 import PropTypes from 'prop-types'
 import { Button, FormGroup, Input, Label } from 'reactstrap'
 
-import { API_URL } from '../../../../configuration/api'
 import AssignmentHeader from '../../common/assignment-header'
 import AgentOperatorNew from '../../common/agent-operator-new'
 import { checkDate, checkTextNotEmpty } from '../../common/functions/validate-input'
+import { API_URL } from "../../../../constants";
 
 export class QuestionAssignment extends Component {
   state = {
@@ -28,8 +28,8 @@ export class QuestionAssignment extends Component {
   }
 
   componentDidMount() {
-    const { courseInstanceId, match, token } = this.props
-    if (courseInstanceId && token) {
+    const {courseInstanceId, match, token} = this.props
+    if(courseInstanceId && token) {
       this.getTopics(courseInstanceId, token)
 
       this.getAgents(
@@ -40,14 +40,14 @@ export class QuestionAssignment extends Component {
         courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
         token
       )
-      if (this.isEdit() && token && match.params.questionAssignmentId) {
+      if(this.isEdit() && token && match.params.questionAssignmentId) {
         this.getQuestionAssignment(match.params.questionAssignmentId, token)
       }
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { courseInstanceId, match, token } = this.props
+    const {courseInstanceId, match, token} = this.props
     const {
       topicOldValue,
       disabledTopics,
@@ -55,8 +55,8 @@ export class QuestionAssignment extends Component {
       disabledTopicsRaw,
       showWarning,
     } = this.state
-    if (courseInstanceId && token) {
-      if (
+    if(courseInstanceId && token) {
+      if(
         courseInstanceId !== prevProps.courseInstanceId ||
         token !== prevProps.token
       ) {
@@ -70,7 +70,7 @@ export class QuestionAssignment extends Component {
           token
         )
       }
-      if (
+      if(
         this.isEdit() &&
         match.params.questionAssignmentId &&
         token &&
@@ -80,7 +80,7 @@ export class QuestionAssignment extends Component {
       ) {
         this.getQuestionAssignment(match.params.questionAssignmentId, token)
       }
-      if (
+      if(
         topicOldValue !== prevState.topicOldValue ||
         allTopics !== prevState.allTopics ||
         disabledTopics !== prevState.disabledTopics
@@ -90,7 +90,7 @@ export class QuestionAssignment extends Component {
             this.selectTopic(topicOldValue, allTopics, disabledTopics) || '',
         })
       }
-      if (
+      if(
         disabledTopicsRaw !== prevState.disabledTopicsRaw ||
         topicOldValue !== prevState.topicOldValue
       ) {
@@ -101,7 +101,7 @@ export class QuestionAssignment extends Component {
           ),
         })
       }
-      if ( showWarning.date === 'ok' && showWarning.description === 'ok') {
+      if(showWarning.date === 'ok' && showWarning.description === 'ok') {
         this.formSubmitWithToken()
       }
     }
@@ -109,22 +109,22 @@ export class QuestionAssignment extends Component {
 
   getAgents = (courseInstanceId, token) => {
     return axios
-      .get(`${API_URL}/user${`?studentOf=${courseInstanceId}`}`, {
+      .get(`${ API_URL }/user${ `?studentOf=${ courseInstanceId }` }`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
           Authorization: token,
         },
       })
-      .then(({ data }) => {
-        if (
+      .then(({data}) => {
+        if(
           data &&
           data['@graph'] &&
           data['@graph'].length &&
           data['@graph'].length > 0
         ) {
           const allAgents = data['@graph'].map(user => ({
-            name: `${user.firstName} ${user.lastName}`,
+            name: `${ user.firstName } ${ user.lastName }`,
             id: user['@id'],
           }))
           this.setState({
@@ -138,7 +138,7 @@ export class QuestionAssignment extends Component {
   getQuestionAssignment = (questionAssignmentId, token) => {
     return axios
       .get(
-        `${API_URL}/questionAssignment/${questionAssignmentId}?_join=covers,assignedTo`,
+        `${ API_URL }/questionAssignment/${ questionAssignmentId }?_join=covers,assignedTo`,
         {
           headers: {
             Accept: 'application/json',
@@ -147,8 +147,8 @@ export class QuestionAssignment extends Component {
           },
         }
       )
-      .then(({ data }) => {
-        if (
+      .then(({data}) => {
+        if(
           data &&
           data['@graph'] &&
           data['@graph'].length &&
@@ -166,15 +166,15 @@ export class QuestionAssignment extends Component {
           selectedAgents = assignedTo.map(student => {
             return {
               id: student['@id'],
-              name: `${student.firstName} ${student.lastName}`,
+              name: `${ student.firstName } ${ student.lastName }`,
             }
           })
           this.setState({
             startDate: startDate ? new Date(startDate) : new Date(),
             endDate: endDate ? new Date(endDate) : new Date(),
             description,
-            topicOldValue: { id: topic[0]['@id'], name: topic[0].name },
-            topic: { id: topic[0]['@id'], name: topic[0].name },
+            topicOldValue: {id: topic[0]['@id'], name: topic[0].name},
+            topic: {id: topic[0]['@id'], name: topic[0].name},
             selectedAgents,
           })
         }
@@ -184,15 +184,15 @@ export class QuestionAssignment extends Component {
 
   getTopics = (courseInstanceId, token) => {
     return axios
-      .get(`${API_URL}/topic?covers=${courseInstanceId}`, {
+      .get(`${ API_URL }/topic?covers=${ courseInstanceId }`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
           Authorization: token,
         },
       })
-      .then(({ data }) => {
-        if (
+      .then(({data}) => {
+        if(
           data &&
           data['@graph'] &&
           data['@graph'].length &&
@@ -206,7 +206,7 @@ export class QuestionAssignment extends Component {
           }, [])
 
           this.populateSelect(
-            Array.isArray(allTopics) ? allTopics : [allTopics],
+            Array.isArray(allTopics) ? allTopics : [ allTopics ],
             'allTopics',
             'topic',
             null
@@ -218,15 +218,15 @@ export class QuestionAssignment extends Component {
 
   getTopicsWithQuestionAssignment = (courseInstanceId, token) => {
     return axios
-      .get(`${API_URL}/questionAssignment?courseInstance=${courseInstanceId}`, {
+      .get(`${ API_URL }/questionAssignment?courseInstance=${ courseInstanceId }`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
           Authorization: token,
         },
       })
-      .then(({ data }) => {
-        if (
+      .then(({data}) => {
+        if(
           data &&
           data['@graph'] &&
           data['@graph'].length &&
@@ -234,8 +234,8 @@ export class QuestionAssignment extends Component {
         ) {
           const disabledTopicsRaw = data['@graph'].reduce(
             (accumulator, questionAssignment) => {
-              const { covers } = questionAssignment
-              if (covers && covers.length && covers.length > 0) {
+              const {covers} = questionAssignment
+              if(covers && covers.length && covers.length > 0) {
                 accumulator.push(covers[0]['@id'])
               }
               return accumulator
@@ -253,7 +253,7 @@ export class QuestionAssignment extends Component {
   getDisabledTopics = (disabledTopicsRaw, topicOldValue) => {
     const disabledTopics = disabledTopicsRaw.reduce(
       (accumulator, disabledTopicRaw) => {
-        if (
+        if(
           topicOldValue === null ||
           (topicOldValue && topicOldValue.id !== disabledTopicRaw)
         ) {
@@ -267,7 +267,7 @@ export class QuestionAssignment extends Component {
   }
 
   isEdit = () => {
-    const { match } = this.props
+    const {match} = this.props
     return !!match.params.questionAssignmentId
   }
 
@@ -280,15 +280,15 @@ export class QuestionAssignment extends Component {
   }
 
   handleChange = e => {
-    const { name } = e.target
-    const { value } = e.target
+    const {name} = e.target
+    const {value} = e.target
     this.setState({
       [name]: value,
       showWarning:
-      {
-        ...this.state.showWarning,
-        description: '',
-      }
+        {
+          ...this.state.showWarning,
+          description: '',
+        }
     })
   }
 
@@ -296,10 +296,10 @@ export class QuestionAssignment extends Component {
     this.setState({
       startDate: date,
       showWarning:
-      {
-        ...this.state.showWarning,
-        date: '',
-      },
+        {
+          ...this.state.showWarning,
+          date: '',
+        },
     })
   }
 
@@ -307,10 +307,10 @@ export class QuestionAssignment extends Component {
     this.setState({
       endDate: date,
       showWarning:
-      {
-        ...this.state.showWarning,
-        date: '',
-      },
+        {
+          ...this.state.showWarning,
+          date: '',
+        },
     })
   }
 
@@ -324,8 +324,8 @@ export class QuestionAssignment extends Component {
   }
 
   formSubmitWithToken = () => {
-    const { token } = this.props
-    if (token) {
+    const {token} = this.props
+    if(token) {
       this.formSubmit(token)
     }
   }
@@ -341,19 +341,19 @@ export class QuestionAssignment extends Component {
     const selectedAgentsIds = selectedAgents.map(
       selectedAgent => selectedAgent.id
     )
-    const { match, history, courseInstanceId } = this.props
-    if (topic) {
-      if (this.isEdit()) {
+    const {match, history, courseInstanceId} = this.props
+    if(topic) {
+      if(this.isEdit()) {
         axios
           .patch(
-            `${API_URL}/questionAssignment/${match.params.questionAssignmentId}`,
-            JSON.stringify({
+            `${ API_URL }/questionAssignment/${ match.params.questionAssignmentId }`,
+           {
               description,
-              covers: topic ? [topic] : [],
+              covers: topic ? [ topic ] : [],
               assignedTo: selectedAgentsIds,
               startDate,
               endDate,
-            }),
+            },
             {
               headers: {
                 Accept: 'application/json',
@@ -362,10 +362,10 @@ export class QuestionAssignment extends Component {
               },
             }
           )
-          .then(({ status: statusQuestionAssignment }) => {
-            if (statusQuestionAssignment === 200) {
+          .then(({status: statusQuestionAssignment}) => {
+            if(statusQuestionAssignment === 200) {
               history.push(
-                `/courses/${match.params.courseId}/quiz/questionGroups`
+                `/courses/${ match.params.courseId }/quiz/questionGroups`
               )
             }
           })
@@ -373,16 +373,16 @@ export class QuestionAssignment extends Component {
       } else {
         axios
           .post(
-            `${API_URL}/questionAssignment`,
-            JSON.stringify({
+            `${ API_URL }/questionAssignment`,
+           {
               name: '',
               description,
-              covers: topic ? [topic] : [],
+              covers: topic ? [ topic ] : [],
               assignedTo: selectedAgentsIds,
               courseInstance: courseInstanceId,
               startDate,
               endDate,
-            }),
+            },
             {
               headers: {
                 Accept: 'application/json',
@@ -391,10 +391,10 @@ export class QuestionAssignment extends Component {
               },
             }
           )
-          .then(({ status: statusQuestionAssignment }) => {
-            if (statusQuestionAssignment === 200) {
+          .then(({status: statusQuestionAssignment}) => {
+            if(statusQuestionAssignment === 200) {
               history.push(
-                `/courses/${match.params.courseId}/quiz/questionGroups`
+                `/courses/${ match.params.courseId }/quiz/questionGroups`
               )
             }
           })
@@ -404,30 +404,30 @@ export class QuestionAssignment extends Component {
   }
 
   addSelectedAgent = selectedAgent => {
-    const { allAgents, selectedAgents } = this.state
+    const {allAgents, selectedAgents} = this.state
     const findAgentRaw = allAgents.find(agent => {
       return agent.id === selectedAgent
     })
-    if (
+    if(
       findAgentRaw &&
       selectedAgents.findIndex(updatedSelectedAgent => {
         return updatedSelectedAgent.id === selectedAgent
       }) === -1
     ) {
       this.setState({
-        selectedAgents: [...selectedAgents, findAgentRaw],
+        selectedAgents: [ ...selectedAgents, findAgentRaw ],
       })
     }
   }
 
   deleteSelectedAgent = selectedAgent => {
-    const { selectedAgents } = this.state
-    const updatedSelectedAgents = [...selectedAgents]
-    if (selectedAgent) {
+    const {selectedAgents} = this.state
+    const updatedSelectedAgents = [ ...selectedAgents ]
+    if(selectedAgent) {
       const index = updatedSelectedAgents.findIndex(updatedSelectedAgent => {
         return updatedSelectedAgent.id === selectedAgent
       })
-      if (index > -1) {
+      if(index > -1) {
         updatedSelectedAgents.splice(index, 1)
         this.setState({
           selectedAgents: updatedSelectedAgents,
@@ -438,10 +438,10 @@ export class QuestionAssignment extends Component {
 
   selectTopic = (topicOldValue, allTopics, disabledTopics) => {
     let selectedTopic = null
-    if (topicOldValue) {
+    if(topicOldValue) {
       selectedTopic = topicOldValue.id
     }
-    if (
+    if(
       selectedTopic === null &&
       allTopics &&
       allTopics.length &&
@@ -450,7 +450,7 @@ export class QuestionAssignment extends Component {
       const filteredDisabledTopics = allTopics.filter(
         topicFromAll => !disabledTopics.includes(topicFromAll.id)
       )
-      if (
+      if(
         filteredDisabledTopics &&
         filteredDisabledTopics.length &&
         filteredDisabledTopics.length > 0
@@ -461,7 +461,7 @@ export class QuestionAssignment extends Component {
   }
 
   render() {
-    const { isTeacher } = this.props
+    const {isTeacher} = this.props
     const {
       startDate,
       endDate,
@@ -477,7 +477,7 @@ export class QuestionAssignment extends Component {
       const index = selectedAgents.findIndex(selectedAgent => {
         return selectedAgent.id === agent.id
       })
-      if (index === -1) {
+      if(index === -1) {
         accumulator.push({
           ...agent,
           addSelectedAgent: () => this.addSelectedAgent(agent.id),
@@ -495,11 +495,11 @@ export class QuestionAssignment extends Component {
     const topicOptions = allTopics.map(topicFromAll => {
       return (
         <option
-          key={topicFromAll.id}
-          value={topicFromAll.id}
-          disabled={disabledTopics.includes(topicFromAll.id)}
+          key={ topicFromAll.id }
+          value={ topicFromAll.id }
+          disabled={ disabledTopics.includes(topicFromAll.id) }
         >
-          {topicFromAll.name}
+          { topicFromAll.name }
         </option>
       )
     })
@@ -508,13 +508,13 @@ export class QuestionAssignment extends Component {
       <>
         <h3>Create new question assignment</h3>
         <AssignmentHeader
-          startDate={startDate}
-          endDate={endDate}
-          description={description}
-          onStartDateChange={this.onStartDateChange}
-          onEndDateChange={this.onEndDateChange}
-          handleChange={this.handleChange}
-          showWarning={showWarning}
+          startDate={ startDate }
+          endDate={ endDate }
+          description={ description }
+          onStartDateChange={ this.onStartDateChange }
+          onEndDateChange={ this.onEndDateChange }
+          handleChange={ this.handleChange }
+          showWarning={ showWarning }
         />
         <FormGroup>
           <Label for="topic">Topic</Label>
@@ -522,22 +522,22 @@ export class QuestionAssignment extends Component {
             type="select"
             name="topic"
             id="topic"
-            value={topic}
-            onChange={this.handleChange}
+            value={ topic }
+            onChange={ this.handleChange }
           >
-            {topicOptions}
+            { topicOptions }
           </Input>
         </FormGroup>
         <AgentOperatorNew
-          allAgents={allAgents}
-          agentOptions={agentOptions}
-          selectedAgents={selectedAgentsMapped}
+          allAgents={ allAgents }
+          agentOptions={ agentOptions }
+          selectedAgents={ selectedAgentsMapped }
         />
         <Button
           color="success"
-          onClick={this.validateOnSubmit}
+          onClick={ this.validateOnSubmit }
         >
-          {this.isEdit() ? 'Edit assignment' : 'Create assignment'}
+          { this.isEdit() ? 'Edit assignment' : 'Create assignment' }
         </Button>
       </>
     ) : (

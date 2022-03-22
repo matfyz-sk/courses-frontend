@@ -4,8 +4,8 @@ import axios from 'axios'
 import PropTypes from 'prop-types'
 import { Card } from 'reactstrap'
 
-import { API_URL } from '../../../../configuration/api'
 import TopicPreview from './topic-preview/topic-preview'
+import { API_URL } from "../../../../constants";
 
 class TopicsOverview extends Component {
   state = {

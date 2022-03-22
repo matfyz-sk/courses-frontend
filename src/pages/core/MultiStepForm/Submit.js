@@ -54,7 +54,7 @@ class Submit extends React.Component {
 
     const url = BASE_URL + COURSE_INSTANCE_URL
 
-    axiosRequest('post', JSON.stringify(data), url)
+    axiosRequest('post', {...data}, url)
       .then(response => {
         if (response && response.status === 200) {
           this.createEvents(response.data.resource.iri)
@@ -104,7 +104,7 @@ class Submit extends React.Component {
     const url = BASE_URL + EVENT_URL
     let errors = []
     for (let event of eventsToAdd) {
-      axiosRequest('post', JSON.stringify(event), url)
+      axiosRequest('post', {...event}, url)
         .then(response => {
           if (response && response.status === 200) {
           } else {

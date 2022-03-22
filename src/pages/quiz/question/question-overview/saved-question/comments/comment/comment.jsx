@@ -1,19 +1,19 @@
 /* eslint-disable react/prefer-stateless-function */
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { ListGroupItem, ListGroupItemText, FormText } from 'reactstrap'
-import { API_URL } from '../../../../../../../configuration/api'
+import { FormText, ListGroupItem, ListGroupItemText } from 'reactstrap'
+import { API_URL } from "../../../../../../../constants";
 
-function Comments({ id, commentText, createdAt, createdBy, token }) {
-  const [author, setAuthor] = useState('')
+function Comments({id, commentText, createdAt, createdBy, token}) {
+  const [ author, setAuthor ] = useState('')
   useEffect(() => {
-    if (createdBy && token) {
-      const fetchData = async () => {
+    if(createdBy && token) {
+      const fetchData = async() => {
         return axios
           .get(
-            `${API_URL}/user/${createdBy.substring(
+            `${ API_URL }/user/${ createdBy.substring(
               createdBy.lastIndexOf('/') + 1
-            )}`,
+            ) }`,
             {
               headers: {
                 Accept: 'application/json',
@@ -22,17 +22,17 @@ function Comments({ id, commentText, createdAt, createdBy, token }) {
               },
             }
           )
-          .then(({ data }) => {
-            if (
+          .then(({data}) => {
+            if(
               data &&
               data['@graph'] &&
               data['@graph'].length &&
               data['@graph'].length > 0
             ) {
               data['@graph'].forEach(authorData => {
-                if (authorData) {
-                  const { firstName, lastName } = authorData
-                  setAuthor(`${firstName} ${lastName}`)
+                if(authorData) {
+                  const {firstName, lastName} = authorData
+                  setAuthor(`${ firstName } ${ lastName }`)
                 }
               })
             }
@@ -41,19 +41,19 @@ function Comments({ id, commentText, createdAt, createdBy, token }) {
       }
       fetchData()
     }
-  }, [token, createdBy])
+  }, [ token, createdBy ])
   return (
     <>
-      <ListGroupItem className="mt-2" key={id} color="warning">
-        <ListGroupItemText style={{ whiteSpace: 'pre-line' }}>
-          {commentText}
+      <ListGroupItem className="mt-2" key={ id } color="warning">
+        <ListGroupItemText style={ {whiteSpace: 'pre-line'} }>
+          { commentText }
         </ListGroupItemText>
-        {author && <FormText color="muted">{author}</FormText>}
-        {createdAt && (
+        { author && <FormText color="muted">{ author }</FormText> }
+        { createdAt && (
           <FormText color="muted">
-            {new Date(createdAt).toLocaleDateString()}
+            { new Date(createdAt).toLocaleDateString() }
           </FormText>
-        )}
+        ) }
       </ListGroupItem>
     </>
   )

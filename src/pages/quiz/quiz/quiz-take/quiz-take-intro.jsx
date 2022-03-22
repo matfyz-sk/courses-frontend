@@ -168,7 +168,6 @@ function QuizTakeIntro({
     }
     axiosAddEntity(quizTakeData, 'quizTake')
       .then(response => {
-        console.log(response)
         const iri = getIRIFromAddResponse(response)
         const quizTakeId = iri.substring(
           iri.lastIndexOf('/')+1

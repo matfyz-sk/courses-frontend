@@ -61,7 +61,7 @@ class AddInstructor extends Component {
     }
   }
 
-  handleSubmit = event => {
+  handleSubmit = (event) => {
     console.log('submit')
   }
 

@@ -1,14 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { Component } from 'react'
-import {
-  Button,
-  Label,
-  FormGroup,
-  Input,
-  InputGroup,
-  InputGroupAddon,
-  Table,
-} from 'reactstrap'
+import { Button, FormGroup, Input, InputGroup, InputGroupAddon, Label, Table, } from 'reactstrap'
 
 class AgentOperator extends Component {
   state = {
@@ -16,8 +8,8 @@ class AgentOperator extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { allAgents } = this.props
-    if (allAgents !== prevProps.allAgents) {
+    const {allAgents} = this.props
+    if(allAgents !== prevProps.allAgents) {
       this.setState({
         agent:
           allAgents && allAgents.length && allAgents.length > 0
@@ -28,11 +20,11 @@ class AgentOperator extends Component {
   }
 
   deleteAgent = selectedAgentUri => {
-    const { selectedAgents, setSelectedAgents } = this.props
-    const currentSelectedAgents = [...selectedAgents]
+    const {selectedAgents, setSelectedAgents} = this.props
+    const currentSelectedAgents = [ ...selectedAgents ]
     let deletedAgentUri = ''
     const index = currentSelectedAgents.indexOf(selectedAgentUri)
-    if (index !== -1) {
+    if(index !== -1) {
       currentSelectedAgents.splice(index, 1)
       deletedAgentUri = selectedAgentUri
     }
@@ -43,30 +35,27 @@ class AgentOperator extends Component {
   }
 
   selectAgent = () => {
-    const { allAgents, selectedAgents, setSelectedAgents } = this.props
-    const { agent } = this.state
-    const currentSelectedAgents = [...selectedAgents]
+    const {allAgents, selectedAgents, setSelectedAgents} = this.props
+    const {agent} = this.state
+    const currentSelectedAgents = [ ...selectedAgents ]
     let selectFind = false
     let nextAgent = agent
     allAgents.forEach(agentFromAllAgents => {
-      if (agentFromAllAgents.id === agent) {
-        console.log(agentFromAllAgents.id)
-        console.log(agent)
-        console.log('agentFromAllAgents.id === agent')
+      if(agentFromAllAgents.id === agent) {
         currentSelectedAgents.push(agent)
         selectFind = !selectFind
       }
     })
     let isEmpty = true
-    if (selectFind) {
+    if(selectFind) {
       allAgents.forEach(agentFromAllAgents => {
-        if (currentSelectedAgents.indexOf(agentFromAllAgents.id) === -1) {
+        if(currentSelectedAgents.indexOf(agentFromAllAgents.id) === -1) {
           isEmpty = false
           nextAgent = agentFromAllAgents.id
         }
       })
     }
-    if (isEmpty) {
+    if(isEmpty) {
       nextAgent = ''
     }
     this.setState({
@@ -76,16 +65,16 @@ class AgentOperator extends Component {
   }
 
   handleChange = e => {
-    const { name } = e.target
-    const { value } = e.target
+    const {name} = e.target
+    const {value} = e.target
     this.setState({
       [name]: value,
     })
   }
 
   render() {
-    const { agent } = this.state
-    const { allAgents, selectedAgents } = this.props
+    const {agent} = this.state
+    const {allAgents, selectedAgents} = this.props
     return (
       <>
         <FormGroup>
@@ -95,22 +84,22 @@ class AgentOperator extends Component {
               type="select"
               name="agent"
               id="agent"
-              value={agent || ''}
-              onChange={this.handleChange}
+              value={ agent || '' }
+              onChange={ this.handleChange }
             >
-              {allAgents.map(agentFromAllAgents => {
+              { allAgents.map(agentFromAllAgents => {
                 return selectedAgents.indexOf(agentFromAllAgents.id) === -1 ? (
                   <option
-                    key={agentFromAllAgents.id}
-                    value={agentFromAllAgents.id}
+                    key={ agentFromAllAgents.id }
+                    value={ agentFromAllAgents.id }
                   >
-                    {agentFromAllAgents.name}
+                    { agentFromAllAgents.name }
                   </option>
                 ) : null
-              })}
+              }) }
             </Input>
             <InputGroupAddon addonType="append">
-              <Button color="success" onClick={this.selectAgent}>
+              <Button color="success" onClick={ this.selectAgent }>
                 Add
               </Button>
             </InputGroupAddon>
@@ -120,27 +109,27 @@ class AgentOperator extends Component {
           <Label for="agents">Assign to</Label>
           <Table>
             <thead>
-              <tr>
-                <th>Username</th>
-                <th>Delete</th>
-              </tr>
+            <tr>
+              <th>Username</th>
+              <th>Delete</th>
+            </tr>
             </thead>
             <tbody>
-              {allAgents.map(agentFromAllAgents => {
-                return selectedAgents.indexOf(agentFromAllAgents.id) !== -1 ? (
-                  <tr key={agentFromAllAgents.id}>
-                    <td>{agentFromAllAgents.name}</td>
-                    <td>
-                      <Button
-                        color="danger"
-                        onClick={() => this.deleteAgent(agentFromAllAgents.id)}
-                      >
-                        X
-                      </Button>
-                    </td>
-                  </tr>
-                ) : null
-              })}
+            { allAgents.map(agentFromAllAgents => {
+              return selectedAgents.indexOf(agentFromAllAgents.id) !== -1 ? (
+                <tr key={ agentFromAllAgents.id }>
+                  <td>{ agentFromAllAgents.name }</td>
+                  <td>
+                    <Button
+                      color="danger"
+                      onClick={ () => this.deleteAgent(agentFromAllAgents.id) }
+                    >
+                      X
+                    </Button>
+                  </td>
+                </tr>
+              ) : null
+            }) }
             </tbody>
           </Table>
         </FormGroup>

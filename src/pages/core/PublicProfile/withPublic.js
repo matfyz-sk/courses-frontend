@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { BACKEND_URL } from '../../../configuration/api'
 import { authHeader, getUser } from '../../../components/Auth'
 import Page404 from '../../errors/Page404'
 import { isVisibleUser } from '../../../components/Auth/userFunction'
+import { BACKEND_URL } from "../../../constants";
 
 const withPublic = Component => props => {
   const { user_id } = props.match.params
