@@ -1,35 +1,31 @@
-import React, { Component } from 'react';
-import { Label, Table } from 'reactstrap';
+import React, { Component } from 'react'
+import { Label, Table } from 'reactstrap'
+import { Alert } from 'reactstrap'
+
 export default class Answers extends Component {
-
-
-  render(){
-    return(
+  render() {
+    if (this.props.questionsWithAnswers[0].answers.length === 0) {
+      return <Alert color="danger">This submission was not reviewed.</Alert>
+    }
+    return (
       <>
-      {this.props.questionsWithAnswers.map((question, index) =>
-        <div key={question['@id']}>
-        <Label for="rating">Question:</Label>{' '+question.question}
-          <Table borderless>
-            <tbody>
-              { question.answers.map((answer) =>
-                <tr key={answer['@id']}>
-                  <td
-                    style={{
-                        whiteSpace: 'nowrap',
-                        width: '1%'
-                    }}>
-                    <Label className="no-m-p" for="rating">{ answer.review.team.name }</Label>
-                    <br/>
-                    <Label className="no-m-p" for="rating">Score:</Label> { answer.score }
-                  </td>
-                  <td>{ answer.answer }</td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
-
-      </div>
-      )}
+        {this.props.questionsWithAnswers.map((question, index) => (
+          <div key={question['@id']} style={{ marginTop: '30px' }}>
+            <h6 style={{ fontWeight: 'bold' }}>{question.question}</h6>
+            {question.answers.map((answerObject, index) => (
+              <p key={index} style={{ marginBottom: '10px' }}>
+                <strong>
+                  {this.props.nameVisible &&
+                    `${answerObject.review.createdBy.firstName} ${answerObject.review.createdBy.lastName}`}
+                </strong>
+                <br />
+                {answerObject.answer}
+                <br />
+                <em>{question.rated ? `${answerObject.score}/5` : ''}</em>
+              </p>
+            ))}
+          </div>
+        ))}
       </>
     )
   }
