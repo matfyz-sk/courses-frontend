@@ -1,3 +1,4 @@
+import { ONTOLOGY_PREFIX } from 'constants/ontology'
 import { setAnswers, setExistingUserAnswers } from './answers-functions'
 import { QuestionTypesEnums, QuizAssignmentTypesEnums } from './type-enums'
 import { axiosGetEntities, getResponseBody, getShortID } from '../../../../helperFunctions'
@@ -94,12 +95,12 @@ export async function getAgentsData (courseInstanceId) {
       .then(response => {
         const agentsData = getResponseBody(response)
         if (agentsData.length > 0) {
-          agentsReduced =  agentsData.reduce((acc, user) => {
+          agentsReduced = agentsData.reduce((acc, user) => {
             if (user['@type'] === type) {
               acc.push({
                 id: user['@id'],
                 type: user['@type'],
-                name: type === "http://www.courses.matfyz.sk/ontology#User" ?
+                name: type === `${ ONTOLOGY_PREFIX }User` ?
                   `${user.firstName} ${user.lastName}` : user.name,
               })
             }
@@ -111,10 +112,10 @@ export async function getAgentsData (courseInstanceId) {
     return agentsReduced
   }
 
-  await getAgentType(`user?studentOf=${courseInstanceId}`, "http://www.courses.matfyz.sk/ontology#User")
-    .then(resp => agents.users = resp)
-  await getAgentType(`team?courseInstance=${courseInstanceId}`,"http://www.courses.matfyz.sk/ontology#Team")
-    .then(resp => agents.teams = resp)
+  agents.users = await getAgentType(`user?studentOf=${courseInstanceId}`,
+    `${ ONTOLOGY_PREFIX }User`);
+  agents.teams = await getAgentType(`team?courseInstance=${courseInstanceId}`,
+    `${ ONTOLOGY_PREFIX }Team`);
   return agents
 }
 

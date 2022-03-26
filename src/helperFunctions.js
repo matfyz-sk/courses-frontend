@@ -121,7 +121,7 @@ export const getIRIFromAddResponse = (response) => {
 export const axiosAddEntity = ( data, entity  ) => {
   return axiosRequest(
     'post',
-    `${REST_URL}/${entity}`,
+    `${REST_URL}${entity}`,
     data
   )
 }
@@ -129,7 +129,7 @@ export const axiosAddEntity = ( data, entity  ) => {
 export const axiosUpdateEntity = ( data, entity ) => {
   return axiosRequest(
     'patch',
-    `${REST_URL}/${entity}`,
+    `${REST_URL}${entity}`,
     data
   )
 }
@@ -137,7 +137,7 @@ export const axiosUpdateEntity = ( data, entity ) => {
 export const axiosDeleteEntity = ( entity ) => {
   return axiosRequest(
     'delete',
-    `${REST_URL}/${entity}`,
+    `${REST_URL}${entity}`,
     null
   )
 }
@@ -149,7 +149,7 @@ export const axiosDeleteEntities = ( entities ) => {
 export const axiosGetEntities = (entity) => {
   return axiosRequest(
     'get',
-    `${REST_URL}/${entity}`,
+    `${REST_URL}${entity}`,
     null
   ).then( (response) =>{
   return response;

@@ -38,6 +38,8 @@ function SavedQuestion({
                          callback,
                          userId,
                        }) {
+  const relativeId = id.substring(
+    id.lastIndexOf('/', id.lastIndexOf('/') - 1) + 1);
   const [ toggleOpen, setToggleOpen ] = useState(false)
   const [ author, setAuthor ] = useState('')
   const [ regexpUserAnswer, setRegexpUserAnswer ] = useState('')
@@ -49,7 +51,7 @@ function SavedQuestion({
   const sendApprove = visibilityIsRestricted => {
     axios
       .patch(
-        `${ API_URL }${ id.substr(id.lastIndexOf('/', id.lastIndexOf('/') - 1)) }`,
+        `${ API_URL }${ relativeId }`,
         {approver: [ userId ], visibilityIsRestricted},
         {
           headers: {
@@ -70,7 +72,7 @@ function SavedQuestion({
   const sendDisapprove = () => {
     axios
       .patch(
-        `${ API_URL }${ id.substr(id.lastIndexOf('/', id.lastIndexOf('/') - 1)) }`,
+        `${ API_URL }${ relativeId }`,
         {approver: [],},
         {
           headers: {
@@ -101,7 +103,7 @@ function SavedQuestion({
       const fetchData = async() => {
         return axios
           .get(
-            `${ API_URL }/user/${ createdBy.substring(
+            `${ API_URL }user/${ createdBy.substring(
               createdBy.lastIndexOf('/') + 1
             ) }`,
             {
@@ -252,9 +254,7 @@ function SavedQuestion({
         <Comments
           comments={ comments }
           token={ token }
-          questionAddress={ id.substr(
-            id.lastIndexOf('/', id.lastIndexOf('/') - 1)
-          ) }
+          questionAddress={ relativeId }
           callback={ callback }
         />
       ) }

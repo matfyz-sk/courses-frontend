@@ -1,3 +1,5 @@
+import { ONTOLOGY_PREFIX } from "constants/ontology"
+
 const enText = {
   'manual-quiz-assignment': 'Manual quiz assignment',
   'generated-quiz-assignment': 'Generated quiz assignment',
@@ -5,27 +7,27 @@ const enText = {
 
 export const QuestionTypesEnums = Object.freeze({
   multiple: {
-    id: 'http://www.courses.matfyz.sk/ontology#QuestionWithPredefinedAnswer',
+    id: `${ ONTOLOGY_PREFIX }QuestionWithPredefinedAnswer`,
     entityName: 'questionWithPredefinedAnswer',
     name: 'Question with predefined answer'
   },
   essay: {
-    id: 'http://www.courses.matfyz.sk/ontology#EssayQuestion',
+    id: `${ ONTOLOGY_PREFIX }EssayQuestion`,
     entityName: 'essayQuestion',
     name: 'Essay question'
   },
   open: {
-    id: 'http://www.courses.matfyz.sk/ontology#OpenQuestion',
+    id: `${ ONTOLOGY_PREFIX }OpenQuestion`,
     entityName: 'openQuestion',
     name: 'Open question'
   },
   ordering: {
-    id: 'http://www.courses.matfyz.sk/ontology#OrderingQuestion',
+    id: `${ ONTOLOGY_PREFIX }OrderingQuestion`,
     entityName: 'orderingQuestion',
     name: 'Ordering question'
   },
   matching: {
-    id: 'http://www.courses.matfyz.sk/ontology#MatchQuestion',
+    id: `${ ONTOLOGY_PREFIX }MatchQuestion`,
     entityName: 'matchingQuestion',
     name: 'Matching question'
   },
@@ -33,12 +35,12 @@ export const QuestionTypesEnums = Object.freeze({
 
 export const QuizAssignmentTypesEnums = Object.freeze({
   manualQuizAssignment: {
-    id: 'http://www.courses.matfyz.sk/ontology#ManualQuizAssignment',
+    id: `${ ONTOLOGY_PREFIX }ManualQuizAssignment`,
     middlename: 'manualQuizAssignment',
     name: enText['manual-quiz-assignment'],
   },
   generatedQuizAssignment: {
-    id: 'http://www.courses.matfyz.sk/ontology#GeneratedQuizAssignment',
+    id: `${ ONTOLOGY_PREFIX }GeneratedQuizAssignment`,
     middlename: 'generatedQuizAssignment',
     name: enText['generated-quiz-assignment'],
   },

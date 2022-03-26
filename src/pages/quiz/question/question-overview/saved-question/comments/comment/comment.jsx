@@ -11,7 +11,7 @@ function Comments({id, commentText, createdAt, createdBy, token}) {
       const fetchData = async() => {
         return axios
           .get(
-            `${ API_URL }/user/${ createdBy.substring(
+            `${ API_URL }user/${ createdBy.substring(
               createdBy.lastIndexOf('/') + 1
             ) }`,
             {

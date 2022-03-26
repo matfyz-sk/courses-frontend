@@ -37,12 +37,12 @@ export const INITIAL_EVENT_STATE = {
 }
 
 export const BASE_URL = API_URL
-export const COURSE_URL = '/course'
-export const COURSE_INSTANCE_URL = '/courseInstance'
-export const EVENT_URL = '/event'
-export const BLOCK_URL = '/block'
-export const USER_URL = '/user'
-export const MATERIAL_URL = '/material'
+export const COURSE_URL = 'course'
+export const COURSE_INSTANCE_URL = 'courseInstance'
+export const EVENT_URL = 'event'
+export const BLOCK_URL = 'block'
+export const USER_URL = 'user'
+export const MATERIAL_URL = 'material'
 
 export const TASKS_EXAMS = [ 'OralExam', 'TestTake' ]
 

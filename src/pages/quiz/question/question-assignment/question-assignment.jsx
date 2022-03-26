@@ -109,7 +109,7 @@ export class QuestionAssignment extends Component {
 
   getAgents = (courseInstanceId, token) => {
     return axios
-      .get(`${ API_URL }/user${ `?studentOf=${ courseInstanceId }` }`, {
+      .get(`${ API_URL }user${ `?studentOf=${ courseInstanceId }` }`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ export class QuestionAssignment extends Component {
   getQuestionAssignment = (questionAssignmentId, token) => {
     return axios
       .get(
-        `${ API_URL }/questionAssignment/${ questionAssignmentId }?_join=covers,assignedTo`,
+        `${ API_URL }questionAssignment/${ questionAssignmentId }?_join=covers,assignedTo`,
         {
           headers: {
             Accept: 'application/json',
@@ -184,7 +184,7 @@ export class QuestionAssignment extends Component {
 
   getTopics = (courseInstanceId, token) => {
     return axios
-      .get(`${ API_URL }/topic?covers=${ courseInstanceId }`, {
+      .get(`${ API_URL }topic?covers=${ courseInstanceId }`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -218,7 +218,7 @@ export class QuestionAssignment extends Component {
 
   getTopicsWithQuestionAssignment = (courseInstanceId, token) => {
     return axios
-      .get(`${ API_URL }/questionAssignment?courseInstance=${ courseInstanceId }`, {
+      .get(`${ API_URL }questionAssignment?courseInstance=${ courseInstanceId }`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -346,7 +346,7 @@ export class QuestionAssignment extends Component {
       if(this.isEdit()) {
         axios
           .patch(
-            `${ API_URL }/questionAssignment/${ match.params.questionAssignmentId }`,
+            `${ API_URL }questionAssignment/${ match.params.questionAssignmentId }`,
            {
               description,
               covers: topic ? [ topic ] : [],
@@ -373,7 +373,7 @@ export class QuestionAssignment extends Component {
       } else {
         axios
           .post(
-            `${ API_URL }/questionAssignment`,
+            `${ API_URL }questionAssignment`,
            {
               name: '',
               description,

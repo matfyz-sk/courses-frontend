@@ -7,7 +7,7 @@ export const getTopics = (id, joins, token) => {
   return dispatch => {
     return axios
       .get(
-        `${ API_URL }/topic/${ id }${
+        `${ API_URL }topic/${ id }${
           joins && joins.length
             ? `?_join=${ joins.map(join => join).join() }`
             : ``
@@ -30,7 +30,7 @@ export const getTopics = (id, joins, token) => {
 export const getAgents = (courseInstanceId, token) => {
   return dispatch => {
     return axios
-      .get(`${ API_URL }/user${ `?studentOf=${ courseInstanceId }` }`, {
+      .get(`${ API_URL }user${ `?studentOf=${ courseInstanceId }` }`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',

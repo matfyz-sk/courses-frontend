@@ -7,7 +7,7 @@ import { API_URL } from "../../../constants";
 //   return dispatch => {
 //     return axios
 //       .get(
-//         `${apiConfig.API_URL}/topic/${id}${
+//         `${apiConfig.API_URL}topic/${id}${
 //           joins && joins.length
 //             ? `?_join=${joins.map(join => join).join()}`
 //             : ``
@@ -36,7 +36,7 @@ import { API_URL } from "../../../constants";
 export const postTopic = (topic, token) => {
   return dispatch => {
     axios
-      .post(`${ API_URL }/topic`, {...topic}, {
+      .post(`${ API_URL }topic`, {...topic}, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
