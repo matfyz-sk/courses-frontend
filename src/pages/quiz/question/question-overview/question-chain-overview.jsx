@@ -25,7 +25,7 @@ function QuestionOverview({
       const fetchData = async () => {
         return axios
           .get(
-            `${API_URL}/${questionTypeOld}/${questionIdOld}?_join=hasAnswer,comment&_chain=previous`,
+            `${API_URL}${questionTypeOld}/${questionIdOld}?_join=hasAnswer,comment&_chain=previous`,
             {
               headers: {
                 Accept: 'application/json',

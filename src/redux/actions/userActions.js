@@ -23,7 +23,7 @@ export const setSignedInUser = isSignedIn => {
 export const fetchUser = (token, userId) => {
   return dispatch => {
     return axios
-      .get(`${ API_URL }/user/${ userId }`, {
+      .get(`${ API_URL }user/${ userId }`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',

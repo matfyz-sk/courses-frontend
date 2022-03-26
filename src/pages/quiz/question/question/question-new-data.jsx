@@ -134,7 +134,7 @@ function QuestionNewData({
       if(!isTeacher) {
         return axios
           .get(
-            `${ API_URL }/questionAssignment?courseInstance=${ courseInstanceId.substring(
+            `${ API_URL }questionAssignment?courseInstance=${ courseInstanceId.substring(
               courseInstanceId.lastIndexOf('/') + 1
             ) }${
               userId
@@ -178,7 +178,7 @@ function QuestionNewData({
       }
 
       return axios
-        .get(`${ API_URL }/topic?covers=${ courseInstanceId }`, {
+        .get(`${ API_URL }topic?covers=${ courseInstanceId }`, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -217,7 +217,7 @@ function QuestionNewData({
   useEffect(() => {
     const fetchData = async() => {
       return axios
-        .get(`${ API_URL }/question?_subclasses=true`, {
+        .get(`${ API_URL }question?_subclasses=true`, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -605,7 +605,7 @@ function QuestionNewData({
 
       axios
         .post(
-          `${ API_URL }/questionWithPredefinedAnswer`,
+          `${ API_URL }questionWithPredefinedAnswer`,
           {...questionToSubmit},
           {
             headers: {
@@ -629,7 +629,7 @@ function QuestionNewData({
     if(questionType === QuestionTypesEnums.open.id) {
       questionToSubmit.regexp = regexp
       axios
-        .post(`${ API_URL }/openQuestion`, {...questionToSubmit}, {
+        .post(`${ API_URL }openQuestion`, {...questionToSubmit}, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -649,7 +649,7 @@ function QuestionNewData({
     }
     if(questionType === QuestionTypesEnums.essay.id) {
       axios
-        .post(`${ API_URL }/essayQuestion`, {...questionToSubmit}, {
+        .post(`${ API_URL }essayQuestion`, {...questionToSubmit}, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -683,7 +683,7 @@ function QuestionNewData({
 
       axios
         .post(
-          `${ API_URL }/orderingQuestion`,
+          `${ API_URL }orderingQuestion`,
           {...questionToSubmit},
           {
             headers: {
@@ -720,7 +720,7 @@ function QuestionNewData({
 
       axios
         .post(
-          `${ API_URL }/matchQuestion`,
+          `${ API_URL }matchQuestion`,
           {...questionToSubmit},
           {
             headers: {

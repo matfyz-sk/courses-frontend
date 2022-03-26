@@ -1,4 +1,5 @@
 import React from 'react'
+import { DATA_PREFIX } from 'constants/ontology'
 import {
   BASE_URL,
   COURSE_URL,
@@ -36,7 +37,7 @@ class Submit extends React.Component {
 
     const courseId = getShortId(instanceOf[0]['@id'])
     const courseFullId = [
-      `http://www.courses.matfyz.sk/data${COURSE_URL}/${courseId}`,
+      `${ DATA_PREFIX }${ COURSE_URL }/${ courseId }`,
     ]
 
     const hasInstructor = instructors.map(instructor => {

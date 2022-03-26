@@ -7,6 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import './EventForm.css'
 import TextField from '@material-ui/core/TextField'
 import Autocomplete from '@material-ui/lab/Autocomplete'
+import { DATA_PREFIX } from 'constants/ontology'
 import {
   BASE_URL,
   COURSE_INSTANCE_URL,
@@ -177,10 +178,10 @@ class EventForm extends Component {
     }
 
     const courseInstanceFullId = [
-      `http://www.courses.matfyz.sk/data${ COURSE_INSTANCE_URL }/${ courseId }`,
+      `${ DATA_PREFIX }${ COURSE_INSTANCE_URL }/${ courseId }`,
     ]
     const courseFullId = [
-      `http://www.courses.matfyz.sk/data${ COURSE_URL }/${ courseId }`,
+      `${ DATA_PREFIX }${ COURSE_URL }/${ courseId }`,
     ]
 
     const hasInstructor = Array.isArray(instructors)
