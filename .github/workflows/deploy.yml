@@ -35,7 +35,9 @@ jobs:
         env:
           WEBSITE: ${{ secrets.WEBSITE }}
           WEBSITE_PORT: ${{ inputs.WEBSITE_PORT}}
-        run: echo "REACT_APP_BACKEND_URL=$WEBSITE:$WEBSITE_PORT" > .env
+        run: |
+          echo "REACT_APP_BACKEND_URL=$WEBSITE:$WEBSITE_PORT" > .env
+          echo "REACT_APP_BASE_PREFIX=https://courses3.matfyz.sk/" >> .env
       - name: Install dependencies
         run: yarn install
       - name: Build
