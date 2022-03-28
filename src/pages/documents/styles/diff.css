@@ -39,7 +39,6 @@
   background: var(--ck-color-suggestion-marker-insertion-background);
 } */
 
-/* TODO ins and del tags in img don't fit */
 .diffing ins.revisions-diff  {
   border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
   border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
