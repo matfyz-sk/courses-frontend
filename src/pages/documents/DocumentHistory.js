@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Alert, ListGroup, ListGroupItem } from 'reactstrap'
 import { withRouter } from 'react-router'
 import { connect } from 'react-redux'
@@ -19,50 +19,49 @@ import editDocument from './functions/documentCreation'
 import './styles/diff.css'
 import './styles/mdStyling.css'
 import { marked } from 'marked'
-import { Radio } from '@material-ui/core'
+import { Radio, ThemeProvider, makeStyles } from '@material-ui/core'
 import { MdChevronRight } from 'react-icons/md'
 import { HiDownload } from 'react-icons/hi'
 import downloadBase64File from './functions/downloadBase64File'
+import { customTheme } from './styles/styles'
 
-// TODO conventional styling
-const sidebar = {
-  overflowY: 'scroll',
-  // position: "fixed",
-  // left: 0,
-  // right: 0,
-
-  display: 'table-cell',
-  width: '20%',
-  verticalAlign: 'top',
-  borderLeft: '1px solid',
-}
-
-const sidebarRow = {
-  // borderBottom: '3px solid',
-  borderWidth: '0 0 1px',
-  padding: '5px',
-}
-
-const mainPage = {
-  display: 'table',
-  width: '100%',
-}
-
-const versionContentContainer = {
-  overflowY: 'scroll',
-  // position: "fixed",
-  // left: 0,
-  // right: 0,
-
-  display: 'table-cell',
-  width: '80%',
-  verticalAlign: 'top',
-}
-
-const versionContent = {
-  width: '80%',
-  margin: '20px auto',
-}
+const useStyles = makeStyles(({
+  sidebar: {
+    overflowY: 'scroll',
+    // position: "fixed",
+    // left: 0,
+    // right: 0,
+  
+    display: 'table-cell',
+    width: '20%',
+    verticalAlign: 'top',
+    borderLeft: '1px solid',
+    height: '100%'
+  },
+  sidebarRow: {
+    // borderBottom: '3px solid',
+    borderWidth: '0 0 1px',
+    padding: '5px',
+  },
+  mainPage: {
+    display: 'table',
+    width: '100%',
+  },  
+  versionContentContainer: {
+    overflowY: 'scroll',
+    // position: "fixed",
+    // left: 0,
+    // right: 0,
+  
+    display: 'table-cell',
+    width: '80%',
+    verticalAlign: 'top',
+  },  
+  versionContent: {
+    width: '80%',
+    margin: '20px auto',
+  },
+}))
 
 const isNewestVersion = version => {
   return !version.isDeleted && version.nextVersion.length === 0
@@ -74,6 +73,7 @@ function RevisionsSidebar({
   setPickedVersionB,
   handleRestore,
 }) {
+  const style = useStyles()
   const [selectedBefore, setSelectedBefore] = useState(1)
   const [selectedAfter, setSelectedAfter] = useState(0)
 
@@ -90,14 +90,14 @@ function RevisionsSidebar({
   }
 
   return (
-    <ListGroup flush style={sidebar} className="versions-sidebar">
+    <ListGroup flush className={style.sidebar}>
       {versions.map((v, i) => {
         return (
-          <ListGroupItem style={sidebarRow} key={i}>
+          <ListGroupItem className={style.sidebarRow} key={i}>
             {timestampToString2(v.createdAt)}
             {selectedAfter < i && (
               <Radio
-                style={{ marginLeft: '21px', color: GREENISH_COLOR }}
+                style={{ marginLeft: '21px', color: customTheme.palette.primary.light }}
                 checked={selectedBefore === i}
                 onChange={handleChangeB}
                 value={i}
@@ -113,8 +113,8 @@ function RevisionsSidebar({
               <Radio
                 style={
                   i <= selectedAfter
-                    ? { marginLeft: '63px', color: GREENISH_COLOR }
-                    : { color: GREENISH_COLOR }
+                    ? { marginLeft: '63px', color: customTheme.palette.primary.light }
+                    : { color: customTheme.palette.primary.light }
                 }
                 checked={selectedAfter === i}
                 onChange={handleChangeA}
@@ -136,7 +136,7 @@ function RevisionsSidebar({
             {i > 0 && i < versions.length - 1 && (
               <p>
                 <a
-                  style={{ color: GREENISH_COLOR }}
+                  style={{ color: customTheme.palette.primary.light }}
                   href="#"
                   onClick={e => handleRestore(e, v)}
                 >
@@ -151,13 +151,8 @@ function RevisionsSidebar({
   )
 }
 
-var GREENISH_COLOR = '#28a745'
-
 function DocumentHistory(props) {
-  // FIXME performance!
-  // FIXME enlarged version content div?
-  // TODO needs ins and dels: <hr> and page break?
-
+  const style = useStyles()
   const [newestVersionId, setNewestVersionId] = useState(
     props.match.params.document_id
   )
@@ -216,6 +211,7 @@ function DocumentHistory(props) {
   useEffect(() => {
     setLoading(true)
     const entitiesUrl = `document/${newestVersionId}?_join=payload&_chain=previousVersion`
+    // TODO load all the relevant materials? ... could potentially be slow
     axiosGetEntities(entitiesUrl).then(response => {
       if (response.failed) {
         console.error("There was a problem getting this document's history")
@@ -242,6 +238,17 @@ function DocumentHistory(props) {
     })
   }, [newestVersionId, courseId])
 
+  // useEffect(() => {
+  //   // TODO loading
+  //   var promises = []
+  //   for (const version of versions) {
+  //     const materialUrl = `material?document=${getShortID(version["@id"])}`
+  //     promises.push(axiosGetEntities(materialUrl))
+  //   }
+  //   Promise.all(promises)
+  //     .then(values => setMaterials(values))
+  // }, [versions])
+
   const handleRestore = async (e, versionToRestore) => {
     e.preventDefault()
     const editProps = {
@@ -252,6 +259,21 @@ function DocumentHistory(props) {
       courseId: props.match.params.course_id,
       ...props,
     }
+    // if (isMaterial) {
+    //   console.log("implement")
+    //   editProps = {
+    //     ...editProps,
+    //     materialAttrs: {
+    //       covers: versionToRestore.material.covers,
+    //       mentions: versionToRestore.material.mentions,
+    //       requires: versionToRestore.material.requires,
+    //       assumes: versionToRestore.material.assumes,
+    //       isAlternativeTo: versionToRestore.material.isAlternativeTo,
+    //       refersTo: versionToRestore.material.refersTo,
+    //       generalizes: versionToRestore.material.generalizes,
+    //     }
+    //   }
+    // }
     const newVersionId = await editDocument(
       versionToRestore,
       latestVersion(),
@@ -298,159 +320,171 @@ function DocumentHistory(props) {
   }
 
   return (
-    <div style={mainPage}>
-      <div style={versionContentContainer}>
-        <div className="diffing" style={versionContent}>
-          <h5>Name:</h5>
-          {ReactHtmlParser(
-            diff(
-              `<p>${pickedVersionB.name}</p>`,
-              `<p>${pickedVersionA.name}</p>`,
-              'revisions-diff'
-            )
-          )}
-          {status !== 200 && (
-            <Alert color="warning">
-              There has been a server error, try again please!
-            </Alert>
-          )}
-          {entityName === DocumentEnums.externalDocument.entityName && (
-            <>
-              <h5>Url:</h5>
-              {pickedVersionB.uri.length !== 0 &&
-                pickedVersionB.uri !== pickedVersionA.uri && (
+    <ThemeProvider theme={customTheme}>
+      <div className={style.mainPage}>
+        <div className={style.versionContentContainer}>
+          <div
+            className="diffing"
+            style={{
+              width: '80%',
+              margin: '20px auto',
+            }}
+          >
+            <h5>Name:</h5>
+            {ReactHtmlParser(
+              diff(
+                `<p>${pickedVersionB.name}</p>`,
+                `<p>${pickedVersionA.name}</p>`,
+                'revisions-diff'
+              )
+            )}
+            {status !== 200 && (
+              <Alert color="warning">
+                There has been a server error, try again please!
+              </Alert>
+            )}
+            {entityName === DocumentEnums.externalDocument.entityName && (
+              <>
+                <h5>Url:</h5>
+                {pickedVersionB.uri.length !== 0 &&
+                  pickedVersionB.uri !== pickedVersionA.uri && (
+                    <>
+                      <a href={pickedVersionB.uri}>{pickedVersionB.uri}</a>
+                      <MdChevronRight
+                        size={28}
+                        style={{
+                          color: customTheme.palette.primary.main,
+                          margin: '0 2em 0 2em',
+                        }}
+                      />
+                    </>
+                  )}
+                <a href={pickedVersionA.uri}>{pickedVersionA.uri}</a>
+              </>
+            )}
+            {entityName === DocumentEnums.file.entityName && (
+              <>
+                <h5>Filename:</h5>
+                {ReactHtmlParser(
+                  diff(
+                    `<p>${pickedVersionB.filename}</p>`,
+                    `<p>${pickedVersionA.filename}</p>`,
+                    'revisions-diff'
+                  )
+                )}
+                <h5>File mime:</h5>
+                {ReactHtmlParser(
+                  diff(
+                    `<p>${pickedVersionB.mimeType}</p>`,
+                    `<p>${pickedVersionA.mimeType}</p>`,
+                    'revisions-diff'
+                  )
+                )}
+                <h5>File:</h5>
+                {pickedVersionA.mimeType.startsWith('image') ? (
                   <>
-                    <a href={pickedVersionB.uri}>{pickedVersionB.uri}</a>
-                    <MdChevronRight
-                      size={28}
-                      style={{
-                        color: GREENISH_COLOR,
-                        margin: '0 2em 0 2em',
-                      }}
-                    />
+                    {!hasEmptyContent(pickedVersionB) &&
+                      getPayloadContent(pickedVersionB) !==
+                        getPayloadContent(pickedVersionA) && (
+                        <>
+                          <Link
+                            id="file-download"
+                            to={{ textDecoration: 'none' }}
+                            onClick={e => onDownloadFile(e, pickedVersionB)}
+                          >
+                            <img
+                              style={{ display: 'inline', maxWidth: '150px' }}
+                              src={getPayloadContent(pickedVersionB)}
+                            />
+                          </Link>
+                          <MdChevronRight
+                            size={56}
+                            style={{
+                              color: customTheme.palette.primary.main,
+                              margin: '0 2em 0 2em',
+                            }}
+                          />
+                        </>
+                      )}
+                    <Link
+                      id="file-download"
+                      to={{ textDecoration: 'none' }}
+                      onClick={e => onDownloadFile(e, pickedVersionB)}
+                    >
+                      <img
+                        style={{ maxWidth: '150px' }}
+                        src={getPayloadContent(pickedVersionA)}
+                      />
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    {!hasEmptyContent(pickedVersionB) &&
+                      getPayloadContent(pickedVersionB) !==
+                        getPayloadContent(pickedVersionA) && (
+                        <>
+                          <Link
+                            id="file-download"
+                            to={{ textDecoration: 'none' }}
+                            onClick={e => onDownloadFile(e, pickedVersionB)}
+                          >
+                            <HiDownload
+                              style={{
+                                color: customTheme.palette.primary.main,
+                              }}
+                              size={42}
+                            />
+                          </Link>
+                          <MdChevronRight
+                            size={28}
+                            style={{
+                              color: customTheme.palette.primary.main,
+                              margin: '0 2em 0 2em',
+                            }}
+                          />
+                        </>
+                      )}
+                    <Link
+                      id="file-download"
+                      to={{ textDecoration: 'none' }}
+                      onClick={e => onDownloadFile(e, pickedVersionA)}
+                    >
+                      <HiDownload
+                        style={{ color: customTheme.palette.primary.main }}
+                        size={42}
+                      />
+                    </Link>
                   </>
                 )}
-              <a href={pickedVersionA.uri}>{pickedVersionA.uri}</a>
-            </>
-          )}
-          {entityName === DocumentEnums.file.entityName && (
-            <>
-              <h5>Filename:</h5>
-              {ReactHtmlParser(
-                diff(
-                  `<p>${pickedVersionB.filename}</p>`,
-                  `<p>${pickedVersionA.filename}</p>`,
-                  'revisions-diff'
-                )
-              )}
-              <h5>File mime:</h5>
-              {ReactHtmlParser(
-                diff(
-                  `<p>${pickedVersionB.mimeType}</p>`,
-                  `<p>${pickedVersionA.mimeType}</p>`,
-                  'revisions-diff'
-                )
-              )}
-              <h5>File:</h5>
-
-              {pickedVersionA.mimeType.startsWith('image') ? (
-                <>
-                  {!hasEmptyContent(pickedVersionB) &&
-                    getPayloadContent(pickedVersionB) !==
-                      getPayloadContent(pickedVersionA) && (
-                      <>
-                        <Link
-                          id="file-download"
-                          to={{ textDecoration: 'none' }}
-                          onClick={e => onDownloadFile(e, pickedVersionB)}
-                        >
-                          <img
-                            style={{ display: 'inline', maxWidth: '150px' }}
-                            src={getPayloadContent(pickedVersionB)}
-                          />
-                        </Link>
-                        <MdChevronRight
-                          size={56}
-                          style={{
-                            color: GREENISH_COLOR,
-                            margin: '0 2em 0 2em',
-                          }}
-                        />
-                      </>
-                    )}
-                  <Link
-                    id="file-download"
-                    to={{ textDecoration: 'none' }}
-                    onClick={e => onDownloadFile(e, pickedVersionB)}
+              </>
+            )}
+            {entityName === DocumentEnums.internalDocument.entityName && (
+              <>
+                {/*   want to use ckeditor styling but not its data processor */}
+                <div className="ck ck-editor__main" role="presentation">
+                  <div
+                    className="ck-blurred ck ck-content ck-editor__editable ck-rounded-corners ck-editor__editable_inline ck-read-only"
+                    dir="ltr"
+                    role="textbox"
+                    aria-label="Rich Text Editor, main"
+                    lang="en"
+                    contentEditable={false}
                   >
-                    <img
-                      style={{ maxWidth: '150px' }}
-                      src={getPayloadContent(pickedVersionA)}
-                    />
-                  </Link>
-                </>
-              ) : (
-                <>
-                  {!hasEmptyContent(pickedVersionB) &&
-                    getPayloadContent(pickedVersionB) !==
-                      getPayloadContent(pickedVersionA) && (
-                      <>
-                        <Link
-                          id="file-download"
-                          to={{ textDecoration: 'none' }}
-                          onClick={e => onDownloadFile(e, pickedVersionB)}
-                        >
-                          <HiDownload
-                            style={{ color: GREENISH_COLOR }}
-                            size={42}
-                          />
-                        </Link>
-                        <MdChevronRight
-                          size={28}
-                          style={{
-                            color: GREENISH_COLOR,
-                            margin: '0 2em 0 2em',
-                          }}
-                        />
-                      </>
-                    )}
-                  <Link
-                    id="file-download"
-                    to={{ textDecoration: 'none' }}
-                    onClick={e => onDownloadFile(e, pickedVersionA)}
-                  >
-                    <HiDownload style={{ color: GREENISH_COLOR }} size={42} />
-                  </Link>
-                </>
-              )}
-            </>
-          )}
-          {entityName === DocumentEnums.internalDocument.entityName && (
-            <>
-              {/*   want to use ckeditor styling but not its data processor */}
-              <div className="ck ck-editor__main" role="presentation">
-                <div
-                  className="ck-blurred ck ck-content ck-editor__editable ck-rounded-corners ck-editor__editable_inline ck-read-only"
-                  dir="ltr"
-                  role="textbox"
-                  aria-label="Rich Text Editor, main"
-                  lang="en"
-                  contentEditable={false}
-                >
-                  {ReactHtmlParser(diffPayloads())}
+                    {ReactHtmlParser(diffPayloads())}
+                  </div>
                 </div>
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
         </div>
+        <RevisionsSidebar
+          setPickedVersionA={setPickedVersionA}
+          setPickedVersionB={setPickedVersionB}
+          versions={versions}
+          handleRestore={handleRestore}
+        />
       </div>
-      <RevisionsSidebar
-        setPickedVersionA={setPickedVersionA}
-        setPickedVersionB={setPickedVersionB}
-        versions={versions}
-        handleRestore={handleRestore}
-      />
-    </div>
+    </ThemeProvider>
   )
 }
 
