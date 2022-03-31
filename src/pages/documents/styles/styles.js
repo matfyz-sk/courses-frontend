@@ -46,4 +46,15 @@ const useStyles = makeStyles(({
   }
 }))
 
-export {customTheme, useStyles}
+const useFileExplorerStyles = makeStyles(({
+  info: {
+    fontSize: "120%",
+    color: baseTheme.palette.primary.main
+  },
+  actions: {
+    fontSize: "175%",
+    color: baseTheme.palette.primary.main
+  }
+}))
+
+export {customTheme, useStyles, useFileExplorerStyles}

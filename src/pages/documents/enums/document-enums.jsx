@@ -18,6 +18,11 @@ export const DocumentEnums = Object.freeze({
         id: 'http://www.courses.matfyz.sk/ontology#Material',
         entityName: 'material',
         name: 'Material',
-    }
+    },
+    folder: {
+        id: 'http://www.courses.matfyz.sk/ontology#Folder',
+        entityName: 'folder',
+        name: 'Folder',
+    },
 })
   
