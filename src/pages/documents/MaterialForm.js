@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import MultipleSelectCheckmarks from './common/MultipleSelectCheckmarks'
 import { axiosGetEntities, getResponseBody } from 'helperFunctions'
-import { Grid } from '@material-ui/core'
+import { Box, Grid, TextField } from '@material-ui/core'
 
 export default function MaterialForm({
-  courseId,
+  description,
+  setDescription,
   handleLoading,
   statusHandler,
   isAlternativeTo,
@@ -51,6 +52,24 @@ export default function MaterialForm({
   return (
     <>
       <hr style={{ borderColor: 'lightgray' }} />
+      <Box
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <TextField
+          id="description-textarea"
+          style={{ width: '50%' }}
+          label="Description"
+          multiline
+          variant="outlined"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+        />
+      </Box>
+      <br/>
       <h5 style={{ textAlign: 'center' }}>
         Select the material's relations to other
       </h5>
@@ -114,7 +133,7 @@ export default function MaterialForm({
             allItems={topics}
             items={assumes}
             setItems={setAssumes}
-            label={'assumes'}
+            label={'assumes mastery of'}
           />
         </Grid>
       </Grid>
