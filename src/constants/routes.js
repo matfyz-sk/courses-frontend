@@ -22,6 +22,7 @@ export const ACCESS_DENIED = '/accessdenied'
 export const NOT_FOUND = '/notfound'
 
 export const DOCUMENTS = coursePrefix('/documents')
+export const DOCUMENTS_IN_FOLDER = coursePrefix('/documents/folder/:folder_id')
 export const DELETED_DOCUMENTS = coursePrefix('/documents/deleted')
 export const EDIT_DOCUMENT = coursePrefix('/documents/edit/:document_id')
 export const DOCUMENT_HISTORY = coursePrefix('/documents/history/:document_id')
