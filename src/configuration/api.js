@@ -1,7 +1,7 @@
-export const BACKEND_URL =
-  process.env.NODE_ENV === 'development'
-    ? 'https://courses.matfyz.sk:4440'
-    : 'https://courses.matfyz.sk:4440'
+// export const BACKEND_URL =
+//   process.env.NODE_ENV === 'development'
+//     ? 'https://courses.matfyz.sk:4440'
+//     : 'https://courses.matfyz.sk:4440'
 
 // DEV apache forward this to matfyz.sk:3010
 // 'https://courses.matfyz.sk:4440'
@@ -11,7 +11,7 @@ export const BACKEND_URL =
 // 'https://courses.matfyz.sk:4441'
 
 // LOCAL
-// 'http://localhost:3010'
+export const BACKEND_URL = 'http://localhost:3010'
 
 export const API_URL = `${BACKEND_URL}/data`
 
