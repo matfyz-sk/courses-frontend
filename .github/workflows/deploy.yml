@@ -3,12 +3,16 @@ name: Deployment of frontend
 on:
   workflow_call:
     inputs:
-      FOLDER:
+      FRONTEND_PATH:
         required: true
         type: string
-      WEBSITE_PORT:
+      BASE_WEBSITE_PORT:
         required: true
         type: number
+      PR_NUMBER:
+        required: false
+        type: number
+        default: 0
     secrets:
       SSH_PRIVATE_KEY:
         required: true
@@ -23,6 +27,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Set part of Virtuoso port
+        run: echo "PR_PORT_PART=$(printf "%03i" ${{ inputs.PR_NUMBER }})" >> $GITHUB_ENV
+      - name: Calculate Virtuoso port
+        run: echo "WEBSITE_PORT=$(expr ${{ BASE_WEBSITE_PORT }} + ${{ PR_PORT_PART }})" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -36,7 +44,7 @@ jobs:
           WEBSITE: ${{ secrets.WEBSITE }}
           WEBSITE_PORT: ${{ inputs.WEBSITE_PORT}}
         run: |
-          echo "REACT_APP_BACKEND_URL=$WEBSITE:$WEBSITE_PORT/" > .env
+          echo "REACT_APP_BACKEND_URL=${WEBSITE}:${WEBSITE_PORT}/" > .env
           echo "REACT_APP_BASE_PREFIX=https://courses3.matfyz.sk/" >> .env
       - name: Install dependencies
         run: yarn install
@@ -52,4 +60,4 @@ jobs:
       - name:  Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
       - name: Deploy
-        run: rsync -avz --no-group --no-owner --delete ./build/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ inputs.FOLDER }}
+        run: rsync -avz --no-group --no-owner --delete ./build/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ inputs.FRONTEND_PATH }}

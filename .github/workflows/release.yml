@@ -1,4 +1,4 @@
-name: Release
+name: MW - Release workflow
 
 on:
   workflow_dispatch:
@@ -12,8 +12,8 @@ jobs:
   release:
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
     with:
-      FOLDER: /home/www/courses3.matfyz.sk/htdocs/
-      WEBSITE_PORT: 4430
+      FRONTEND_PATH: /home/www/courses3.matfyz.sk/htdocs/
+      BASE_WEBSITE_PORT: 4430
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}

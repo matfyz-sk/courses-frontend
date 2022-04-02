@@ -1,0 +1,30 @@
+name: Create directories for frontend
+
+on:
+  workflow_call:
+    inputs:
+      FRONTEND_PATH:
+        required: true
+        type: string
+    secrets:
+      SSH_PRIVATE_KEY:
+        required: true
+      SSH_HOST:
+        required: true
+      SSH_USER:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove backend docker container
+        uses: appleboy/ssh-action@master
+        env:
+          FRONTEND_PATH: ${{ inputs.FRONTEND_PATH }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: FRONTEND_PATH
+          script: mkdir -p ${FRONTEND_PATH}
