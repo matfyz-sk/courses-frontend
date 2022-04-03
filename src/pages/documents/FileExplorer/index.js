@@ -212,6 +212,7 @@ function FileExplorer(props) {
     search,
     fsPath,
     onRowClickHandler,
+    onPathFolderClickHandler,
   } = props
 
   const classes = useStyles()
@@ -242,7 +243,10 @@ function FileExplorer(props) {
       <Paper className={classes.paper}>
         <TableContainer>
           <Toolbar>
-            <Path fsPath={fsPath} />
+            <Path 
+              fsPath={fsPath}
+              onPathFolderClickHandler={onPathFolderClickHandler}
+             />
           </Toolbar>
           <Table
             className={classes.table}
