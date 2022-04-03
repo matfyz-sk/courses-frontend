@@ -13,7 +13,7 @@ const MyResults = props => {
 
   function fetchResults() {
     fetch(
-      `${ BACKEND_URL }/data/result?hasUser=${ getUserID() }&_join=courseInstance,awardedBy,type`,
+      `${ BACKEND_URL }data/result?hasUser=${ getUserID() }&_join=courseInstance,awardedBy,type`,
       {
         method: 'GET',
         headers: authHeader(),

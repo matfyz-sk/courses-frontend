@@ -21,7 +21,7 @@ const withTeamHandler = Component => props => {
 
   const fetchUsers = () => {
     fetch(
-      `${ BACKEND_URL }/data/teamInstance?instanceOf=${ team_id }&_join=hasUser`,
+      `${ BACKEND_URL }data/teamInstance?instanceOf=${ team_id }&_join=hasUser`,
       {
         method: 'GET',
         headers: authHeader(),
@@ -40,7 +40,7 @@ const withTeamHandler = Component => props => {
       })
   }
   const fetchData = () => {
-    fetch(`${ BACKEND_URL }/data/team/${ team_id }`, {
+    fetch(`${ BACKEND_URL }data/team/${ team_id }`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',

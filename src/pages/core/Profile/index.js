@@ -75,7 +75,7 @@ class Profile extends Component {
         body[updatedAttrs[i]] = user[updatedAttrs[i]]
       }
 
-      fetch(`${ BACKEND_URL }/data/user/${ getUserID() }`, {
+      fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, {
         method: 'PATCH',
         headers: authHeader(),
         mode: 'cors',
@@ -100,7 +100,7 @@ class Profile extends Component {
   }
 
   fetchCurrentData() {
-    fetch(`${ BACKEND_URL }/data/user/${ getUserID() }`, {
+    fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',

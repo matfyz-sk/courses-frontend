@@ -77,7 +77,7 @@ class RegisterCompletion extends Component {
       body[updatedAttrs[i]] = user[updatedAttrs[i]]
     }
 
-    fetch(`${ BACKEND_URL }/data/user/${ getUserID() }`, {
+    fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, {
       method: 'PATCH',
       headers: authHeader(),
       mode: 'cors',
@@ -100,7 +100,7 @@ class RegisterCompletion extends Component {
     const {user, errors} = this.state
     errors.email = emailValidator(user.email)
     if(errors.email && errors.email.result) {
-      fetch(`${ BACKEND_URL }/data/user?email=${ user.email }`, {
+      fetch(`${ BACKEND_URL }data/user?email=${ user.email }`, {
         method: 'GET',
         headers: authHeader(),
         mode: 'cors',
@@ -130,7 +130,7 @@ class RegisterCompletion extends Component {
   }
 
   removeAccount() {
-    fetch(`${ BACKEND_URL }/data/user/${ getUserID() }`, {
+    fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, {
       method: 'DELETE',
       headers: authHeader(),
       mode: 'cors',

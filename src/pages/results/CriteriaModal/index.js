@@ -51,7 +51,7 @@ const CriteriaModal = props => {
   }
 
   function getDetail(id, action = null) {
-    fetch(`${BACKEND_URL}/data/courseGrading/${id}`, {
+    fetch(`${BACKEND_URL}data/courseGrading/${id}`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',
@@ -91,7 +91,7 @@ const CriteriaModal = props => {
     gradings.push(iri)
 
     fetch(
-      `${BACKEND_URL}/data/courseInstance/${getShortID(courseInstance['@id'])}`,
+      `${BACKEND_URL}data/courseInstance/${getShortID(courseInstance['@id'])}`,
       {
         method: 'PATCH',
         headers: authHeader(),
@@ -119,7 +119,7 @@ const CriteriaModal = props => {
   function submitCreate() {
     setLoading(true)
     if (validate()) {
-      fetch(`${BACKEND_URL}/data/courseGrading`, {
+      fetch(`${BACKEND_URL}data/courseGrading`, {
         method: 'POST',
         headers: authHeader(),
         mode: 'cors',
@@ -146,7 +146,7 @@ const CriteriaModal = props => {
   function submitUpdate() {
     setLoading(true)
     if (validate()) {
-      fetch(`${BACKEND_URL}/data/courseGrading/${getShortID(grading['@id'])}`, {
+      fetch(`${BACKEND_URL}data/courseGrading/${getShortID(grading['@id'])}`, {
         method: 'PATCH',
         headers: authHeader(),
         mode: 'cors',
@@ -178,7 +178,7 @@ const CriteriaModal = props => {
 
   function submitDelete() {
     setLoading(true)
-    fetch(`${BACKEND_URL}/data/courseGrading/${getShortID(grading['@id'])}`, {
+    fetch(`${BACKEND_URL}data/courseGrading/${getShortID(grading['@id'])}`, {
       method: 'DELETE',
       headers: authHeader(),
       mode: 'cors',

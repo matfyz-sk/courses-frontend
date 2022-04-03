@@ -42,7 +42,7 @@ const ResultTypeModal = props => {
   }
 
   function getDetail(id, action = null) {
-    fetch(`${ BACKEND_URL }/data/resultType/${ id }`, {
+    fetch(`${ BACKEND_URL }data/resultType/${ id }`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',
@@ -82,7 +82,7 @@ const ResultTypeModal = props => {
     resultTypes.push(iri)
 
     fetch(
-      `${ BACKEND_URL }/data/courseInstance/${ getShortID(courseInstance['@id']) }`,
+      `${ BACKEND_URL }data/courseInstance/${ getShortID(courseInstance['@id']) }`,
       {
         method: 'PATCH',
         headers: authHeader(),
@@ -113,7 +113,7 @@ const ResultTypeModal = props => {
       if(form.correctionFor === '') {
         delete form.correctionFor
       }
-      fetch(`${ BACKEND_URL }/data/resultType`, {
+      fetch(`${ BACKEND_URL }data/resultType`, {
         method: 'POST',
         headers: authHeader(),
         mode: 'cors',
@@ -140,7 +140,7 @@ const ResultTypeModal = props => {
   function submitUpdate() {
     setLoading(true)
     if(validate()) {
-      fetch(`${ BACKEND_URL }/data/resultType/${ getShortID(resultType['@id']) }`, {
+      fetch(`${ BACKEND_URL }data/resultType/${ getShortID(resultType['@id']) }`, {
         method: 'PATCH',
         headers: authHeader(),
         mode: 'cors',
@@ -172,7 +172,7 @@ const ResultTypeModal = props => {
 
   function submitDelete() {
     setLoading(true)
-    fetch(`${ BACKEND_URL }/data/resultType/${ getShortID(resultType['@id']) }`, {
+    fetch(`${ BACKEND_URL }data/resultType/${ getShortID(resultType['@id']) }`, {
       method: 'DELETE',
       headers: authHeader(),
       mode: 'cors',

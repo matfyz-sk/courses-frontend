@@ -12,7 +12,7 @@ const withResultDetail = Component => props => {
 
   function fetchResultType(id) {
     fetch(
-      `${BACKEND_URL}/data/resultType/${id}?_join=createdBy,correctionFor`,
+      `${BACKEND_URL}data/resultType/${id}?_join=createdBy,correctionFor`,
       {
         method: 'GET',
         headers: authHeader(),

@@ -18,7 +18,7 @@ class Teams extends Component {
   }
 
   componentDidMount() {
-    fetch(`${ BACKEND_URL }/data/team?courseInstance=${ this.state.course_id }&_orderBy=name`, {
+    fetch(`${ BACKEND_URL }data/team?courseInstance=${ this.state.course_id }&_orderBy=name`, {
         method: 'GET',
         headers: authHeader(),
         mode: 'cors',

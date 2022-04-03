@@ -67,7 +67,7 @@ class TeamsDetail extends Component {
         name: form.name,
         courseInstance: course['@id'],
       }
-      fetch(`${ BACKEND_URL }/data/team`, {
+      fetch(`${ BACKEND_URL }data/team`, {
         method: 'POST',
         headers: authHeader(),
         mode: 'cors',
@@ -100,7 +100,7 @@ class TeamsDetail extends Component {
       hasUser: user,
       requestFrom: fillRequest ? getUser().fullURI : null,
     }
-    fetch(`${ BACKEND_URL }/data/teamInstance`, {
+    fetch(`${ BACKEND_URL }data/teamInstance`, {
       method: 'POST',
       headers: authHeader(),
       mode: 'cors',
@@ -150,7 +150,7 @@ class TeamsDetail extends Component {
     const {course_id} = this.props
     if(i < params.length) {
       fetch(
-        `${ BACKEND_URL }/data/user?${ params[i] }=${ search }&studentOf=${ course_id }`,
+        `${ BACKEND_URL }data/user?${ params[i] }=${ search }&studentOf=${ course_id }`,
         {
           method: 'GET',
           headers: authHeader(),
@@ -178,7 +178,7 @@ class TeamsDetail extends Component {
 
   approveMember(user) {
     const {history, course_id, team} = this.props
-    fetch(`${ BACKEND_URL }/data/teamInstance/${ getShortID(user['@id']) }`, {
+    fetch(`${ BACKEND_URL }data/teamInstance/${ getShortID(user['@id']) }`, {
       method: 'PATCH',
       headers: authHeader(),
       mode: 'cors',
@@ -231,7 +231,7 @@ class TeamsDetail extends Component {
     for(let i = 0; i < users.length; i++) {
       this.fetchRemoveUser(users[i], false)
     }
-    fetch(`${ BACKEND_URL }/data/team/${ getShortID(team['@id']) }`, {
+    fetch(`${ BACKEND_URL }data/team/${ getShortID(team['@id']) }`, {
       method: 'DELETE',
       headers: authHeader(),
       mode: 'cors',
@@ -254,7 +254,7 @@ class TeamsDetail extends Component {
 
   fetchRemoveUser(user, rerender = true) {
     const {history, course_id, team} = this.props
-    fetch(`${ BACKEND_URL }/data/teamInstance/${ getShortID(user['@id']) }`, {
+    fetch(`${ BACKEND_URL }data/teamInstance/${ getShortID(user['@id']) }`, {
       method: 'DELETE',
       headers: authHeader(),
       mode: 'cors',

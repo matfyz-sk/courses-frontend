@@ -21,7 +21,7 @@ const MyTeams = props => {
     const detail = fetched_data[index]
     if (detail.instanceOf && detail.instanceOf.length > 0) {
       fetch(
-        `${BACKEND_URL}/data/team/${getShortID(
+        `${BACKEND_URL}data/team/${getShortID(
           detail.instanceOf[0]['@id']
         )}?_join=courseInstance`,
         {
@@ -55,7 +55,7 @@ const MyTeams = props => {
   }
 
   function getData() {
-    fetch(`${BACKEND_URL}/data/teamInstance?hasUser=${getUserID()}`, {
+    fetch(`${BACKEND_URL}data/teamInstance?hasUser=${getUserID()}`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',

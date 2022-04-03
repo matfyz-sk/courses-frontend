@@ -39,7 +39,7 @@ export default class RegisterPage extends Component {
       },
       be_error: null,
       confirmed_conditions: false,
-      register_url: `${ BACKEND_URL }/auth/register`,
+      register_url: `${ BACKEND_URL }auth/register`,
     };
   }
 

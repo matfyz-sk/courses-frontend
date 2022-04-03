@@ -15,7 +15,7 @@ const withPublic = Component => props => {
   const isMyProfile = getUser() && getUser().id === user_id
 
   function fetchCourses(userData) {
-    fetch(`${BACKEND_URL}/data/courseInstance?hasInstructor=${user_id}`, {
+    fetch(`${BACKEND_URL}data/courseInstance?hasInstructor=${user_id}`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',
@@ -40,7 +40,7 @@ const withPublic = Component => props => {
   }
 
   function fetchUser() {
-    fetch(`${BACKEND_URL}/data/user/${user_id}?_join=studentOf`, {
+    fetch(`${BACKEND_URL}data/user/${user_id}?_join=studentOf`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',

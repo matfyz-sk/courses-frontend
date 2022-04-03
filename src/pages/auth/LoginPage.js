@@ -18,7 +18,7 @@ class LoginPage extends Component {
     this.state = {
       email: '',
       password: '',
-      loginURL: `${ BACKEND_URL }/auth/login`,
+      loginURL: `${ BACKEND_URL }auth/login`,
       errors: {
         email: null,
         password: null,

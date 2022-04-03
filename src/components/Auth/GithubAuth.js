@@ -15,7 +15,7 @@ const GithubAuth = props => {
   const [error, setError] = useState(null)
 
   function onSuccess(resp) {
-    fetch(`${BACKEND_URL}/auth/github?code=${resp.code}`, {
+    fetch(`${BACKEND_URL}auth/github?code=${resp.code}`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',

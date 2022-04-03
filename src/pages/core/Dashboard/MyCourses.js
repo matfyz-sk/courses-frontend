@@ -16,7 +16,7 @@ import { BACKEND_URL } from "../../../constants";
 const MyCourses = props => {
   const [data, setData] = useState(null)
   function getData() {
-    fetch(`${BACKEND_URL}/data/user/${getUserID()}?_join=studentOf`, {
+    fetch(`${BACKEND_URL}data/user/${getUserID()}?_join=studentOf`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',

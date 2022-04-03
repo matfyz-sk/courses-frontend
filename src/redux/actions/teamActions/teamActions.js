@@ -13,7 +13,7 @@ export const destroyTeam = {
 
 export const fetchTeam = team_id => {
   return dispatch => {
-    fetch(`${BACKEND_URL}/data/team?id=${team_id}`, {
+    fetch(`${BACKEND_URL}data/team?id=${team_id}`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',

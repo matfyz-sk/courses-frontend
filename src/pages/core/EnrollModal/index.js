@@ -111,7 +111,7 @@ class EnrollForm extends Component {
     }
     personalSettings.push(iri)
 
-    fetch(`${ BACKEND_URL }/data/courseInstance/${ courseInstance.id }`, {
+    fetch(`${ BACKEND_URL }data/courseInstance/${ courseInstance.id }`, {
       method: 'PATCH',
       headers: authHeader(),
       mode: 'cors',
@@ -143,7 +143,7 @@ class EnrollForm extends Component {
         hasUser: getUser().fullURI,
         nickName: specificNickname,
       }
-      fetch(`${ BACKEND_URL }/data/coursePersonalSettings`, {
+      fetch(`${ BACKEND_URL }data/coursePersonalSettings`, {
         method: 'POST',
         headers: authHeader(),
         mode: 'cors',

@@ -3,7 +3,7 @@ import { authHeader } from '../../components/Auth'
 import { getShortID } from '../../helperFunctions'
 
 export const getUsersInCourse = course_id => {
-  return fetch(`${BACKEND_URL}/data/user?studentOf=${course_id}`, {
+  return fetch(`${BACKEND_URL}data/user?studentOf=${course_id}`, {
     method: 'GET',
     headers: authHeader(),
     mode: 'cors',
@@ -14,7 +14,7 @@ export const getUsersInCourse = course_id => {
 }
 
 export const getAllResultsInCourse = course_id => {
-  return fetch(`${BACKEND_URL}/data/result?courseInstance=${course_id}`, {
+  return fetch(`${BACKEND_URL}data/result?courseInstance=${course_id}`, {
     method: 'GET',
     headers: authHeader(),
     mode: 'cors',
@@ -26,7 +26,7 @@ export const getAllResultsInCourse = course_id => {
 
 export const getResultsUsersInType = type_id => {
   return fetch(
-    `${BACKEND_URL}/data/result?type=${type_id}&_join=hasUser,awardedBy`,
+    `${BACKEND_URL}data/result?type=${type_id}&_join=hasUser,awardedBy`,
     {
       method: 'GET',
       headers: authHeader(),
@@ -40,7 +40,7 @@ export const getResultsUsersInType = type_id => {
 
 export const getUserResult = (id, type = false) => {
   return fetch(
-    `${BACKEND_URL}/data/result/${id}?_join=hasUser,awardedBy${
+    `${BACKEND_URL}data/result/${id}?_join=hasUser,awardedBy${
       type ? ',type' : ''
     }`,
     {
@@ -55,7 +55,7 @@ export const getUserResult = (id, type = false) => {
 
 export const getAllUserResults = user_id => {
   return fetch(
-    `${BACKEND_URL}/data/result?hasUser=${user_id}&_join=awardedBy,type`,
+    `${BACKEND_URL}data/result?hasUser=${user_id}&_join=awardedBy,type`,
     {
       method: 'GET',
       headers: authHeader(),
@@ -67,7 +67,7 @@ export const getAllUserResults = user_id => {
 }
 
 export const getUserInCourse = (course_id, user_id) => {
-  return fetch(`${BACKEND_URL}/data/user/${user_id}?studentOf=${course_id}`, {
+  return fetch(`${BACKEND_URL}data/user/${user_id}?studentOf=${course_id}`, {
     method: 'GET',
     headers: authHeader(),
     mode: 'cors',
@@ -79,7 +79,7 @@ export const getUserInCourse = (course_id, user_id) => {
 
 export const getResultTypeDetail = type_id => {
   return fetch(
-    `${BACKEND_URL}/data/resultType/${type_id}?_join=correctionFor`,
+    `${BACKEND_URL}data/resultType/${type_id}?_join=correctionFor`,
     {
       method: 'GET',
       headers: authHeader(),
@@ -92,7 +92,7 @@ export const getResultTypeDetail = type_id => {
 
 export const getUserByTypeResult = (user_id, type_id) => {
   return fetch(
-    `${BACKEND_URL}/data/result?hasUser=${user_id}&type=${type_id}`,
+    `${BACKEND_URL}data/result?hasUser=${user_id}&type=${type_id}`,
     {
       method: 'GET',
       headers: authHeader(),
@@ -121,7 +121,7 @@ export const createUserResult = (
     description,
     reference,
   }
-  return fetch(`${BACKEND_URL}/data/result`, {
+  return fetch(`${BACKEND_URL}data/result`, {
     method: 'POST',
     headers: authHeader(),
     mode: 'cors',
@@ -133,7 +133,7 @@ export const createUserResult = (
     })
     .then(data => {
       if (data.status) {
-        return fetch(`${BACKEND_URL}/data/result/${getShortID(data.resource.iri)}`, {
+        return fetch(`${BACKEND_URL}data/result/${getShortID(data.resource.iri)}`, {
             method: 'PATCH',
             headers: authHeader(),
             mode: 'cors',
@@ -154,7 +154,7 @@ export const createUserResult = (
 export const updateUserResult = data => {
   const { points, description, reference } = data
   const post = { points, description, reference }
-  return fetch(`${BACKEND_URL}/data/result/${getShortID(data['@id'])}`, {
+  return fetch(`${BACKEND_URL}data/result/${getShortID(data['@id'])}`, {
     method: 'PATCH',
     headers: authHeader(),
     mode: 'cors',
@@ -166,7 +166,7 @@ export const updateUserResult = data => {
 }
 
 export const removeUserResult = result_id => {
-  return fetch(`${BACKEND_URL}/data/result/${result_id}`, {
+  return fetch(`${BACKEND_URL}data/result/${result_id}`, {
     method: 'DELETE',
     headers: authHeader(),
     mode: 'cors',
