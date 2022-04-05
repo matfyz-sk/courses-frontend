@@ -37,6 +37,7 @@ function CreateDocumentMenu(props) {
   return (
     <ThemeProvider	theme={customTheme}>
       <Button
+        style={{ outline: "none"}}
         variant="contained"
         aria-controls="simple-menu"
         aria-haspopup="true"
