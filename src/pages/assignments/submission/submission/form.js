@@ -5,6 +5,12 @@ import { periodHappening, unixToString } from 'helperFunctions'
 import { generateField } from './generateSubmission'
 
 export default class SubmissionForm extends Component {
+  hasFieldWithError(fields) {
+    const errors = fields.filter(field => field.error === true)
+
+    return errors.length
+  }
+
   render() {
     const {
       assignment,
@@ -60,10 +66,15 @@ export default class SubmissionForm extends Component {
           Form was loaded from initial submission as there is no submitted
           improved submission.
         </Alert>
-        <Button color="primary" disabled={saving} onClick={onSubmit}>
+        <Button
+          color="primary"
+          disabled={saving || this.hasFieldWithError(fields)}
+          onClick={onSubmit}
+        >
           {saving ? 'Saving submission' : 'Save submission'}
         </Button>
       </div>
     )
   }
 }
+

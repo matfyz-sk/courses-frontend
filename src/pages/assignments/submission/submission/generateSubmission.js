@@ -115,7 +115,7 @@ export const generateField = (field, onChange) => {
             id={`codeReview-${field.id}`}
             onChange={onChangeWithFile}
           />
-          {/* <ErrorMessage show={field.value.error} message="File is not zip file!" /> */}
+          <ErrorMessage show={field.error} message="Submission must be .zip!" />
         </FormGroup>
       )
     }
@@ -179,18 +179,6 @@ export const generateField = (field, onChange) => {
     }
   }
 }
-
-// import React from 'react'
-
-// const generateSubmission = () => {
-//   return (
-//     <div>
-
-//     </div>
-//   )
-// }
-
-// export default generateSubmission
 
 export const GenerateView = ({ field, value }) => {
   switch (field.type.fieldType) {
@@ -336,3 +324,4 @@ export const GenerateView = ({ field, value }) => {
     }
   }
 }
+
