@@ -1,17 +1,20 @@
 import { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import Toolbar from '@material-ui/core/Toolbar'
-import Paper from '@material-ui/core/Paper'
+import {
+  IconButton,
+  withStyles,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+  Toolbar,
+  Paper,
+} from '@material-ui/core'
 import { timestampToString2, getShortType } from 'helperFunctions'
 import { withRouter } from 'react-router'
-import { withStyles } from '@material-ui/core'
 import {
   MdDelete,
   MdRestorePage,
@@ -20,10 +23,10 @@ import {
   MdLink,
   MdAttachFile,
 } from 'react-icons/md'
-import { Link } from 'react-router-dom'
 import Path from './Path'
 import { DocumentEnums } from '../enums/document-enums'
 import { useFileExplorerStyles } from '../styles/styles'
+import { IoMdDocument } from 'react-icons/io'
 
 const CustomTableRow = withStyles({
   root: {
@@ -158,9 +161,6 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     marginBottom: theme.spacing(2),
   },
-  table: {
-    minWidth: 750,
-  },
   visuallyHidden: {
     border: 0,
     clip: 'rect(0 0 0 0)',
@@ -197,9 +197,8 @@ const FileExplorerIcon = ({ entityName }) => {
 
   return (
     <>
-      {/* TODO add material icon this way */}
-      {/* {entityName === DocumentEnums.externalDocument.entityName && (entityToIcon[entityName])} */}
       {entityToIcon[entityName]}
+      <IoMdDocument style={{marginLeft: '0.75em'}} className={classes.info}/>
     </>
   )
 }
@@ -240,7 +239,7 @@ function FileExplorer(props) {
 
   return (
     <div className={classes.root}>
-      <Paper className={classes.paper}>
+      <Paper elevation={4} className={classes.paper}>
         <TableContainer>
           <Toolbar>
             <Path 
@@ -249,10 +248,8 @@ function FileExplorer(props) {
              />
           </Toolbar>
           <Table
-            className={classes.table}
-            aria-labelledby="Files table"
             size="small"
-            aria-label="table"
+            aria-label="file explorer table"
             stickyHeader
           >
             <EnhancedTableHead
@@ -277,8 +274,7 @@ function FileExplorer(props) {
                   <CustomTableRow
                     hover
                     onClick={event => handleClick(event, file)}
-                    tabIndex={-1}
-                    key={file.name}
+                    key={file["@id"]}
                   >
                     <TableCell
                       component="th"
@@ -303,14 +299,18 @@ function FileExplorer(props) {
                       {timestampToString2(file.createdAt)}
                     </TableCell>
                     <TableCell onClick={e => e.stopPropagation()} align="right">
-                      {/* TODO condition */}
-                      <Link to={{}} onClick={() => invertDeletionFlag(file)}>
+                      <IconButton
+                        aria-label={showingDeleted ? "delele item" : "restore item"}
+                        onClick={() => invertDeletionFlag(file)}
+                        size="small"
+                        style={{fontSize: "90%", outline: "none"}}                        
+                      >
                         {showingDeleted ? (
                           <MdRestorePage className={iconClasses.actions} />
                         ) : (
                           <MdDelete className={iconClasses.actions} />
                         )}
-                      </Link>
+                      </IconButton>
                     </TableCell>
                   </CustomTableRow>
                 )
