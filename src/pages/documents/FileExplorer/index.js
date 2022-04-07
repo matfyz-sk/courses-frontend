@@ -18,15 +18,11 @@ import { withRouter } from 'react-router'
 import {
   MdDelete,
   MdRestorePage,
-  MdFolder,
-  MdCode,
-  MdLink,
-  MdAttachFile,
 } from 'react-icons/md'
 import Path from './Path'
 import { DocumentEnums } from '../enums/document-enums'
 import { useFileExplorerStyles } from '../styles/styles'
-import { IoMdDocument } from 'react-icons/io'
+import FileIcon from '../common/FileIcon'
 
 const CustomTableRow = withStyles({
   root: {
@@ -113,7 +109,7 @@ const headCells = [
 ]
 
 function EnhancedTableHead(props) {
-  const { classes, order, orderBy, onRequestSort } = props
+  const { classes, order, orderBy, onRequestSort, isReferencer } = props
   const createSortHandler = property => event => {
     onRequestSort(event, property)
   }
@@ -121,7 +117,7 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        {headCells.map(headCell => (
+        {headCells.slice(...(isReferencer ? [0, -1] : [0])).map(headCell => (
           <TableCell
             key={headCell.id}
             align={headCell.numeric ? 'right' : 'left'}
@@ -181,28 +177,6 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const FileExplorerIcon = ({ entityName }) => {
-  const classes = useFileExplorerStyles()
-
-  const entityToIcon = {
-    [DocumentEnums.internalDocument.entityName]: (
-      <MdCode className={classes.info} />
-    ),
-    [DocumentEnums.folder.entityName]: <MdFolder className={classes.info} />,
-    [DocumentEnums.externalDocument.entityName]: (
-      <MdLink className={classes.info} />
-    ),
-    [DocumentEnums.file.entityName]: <MdAttachFile className={classes.info} />,
-  }
-
-  return (
-    <>
-      {entityToIcon[entityName]}
-      <IoMdDocument style={{marginLeft: '0.75em'}} className={classes.info}/>
-    </>
-  )
-}
-
 function FileExplorer(props) {
   const {
     files,
@@ -212,6 +186,7 @@ function FileExplorer(props) {
     fsPath,
     onRowClickHandler,
     onPathFolderClickHandler,
+    isReferencer
   } = props
 
   const classes = useStyles()
@@ -258,6 +233,7 @@ function FileExplorer(props) {
               orderBy={orderBy}
               onRequestSort={handleRequestSort}
               rowCount={files.length}
+              isReferencer={isReferencer}
             />
             <TableBody>
               {stableSort(
@@ -268,7 +244,6 @@ function FileExplorer(props) {
                 getComparator('desc', '@type')
               ).map((file, index) => {
                 const labelId = `enhanced-table-checkbox-${index}`
-                const entityName = getShortType(file['@type'])
 
                 return (
                   <CustomTableRow
@@ -283,7 +258,7 @@ function FileExplorer(props) {
                       padding="default"
                       className={classes.cell}
                     >
-                      <FileExplorerIcon entityName={entityName} />
+                      <FileIcon file={file} />
                     </TableCell>
                     <TableCell
                       component="th"
@@ -298,20 +273,22 @@ function FileExplorer(props) {
                     <TableCell align="right">
                       {timestampToString2(file.createdAt)}
                     </TableCell>
-                    <TableCell onClick={e => e.stopPropagation()} align="right">
-                      <IconButton
-                        aria-label={showingDeleted ? "delele item" : "restore item"}
-                        onClick={() => invertDeletionFlag(file)}
-                        size="small"
-                        style={{fontSize: "90%", outline: "none"}}                        
-                      >
-                        {showingDeleted ? (
-                          <MdRestorePage className={iconClasses.actions} />
-                        ) : (
-                          <MdDelete className={iconClasses.actions} />
-                        )}
-                      </IconButton>
-                    </TableCell>
+                    {!isReferencer && (
+                      <TableCell onClick={e => e.stopPropagation()} align="right">
+                        <IconButton
+                          aria-label={showingDeleted ? "delele item" : "restore item"}
+                          onClick={() => invertDeletionFlag(file)}
+                          size="small"
+                          style={{fontSize: "90%", outline: "none"}}                        
+                        >
+                          {showingDeleted ? (
+                            <MdRestorePage className={iconClasses.actions} />
+                          ) : (
+                            <MdDelete className={iconClasses.actions} />
+                          )}
+                        </IconButton>
+                      </TableCell>
+                    )}                    
                   </CustomTableRow>
                 )
               })}
