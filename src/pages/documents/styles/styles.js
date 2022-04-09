@@ -1,6 +1,6 @@
 import { grey, red } from '@material-ui/core/colors'
 import { makeStyles } from '@material-ui/core/styles'
-import { createMuiTheme } from '@material-ui/core'
+import { createMuiTheme  } from '@material-ui/core'
 
 const baseTheme = createMuiTheme({
   palette: {
@@ -20,11 +20,6 @@ const baseTheme = createMuiTheme({
   typography: {
     fontFamily: 'inherit',
   },
-  breakpoints: {
-    values: {
-      md: 1000,
-    }
-  },
 })
 
 const customTheme = createMuiTheme({
@@ -37,24 +32,50 @@ const customTheme = createMuiTheme({
         },
       },
     },
+
   },
 }, baseTheme)
 
-const useStyles = makeStyles(({
+const useGeneralStyles = makeStyles(({
   icons: {
     fontSize: "400%",
   }
 }))
 
-const useFileExplorerStyles = makeStyles(({
-  info: {
-    fontSize: "120%",
-    color: baseTheme.palette.primary.main
+const useFileExplorerStyles = makeStyles(theme => ({
+  root: {
+    width: '100%',
   },
-  actions: {
+  paper: {
+    width: '100%',
+    marginBottom: theme.spacing(2),
+  },
+  visuallyHidden: {
+    border: 0,
+    clip: 'rect(0 0 0 0)',
+    height: 1,
+    margin: -1,
+    overflow: 'hidden',
+    padding: 0,
+    position: 'absolute',
+    top: 20,
+    width: 1,
+  },
+  cell: {
+    padding: '6px 2px 6px 12px',
+  },
+  textCell: {
+    whiteSpace: 'normal',
+    wordBreak: 'break-word',
+  },
+  infoButton: {
+    fontSize: "120%",
+    color: baseTheme.palette.primary.main,
+  },
+  actionsButton: {
     fontSize: "175%",
     color: baseTheme.palette.primary.main
   }
 }))
 
-export {customTheme, useStyles, useFileExplorerStyles}
+export { customTheme, useGeneralStyles, useFileExplorerStyles }

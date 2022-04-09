@@ -100,7 +100,7 @@ const headCells = [
     label: 'Last changed',
   },
   {
-    id: 'actions',
+    id: 'actionsButton',
     disableSort: true,
     numeric: true,
     disablePadding: false,
@@ -149,33 +149,6 @@ function EnhancedTableHead(props) {
   )
 }
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    width: '100%',
-  },
-  paper: {
-    width: '100%',
-    marginBottom: theme.spacing(2),
-  },
-  visuallyHidden: {
-    border: 0,
-    clip: 'rect(0 0 0 0)',
-    height: 1,
-    margin: -1,
-    overflow: 'hidden',
-    padding: 0,
-    position: 'absolute',
-    top: 20,
-    width: 1,
-  },
-  cell: {
-    padding: '6px 2px 6px 12px',
-  },
-  textCell: {
-    whiteSpace: 'normal',
-    wordBreak: 'break-word',
-  }
-}))
 
 function FileExplorer(props) {
   const {
@@ -189,8 +162,7 @@ function FileExplorer(props) {
     isReferencer
   } = props
 
-  const classes = useStyles()
-  const iconClasses = useFileExplorerStyles()
+  const classes = useFileExplorerStyles()
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('createdAt')
 
@@ -227,6 +199,24 @@ function FileExplorer(props) {
             aria-label="file explorer table"
             stickyHeader
           >
+            <colgroup>
+              {isReferencer ? (
+                <>
+                  <col style={{width: "10%"}}/>
+                  <col style={{width: "70%"}}/>
+                  <col style={{width: "20%"}}/>
+                </>
+              )
+              : (
+                <>
+                  <col style={{width: "10%"}}/>
+                  <col style={{width: "60%"}}/>
+                  <col style={{width: "20%"}}/>
+                  <col style={{width: "10%"}}/>
+                </>
+              )}
+              
+            </colgroup>
             <EnhancedTableHead
               classes={classes}
               order={order}
@@ -263,7 +253,6 @@ function FileExplorer(props) {
                     <TableCell
                       component="th"
                       id={labelId}
-                      // TODO wrap or no wrap
                       className={classes.textCell}
                       scope="row"
                       padding="default"
@@ -282,9 +271,9 @@ function FileExplorer(props) {
                           style={{fontSize: "90%", outline: "none"}}                        
                         >
                           {showingDeleted ? (
-                            <MdRestorePage className={iconClasses.actions} />
+                            <MdRestorePage className={classes.actionsButton} />
                           ) : (
-                            <MdDelete className={iconClasses.actions} />
+                            <MdDelete className={classes.actionsButton} />
                           )}
                         </IconButton>
                       </TableCell>

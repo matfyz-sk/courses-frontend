@@ -12,19 +12,19 @@ const FileIcon = ({ file }) => {
 
   const entityToIcon = {
     [DocumentEnums.internalDocument.entityName]: (
-      <MdCode className={classes.info} />
+      <MdCode className={classes.infoButton} />
     ),
-    [DocumentEnums.folder.entityName]: <MdFolder className={classes.info} />,
+    [DocumentEnums.folder.entityName]: <MdFolder className={classes.infoButton} />,
     [DocumentEnums.externalDocument.entityName]: (
-      <MdLink className={classes.info} />
+      <MdLink className={classes.infoButton} />
     ),
-    [DocumentEnums.file.entityName]: <MdAttachFile className={classes.info} />,
+    [DocumentEnums.file.entityName]: <MdAttachFile className={classes.infoButton} />,
   }
 
   return (
     <>
       {entityToIcon[entityName]}
-      <BsBook style={{marginLeft: '0.75em'}} className={classes.info}/>
+      <BsBook style={{marginLeft: '0.75em'}} className={classes.infoButton}/>
     </>
   )
 }
