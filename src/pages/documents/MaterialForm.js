@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import MultipleSelectCheckmarks from './common/MultipleSelectCheckmarks'
 import { axiosGetEntities, getResponseBody } from 'helperFunctions'
 import { Box, Grid, TextField } from '@material-ui/core'
+import DocumentsReferencer from './common/DocumentsReferencer'
 
 export default function MaterialForm({
   description,
@@ -89,11 +90,10 @@ export default function MaterialForm({
           />
         </Grid>
         <Grid item xs={6}>
-          <MultipleSelectCheckmarks
-            allItems={materials}
-            items={isAlternativeTo}
-            setItems={setIsAlternativeTo}
-            label={'is an alternative to'}
+          <DocumentsReferencer 
+            label="is an alternative to"
+            documents={isAlternativeTo}
+            onDocumentsChange={setIsAlternativeTo}
           />
         </Grid>
         <Grid item xs={6}>
@@ -105,11 +105,10 @@ export default function MaterialForm({
           />
         </Grid>
         <Grid item xs={6}>
-          <MultipleSelectCheckmarks
-            allItems={materials}
-            items={refersTo}
-            setItems={setRefersTo}
-            label={'refers to'}
+          <DocumentsReferencer 
+            label="refers to"
+            documents={refersTo}
+            onDocumentsChange={setRefersTo}
           />
         </Grid>
         <Grid item xs={6}>
@@ -121,11 +120,10 @@ export default function MaterialForm({
           />
         </Grid>
         <Grid item xs={6}>
-          <MultipleSelectCheckmarks
-            allItems={materials}
-            items={generalizes}
-            setItems={setGeneralizes}
-            label={'generalizes'}
+          <DocumentsReferencer 
+            label="generalizes"
+            documents={generalizes}
+            onDocumentsChange={setGeneralizes}
           />
         </Grid>
         <Grid item xs={6}>
