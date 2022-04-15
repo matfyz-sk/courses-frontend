@@ -78,4 +78,21 @@ const useFileExplorerStyles = makeStyles(theme => ({
   }
 }))
 
-export { customTheme, useGeneralStyles, useFileExplorerStyles }
+const usePdfRendererStyles = makeStyles(({
+  input: {
+    width: 45,
+    '& input[type=number]': {
+        '-moz-appearance': 'textfield'
+    },
+    '& input[type=number]::-webkit-outer-spin-button': {
+        '-webkit-appearance': 'none',
+        margin: 0
+    },
+    '& input[type=number]::-webkit-inner-spin-button': {
+        '-webkit-appearance': 'none',
+        margin: 0
+    }
+},
+}))
+
+export { customTheme, useGeneralStyles, useFileExplorerStyles, usePdfRendererStyles }
