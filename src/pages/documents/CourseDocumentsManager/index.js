@@ -33,6 +33,7 @@ import CreateDocumentMenu from './CreateDocumentMenu'
 import { MdDelete } from 'react-icons/md'
 
 function CourseDocumentManager(props) {
+  const { courseInstance, folder, match, showingDeleted, setFolder, history } = props
   const [uglyFolderHack, setUglyFolderHack] = useState(0)
 
   const [isMobile, setIsMobile] = useState(false)
@@ -49,7 +50,8 @@ function CourseDocumentManager(props) {
     window.addEventListener("resize", handleResize)
   })
 
-  const [folderId, setFolderId] = useState(props.match.params.folder_id)
+  const folderId = match.params.folder_id
+  const courseId = match.params.course_id
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [folderName, setFolderName] = useState('')
@@ -57,15 +59,10 @@ function CourseDocumentManager(props) {
   const [fsPath, setFsPath] = useState([])
 
   const [fsObjects, setFsObjects] = useState([])
-  const [courseId, setCourseId] = useState(props.match.params.course_id)
 
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState(200)
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    setFolderId(props.match.params.folder_id)
-  }, [props.match.params.folder_id])
 
   useEffect(() => {
     setLoading(true)
@@ -87,13 +84,13 @@ function CourseDocumentManager(props) {
         const fsObjects = data[0].content
         console.log({fsObjects})
         setFsObjects(
-          fsObjects.filter(doc => doc.isDeleted === props.showingDeleted)
+          fsObjects.filter(doc => doc.isDeleted === showingDeleted)
         )
         setLoading(false)
-        props.setFolder(data[0])
+        setFolder(data[0])
         setFsPath(data.slice().reverse())
       })
-  }, [courseId, folderId, props.showingDeleted, uglyFolderHack])
+  }, [courseId, folderId, showingDeleted, uglyFolderHack])
 
   const invertDeletionFlag = fsObject => {
     const url = `${getShortType(fsObject['@type'])}/${getShortID(
@@ -107,17 +104,16 @@ function CourseDocumentManager(props) {
         setStatus(response.response ? response.response.status : 500)
       } else {
         setFsObjects(
-          fsObjects.filter(obj => obj.isDeleted === props.showingDeleted)
+          fsObjects.filter(obj => obj.isDeleted === showingDeleted)
         )
       }
     })
   }
 
   const onFsObjectRowClick = (_, fsObject) => {
-    const fileEntity = getShortType(fsObject['@type'])
-    if (DocumentEnums.folder.entityName === fileEntity) {
+    if (DocumentEnums.folder.entityName === getShortType(fsObject['@type'])) {
       window.scrollTo({ top: 0, behavior: 'smooth' })
-      props.history.push(
+      history.push(
         redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
           { key: 'course_id', value: courseId },
           { key: 'folder_id', value: getShortID(fsObject['@id']) },
@@ -125,7 +121,7 @@ function CourseDocumentManager(props) {
       )
       return
     }
-    props.history.push(
+    history.push(
       redirect(ROUTES.EDIT_DOCUMENT, [
         { key: 'course_id', value: courseId },
         { key: 'document_id', value: getShortID(fsObject['@id']) },
@@ -137,7 +133,7 @@ function CourseDocumentManager(props) {
     var data = {
       name: folderName,
       isDeleted: false,
-      courseInstance: props.courseInstance['@id'],
+      courseInstance: courseInstance['@id'],
     }
     toggleFolderDialog()
     if (fsPath.length) {
@@ -168,9 +164,6 @@ function CourseDocumentManager(props) {
           setStatus(response.response ? response.response.status : 500)
           return
         }
-        //   props.setCurrentDocumentsOfCourseInstance(
-        //     data.hasDocument.map(doc => ({ '@id': doc }))
-        //   )
         setUglyFolderHack(x => x + 1)
       })
     }
@@ -186,9 +179,9 @@ function CourseDocumentManager(props) {
   }
 
   const onPathFolderClick = folderId => {
-    props.history.push(
+    history.push(
       redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
-        { key: 'course_id', value: props.match.params.course_id },
+        { key: 'course_id', value: match.params.course_id },
         { key: 'folder_id', value: folderId },
       ])
     )
@@ -206,7 +199,7 @@ function CourseDocumentManager(props) {
             <br />
           </>
         )}
-        {!props.showingDeleted && (
+        {!showingDeleted && (
           <div
             style={{
               display: 'flex',
@@ -217,15 +210,15 @@ function CourseDocumentManager(props) {
             <CreateDocumentMenu
               style={{ display: 'inline-block', float: 'left' }}
               dialogOpenHandler={setDialogOpen}
-              loading={loading || props.folder.loading}
+              loading={loading || folder.loading}
             />
             <div style={{ float: 'right' }}>
               <Button
                 style={{ outline: "none" }}
                 variant="contained"
-                disabled={loading || props.folder.loading}
+                disabled={loading || folder.loading}
                 onClick={() =>
-                  props.history.push(
+                  history.push(
                     redirect(ROUTES.DELETED_DOCUMENTS, [
                       { key: 'course_id', value: courseId },
                     ])
@@ -257,12 +250,12 @@ function CourseDocumentManager(props) {
         <FileExplorer
           files={fsObjects}
           invertDeletionFlag={invertDeletionFlag}
-          showingDeleted={props.showingDeleted}
+          showingDeleted={showingDeleted}
           search={search}
           fsPath={fsPath}
           onRowClickHandler={onFsObjectRowClick}
           onPathFolderClickHandler={onPathFolderClick}
-          loading={loading || props.folder.loading}
+          loading={loading || folder.loading}
         />
       </div>
       <FolderDialog
