@@ -19,6 +19,8 @@ import { Alert } from '@material-ui/lab'
 import DocumentsList from './DocumentsList'
 import { makeStyles } from '@material-ui/styles'
 import { customTheme } from 'pages/documents/styles/styles'
+import getReferenceOfDocument from './documentReferenceCreation'
+import { setFolder } from 'redux/actions'
 
 // dialog's intened behaviour is to reset the styling theme so this is a workaround for the progress bar
 const useStyles = makeStyles(() => ({
@@ -34,12 +36,15 @@ const useStyles = makeStyles(() => ({
 
 function DocumentReferencer({
   label,
-  documents,
-  onDocumentsChange,
+  documentReferences,
+  onDocumentReferencesChange,
   match,
   courseInstance,
 }) {
+  // TODO what when document is deleted
   const classes = useStyles()
+
+  const [documents, setDocuments] = useState([])
 
   const [fsPath, setFsPath] = useState([])
   const [fsObjects, setFsObjects] = useState([])
@@ -52,20 +57,33 @@ function DocumentReferencer({
   const dialogRef = useRef()
 
   useEffect(() => {
+    // folder gets set and document references find their corresponding docs
     if (courseInstance) {
+      // TODO remove
       if (!courseInstance.fileExplorerRoot[0]) {
-        setStatus(500)
         console.error('File system not initialized')
         return
       }
       setFolderId(getShortID(courseInstance.fileExplorerRoot[0]['@id']))
+
+      const docsPromises = []
+      for (const docRef of documentReferences) {
+        const entityUrl = `document/${getShortID(docRef.hasDocument[0]['@id'])}`
+        docsPromises.push(axiosGetEntities(entityUrl))
+      }
+      Promise.all(docsPromises).then(responses => {
+        const documents = responses.map(
+          response => getResponseBody(response)[0]
+        )
+        setDocuments(documents)
+      })
     }
   }, [courseInstance])
 
   useEffect(() => {
     if (folderId === '') return
     setLoading(true)
-
+    // TODO only nondeleted
     const entitiesUrl = `folder/${folderId}?courseInstance=${courseId}&_chain=parent&_join=content`
 
     axiosGetEntities(entitiesUrl)
@@ -80,7 +98,9 @@ function DocumentReferencer({
       })
       .then(data => {
         const fsObjects = data[0].content
-        setFsObjects(fsObjects)
+        setFsObjects(
+          fsObjects.filter(doc => !doc.isDeleted)
+        )
         setLoading(false)
         // props.setFolder(data[0])
         // props.fetchFolder(folderId)
@@ -88,17 +108,27 @@ function DocumentReferencer({
       })
   }, [courseId, folderId])
 
-  const addToDocuments = document => {
-    onDocumentsChange([
+  const addToDocuments = async document => {
+    const documentRefId = await getReferenceOfDocument(document, courseInstance)
+    onDocumentReferencesChange([
+      ...documentReferences.filter(
+        ref => ref['@id'] !== documentRefId
+      ),
+      { '@id': documentRefId, hasDocument: [document], courseInstance },
+    ])
+    setDocuments([
       ...documents.filter(doc => doc['@id'] !== document['@id']),
       document,
     ])
   }
 
   const removeFromDocuments = document => {
-    onDocumentsChange([
-      ...documents.filter(doc => doc['@id'] !== document['@id']),
-    ])
+    onDocumentReferencesChange(
+      documentReferences.filter(
+        ref => ref.hasDocument[0]['@id'] !== document['@id']
+      )
+    )
+    setDocuments(documents.filter(doc => doc['@id'] !== document['@id']))
   }
 
   const onFsObjectRowClick = (_, fsObject) => {
@@ -145,6 +175,7 @@ function DocumentReferencer({
             <LinearProgress
               style={{
                 visibility: loading ? 'visible' : 'hidden',
+                width: '100%',
               }}
             />
           </div>
@@ -167,4 +198,4 @@ const mapStateToProps = ({ courseInstanceReducer }) => {
   }
 }
 
-export default withRouter(connect(mapStateToProps, {})(DocumentReferencer))
+export default withRouter(connect(mapStateToProps, { setFolder })(DocumentReferencer))
