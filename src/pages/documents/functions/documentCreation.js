@@ -1,5 +1,12 @@
-import { DocumentEnums } from "../enums/document-enums"
-import { axiosAddEntity, axiosGetEntities, axiosUpdateEntity, getIRIFromAddResponse, getResponseBody, getShortID } from "helperFunctions"
+import { DocumentEnums } from '../enums/document-enums'
+import {
+  axiosAddEntity,
+  axiosGetEntities,
+  axiosUpdateEntity,
+  getIRIFromAddResponse,
+  getResponseBody,
+  getShortID,
+} from 'helperFunctions'
 
 const PAYLOAD_ENTITIES = [
   DocumentEnums.file.entityName,
@@ -20,7 +27,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     nextVersion,
     ...properties
   } = oldDocument
-  
+
   const { name, mimeType, uri, filename, parent } = newDocument
   if (newDocument.payload) {
     var content = newDocument.payload[0].content
@@ -49,7 +56,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
   let newVersion = {
     ...properties,
     // TODO add material attrs
-      // ...props.materialAttrs.map(attr => ({attr: attr.map(ref => ref['@id'])})),
+    // ...props.materialAttrs.map(attr => ({attr: attr.map(ref => ref['@id'])})),
     // refersTo: props.materialAttrs.refersTo.map(ref => ref["@id"]),
     _type: props.entityName, // TODO should be multiple
     name,
@@ -108,7 +115,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
 }
 
 const createNewVersion = async (newVersion, props) => {
-  console.log({newVersion})
+  console.log({ newVersion })
   const response = await axiosAddEntity(newVersion, 'document')
   if (response.failed) {
     console.error(response.error)
@@ -183,7 +190,7 @@ const updateDocumentReferences = async (newVersionId, oldVersionId, props) => {
 //             props.setStatus(response.response ? response.response.status : 500)
 //           }
 //         })
-        
+
 //     }
 //   }
 // }
@@ -212,7 +219,6 @@ const replaceInParentFolder = async (newVersionId, oldVersionId, props) => {
   // props.setFolderContent???
 }
 
-
 const editDocument = async (newDocument, oldDocument, props) => {
   // TODO so await or mix??
   const data = await createNewVersionData(newDocument, oldDocument, props)
@@ -229,11 +235,11 @@ const editDocument = async (newDocument, oldDocument, props) => {
   //   createMaterial(newVersionId, props.materialAttrs)
   // }
   if (props.isInEditingMode) {
-    setSuccessorOfOldVersion(newVersionId, oldDocument["@id"], props) // no need for await
-    updateDocumentReferences(newVersionId, oldDocument["@id"], props) // no need for await
+    setSuccessorOfOldVersion(newVersionId, oldDocument['@id'], props) // no need for await
+    updateDocumentReferences(newVersionId, oldDocument['@id'], props) // no need for await
   }
   // await needed so we can see the change via redux
-  await replaceInParentFolder(newVersionId, oldDocument["@id"], props)
+  await replaceInParentFolder(newVersionId, oldDocument['@id'], props)
   return getShortID(newVersionId)
 }
 
