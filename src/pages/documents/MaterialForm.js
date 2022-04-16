@@ -24,31 +24,20 @@ export default function MaterialForm({
   assumes,
   setAssumes,
 }) {
-  const [materials, setMaterials] = useState([])
   const [topics, setTopics] = useState([])
 
   useEffect(() => {
-    // const materialsUrl = `material?courseInstance=${courseId}`
     handleLoading(true)
-    const promA = axiosGetEntities('material').then(response => {
-      if (response.failed) {
-        statusHandler(response.response ? response.response : 500)
-        return
-      }
-      setMaterials(getResponseBody(response))
-    })
     // const topicsUrl = `topic?courseInstance=${courseId}`
-    const promB = axiosGetEntities('topic').then(response => {
+    axiosGetEntities('topic').then(response => {
       if (response.failed) {
         statusHandler(response.response ? response.response : 500)
         return
       }
       setTopics(getResponseBody(response))
-    })
-    Promise.all([promA, promB]).then(values => {
       handleLoading(false)
     })
-  }, []) //[courseId]
+  }, [])
 
   return (
     <>
@@ -92,8 +81,8 @@ export default function MaterialForm({
         <Grid item xs={6}>
           <DocumentsReferencer 
             label="is an alternative to"
-            documents={isAlternativeTo}
-            onDocumentsChange={setIsAlternativeTo}
+            documentReferences={isAlternativeTo}
+            onDocumentReferencesChange={setIsAlternativeTo}
           />
         </Grid>
         <Grid item xs={6}>
@@ -107,8 +96,8 @@ export default function MaterialForm({
         <Grid item xs={6}>
           <DocumentsReferencer 
             label="refers to"
-            documents={refersTo}
-            onDocumentsChange={setRefersTo}
+            documentReferences={refersTo}
+            onDocumentReferencesChange={setRefersTo}
           />
         </Grid>
         <Grid item xs={6}>
@@ -122,8 +111,8 @@ export default function MaterialForm({
         <Grid item xs={6}>
           <DocumentsReferencer 
             label="generalizes"
-            documents={generalizes}
-            onDocumentsChange={setGeneralizes}
+            documentReferences={generalizes}
+            onDocumentReferencesChange={setGeneralizes}
           />
         </Grid>
         <Grid item xs={6}>
