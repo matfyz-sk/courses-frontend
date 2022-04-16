@@ -35,6 +35,20 @@ import { MdDelete } from 'react-icons/md'
 function CourseDocumentManager(props) {
   const [uglyFolderHack, setUglyFolderHack] = useState(0)
 
+  const [isMobile, setIsMobile] = useState(false)
+ 
+  const handleResize = () => {
+    if (window.innerWidth < 720) {
+        setIsMobile(true)
+    } else {
+        setIsMobile(false)
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener("resize", handleResize)
+  })
+
   const [folderId, setFolderId] = useState(props.match.params.folder_id)
 
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -182,7 +196,7 @@ function CourseDocumentManager(props) {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <div style={{ maxWidth: '60%', margin: 'auto' }}>
+      <div style={{ maxWidth: 1000, margin: 'auto', padding: 20 }}>
         <br />
         {status !== 200 && (
           <>
@@ -226,7 +240,7 @@ function CourseDocumentManager(props) {
         )}
         <br />
         <TextField
-          style={{ width: '35%' }}
+          style={{ width: isMobile ? '100%' : '35%' }}
           id="search-textfield"
           label="search"
           type="text"
