@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { withRouter, Switch, Route, Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Alert } from 'reactstrap'
@@ -10,18 +10,37 @@ import { redirect } from 'constants/redirect'
 import Page404 from '../errors/Page404'
 import { getShortID } from 'helperFunctions'
 import CourseDocumentManager from './CourseDocumentsManager'
+import { fetchFolder } from 'redux/actions'
 
-function DocumentsNavigation(props) {
-  const [courseId, setCourseId] = useState(props.match.params.course_id)
+function DocumentsNavigation({
+  match,
+  courseInstance,
+  folder,
+  fetchFolder
+}) {
+  const [loading, setLoading] = useState(true)
+  const courseId = match.params.course_id
 
-  if (!props.courseInstance) {
+  useEffect(() => {
+    if (courseInstance && folder.id) {
+      setLoading(false)
+    } else {
+      setLoading(true)
+      if (courseInstance && courseInstance.fileExplorerRoot.length !== 0 && !folder.id) {
+        fetchFolder(getShortID(courseInstance.fileExplorerRoot[0]["@id"]))
+      }
+    }
+  }, [courseInstance, folder.id])
+
+  if (loading) {
     return (
       <Alert color="secondary" className="empty-message">
         Loading...
       </Alert>
     )
   }
-  // if (props.courseInstance && props.courseInstance.fileExplorerRoot.length === 0) {
+  
+  // if (courseInstance && courseInstance.fileExplorerRoot.length === 0) {
   //     // TODO initializeFileSystem() // means creating root folder for the courseInstance and setting redux state
   //     // TODO remove if possible
   //     return (
@@ -40,7 +59,7 @@ function DocumentsNavigation(props) {
             {
               key: 'folder_id',
               value: getShortID(
-                props.courseInstance.fileExplorerRoot[0]['@id']
+                courseInstance.fileExplorerRoot[0]['@id']
               ),
             },
           ])}
@@ -62,7 +81,7 @@ function DocumentsNavigation(props) {
         path={ROUTES.CREATE_INTERNAL_DOCUMENT}
         render={() => (
           <DocumentForm
-            entityName={DocumentEnums.internalDocument.entityName}
+            creating={DocumentEnums.internalDocument.entityName}
           />
         )}
       />
@@ -71,7 +90,7 @@ function DocumentsNavigation(props) {
         path={ROUTES.CREATE_EXTERNAL_DOCUMENT}
         render={() => (
           <DocumentForm
-            entityName={DocumentEnums.externalDocument.entityName}
+            creating={DocumentEnums.externalDocument.entityName}
           />
         )}
       />
@@ -79,7 +98,7 @@ function DocumentsNavigation(props) {
         exact
         path={ROUTES.CREATE_FILE_DOCUMENT}
         render={() => (
-          <DocumentForm entityName={DocumentEnums.file.entityName} />
+          <DocumentForm creating={DocumentEnums.file.entityName} />
         )}
       />
       <Route
@@ -92,10 +111,11 @@ function DocumentsNavigation(props) {
   )
 }
 
-const mapStateToProps = ({ courseInstanceReducer }) => {
+const mapStateToProps = ({ courseInstanceReducer, folderReducer }) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
+    folder: { ... folderReducer}
   }
 }
 
-export default withRouter(connect(mapStateToProps)(DocumentsNavigation))
+export default withRouter(connect(mapStateToProps, { fetchFolder })(DocumentsNavigation))
