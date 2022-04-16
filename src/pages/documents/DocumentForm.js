@@ -37,7 +37,6 @@ import MaterialForm from './MaterialForm'
 import { customTheme } from './styles/styles'
 import { MdDelete, MdHistory } from 'react-icons/md'
 
-
 function DocumentForm({
   courseInstance,
   creating,
@@ -504,7 +503,5 @@ const mapStateToProps = state => {
 }
 
 export default withRouter(
-  connect(mapStateToProps, { fetchFolder })(
-    DocumentForm
-  )
+  connect(mapStateToProps, { fetchFolder })(DocumentForm)
 )

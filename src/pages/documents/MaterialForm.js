@@ -59,7 +59,7 @@ export default function MaterialForm({
           onChange={e => setDescription(e.target.value)}
         />
       </Box>
-      <br/>
+      <br />
       <h5 style={{ textAlign: 'center' }}>
         Select the material's relations to other
       </h5>
@@ -79,7 +79,7 @@ export default function MaterialForm({
           />
         </Grid>
         <Grid item xs={6}>
-          <DocumentsReferencer 
+          <DocumentsReferencer
             label="is an alternative to"
             documentReferences={isAlternativeTo}
             onDocumentReferencesChange={setIsAlternativeTo}
@@ -94,7 +94,7 @@ export default function MaterialForm({
           />
         </Grid>
         <Grid item xs={6}>
-          <DocumentsReferencer 
+          <DocumentsReferencer
             label="refers to"
             documentReferences={refersTo}
             onDocumentReferencesChange={setRefersTo}
@@ -109,7 +109,7 @@ export default function MaterialForm({
           />
         </Grid>
         <Grid item xs={6}>
-          <DocumentsReferencer 
+          <DocumentsReferencer
             label="generalizes"
             documentReferences={generalizes}
             onDocumentReferencesChange={setGeneralizes}

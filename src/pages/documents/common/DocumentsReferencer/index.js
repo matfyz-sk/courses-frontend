@@ -98,9 +98,7 @@ function DocumentReferencer({
       })
       .then(data => {
         const fsObjects = data[0].content
-        setFsObjects(
-          fsObjects.filter(doc => !doc.isDeleted)
-        )
+        setFsObjects(fsObjects.filter(doc => !doc.isDeleted))
         setLoading(false)
         // props.setFolder(data[0])
         // props.fetchFolder(folderId)
@@ -111,9 +109,7 @@ function DocumentReferencer({
   const addToDocuments = async document => {
     const documentRefId = await getReferenceOfDocument(document, courseInstance)
     onDocumentReferencesChange([
-      ...documentReferences.filter(
-        ref => ref['@id'] !== documentRefId
-      ),
+      ...documentReferences.filter(ref => ref['@id'] !== documentRefId),
       { '@id': documentRefId, hasDocument: [document], courseInstance },
     ])
     setDocuments([
@@ -198,4 +194,6 @@ const mapStateToProps = ({ courseInstanceReducer }) => {
   }
 }
 
-export default withRouter(connect(mapStateToProps, { setFolder })(DocumentReferencer))
+export default withRouter(
+  connect(mapStateToProps, { setFolder })(DocumentReferencer)
+)

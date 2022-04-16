@@ -2,12 +2,7 @@ import React from 'react'
 import { CKEditor } from '@ckeditor/ckeditor5-react'
 import * as CKSUPEREDITOR from 'courses-wysiwyg-superbuild'
 
-function CustomEditor({
-  content,
-  setContent,
-  mimeType,
-  isReadOnly
-}) {
+function CustomEditor({ content, setContent, mimeType, isReadOnly }) {
   // TODO clean code
   // TODO upgrade superbuild dep.
   return (
@@ -57,7 +52,7 @@ function CustomEditor({
               ],
             },
             mediaEmbed: {
-              previewsInData:true
+              previewsInData: true,
             },
           }}
           onReady={editor => {
@@ -107,7 +102,7 @@ function CustomEditor({
               disallow: [
                 /* HTML features to disallow */
               ],
-            }
+            },
           }}
           onReady={editor => {
             window.editor2 = editor
