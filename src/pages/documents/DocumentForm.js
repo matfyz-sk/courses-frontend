@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   MenuItem,
   Select,
@@ -11,6 +10,7 @@ import {
   ThemeProvider,
   InputLabel,
   Input,
+  IconButton,
 } from '@material-ui/core'
 import React, { useState, useEffect, useCallback } from 'react'
 import { withRouter } from 'react-router'
@@ -20,12 +20,13 @@ import {
   axiosGetEntities,
   getResponseBody,
   fileToBase64,
+  getShortID,
 } from 'helperFunctions'
 import { Alert, Form, Label } from 'reactstrap'
 import { HiDownload } from 'react-icons/hi'
 import CustomEditor from './wysiwyg/ckeditor'
 import { DocumentEnums } from './enums/document-enums'
-import { setCurrentDocumentsOfCourseInstance } from '../../redux/actions'
+import { fetchFolder } from '../../redux/actions'
 import * as ROUTES from '../../constants/routes'
 import { redirect } from '../../constants/redirect'
 import Page404 from '../errors/Page404'
@@ -33,41 +34,45 @@ import { isValidHttpUrl } from '../../functions/validators'
 import editDocument from './functions/documentCreation'
 import downloadBase64File from './functions/downloadBase64File'
 import MaterialForm from './MaterialForm'
-import { customTheme, useStyles } from './styles/styles'
+import { customTheme } from './styles/styles'
+import { MdDelete, MdHistory } from 'react-icons/md'
 
 
-function DocumentForm(props) {
+function DocumentForm({
+  courseInstance,
+  creating,
+  folder,
+  history,
+  match,
+  user,
+  fetchFolder,
+}) {
   // FIXME large base64 file uploads not working
   // FIXME only owner can do or see
-  // TODO change the role of courseInstance
-
-  const style = useStyles()
 
   const [status, setStatus] = useState(200)
 
-  const [courseId, setCourseId] = useState(props.match.params.course_id)
+  const courseId = match.params.course_id
 
   // when creating a brand new document
-  const [entityName, setEntityName] = useState(props.entityName || '')
+  const [entityName, setEntityName] = useState(creating || '')
 
   // both used when document already exists
-  const [id, setId] = useState(props.match.params.document_id || '')
+  const documentId = match.params.document_id || ''
   const [document, setDocument] = useState({})
-  const isInEditingMode = useCallback(() => id !== '', [id])
+  const isInEditingMode = documentId !== ''
 
   const [loadingMaterialRelations, setLoadingMaterialRelations] = useState(
     false
   )
-  const [loadingCourseInstance, setLoadingCourseInstance] = useState(
-    props.courseInstance == null
-  )
-  const [loadingDocument, setLoadingDocument] = useState(isInEditingMode())
+  const [loadingDocument, setLoadingDocument] = useState(isInEditingMode)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   // shared among all document subclasses
   const [name, setName] = useState('')
 
-  const [isMaterial, setIsMaterial] = useState(false) // TODO setIsMaterial
+  const [isMaterial, setIsMaterial] = useState(false) // TODO resolve whether doc is material
   const [covers, setCovers] = useState([])
   const [mentions, setMentions] = useState([])
   const [requires, setRequires] = useState([])
@@ -78,7 +83,6 @@ function DocumentForm(props) {
 
   // document subclass specific
   const [fileLoaded, setFileLoaded] = useState(false)
-  const [file, setFile] = useState(null)
   const [filePath, setFilePath] = useState('')
   const [filename, setFilename] = useState('')
   const [uri, setUri] = useState('')
@@ -86,10 +90,10 @@ function DocumentForm(props) {
   const [mimeType, setMimeType] = useState('text/html')
 
   const fetchDocument = useCallback(() => {
-    if (!isInEditingMode()) return
+    if (!isInEditingMode) return
 
     setLoading(true)
-    let entityUrl = `document/${id}?_join=payload`
+    let entityUrl = `document/${documentId}?_join=payload`
     axiosGetEntities(entityUrl)
       .then(response => {
         if (response.failed) {
@@ -101,18 +105,19 @@ function DocumentForm(props) {
       })
       .then(data => {
         const responseDocument = data[0]
+        console.log({ responseDocument })
         if (
           responseDocument.isDeleted ||
-          responseDocument.nextVersion.length !== 0
+          responseDocument.nextVersion.length !== 0 // TODO not valid
         ) {
-          // TODO not intended in the past course instances
-          props.history.push(
+          history.push(
             redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])
           )
           return
         }
         setDocument(responseDocument)
         setName(responseDocument.name)
+        fetchFolder(getShortID(responseDocument.parent[0]['@id']))
         switch (responseDocument['@type']) {
           case DocumentEnums.internalDocument.id:
             setEntityName(DocumentEnums.internalDocument.entityName)
@@ -136,20 +141,15 @@ function DocumentForm(props) {
       })
   }, [courseId, isInEditingMode])
 
-  useEffect(() => {}, [props.location.state])
-
   useEffect(() => {
     fetchDocument()
   }, [fetchDocument])
 
   useEffect(() => {
-    setLoadingCourseInstance(props.courseInstance == null)
-  }, [props.courseInstance])
-
-  useEffect(() => {
-    if (!loadingCourseInstance && !loadingDocument && !loadingMaterialRelations)
+    if (!loadingDocument && !loadingMaterialRelations && !folder.loading) {
       setLoading(false)
-  }, [loadingCourseInstance, loadingDocument, loadingMaterialRelations])
+    }
+  }, [loadingDocument, loadingMaterialRelations, folder.loading])
 
   const handleEdit = async e => {
     e.preventDefault()
@@ -157,41 +157,65 @@ function DocumentForm(props) {
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
-    console.log({ props })
-    const editProps = {
+    setSaving(true)
+    var editProps = {
       courseId,
       entityName,
       setStatus,
-      isInEditingMode: isInEditingMode(),
-      ...props,
+      isInEditingMode,
+      courseInstance,
+      folder,
+      user,
     }
-    if (isMaterial) {
-      console.log('implement')
-    }
+    // if (isMaterial) {
+    //   console.log('implement')
+    //   editProps = {
+    //     ...editProps,
+    //     materialAttrs: {
+    //       covers,
+    //       mentions,
+    //       requires,
+    //       assumes,
+    //       isAlternativeTo,
+    //       refersTo,
+    //       generalizes,
+    //     }
+    //   }
+    // }
     const newVersionId = await editDocument(
-      { name, mimeType, uri, filename, payload: [{ content }] },
+      {
+        name,
+        mimeType,
+        uri,
+        filename,
+        payload: [{ content }],
+        parent: folder.id,
+      },
       document,
       editProps
     )
     if (!newVersionId) {
       setStatus(500)
+      setSaving(false)
       return
     }
-    props.history.push(
-      redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])
+    history.push(
+      redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
+        { key: 'course_id', value: courseId },
+        { key: 'folder_id', value: getShortID(folder.id) },
+      ])
     )
   }
 
   const onChangeFile = e => {
     fileToBase64(e.target.files[0]).then(base64Content => {
       setContent(base64Content)
-      console.log({ base64Content })
       setFileLoaded(true)
+      console.log({ loaded: true })
     })
     setMimeType(e.target.files[0].type)
     setFilename(e.target.files[0].name)
     setFilePath(e.target.value)
-    console.log({ filename: e.target.files[0].name })
   }
 
   const onDownloadFile = async e => {
@@ -229,37 +253,92 @@ function DocumentForm(props) {
   return (
     <ThemeProvider theme={customTheme}>
       <Form
-        style={{ maxWidth: '1000px', margin: '20px auto' }}
+        style={{ maxWidth: '1100px', margin: '20px auto', padding: 10 }}
         onSubmit={handleEdit}
       >
-        <h1 style={{ textAlign: 'center', marginBottom: '1em' }}>
-          Document {isInEditingMode() ? 'editing' : 'creation'}
-        </h1>
-        <TextField
-          error={name.length === 0}
-          id="name-textfield"
-          label="Name"
-          type="text"
-          style={{ width: '100%' }}
-          value={name}
-          onChange={e => setName(e.target.value)}
-          helperText={name.length === 0 ? 'Name is required' : ''}
-          variant="outlined"
-        />
-        <br />
-        <br />
-        {entityName === DocumentEnums.externalDocument.entityName && (
+        <div>
+          <h2
+            style={{
+              textAlign: 'center',
+              marginBottom: !isInEditingMode ? '1em' : '0.5em',
+            }}
+          >
+            Document {isInEditingMode ? 'editing' : 'creation'}
+          </h2>
+          {isInEditingMode && (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginBottom: '1em',
+              }}
+            >
+              <IconButton
+                aria-label="history"
+                style={{
+                  outline: 'none',
+                  color: customTheme.palette.primary.main,
+                }}
+                onClick={e =>
+                  history.push(
+                    redirect(ROUTES.DOCUMENT_HISTORY, [
+                      {
+                        key: 'course_id',
+                        value: courseId,
+                      },
+                      {
+                        key: 'document_id',
+                        value: getShortID(document['@id']),
+                      },
+                    ])
+                  )
+                }
+              >
+                <MdHistory />
+              </IconButton>
+              <IconButton
+                aria-label="delete"
+                style={{
+                  outline: 'none',
+                  color: customTheme.palette.primary.main,
+                }}
+                // TODO onClick
+              >
+                <MdDelete />
+              </IconButton>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
           <TextField
-            error={!isValidHttpUrl(uri)}
-            id="url-textfield"
-            label="Url"
-            type="url"
-            style={{ width: '100%' }}
-            value={uri}
-            onChange={e => setUri(e.target.value)}
-            helperText={!isValidHttpUrl(uri) ? 'Valid url is required' : ''}
+            error={name.length === 0}
+            id="name-textfield"
+            label="Name"
+            type="text"
+            fullWidth
+            value={name}
+            onChange={e => setName(e.target.value)}
+            helperText={name.length === 0 ? 'Name is required' : ''}
             variant="outlined"
           />
+        </div>
+        <br />
+        {entityName === DocumentEnums.externalDocument.entityName && (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <TextField
+              error={!isValidHttpUrl(uri)}
+              id="url-textfield"
+              label="Url"
+              type="url"
+              fullWidth
+              value={uri}
+              onChange={e => setUri(e.target.value)}
+              helperText={!isValidHttpUrl(uri) ? 'Valid url is required' : ''}
+              variant="outlined"
+            />
+          </div>
         )}
         {entityName === DocumentEnums.file.entityName && (
           <>
@@ -293,15 +372,20 @@ function DocumentForm(props) {
               </FormHelperText>
             ) : (
               <Label style={{ marginLeft: '1.5em' }} for="file-download">
-                <Link
-                  id="file-download"
-                  to={{ textDecoration: 'none' }}
-                  onClick={onDownloadFile}
-                >
-                  <HiDownload
-                    style={{ color: customTheme.palette.primary.main }}
-                    className={style.icons}
-                  />
+                <Link id="file-download" to={{}} onClick={onDownloadFile}>
+                  {mimeType.startsWith('image') ? (
+                    <img
+                      style={{ display: 'inline', maxWidth: '150px' }}
+                      src={content}
+                    />
+                  ) : (
+                    <HiDownload
+                      style={{
+                        fontSize: '400%',
+                        color: customTheme.palette.primary.main,
+                      }}
+                    />
+                  )}
                 </Link>
               </Label>
             )}
@@ -310,7 +394,7 @@ function DocumentForm(props) {
 
         {entityName === DocumentEnums.internalDocument.entityName && (
           <>
-            {!isInEditingMode() && (
+            {!isInEditingMode && (
               <>
                 <FormControl variant="outlined" style={{ minWidth: 250 }}>
                   <InputLabel id="format-select-label">Format</InputLabel>
@@ -347,7 +431,6 @@ function DocumentForm(props) {
             )}
           </>
         )}
-        <br />
         <br />
         <FormControlLabel
           label="Is material"
@@ -387,7 +470,7 @@ function DocumentForm(props) {
             There has been a server error, try again please!
           </Alert>
         )}
-        <Box
+        <div
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -400,10 +483,11 @@ function DocumentForm(props) {
             type="submit"
             color="primary"
             variant="contained"
+            disabled={saving}
           >
             Save document
           </Button>
-        </Box>
+        </div>
         {/* <pre>{JSON.stringify(document, null, 2)}</pre> */}
       </Form>
     </ThemeProvider>
@@ -420,7 +504,7 @@ const mapStateToProps = state => {
 }
 
 export default withRouter(
-  connect(mapStateToProps, { setCurrentDocumentsOfCourseInstance })(
+  connect(mapStateToProps, { fetchFolder })(
     DocumentForm
   )
 )
