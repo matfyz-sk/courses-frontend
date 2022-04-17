@@ -7,11 +7,12 @@ import {
   getResponseBody,
   getShortType,
   timestampToString2,
+  getShortID
 } from 'helperFunctions'
 import { redirect } from '../../constants/redirect'
 import * as ROUTES from '../../constants/routes'
 import { Link } from 'react-router-dom'
-import { setCurrentDocumentsOfCourseInstance } from '../../redux/actions'
+import { fetchFolder } from '../../redux/actions'
 import ReactHtmlParser from 'react-html-parser'
 import diff from 'node-htmldiff'
 import { DocumentEnums } from './enums/document-enums'
@@ -160,7 +161,8 @@ function DocumentHistory(props) {
   const [status, setStatus] = useState(200)
   const [entityName, setEntityName] = useState('')
   const [versions, setVersions] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [loadingVersions, setLoadingVersions] = useState(true)
   const [pickedVersionA, setPickedVersionA] = useState({})
   const [pickedVersionB, setPickedVersionB] = useState({})
 
@@ -209,7 +211,7 @@ function DocumentHistory(props) {
   }
 
   useEffect(() => {
-    setLoading(true)
+    setLoadingVersions(true)
     const entitiesUrl = `document/${newestVersionId}?_join=payload&_chain=previousVersion`
     // TODO load all the relevant materials? ... could potentially be slow
     axiosGetEntities(entitiesUrl).then(response => {
@@ -220,12 +222,14 @@ function DocumentHistory(props) {
         return
       }
       const data = getResponseBody(response)
+      // FIXME COURSE_ID HAS TO MATCH!
       if (!isNewestVersion(data[0])) {
         props.history.push(
           redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])
         )
         return
       }
+      props.fetchFolder(getShortID(data[0].parent[0]["@id"]))
       setEntityName(getShortType(data[0]['@type']))
       const paddedData = [
         ...data,
@@ -234,9 +238,15 @@ function DocumentHistory(props) {
       setPickedVersionA(paddedData[0])
       setPickedVersionB(paddedData[1]) // ?
       setVersions(paddedData)
-      setLoading(false)
+      setLoadingVersions(false)
     })
   }, [newestVersionId, courseId])
+
+  useEffect(() => {
+    if (!loadingVersions && !props.folder.loading) {
+      setLoading(false)
+    }
+  }, [loadingVersions, props.folder.loading])
 
   // useEffect(() => {
   //   // TODO loading
@@ -257,6 +267,7 @@ function DocumentHistory(props) {
       isInEditingMode: true,
       restoredFrom: versionToRestore.createdAt,
       courseId: props.match.params.course_id,
+      folder: props.folder,
       ...props,
     }
     // if (isMaterial) {
@@ -296,7 +307,7 @@ function DocumentHistory(props) {
 
     var before = getPayloadContent(pickedVersionB)
     var after = getPayloadContent(pickedVersionA)
-    if (pickedVersionA.mimeType === 'text/markdown') {
+    if (pickedVersionA.mimeType === 'text/markdown') { // TODO use https://github.com/ckeditor/ckeditor5/blob/b203ae6f00dcf65467b1182a7b255b9140dc90d7/packages/ckeditor5-markdown-gfm/src/markdown2html/markdown2html.js#L28
       return diff(marked.parse(before), marked.parse(after), 'revisions-diff')
     }
     return diff(before, after, 'revisions-diff')
@@ -488,15 +499,16 @@ function DocumentHistory(props) {
   )
 }
 
-const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
+const mapStateToProps = ({ authReducer, courseInstanceReducer, folderReducer }) => {
   return {
     user: authReducer.user,
     courseInstance: courseInstanceReducer.courseInstance,
+    folder: {...folderReducer }
   }
 }
 
 export default withRouter(
-  connect(mapStateToProps, { setCurrentDocumentsOfCourseInstance })(
+  connect(mapStateToProps, { fetchFolder })(
     DocumentHistory
   )
 )

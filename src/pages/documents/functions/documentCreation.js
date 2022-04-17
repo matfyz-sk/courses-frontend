@@ -28,7 +28,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     ...properties
   } = oldDocument
 
-  const { name, mimeType, uri, filename, parent } = newDocument
+  const { name, mimeType, uri, filename } = newDocument
   if (newDocument.payload) {
     var content = newDocument.payload[0].content
   }
@@ -43,14 +43,6 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
         content: `""${content}""`, // needed for sparql/rdf
       }
     }
-    const response = await axiosAddEntity(payload, 'payload')
-    if (response.failed) {
-      console.error('payload', response.error)
-      props.setStatus(response.response ? response.response.status : 500)
-      return
-    }
-    var payloadId = getIRIFromAddResponse(response)
-    console.log({ payloadId })
   }
 
   let newVersion = {
@@ -60,45 +52,40 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     // refersTo: props.materialAttrs.refersTo.map(ref => ref["@id"]),
     _type: props.entityName, // TODO should be multiple
     name,
-    parent,
+    parent: props.folder.id,
     isDeleted: false,
     restoredFrom: props.restoredFrom,
     author: [props.user.fullURI],
     owner: props.user.fullURI,
     courseInstance: [props.courseInstance['@id']], // TODO push to existing ones
   }
+
   // add addtional params
+  var subclassParams = {}
   switch (props.entityName) {
     case DocumentEnums.internalDocument.entityName:
-      const internalDocumentParams = {
-        payload: payloadId,
+      subclassParams = { 
+        payload,
         mimeType,
       }
-      newVersion = {
-        ...newVersion,
-        ...internalDocumentParams,
-      }
-      break
+      break;
     case DocumentEnums.externalDocument.entityName:
-      const externalDocumentParams = { uri }
-      newVersion = {
-        ...newVersion,
-        ...externalDocumentParams,
-      }
+      subclassParams = { uri }
       break
     case DocumentEnums.file.entityName:
-      const fileParams = {
-        payload: payloadId,
+      subclassParams = {
+        payload,
         filename,
-        mimeType,
-      }
-      newVersion = {
-        ...newVersion,
-        ...fileParams,
+        mimeType
       }
       break
     default:
       break
+  }
+  
+  newVersion = {
+    ...newVersion,
+    ...subclassParams,
   }
 
   if (props.isInEditingMode) {
@@ -220,7 +207,6 @@ const replaceInParentFolder = async (newVersionId, oldVersionId, props) => {
 }
 
 const editDocument = async (newDocument, oldDocument, props) => {
-  // TODO so await or mix??
   const data = await createNewVersionData(newDocument, oldDocument, props)
   if (!data) {
     console.error('Editing was unsuccessful!')

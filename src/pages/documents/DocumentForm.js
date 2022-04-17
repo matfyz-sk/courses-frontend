@@ -188,7 +188,6 @@ function DocumentForm({
         uri,
         filename,
         payload: [{ content }],
-        parent: folder.id,
       },
       document,
       editProps
