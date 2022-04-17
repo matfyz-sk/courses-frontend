@@ -7,7 +7,7 @@ import {
   getResponseBody,
   getShortType,
   timestampToString2,
-  getShortID
+  getShortID,
 } from 'helperFunctions'
 import { redirect } from '../../constants/redirect'
 import * as ROUTES from '../../constants/routes'
@@ -26,18 +26,18 @@ import { HiDownload } from 'react-icons/hi'
 import downloadBase64File from './functions/downloadBase64File'
 import { customTheme } from './styles/styles'
 
-const useStyles = makeStyles(({
+const useStyles = makeStyles({
   sidebar: {
     overflowY: 'scroll',
     // position: "fixed",
     // left: 0,
     // right: 0,
-  
+
     display: 'table-cell',
     width: '20%',
     verticalAlign: 'top',
     borderLeft: '1px solid',
-    height: '100%'
+    height: '100%',
   },
   sidebarRow: {
     // borderBottom: '3px solid',
@@ -47,22 +47,22 @@ const useStyles = makeStyles(({
   mainPage: {
     display: 'table',
     width: '100%',
-  },  
+  },
   versionContentContainer: {
     overflowY: 'scroll',
     // position: "fixed",
     // left: 0,
     // right: 0,
-  
+
     display: 'table-cell',
     width: '80%',
     verticalAlign: 'top',
-  },  
+  },
   versionContent: {
     width: '80%',
     margin: '20px auto',
   },
-}))
+})
 
 const isNewestVersion = version => {
   return !version.isDeleted && version.nextVersion.length === 0
@@ -98,7 +98,10 @@ function RevisionsSidebar({
             {timestampToString2(v.createdAt)}
             {selectedAfter < i && (
               <Radio
-                style={{ marginLeft: '21px', color: customTheme.palette.primary.light }}
+                style={{
+                  marginLeft: '21px',
+                  color: customTheme.palette.primary.light,
+                }}
                 checked={selectedBefore === i}
                 onChange={handleChangeB}
                 value={i}
@@ -114,7 +117,10 @@ function RevisionsSidebar({
               <Radio
                 style={
                   i <= selectedAfter
-                    ? { marginLeft: '63px', color: customTheme.palette.primary.light }
+                    ? {
+                        marginLeft: '63px',
+                        color: customTheme.palette.primary.light,
+                      }
                     : { color: customTheme.palette.primary.light }
                 }
                 checked={selectedAfter === i}
@@ -152,12 +158,18 @@ function RevisionsSidebar({
   )
 }
 
-function DocumentHistory(props) {
+function DocumentHistory({
+  match,
+  history,
+  fetchFolder,
+  folder,
+  user,
+  courseInstance,
+}) {
   const style = useStyles()
-  const [newestVersionId, setNewestVersionId] = useState(
-    props.match.params.document_id
-  )
-  const [courseId, setCourseId] = useState(props.match.params.course_id)
+  const newestVersionId = match.params.document_id
+  const courseId = match.params.course_id
+
   const [status, setStatus] = useState(200)
   const [entityName, setEntityName] = useState('')
   const [versions, setVersions] = useState([])
@@ -224,12 +236,12 @@ function DocumentHistory(props) {
       const data = getResponseBody(response)
       // FIXME COURSE_ID HAS TO MATCH!
       if (!isNewestVersion(data[0])) {
-        props.history.push(
+        history.push(
           redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])
         )
         return
       }
-      props.fetchFolder(getShortID(data[0].parent[0]["@id"]))
+      fetchFolder(getShortID(data[0].parent[0]['@id']))
       setEntityName(getShortType(data[0]['@type']))
       const paddedData = [
         ...data,
@@ -243,10 +255,10 @@ function DocumentHistory(props) {
   }, [newestVersionId, courseId])
 
   useEffect(() => {
-    if (!loadingVersions && !props.folder.loading) {
+    if (!loadingVersions && !folder.loading) {
       setLoading(false)
     }
-  }, [loadingVersions, props.folder.loading])
+  }, [loadingVersions, folder.loading])
 
   // useEffect(() => {
   //   // TODO loading
@@ -262,13 +274,14 @@ function DocumentHistory(props) {
   const handleRestore = async (e, versionToRestore) => {
     e.preventDefault()
     const editProps = {
+      courseId,
       entityName,
       setStatus,
       isInEditingMode: true,
       restoredFrom: versionToRestore.createdAt,
-      courseId: props.match.params.course_id,
-      folder: props.folder,
-      ...props,
+      courseInstance,
+      folder,
+      user,
     }
     // if (isMaterial) {
     //   console.log("implement")
@@ -291,7 +304,7 @@ function DocumentHistory(props) {
       editProps
     )
     if (!newVersionId) return
-    props.history.push(
+    history.push(
       redirect(ROUTES.EDIT_DOCUMENT, [
         { key: 'course_id', value: courseId },
         { key: 'document_id', value: newVersionId },
@@ -307,7 +320,8 @@ function DocumentHistory(props) {
 
     var before = getPayloadContent(pickedVersionB)
     var after = getPayloadContent(pickedVersionA)
-    if (pickedVersionA.mimeType === 'text/markdown') { // TODO use https://github.com/ckeditor/ckeditor5/blob/b203ae6f00dcf65467b1182a7b255b9140dc90d7/packages/ckeditor5-markdown-gfm/src/markdown2html/markdown2html.js#L28
+    if (pickedVersionA.mimeType === 'text/markdown') {
+      // TODO use https://github.com/ckeditor/ckeditor5/blob/b203ae6f00dcf65467b1182a7b255b9140dc90d7/packages/ckeditor5-markdown-gfm/src/markdown2html/markdown2html.js#L28
       return diff(marked.parse(before), marked.parse(after), 'revisions-diff')
     }
     return diff(before, after, 'revisions-diff')
@@ -499,16 +513,18 @@ function DocumentHistory(props) {
   )
 }
 
-const mapStateToProps = ({ authReducer, courseInstanceReducer, folderReducer }) => {
+const mapStateToProps = ({
+  authReducer,
+  courseInstanceReducer,
+  folderReducer,
+}) => {
   return {
     user: authReducer.user,
     courseInstance: courseInstanceReducer.courseInstance,
-    folder: {...folderReducer }
+    folder: { ...folderReducer },
   }
 }
 
 export default withRouter(
-  connect(mapStateToProps, { fetchFolder })(
-    DocumentHistory
-  )
+  connect(mapStateToProps, { fetchFolder })(DocumentHistory)
 )
