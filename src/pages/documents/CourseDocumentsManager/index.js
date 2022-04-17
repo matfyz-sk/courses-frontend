@@ -32,24 +32,12 @@ import FolderDialog from './FolderDialog'
 import CreateDocumentMenu from './CreateDocumentMenu'
 import { MdDelete } from 'react-icons/md'
 import getDeletedDocuments from '../functions/getDeletedDocuments'
+import { useMediaQuery } from '@material-ui/core'
 
 function CourseDocumentManager(props) {
   const { courseInstance, folder, match, showingDeleted, setFolder, history } = props
   const [uglyFolderHack, setUglyFolderHack] = useState(0)
-
-  const [isMobile, setIsMobile] = useState(false)
- 
-  const handleResize = () => {
-    if (window.innerWidth < 720) {
-        setIsMobile(true)
-    } else {
-        setIsMobile(false)
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener("resize", handleResize)
-  })
+  const isMobile = useMediaQuery('(max-width:600px)');
 
   const folderId = match.params.folder_id
   const courseId = match.params.course_id

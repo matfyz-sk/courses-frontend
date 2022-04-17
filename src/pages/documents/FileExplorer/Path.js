@@ -15,8 +15,8 @@ function Path(props) {
   const classes = useStyles()
   const { fsPath, onPathFolderClickHandler } = props
   return (
-    <div role="presentation">
-      <Breadcrumbs aria-label="breadcrumb">
+    <div>
+      <Breadcrumbs style={{ display: "block"}} aria-label="breadcrumb">
         {fsPath.map((folder, i) =>
           i !== fsPath.length - 1 ? (
             <Link

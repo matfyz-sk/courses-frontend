@@ -100,6 +100,7 @@ const headCells = [
     label: 'Last changed',
   },
   {
+    //TODO remove
     id: 'actionsButton',
     disableSort: true,
     numeric: true,
@@ -115,7 +116,7 @@ function EnhancedTableHead(props) {
   }
 
   return (
-    <TableHead>
+    <TableHead style={{ position: 'static' }}>
       <TableRow>
         {headCells.slice(...(isReferencer ? [0, -1] : [0])).map(headCell => (
           <TableCell
