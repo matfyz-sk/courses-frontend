@@ -50,7 +50,6 @@ function DocumentsNavigation({ match, courseInstance, folder, fetchFolder }) {
   // }
   return (
     <Switch>
-      //TODO refactor showingDeleted?
       <Route exact path={ROUTES.DOCUMENTS}>
         <Redirect
           to={redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
@@ -67,7 +66,7 @@ function DocumentsNavigation({ match, courseInstance, folder, fetchFolder }) {
         path={ROUTES.DOCUMENTS_IN_FOLDER}
         render={() => <CourseDocumentManager showingDeleted={false} />}
       />
-      {/* <Route exact path={ROUTES.DELETED_DOCUMENTS} render={() => <CourseDocumentManager showingDeleted={true}/>}/> */}
+      <Route exact path={ROUTES.DELETED_DOCUMENTS} render={() => <CourseDocumentManager showingDeleted={true}/>}/>
       <Route
         exact
         path={ROUTES.EDIT_DOCUMENT}

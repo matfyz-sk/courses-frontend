@@ -31,6 +31,7 @@ import { customTheme } from '../styles/styles'
 import FolderDialog from './FolderDialog'
 import CreateDocumentMenu from './CreateDocumentMenu'
 import { MdDelete } from 'react-icons/md'
+import getDeletedDocuments from '../functions/getDeletedDocuments'
 
 function CourseDocumentManager(props) {
   const { courseInstance, folder, match, showingDeleted, setFolder, history } = props
@@ -67,6 +68,15 @@ function CourseDocumentManager(props) {
   useEffect(() => {
     setLoading(true)
     setSearch('')
+    setFsObjects([])
+    if (showingDeleted) {
+      getDeletedDocuments(getShortID(courseInstance.fileExplorerRoot[0]?.["@id"]))
+        .then(deleted => {
+          setLoading(false)
+          setFsObjects(deleted)
+        })
+      return
+    }
 
     const entitiesUrl = `folder/${folderId}?courseInstance=${courseId}&_chain=parent&_join=content`
 
@@ -92,6 +102,7 @@ function CourseDocumentManager(props) {
       })
   }, [courseId, folderId, showingDeleted, uglyFolderHack])
 
+  // TODO to retire...
   const invertDeletionFlag = fsObject => {
     const url = `${getShortType(fsObject['@type'])}/${getShortID(
       fsObject['@id']
