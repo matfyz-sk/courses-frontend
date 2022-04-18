@@ -20,29 +20,55 @@ import editDocument from './functions/documentCreation'
 import './styles/diff.css'
 import './styles/mdStyling.css'
 import { marked } from 'marked'
-import { Radio, ThemeProvider, makeStyles } from '@material-ui/core'
+import { Radio, ThemeProvider, makeStyles, useMediaQuery, IconButton } from '@material-ui/core'
 import { MdChevronRight } from 'react-icons/md'
 import { HiDownload } from 'react-icons/hi'
 import downloadBase64File from './functions/downloadBase64File'
 import { customTheme } from './styles/styles'
 
+function TextComparator({textA, textB})  {
+  
+  if (textB.length === 0 || textA === textB) {
+    return <p>{textA}</p>
+  }
+
+  return (
+    <p>
+      <del
+        style={{ wordBreak: 'break-all', whiteSpace: 'normal' }}
+        className="revisions-diff"
+      >
+        {textB}
+      </del>
+      <MdChevronRight
+        size={28}
+        style={{
+          color: 'grey',
+          margin: '0 1em 0 1em',
+        }}
+      />
+      <ins
+        style={{ wordBreak: 'break-all', whiteSpace: 'normal' }}
+        className="revisions-diff"
+      >
+        {textA}
+      </ins>
+    </p>
+  )
+}
+
 const useStyles = makeStyles({
   sidebar: {
     overflowY: 'scroll',
-    // position: "fixed",
-    // left: 0,
-    // right: 0,
-
     display: 'table-cell',
     width: '20%',
     verticalAlign: 'top',
-    borderLeft: '1px solid',
-    height: '100%',
+    borderLeft: '2px solid lightgrey',
+    height: '100vh',
   },
   sidebarRow: {
-    // borderBottom: '3px solid',
     borderWidth: '0 0 1px',
-    padding: '5px',
+    padding: '10px',
   },
   mainPage: {
     display: 'table',
@@ -50,10 +76,6 @@ const useStyles = makeStyles({
   },
   versionContentContainer: {
     overflowY: 'scroll',
-    // position: "fixed",
-    // left: 0,
-    // right: 0,
-
     display: 'table-cell',
     width: '80%',
     verticalAlign: 'top',
@@ -65,26 +87,41 @@ const useStyles = makeStyles({
 })
 
 const isNewestVersion = version => {
+  // FIXME 
   return !version.isDeleted && version.nextVersion.length === 0
 }
+const getPayloadContent = version => version.payload[0].content
+const hasEmptyContent = version => version.payload[0].content.length === 0
 
 function RevisionsSidebar({
   versions,
   setPickedVersionA,
   setPickedVersionB,
+  selectedAfter,
+  selectedBefore,
+  setSelectedAfter,
+  setSelectedBefore,
   handleRestore,
+  setShowSidebar,
+
 }) {
   const style = useStyles()
-  const [selectedBefore, setSelectedBefore] = useState(1)
-  const [selectedAfter, setSelectedAfter] = useState(0)
+  const isMobile = useMediaQuery('(max-width:600px)');
+
 
   const handleChangeA = e => {
+    if (isMobile) {
+      setShowSidebar(false)
+    }
     const vIndex = parseInt(e.target.value)
     setPickedVersionA(versions[vIndex])
     setSelectedAfter(vIndex)
   }
 
   const handleChangeB = e => {
+    if (isMobile) {
+      setShowSidebar(false)
+    }
     const vIndex = parseInt(e.target.value)
     setPickedVersionB(versions[vIndex])
     setSelectedBefore(vIndex)
@@ -95,33 +132,31 @@ function RevisionsSidebar({
       {versions.map((v, i) => {
         return (
           <ListGroupItem className={style.sidebarRow} key={i}>
-            {timestampToString2(v.createdAt)}
-            {selectedAfter < i && (
-              <Radio
-                style={{
-                  marginLeft: '21px',
-                  color: customTheme.palette.primary.light,
-                }}
-                checked={selectedBefore === i}
-                onChange={handleChangeB}
-                value={i}
-                name="before-revisions"
-                inputProps={{
-                  'aria-label': `before from ${timestampToString2(
-                    v.createdAt
-                  )}`,
-                }}
-              />
-            )}
-            {i < selectedBefore && (
+            <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}  }>
+              {timestampToString2(v.createdAt)}
+              
+                <Radio
+                  style={{
+                    visibility: selectedAfter < i ? 'visible' : 'hidden',
+                    marginLeft: '21px',
+                    marginLeft: "auto",
+                    color: customTheme.palette.primary.light,
+                  }}
+                  checked={selectedBefore === i}
+                  onChange={handleChangeB}
+                  value={i}
+                  name="before-revisions"
+                  inputProps={{
+                    'aria-label': `before from ${timestampToString2(
+                      v.createdAt
+                    )}`,
+                  }}
+                />
               <Radio
                 style={
-                  i <= selectedAfter
-                    ? {
-                        marginLeft: '63px',
-                        color: customTheme.palette.primary.light,
-                      }
-                    : { color: customTheme.palette.primary.light }
+                  {
+                    visibility: i < selectedBefore ? "visible" : 'hidden',
+                    color: customTheme.palette.primary.light }
                 }
                 checked={selectedAfter === i}
                 onChange={handleChangeA}
@@ -133,23 +168,19 @@ function RevisionsSidebar({
                   )}`,
                 }}
               />
-            )}
-
-            {i === 0 && <p>Current version</p>}
-
+            </div>
+            {i === 0 && <p style={{color: "grey", marginBottom: 0}}>Current version</p>}
             {v.restoredFrom && (
-              <p>Restored from {timestampToString2(v.restoredFrom)}</p>
+              <p style={{color: "grey", marginBottom: 0}}>Restored from {timestampToString2(v.restoredFrom)}</p>
             )}
             {i > 0 && i < versions.length - 1 && (
-              <p>
-                <a
-                  style={{ color: customTheme.palette.primary.light }}
-                  href="#"
-                  onClick={e => handleRestore(e, v)}
-                >
-                  restore
-                </a>
-              </p>
+              <a
+                style={{ color: customTheme.palette.primary.light }}
+                href="#"
+                onClick={e => handleRestore(e, v)}
+              >
+                restore
+              </a>
             )}
           </ListGroupItem>
         )
@@ -169,6 +200,8 @@ function DocumentHistory({
   const style = useStyles()
   const newestVersionId = match.params.document_id
   const courseId = match.params.course_id
+  const isMobile = useMediaQuery('(max-width:600px)');
+  const [showSidebar, setShowSidebar] = useState(false)
 
   const [status, setStatus] = useState(200)
   const [entityName, setEntityName] = useState('')
@@ -177,10 +210,10 @@ function DocumentHistory({
   const [loadingVersions, setLoadingVersions] = useState(true)
   const [pickedVersionA, setPickedVersionA] = useState({})
   const [pickedVersionB, setPickedVersionB] = useState({})
+  const [selectedBefore, setSelectedBefore] = useState(1)
+  const [selectedAfter, setSelectedAfter] = useState(0)
 
   const latestVersion = () => versions[0]
-  const getPayloadContent = version => version.payload[0].content
-  const hasEmptyContent = version => version.payload[0].content.length === 0
 
   const createOriginDummyVersion = firstVersion => {
     var dummy = {
@@ -223,9 +256,9 @@ function DocumentHistory({
   }
 
   useEffect(() => {
+    setLoading(true)
     setLoadingVersions(true)
     const entitiesUrl = `document/${newestVersionId}?_join=payload&_chain=previousVersion`
-    // TODO load all the relevant materials? ... could potentially be slow
     axiosGetEntities(entitiesUrl).then(response => {
       if (response.failed) {
         console.error("There was a problem getting this document's history")
@@ -248,7 +281,7 @@ function DocumentHistory({
         createOriginDummyVersion(data[data.length - 1]),
       ]
       setPickedVersionA(paddedData[0])
-      setPickedVersionB(paddedData[1]) // ?
+      setPickedVersionB(paddedData[1])
       setVersions(paddedData)
       setLoadingVersions(false)
     })
@@ -328,7 +361,7 @@ function DocumentHistory({
   }
 
   const onDownloadFile = (e, v) => {
-    e.preventDefault() //? needed
+    e.preventDefault()
     downloadBase64File(v, window)
   }
 
@@ -347,66 +380,77 @@ function DocumentHistory({
   return (
     <ThemeProvider theme={customTheme}>
       <div className={style.mainPage}>
-        <div className={style.versionContentContainer}>
-          <div
-            className="diffing"
-            style={{
-              width: '80%',
-              margin: '20px auto',
-            }}
-          >
-            <h5>Name:</h5>
-            {ReactHtmlParser(
-              diff(
-                `<p>${pickedVersionB.name}</p>`,
-                `<p>${pickedVersionA.name}</p>`,
-                'revisions-diff'
-              )
-            )}
-            {status !== 200 && (
-              <Alert color="warning">
-                There has been a server error, try again please!
-              </Alert>
-            )}
-            {entityName === DocumentEnums.externalDocument.entityName && (
-              <>
-                <h5>Url:</h5>
-                {pickedVersionB.uri.length !== 0 &&
-                  pickedVersionB.uri !== pickedVersionA.uri && (
-                    <>
-                      <a href={pickedVersionB.uri}>{pickedVersionB.uri}</a>
-                      <MdChevronRight
-                        size={28}
-                        style={{
-                          color: customTheme.palette.primary.main,
-                          margin: '0 2em 0 2em',
-                        }}
-                      />
-                    </>
-                  )}
-                <a href={pickedVersionA.uri}>{pickedVersionA.uri}</a>
-              </>
-            )}
-            {entityName === DocumentEnums.file.entityName && (
-              <>
-                <h5>Filename:</h5>
-                {ReactHtmlParser(
-                  diff(
-                    `<p>${pickedVersionB.filename}</p>`,
-                    `<p>${pickedVersionA.filename}</p>`,
-                    'revisions-diff'
-                  )
+        {(!isMobile || !showSidebar) && (
+          <div className={style.versionContentContainer}>
+            <div
+              className="diffing"
+              style={{
+                width: isMobile ? '100%' : '70%',
+                margin: '10px auto',
+                padding: 10,
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                }}
+              >
+                <h5>Name:</h5>
+                {isMobile && !showSidebar && (
+                  <IconButton
+                    style={{ marginLeft: 'auto', outline: 'none' }}
+                    onClick={e => setShowSidebar(true)}
+                  >
+                    <MdChevronRight />
+                  </IconButton>
                 )}
-                <h5>File mime:</h5>
-                {ReactHtmlParser(
-                  diff(
-                    `<p>${pickedVersionB.mimeType}</p>`,
-                    `<p>${pickedVersionA.mimeType}</p>`,
-                    'revisions-diff'
-                  )
-                )}
-                <h5>File:</h5>
-                {pickedVersionA.mimeType.startsWith('image') ? (
+              </div>
+              <TextComparator
+                textA={pickedVersionA.name}
+                textB={pickedVersionB.name}
+              />
+
+              {status !== 200 && (
+                <Alert color="warning">
+                  There has been a server error, try again please!
+                </Alert>
+              )}
+              {entityName === DocumentEnums.externalDocument.entityName && (
+                <>
+                  <h5>Url:</h5>
+                  {pickedVersionB.uri.length !== 0 &&
+                    pickedVersionB.uri !== pickedVersionA.uri && (
+                      <>
+                        <a href={pickedVersionB.uri}>{pickedVersionB.uri}</a>
+                        <MdChevronRight
+                          size={28}
+                          style={{
+                            color: 'grey',
+                            margin: '0 1em 0 1em',
+                          }}
+                        />
+                      </>
+                    )}
+                  <a href={pickedVersionA.uri}>{pickedVersionA.uri}</a>
+                </>
+              )}
+              {entityName === DocumentEnums.file.entityName && (
+                <>
+                  <h5>Filename:</h5>
+                  <TextComparator
+                    textA={pickedVersionA.filename}
+                    textB={pickedVersionB.filename}
+                  />
+
+                  <h5>File mime:</h5>
+                  <TextComparator
+                    textA={pickedVersionA.mimeType}
+                    textB={pickedVersionB.mimeType}
+                  />
+
+                  <h5>File:</h5>
                   <>
                     {!hasEmptyContent(pickedVersionB) &&
                       getPayloadContent(pickedVersionB) !==
@@ -417,53 +461,24 @@ function DocumentHistory({
                             to={{ textDecoration: 'none' }}
                             onClick={e => onDownloadFile(e, pickedVersionB)}
                           >
-                            <img
-                              style={{ display: 'inline', maxWidth: '150px' }}
-                              src={getPayloadContent(pickedVersionB)}
-                            />
+                            {pickedVersionB.mimeType.startsWith('image') ? (
+                              <img
+                                style={{ display: 'inline', maxWidth: '120px' }}
+                                src={getPayloadContent(pickedVersionB)}
+                              />
+                            ) : (
+                              <HiDownload
+                                style={{
+                                  color: customTheme.palette.primary.main,
+                                }}
+                                size={42}
+                              />
+                            )}
                           </Link>
                           <MdChevronRight
-                            size={56}
+                            size={42}
                             style={{
-                              color: customTheme.palette.primary.main,
-                              margin: '0 2em 0 2em',
-                            }}
-                          />
-                        </>
-                      )}
-                    <Link
-                      id="file-download"
-                      to={{ textDecoration: 'none' }}
-                      onClick={e => onDownloadFile(e, pickedVersionB)}
-                    >
-                      <img
-                        style={{ maxWidth: '150px' }}
-                        src={getPayloadContent(pickedVersionA)}
-                      />
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    {!hasEmptyContent(pickedVersionB) &&
-                      getPayloadContent(pickedVersionB) !==
-                        getPayloadContent(pickedVersionA) && (
-                        <>
-                          <Link
-                            id="file-download"
-                            to={{ textDecoration: 'none' }}
-                            onClick={e => onDownloadFile(e, pickedVersionB)}
-                          >
-                            <HiDownload
-                              style={{
-                                color: customTheme.palette.primary.main,
-                              }}
-                              size={42}
-                            />
-                          </Link>
-                          <MdChevronRight
-                            size={28}
-                            style={{
-                              color: customTheme.palette.primary.main,
+                              color: 'grey',
                               margin: '0 2em 0 2em',
                             }}
                           />
@@ -474,40 +489,56 @@ function DocumentHistory({
                       to={{ textDecoration: 'none' }}
                       onClick={e => onDownloadFile(e, pickedVersionA)}
                     >
-                      <HiDownload
-                        style={{ color: customTheme.palette.primary.main }}
-                        size={42}
-                      />
+                      {pickedVersionA.mimeType.startsWith('image') ? (
+                        <img
+                          style={{ display: 'inline', maxWidth: '120px' }}
+                          src={getPayloadContent(pickedVersionA)}
+                        />
+                      ) : (
+                        <HiDownload
+                          style={{
+                            color: customTheme.palette.primary.main,
+                          }}
+                          size={42}
+                        />
+                      )}
                     </Link>
                   </>
-                )}
-              </>
-            )}
-            {entityName === DocumentEnums.internalDocument.entityName && (
-              <>
-                {/*   want to use ckeditor styling but not its data processor */}
-                <div className="ck ck-editor__main" role="presentation">
-                  <div
-                    className="ck-blurred ck ck-content ck-editor__editable ck-rounded-corners ck-editor__editable_inline ck-read-only"
-                    dir="ltr"
-                    role="textbox"
-                    aria-label="Rich Text Editor, main"
-                    lang="en"
-                    contentEditable={false}
-                  >
-                    {ReactHtmlParser(diffPayloads())}
+                </>
+              )}
+              {entityName === DocumentEnums.internalDocument.entityName && (
+                <>
+                  {/*   want to use ckeditor styling but not its data processor */}
+                  <div className="ck ck-editor__main" role="presentation">
+                    <div
+                      className="ck-blurred ck ck-content ck-editor__editable ck-rounded-corners ck-editor__editable_inline ck-read-only"
+                      dir="ltr"
+                      role="textbox"
+                      aria-label="Rich Text Editor, main"
+                      lang="en"
+                      contentEditable={false}
+                    >
+                      {ReactHtmlParser(diffPayloads())}
+                    </div>
                   </div>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
-        </div>
-        <RevisionsSidebar
-          setPickedVersionA={setPickedVersionA}
-          setPickedVersionB={setPickedVersionB}
-          versions={versions}
-          handleRestore={handleRestore}
-        />
+        )}
+        {(!isMobile || showSidebar) && (
+          <RevisionsSidebar
+            setPickedVersionA={setPickedVersionA}
+            setPickedVersionB={setPickedVersionB}
+            selectedAfter={selectedAfter}
+            selectedBefore={selectedBefore}
+            setSelectedAfter={setSelectedAfter}
+            setSelectedBefore={setSelectedBefore}
+            versions={versions}
+            handleRestore={handleRestore}
+            setShowSidebar={setShowSidebar}
+          />
+        )}
       </div>
     </ThemeProvider>
   )
