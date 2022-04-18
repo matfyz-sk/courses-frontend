@@ -20,14 +20,19 @@ import editDocument from './functions/documentCreation'
 import './styles/diff.css'
 import './styles/mdStyling.css'
 import { marked } from 'marked'
-import { Radio, ThemeProvider, makeStyles, useMediaQuery, IconButton } from '@material-ui/core'
+import {
+  Radio,
+  ThemeProvider,
+  makeStyles,
+  useMediaQuery,
+  IconButton,
+} from '@material-ui/core'
 import { MdChevronRight } from 'react-icons/md'
 import { HiDownload } from 'react-icons/hi'
 import downloadBase64File from './functions/downloadBase64File'
 import { customTheme } from './styles/styles'
 
-function TextComparator({textA, textB})  {
-  
+function TextComparator({ textA, textB }) {
   if (textB.length === 0 || textA === textB) {
     return <p>{textA}</p>
   }
@@ -87,7 +92,7 @@ const useStyles = makeStyles({
 })
 
 const isNewestVersion = version => {
-  // FIXME 
+  // FIXME
   return !version.isDeleted && version.nextVersion.length === 0
 }
 const getPayloadContent = version => version.payload[0].content
@@ -103,11 +108,9 @@ function RevisionsSidebar({
   setSelectedBefore,
   handleRestore,
   setShowSidebar,
-
 }) {
   const style = useStyles()
-  const isMobile = useMediaQuery('(max-width:600px)');
-
+  const isMobile = useMediaQuery('(max-width:600px)')
 
   const handleChangeA = e => {
     if (isMobile) {
@@ -132,32 +135,37 @@ function RevisionsSidebar({
       {versions.map((v, i) => {
         return (
           <ListGroupItem className={style.sidebarRow} key={i}>
-            <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}  }>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
               {timestampToString2(v.createdAt)}
-              
-                <Radio
-                  style={{
-                    visibility: selectedAfter < i ? 'visible' : 'hidden',
-                    marginLeft: '21px',
-                    marginLeft: "auto",
-                    color: customTheme.palette.primary.light,
-                  }}
-                  checked={selectedBefore === i}
-                  onChange={handleChangeB}
-                  value={i}
-                  name="before-revisions"
-                  inputProps={{
-                    'aria-label': `before from ${timestampToString2(
-                      v.createdAt
-                    )}`,
-                  }}
-                />
+
               <Radio
-                style={
-                  {
-                    visibility: i < selectedBefore ? "visible" : 'hidden',
-                    color: customTheme.palette.primary.light }
-                }
+                style={{
+                  visibility: selectedAfter < i ? 'visible' : 'hidden',
+                  marginLeft: '21px',
+                  marginLeft: 'auto',
+                  color: customTheme.palette.primary.light,
+                }}
+                checked={selectedBefore === i}
+                onChange={handleChangeB}
+                value={i}
+                name="before-revisions"
+                inputProps={{
+                  'aria-label': `before from ${timestampToString2(
+                    v.createdAt
+                  )}`,
+                }}
+              />
+              <Radio
+                style={{
+                  visibility: i < selectedBefore ? 'visible' : 'hidden',
+                  color: customTheme.palette.primary.light,
+                }}
                 checked={selectedAfter === i}
                 onChange={handleChangeA}
                 value={i}
@@ -169,9 +177,13 @@ function RevisionsSidebar({
                 }}
               />
             </div>
-            {i === 0 && <p style={{color: "grey", marginBottom: 0}}>Current version</p>}
+            {i === 0 && (
+              <p style={{ color: 'grey', marginBottom: 0 }}>Current version</p>
+            )}
             {v.restoredFrom && (
-              <p style={{color: "grey", marginBottom: 0}}>Restored from {timestampToString2(v.restoredFrom)}</p>
+              <p style={{ color: 'grey', marginBottom: 0 }}>
+                Restored from {timestampToString2(v.restoredFrom)}
+              </p>
             )}
             {i > 0 && i < versions.length - 1 && (
               <a
@@ -200,7 +212,7 @@ function DocumentHistory({
   const style = useStyles()
   const newestVersionId = match.params.document_id
   const courseId = match.params.course_id
-  const isMobile = useMediaQuery('(max-width:600px)');
+  const isMobile = useMediaQuery('(max-width:600px)')
   const [showSidebar, setShowSidebar] = useState(false)
 
   const [status, setStatus] = useState(200)
