@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
 import {
   IconButton,
   withStyles,
@@ -117,7 +116,7 @@ function EnhancedTableHead(props) {
 
   return (
     <TableHead style={{ position: 'static' }}>
-      <TableRow>
+      <TableRow style={{ position: 'static' }}>
         {headCells.slice(...(isReferencer ? [0, -1] : [0])).map(headCell => (
           <TableCell
             key={headCell.id}
@@ -164,7 +163,7 @@ function FileExplorer(props) {
   } = props
 
   const classes = useFileExplorerStyles()
-  const [order, setOrder] = useState('asc')
+  const [order, setOrder] = useState('desc')
   const [orderBy, setOrderBy] = useState('createdAt')
 
   const handleRequestSort = (event, property) => {
