@@ -64,64 +64,81 @@ export default function MaterialForm({
         Select the material's relations to other
       </h5>
       <Grid container spacing={3} style={{ width: '95%', margin: 'auto' }}>
-        <Grid style={{ textAlign: 'center' }} item xs={6}>
-          Topics
+        <Grid
+          container
+          item
+          spacing={2}
+          xs={12}
+          sm={6}
+        >
+          <Grid style={{ textAlign: 'center' }} item xs={12}>
+            Topics
+          </Grid>
+          <Grid item xs={12}>
+            <MultipleSelectCheckmarks
+              allItems={topics}
+              items={covers}
+              setItems={setCovers}
+              label={'covers'}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <MultipleSelectCheckmarks
+              allItems={topics}
+              items={mentions}
+              setItems={setMentions}
+              label={'mentions'}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <MultipleSelectCheckmarks
+              allItems={topics}
+              items={requires}
+              setItems={setRequires}
+              label={'required'}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <MultipleSelectCheckmarks
+              allItems={topics}
+              items={assumes}
+              setItems={setAssumes}
+              label={'assumes mastery of'}
+            />
+          </Grid>
         </Grid>
-        <Grid style={{ textAlign: 'center' }} item xs={6}>
-          Materials
-        </Grid>
-        <Grid item xs={6}>
-          <MultipleSelectCheckmarks
-            allItems={topics}
-            items={covers}
-            setItems={setCovers}
-            label={'covers'}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <DocumentsReferencer
-            label="is an alternative to"
-            documentReferences={isAlternativeTo}
-            onDocumentReferencesChange={setIsAlternativeTo}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <MultipleSelectCheckmarks
-            allItems={topics}
-            items={mentions}
-            setItems={setMentions}
-            label={'mentions'}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <DocumentsReferencer
-            label="refers to"
-            documentReferences={refersTo}
-            onDocumentReferencesChange={setRefersTo}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <MultipleSelectCheckmarks
-            allItems={topics}
-            items={requires}
-            setItems={setRequires}
-            label={'required'}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <DocumentsReferencer
-            label="generalizes"
-            documentReferences={generalizes}
-            onDocumentReferencesChange={setGeneralizes}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <MultipleSelectCheckmarks
-            allItems={topics}
-            items={assumes}
-            setItems={setAssumes}
-            label={'assumes mastery of'}
-          />
+        <Grid
+          container
+          item
+          spacing={2}
+          xs={12}
+          sm={6}
+        >
+          <Grid style={{ textAlign: 'center' }} item xs={12}>
+            Materials
+          </Grid>
+          <Grid item xs={12}>
+            <DocumentsReferencer
+              label="is an alternative to"
+              documentReferences={isAlternativeTo}
+              onDocumentReferencesChange={setIsAlternativeTo}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <DocumentsReferencer
+              label="refers to"
+              documentReferences={refersTo}
+              onDocumentReferencesChange={setRefersTo}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <DocumentsReferencer
+              label="generalizes"
+              documentReferences={generalizes}
+              onDocumentReferencesChange={setGeneralizes}
+            />
+          </Grid>
+          
         </Grid>
       </Grid>
       <hr style={{ borderColor: 'lightgray' }} />

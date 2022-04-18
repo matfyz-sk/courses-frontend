@@ -48,7 +48,7 @@ function DocumentReferencer({
 
   const [fsPath, setFsPath] = useState([])
   const [fsObjects, setFsObjects] = useState([])
-  const [courseId, setCourseId] = useState(match.params.course_id)
+  const courseId = match.params.course_id
   const [folderId, setFolderId] = useState('')
   const [status, setStatus] = useState(200)
   const [loading, setLoading] = useState(false)
@@ -156,6 +156,7 @@ function DocumentReferencer({
         aria-labelledby="referencer-dialog-title"
         maxWidth="md"
         fullWidth
+        style={{ padding: "8px 12px" }}
       >
         <DialogTitle id="referencer-dialog-title" aria-label="add document">
           Choose document to add

@@ -69,7 +69,7 @@ const useFileExplorerStyles = makeStyles(theme => ({
     wordBreak: 'break-word',
   },
   infoButton: {
-    fontSize: "120%",
+    fontSize: "110%",
     color: baseTheme.palette.primary.main,
   },
   actionsButton: {

@@ -1,31 +1,29 @@
-import React from "react"
-import { useFileExplorerStyles } from "../styles/styles"
-import { MdFolder, MdCode, MdLink, MdAttachFile } from "react-icons/md"
+import React from 'react'
+import { customTheme, useFileExplorerStyles } from '../styles/styles'
+import { MdFolder, MdCode, MdLink, MdAttachFile } from 'react-icons/md'
 import { BsBook } from 'react-icons/bs'
-import { DocumentEnums } from "../enums/document-enums"
-import { getShortType } from "helperFunctions"
+import { DocumentEnums } from '../enums/document-enums'
+import { getShortType } from 'helperFunctions'
+import { ThemeProvider, useMediaQuery } from '@material-ui/core'
+
+const entityToIcon = {
+  [DocumentEnums.internalDocument.entityName]: <MdCode />,
+  [DocumentEnums.folder.entityName]: <MdFolder />,
+  [DocumentEnums.externalDocument.entityName]: <MdLink />,
+  [DocumentEnums.file.entityName]: <MdAttachFile />,
+}
 
 const FileIcon = ({ file }) => {
   const classes = useFileExplorerStyles()
-  const entityName = getShortType(file["@type"])
-
-
-  const entityToIcon = {
-    [DocumentEnums.internalDocument.entityName]: (
-      <MdCode className={classes.infoButton} />
-    ),
-    [DocumentEnums.folder.entityName]: <MdFolder className={classes.infoButton} />,
-    [DocumentEnums.externalDocument.entityName]: (
-      <MdLink className={classes.infoButton} />
-    ),
-    [DocumentEnums.file.entityName]: <MdAttachFile className={classes.infoButton} />,
-  }
+  const entityName = getShortType(file['@type'])
+  const isMobile = useMediaQuery('(max-width: 600px)')
+  
 
   return (
-    <>
+    <div className={classes.infoButton} style={{ fontSize: isMobile && '80%' }}>
       {entityToIcon[entityName]}
-      <BsBook style={{marginLeft: '0.75em'}} className={classes.infoButton}/>
-    </>
+      {<BsBook style={{ marginLeft: '0.75em' }} />}
+    </div>
   )
 }
 

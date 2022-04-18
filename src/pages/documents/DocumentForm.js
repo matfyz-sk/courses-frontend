@@ -72,6 +72,7 @@ function DocumentForm({
   const [name, setName] = useState('')
 
   const [isMaterial, setIsMaterial] = useState(false) // TODO resolve whether doc is material
+  const [description, setDescription] = useState("")
   const [covers, setCovers] = useState([])
   const [mentions, setMentions] = useState([])
   const [requires, setRequires] = useState([])
@@ -447,6 +448,8 @@ function DocumentForm({
             courseId={courseId}
             handleLoading={bool => setLoadingMaterialRelations(bool)}
             statusHandler={responseStatus => setStatus(responseStatus)}
+            description={description}
+            setDescription={setDescription}
             isAlternativeTo={isAlternativeTo}
             setIsAlternativeTo={setIsAlternativeTo}
             refersTo={refersTo}
