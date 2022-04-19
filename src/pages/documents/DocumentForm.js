@@ -13,7 +13,7 @@ import {
   IconButton,
 } from '@material-ui/core'
 import React, { useState, useEffect, useCallback } from 'react'
-import { withRouter } from 'react-router'
+import { Redirect, withRouter } from 'react-router'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import {
@@ -45,19 +45,23 @@ function DocumentForm({
   match,
   user,
   fetchFolder,
+  location
 }) {
   // FIXME large base64 file uploads not working
   // FIXME only owner can do or see
-
   const [status, setStatus] = useState(200)
 
   const courseId = match.params.course_id
+  if (!location.state && !creating) {
+    return <Redirect to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}/>
+  }
 
   // when creating a brand new document
   const [entityName, setEntityName] = useState(creating || '')
 
   // both used when document already exists
-  const documentId = match.params.document_id || ''
+  const documentId = location.state?.documentId ?? ""
+  const parentFolderId = location.state?.parentFolderId ?? ""
   const [document, setDocument] = useState({})
   const isInEditingMode = documentId !== ''
 
@@ -107,8 +111,7 @@ function DocumentForm({
         const responseDocument = data[0]
         console.log({ responseDocument })
         if (
-          responseDocument.isDeleted ||
-          responseDocument.nextVersion.length !== 0 // TODO not valid
+          responseDocument.isDeleted // TODO make readonly?
         ) {
           history.push(
             redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])
@@ -117,7 +120,8 @@ function DocumentForm({
         }
         setDocument(responseDocument)
         setName(responseDocument.name)
-        fetchFolder(getShortID(responseDocument.parent[0]['@id']))
+        if (getShortID(folder.id) !== location.state.parentFolderId)
+          fetchFolder(location.state.parentFolderId)
         switch (responseDocument['@type']) {
           case DocumentEnums.internalDocument.id:
             setEntityName(DocumentEnums.internalDocument.entityName)
@@ -286,11 +290,11 @@ function DocumentForm({
                         key: 'course_id',
                         value: courseId,
                       },
-                      {
-                        key: 'document_id',
-                        value: getShortID(document['@id']),
-                      },
-                    ])
+                    ]),
+                    {
+                      documentId: getShortID(document['@id']),
+                      parentFolderId
+                    }
                   )
                 }
               >

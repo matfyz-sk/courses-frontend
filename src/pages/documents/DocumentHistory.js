@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Alert, ListGroup, ListGroupItem } from 'reactstrap'
-import { withRouter } from 'react-router'
+import { Redirect, withRouter } from 'react-router'
 import { connect } from 'react-redux'
 import {
   axiosGetEntities,
@@ -93,7 +93,7 @@ const useStyles = makeStyles({
 
 const isNewestVersion = version => {
   // FIXME
-  return !version.isDeleted && version.nextVersion.length === 0
+  return !version.isDeleted
 }
 const getPayloadContent = version => version.payload[0].content
 const hasEmptyContent = version => version.payload[0].content.length === 0
@@ -208,13 +208,22 @@ function DocumentHistory({
   folder,
   user,
   courseInstance,
+  location
 }) {
-  const style = useStyles()
-  const newestVersionId = match.params.document_id
+
   const courseId = match.params.course_id
+  
+  if (!location.state) {
+    return <Redirect to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}/>
+  }
+  
+  const style = useStyles()
+  const newestVersionId = location.state.documentId
+  const parentFolderId = location.state.parentFolderId
   const isMobile = useMediaQuery('(max-width:600px)')
   const [showSidebar, setShowSidebar] = useState(false)
 
+  
   const [status, setStatus] = useState(200)
   const [entityName, setEntityName] = useState('')
   const [versions, setVersions] = useState([])
@@ -279,14 +288,14 @@ function DocumentHistory({
         return
       }
       const data = getResponseBody(response)
-      // FIXME COURSE_ID HAS TO MATCH!
       if (!isNewestVersion(data[0])) {
         history.push(
           redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])
         )
         return
       }
-      fetchFolder(getShortID(data[0].parent[0]['@id']))
+      if (folder.id !== parentFolderId)
+        fetchFolder(parentFolderId)
       setEntityName(getShortType(data[0]['@type']))
       const paddedData = [
         ...data,

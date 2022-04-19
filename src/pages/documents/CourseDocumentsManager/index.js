@@ -84,6 +84,7 @@ function CourseDocumentManager(props) {
         setFsObjects(
           fsObjects.filter(doc => doc.isDeleted === showingDeleted)
         )
+        console.log(fsObjects.filter(doc => doc.isDeleted === showingDeleted))
         setLoading(false)
         setFolder(data[0])
         setFsPath(data.slice().reverse())
@@ -123,8 +124,11 @@ function CourseDocumentManager(props) {
     history.push(
       redirect(ROUTES.EDIT_DOCUMENT, [
         { key: 'course_id', value: courseId },
-        { key: 'document_id', value: getShortID(fsObject['@id']) },
-      ])
+      ]),
+      {
+        documentId: getShortID(fsObject['@id']),
+        parentFolderId: getShortID(folder.id),
+      }
     )
   }
 
