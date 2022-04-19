@@ -65,10 +65,10 @@ function DocumentReferencer({
         return
       }
       setFolderId(getShortID(courseInstance.fileExplorerRoot[0]['@id']))
-
+      console.log({documentReferences})
       const docsPromises = []
       for (const docRef of documentReferences) {
-        const entityUrl = `document/${getShortID(docRef.hasDocument[0]['@id'])}`
+        const entityUrl = `document/${getShortID(docRef.hasDocument)}`
         docsPromises.push(axiosGetEntities(entityUrl))
       }
       Promise.all(docsPromises).then(responses => {
@@ -110,7 +110,7 @@ function DocumentReferencer({
     const documentRefId = await getReferenceOfDocument(document, courseInstance)
     onDocumentReferencesChange([
       ...documentReferences.filter(ref => ref['@id'] !== documentRefId),
-      { '@id': documentRefId, hasDocument: [document], courseInstance },
+      { '@id': documentRefId, hasDocument: document, courseInstance },
     ])
     setDocuments([
       ...documents.filter(doc => doc['@id'] !== document['@id']),
@@ -121,7 +121,7 @@ function DocumentReferencer({
   const removeFromDocuments = document => {
     onDocumentReferencesChange(
       documentReferences.filter(
-        ref => ref.hasDocument[0]['@id'] !== document['@id']
+        ref => ref.hasDocument !== document['@id']
       )
     )
     setDocuments(documents.filter(doc => doc['@id'] !== document['@id']))

@@ -33,6 +33,7 @@ export const INITIAL_EVENT_STATE = {
   // materials: [],
   uses: [],
   recommends: [],
+  documentReference: [],
 }
 
 export const BASE_URL = apiConfig.API_URL

@@ -11,6 +11,8 @@ import { connect } from 'react-redux'
 import { setCourseMigrationState } from '../../../redux/actions'
 import { getShortId } from '../Helper'
 import { addDays, dateDiffInDays } from '../Timeline/timeline-helper'
+import copyFileSystem from 'pages/documents/functions/copyFileSystem'
+import { axiosUpdateEntity } from 'helperFunctions'
 
 class Submit extends React.Component {
   constructor() {
@@ -31,6 +33,7 @@ class Submit extends React.Component {
       instanceOf,
       instructors,
     } = this.props.courseMigrationState
+    const courseInstance = this.props.courseInstance
 
     const { errors } = this.state
 
@@ -42,9 +45,9 @@ class Submit extends React.Component {
     const hasInstructor = instructors.map(instructor => {
       return instructor.fullId
     })
-
+    
     const data = {
-      name,
+      name, 
       description,
       startDate,
       endDate,
@@ -54,10 +57,19 @@ class Submit extends React.Component {
 
     const url = BASE_URL + COURSE_INSTANCE_URL
 
-    axiosRequest('post', JSON.stringify(data), url)
-      .then(response => {
+    axiosRequest('post', data, url)
+      .then(async response => {
         if (response && response.status === 200) {
           this.createEvents(response.data.resource.iri)
+          console.log({response})
+          const newCourseInstanceId = response.data.resource.iri
+          const data = {
+            fileExplorerRoot: await copyFileSystem(
+              courseInstance.fileExplorerRoot[0],
+              newCourseInstanceId
+            )
+          }
+          axiosUpdateEntity(data, `courseInstance/${getShortId(newCourseInstanceId)}`)
         } else {
           errors.push(
             'There was a problem with server while sending your form. Try again later.'
@@ -104,7 +116,7 @@ class Submit extends React.Component {
     const url = BASE_URL + EVENT_URL
     let errors = []
     for (let event of eventsToAdd) {
-      axiosRequest('post', JSON.stringify(event), url)
+      axiosRequest('post', event, url)
         .then(response => {
           if (response && response.status === 200) {
           } else {

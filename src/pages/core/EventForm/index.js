@@ -40,7 +40,8 @@ import {
   sortEventsFunction,
 } from '../Timeline/timeline-helper'
 import { connect } from 'react-redux'
-
+import { axiosAddEntity, axiosUpdateEntity, getIRIFromAddResponse } from 'helperFunctions'
+import DocumentReferencer from 'pages/documents/common/DocumentsReferencer'
 class EventForm extends Component {
   constructor(props) {
     super(props)
@@ -183,6 +184,7 @@ class EventForm extends Component {
       instructors,
       uses,
       recommends,
+      documentReference,
     } = this.state
     const { typeOfForm, callBack } = this.props
 
@@ -227,6 +229,7 @@ class EventForm extends Component {
       location: place.split('"').join("'"),
       uses: usedMaterials,
       recommends: recommendedMaterials,
+      documentReference: documentReference.map(doc => doc["@id"])
     }
 
     if (type === 'CourseInstance') {
@@ -244,15 +247,33 @@ class EventForm extends Component {
       data.instanceOf = courseFullId
       data.hasInstructor = hasInstructor
     }
-
-    axiosRequest(method, JSON.stringify(data), url)
-      .then(response => {
+    axiosRequest(method, data, url)
+      .then(async response => {
         if (response && response.status === 200) {
           console.log(typeOfForm)
           if (typeOfForm === 'Edit') {
             callBack(id)
           } else {
             const newEventId = getShortId(response.data.resource.iri)
+
+            if (typeOfForm === 'New Course Instance') {
+              const folderData = {
+                name: 'Home',
+                courseInstance: response.data.resource.iri,
+              }
+              const fileExplorerRoot = await axiosAddEntity(
+                folderData,
+                'folder'
+              ).then(response => {
+                if (response.failed) return null
+                return getIRIFromAddResponse(response)
+              })
+              axiosUpdateEntity(
+                { fileExplorerRoot },
+                `courseInstance/${newEventId}`
+              )
+            }            
+
             callBack(newEventId)
           }
         } else {
@@ -330,6 +351,10 @@ class EventForm extends Component {
     this.setState({ endDate: date })
   }
 
+  onDocumentReferencesChange = documentReference => {
+    this.setState({ documentReference })
+  }
+
   render() {
     const {
       name,
@@ -346,6 +371,7 @@ class EventForm extends Component {
       docs,
       uses,
       recommends,
+      documentReference
     } = this.state
     const { typeOfForm, options, from, to, user } = this.props
 
@@ -462,6 +488,15 @@ class EventForm extends Component {
               value={place}
               onChange={this.onChange}
               type="text"
+            />
+          </FormGroup>
+
+          <FormGroup 
+              style={{ maxWidth: 700 }} className="new-event-formGroup">
+            <DocumentReferencer
+              label="Uses documents"
+              documentReferences={documentReference}
+              onDocumentReferencesChange={this.onDocumentReferencesChange}
             />
           </FormGroup>
 
