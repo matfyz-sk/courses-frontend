@@ -16,26 +16,30 @@ import FileIcon from '../FileIcon'
 
 const useStyles = makeStyles(theme => ({
   list: {
-    width: '100%'
+    width: '100%',
   },
   listAdd: {
     borderTop: `1px solid #dadada`,
     borderBottom: `1px solid #dadada`,
   },
   listAddButton: {
-    fontSize: '145%', display: 'block', margin: 'auto'
+    fontSize: '145%',
+    display: 'block',
+    margin: 'auto',
   },
   listItemText: {
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
   },
   removeButtonWrap: {
-    outline: 'none', marginRight: '-11px'
+    outline: 'none',
+    marginRight: '-11px',
   },
   removeButton: {
-    fontSize: '85%'
+    fontSize: '85%',
+    outline: 'none',
   },
   listItemIcon: {
-    marginRight: '0.5em'
+    marginRight: '0.5em',
   },
   accordionContent: {
     paddingLeft: 0,
@@ -59,7 +63,9 @@ export default function DocumentsList({
         aria-controls="panel1a-content"
         id="panel1a-header"
       >
-        <Typography variant="body1">{title} ({documents.length})</Typography>
+        <Typography variant="body1">
+          {title} ({documents.length})
+        </Typography>
       </AccordionSummary>
       <AccordionDetails className={classes.accordionContent}>
         <List className={classes.list}>
@@ -68,11 +74,11 @@ export default function DocumentsList({
             onClick={e => toggleSelection()}
             className={classes.listAdd}
           >
-            <MdAdd className={classes.listAddButton}/>
+            <MdAdd className={classes.listAddButton} />
           </ListItem>
           {documents.map(document => (
             <ListItem dense button key={document['@id']}>
-              <ListItemIcon className={classes.listItemIcon} >
+              <ListItemIcon className={classes.listItemIcon}>
                 <FileIcon file={document} />
               </ListItemIcon>
               <ListItemText
@@ -84,9 +90,9 @@ export default function DocumentsList({
                 edge="end"
                 aria-label="remove"
                 className={classes.removeButtonWrap}
+                style={{ outline: 'none' }}
               >
-                {<MdClear  
-                className={classes.removeButton}  />}
+                {<MdClear className={classes.removeButton} />}
               </IconButton>
             </ListItem>
           ))}
