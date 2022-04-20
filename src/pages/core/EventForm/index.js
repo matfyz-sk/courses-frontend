@@ -123,7 +123,7 @@ class EventForm extends Component {
     const { startDate, endDate, courseId } = this.state
 
     if (courseId !== '') {
-      const url = `${BASE_URL + EVENT_URL}?courseInstance=${courseId}`
+      const url = `${BASE_URL + EVENT_URL}?courseInstance=${courseId}&_join=documentReference`
 
       axiosRequest('get', null, url).then(response => {
         const data = getData(response)

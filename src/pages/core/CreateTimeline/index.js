@@ -71,7 +71,7 @@ class CreateTimeline extends React.Component {
     if (courseId !== '') {
       const url = `${
         BASE_URL + EVENT_URL
-      }?courseInstance=${courseId}&_join=courseInstance,uses,recommends`
+      }?courseInstance=${courseId}&_join=courseInstance,uses,recommends,documentReference`
 
       axiosRequest('get', null, url).then(response => {
         const data = getData(response)
