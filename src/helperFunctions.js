@@ -252,9 +252,8 @@ export const fileToBase64 = file => new Promise((resolve, reject) => {
 });
 
 export const base64dataToFile = async (base64Data, filename, mimeType) => {
-  return fetch(base64Data)
-    .then(res => res.blob())
-    .then(blob => {
-      return new File([blob], filename, { type: mimeType })
-    })
+  const i = base64Data.indexOf('base64,')
+  const buffer = Buffer.from(base64Data.slice(i + 7), 'base64')
+  const blob = new Blob([buffer], { type: mimeType })
+  return new File([blob], filename, { type: mimeType })
 }
