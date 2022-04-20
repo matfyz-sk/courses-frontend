@@ -107,13 +107,13 @@ class CourseForm extends Component {
 
     axiosRequest(
       method,
-      JSON.stringify({
+      {
         name: name.split('"').join("'"),
         description: description.split('"').join("'").split('\n').join(''),
         abbreviation: abbreviation.split('"').join("'"),
         hasPrerequisite,
         hasAdmin,
-      }),
+      },
       url
     ).then(response => {
       if (response && response.status === 200) {
