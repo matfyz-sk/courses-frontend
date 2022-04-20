@@ -1,16 +1,16 @@
 import { base64dataToFile } from '../../../helperFunctions'
 
-const downloadBase64File = async (v, window) => {
+const downloadBase64File = async (base64, filename, mimeType, window) => {
   const decodedFile = await base64dataToFile(
-    v.payload[0].content,
-    v.filename,
-    v.mimeType
+    base64,
+    filename,
+    mimeType
   )
   const href = URL.createObjectURL(decodedFile)
   const link = Object.assign(window.document.createElement('a'), {
     href,
     style: 'display: none',
-    download: v.filename,
+    download: filename,
   })
   window.document.body.appendChild(link)
   link.click()

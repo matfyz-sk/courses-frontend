@@ -383,7 +383,7 @@ function DocumentHistory({
 
   const onDownloadFile = (e, v) => {
     e.preventDefault()
-    downloadBase64File(v, window)
+    downloadBase64File(v.payload[0].content, v.filename, v.mimeType, window)
   }
 
   if (status === 404) {

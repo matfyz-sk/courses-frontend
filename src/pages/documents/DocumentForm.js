@@ -223,7 +223,7 @@ function DocumentForm({
 
   const onDownloadFile = async e => {
     e.preventDefault()
-    downloadBase64File({ mimeType, filename, payload: [{ content }] }, window)
+    downloadBase64File(content, filename, mimeType, window)
   }
 
   const formValid = () => {

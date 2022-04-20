@@ -143,11 +143,9 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
             aria-label="download pdf"
             onClick={e =>
               downloadBase64File(
-                {
-                  payload: [{ content: getPayloadContent() }], // TODO md and html?
-                  filename: document.filename,
-                  mimeType: document.mimeType,
-                },
+                getPayloadContent(),
+                document.filename,
+                document.mimeType,
                 window
               )
             }
