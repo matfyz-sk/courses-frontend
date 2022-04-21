@@ -293,7 +293,7 @@ function DocumentForm({
                     ]),
                     {
                       documentId: getShortID(document['@id']),
-                      parentFolderId
+                      parentFolderId,
                     }
                   )
                 }
@@ -419,6 +419,9 @@ function DocumentForm({
                 </FormControl>
                 <br />
                 <br />
+                <p style={{ color: 'grey' }}>
+                  Note: page breaks can be set via the horizontal line button
+                </p>
               </>
             )}
 
