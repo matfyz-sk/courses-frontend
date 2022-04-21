@@ -7,13 +7,11 @@ import {
   getResponseBody,
   getShortType,
   timestampToString2,
-  getShortID,
 } from 'helperFunctions'
 import { redirect } from '../../constants/redirect'
 import * as ROUTES from '../../constants/routes'
 import { Link } from 'react-router-dom'
 import { fetchFolder } from '../../redux/actions'
-import ReactHtmlParser from 'react-html-parser'
 import diff from 'node-htmldiff'
 import { DocumentEnums } from './enums/document-enums'
 import editDocument from './functions/documentCreation'
@@ -201,6 +199,14 @@ function RevisionsSidebar({
   )
 }
 
+const markedOptions = {
+  gfm: true,
+  breaks: true,
+  tables: true,
+  xhtml: true,
+  headerIds: false
+}
+
 function DocumentHistory({
   match,
   history,
@@ -368,17 +374,29 @@ function DocumentHistory({
 
   const diffPayloads = () => {
     if (!pickedVersionA.payload || !pickedVersionB.payload) {
-      // ? have these constraint to loading?
       return
     }
 
     var before = getPayloadContent(pickedVersionB)
     var after = getPayloadContent(pickedVersionA)
     if (pickedVersionA.mimeType === 'text/markdown') {
-      // TODO use https://github.com/ckeditor/ckeditor5/blob/b203ae6f00dcf65467b1182a7b255b9140dc90d7/packages/ckeditor5-markdown-gfm/src/markdown2html/markdown2html.js#L28
-      return diff(marked.parse(before), marked.parse(after), 'revisions-diff')
+      before = marked.parse(before, markedOptions)
+      after = marked.parse(after, markedOptions)
     }
-    return diff(before, after, 'revisions-diff')
+    before = before.replaceAll('<hr>', '<hr>a</hr>')
+    after = after.replaceAll('<hr>', '<hr>a</hr>')
+
+    const documentsDiff = diff(before, after, 'revisions-diff')
+    var cleanedDiff = documentsDiff.replaceAll('<hr>a</hr>', '<hr>')
+    cleanedDiff = cleanedDiff.replaceAll(
+      /<hr data-diff-node="ins" data-operation-index="\d+"><ins data-operation-index="\d+" class=\"revisions-diff\">a<\/ins><\/hr>/g,
+      '<hr data-diff-node="ins" class="revisions-diff">'
+    )
+    cleanedDiff = cleanedDiff.replaceAll(
+      /<hr data-diff-node="del" data-operation-index="\d+"><del data-operation-index="\d+" class=\"revisions-diff\">a<\/del><\/hr>/g,
+      '<hr data-diff-node="del" class="revisions-diff">'
+    )
+    return cleanedDiff
   }
 
   const onDownloadFile = (e, v) => {
@@ -538,9 +556,8 @@ function DocumentHistory({
                       aria-label="Rich Text Editor, main"
                       lang="en"
                       contentEditable={false}
-                    >
-                      {ReactHtmlParser(diffPayloads())}
-                    </div>
+                      dangerouslySetInnerHTML={{ __html: diffPayloads() }}
+                    />
                   </div>
                 </>
               )}
