@@ -4315,7 +4315,7 @@ cosmiconfig@^7.0.0:
 
 "courses-wysiwyg-superbuild@https://github.com/ZubatyNos/courses-wysiwyg-superbuild.git":
   version "32.0.0"
-  resolved "https://github.com/ZubatyNos/courses-wysiwyg-superbuild.git#cbfa9181a66a804aab6cedc854e8f5f0b461d5a6"
+  resolved "https://github.com/ZubatyNos/courses-wysiwyg-superbuild.git#d145ea21e79605e72b8e43edca19e0eed38a0f02"
 
 create-ecdh@^4.0.0:
   version "4.0.4"

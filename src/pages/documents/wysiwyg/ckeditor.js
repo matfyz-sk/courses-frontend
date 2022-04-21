@@ -3,47 +3,18 @@ import { CKEditor } from '@ckeditor/ckeditor5-react'
 import * as CKSUPEREDITOR from 'courses-wysiwyg-superbuild'
 
 function CustomEditor({ content, setContent, mimeType, isReadOnly }) {
-  // TODO clean code
-  // TODO upgrade superbuild dep.
   return (
     <>
-      {/* <CKEditor
-        onReady={editor => {
-          if (mimeType === 'text/html') {
-            window.editor1 = editor
-          } else {
-            window.editor2 = editor
-          }
-          // set
-          editor.editing.view.change(writer => {
-            writer.setStyle(
-              'min-height',
-              '350px',
-              editor.editing.view.document.getRoot()
-            )
-          })
-        }}
-        onChange={(event, editor) => {
-          const data = editor.getData()
-          setContent(data)
-        }}
-        // onBlur={ ( event, editor ) => {
-        // } }
-        // onFocus={ ( event, editor ) => {
-        // } }
-        editor={mimeType === 'text/html' ? CKSUPEREDITOR.HTMLClassicEditor : CKSUPEREDITOR.MarkdownClassicEditor}
-        data={content}
-      /> */}
       {mimeType === 'text/html' && (
         <CKEditor
           config={{
             htmlSupport: {
               allow: [
                 {
-                  // TODO maybe don't allow everything HAHa
-                  name: /.*/,
-                  attributes: true,
-                  classes: true,
+                  name: /^(div|section|article|span)$/,
+                  attributes: {
+                    class: true
+                  },
                   styles: true,
                 },
               ],
@@ -92,15 +63,15 @@ function CustomEditor({ content, setContent, mimeType, isReadOnly }) {
             htmlSupport: {
               allow: [
                 {
-                  // TODO maybe don't allow everything HAHa
-                  name: /.*/,
-                  attributes: true,
-                  classes: true,
+                  name: /^(div|section|article|span)$/,
+                  attributes: {
+                    class: true
+                  },
                   styles: true,
                 },
               ],
               disallow: [
-                /* HTML features to disallow */
+                /* HTML features to disallow */                
               ],
             },
           }}
