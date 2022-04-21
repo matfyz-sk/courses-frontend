@@ -1,31 +1,34 @@
-import React, { useEffect } from 'react'
-import ReactHtmlParser from 'react-html-parser'
+import React, { useEffect, useState } from 'react'
 import { marked } from 'marked'
 
-function InternalDocumentRenderer({ setNumPages, payloadContent, mimeType }) {
+const markedOptions = {
+  gfm: true,
+  breaks: true,
+  tables: true,
+  xhtml: true,
+  headerIds: false,
+}
+
+function InternalDocumentRenderer({ setNumPages, pageNumber, payloadContent, mimeType }) {
+  const [pages, setPages] = useState([])
 
   useEffect(() => {
-    // TODO split document and get num of pages
-    setNumPages(1)
-    // setPageNumber(1)
+    var newPages = []
+    if (mimeType === 'text/html') {
+      newPages = payloadContent.split('<hr>')
+    } else {
+      newPages = payloadContent.split('\n---')
+    }
+    setPages(newPages)
+    setNumPages(newPages.length)
   }, [payloadContent])
 
   const preparePayloadContent = () => {
+    if (pages.length === 0) return null
     if (mimeType === 'text/markdown') {
-      return marked.parse(payloadContent, {
-        gfm: true,
-        breaks: true,
-        tables: true,
-        xhtml: true,
-        headerIds: false,
-      })
+      return marked.parse(pages[pageNumber - 1], markedOptions)
     }
-    return payloadContent
-  }
-
-  if (!payloadContent) {
-    console.log("yikes")
-    return null
+    return pages[pageNumber]
   }
 
   return (
@@ -38,9 +41,8 @@ function InternalDocumentRenderer({ setNumPages, payloadContent, mimeType }) {
           aria-label="Rich Text Editor, main"
           lang="en"
           contentEditable={false}
-        >
-          {ReactHtmlParser(preparePayloadContent())}
-        </div>
+          dangerouslySetInnerHTML={{ __html: preparePayloadContent() }}
+        />
       </div>
     </>
   )
