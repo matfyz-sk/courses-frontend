@@ -34,11 +34,6 @@
   border: 3px solid var(--ck-color-suggestion-marker-deletion-border);
 }
 
-/* .ck-content div.page-break[data-diff-node="ins"] {
-  border: 3px solid var(--ck-color-suggestion-marker-insertion-border);
-  background: var(--ck-color-suggestion-marker-insertion-background);
-} */
-
 .diffing ins.revisions-diff  {
   border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
   border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
@@ -47,6 +42,13 @@
 }
 
 .diffing hr[data-diff-node="ins"]  {
+  border-top: 10px solid var(--ck-color-suggestion-marker-insertion-border);
+  border-bottom: 10px solid var(--ck-color-suggestion-marker-insertion-border);
+  background: var(--ck-color-suggestion-marker-insertion-background);
+  text-decoration: none;
+}
+
+.diffing ins hr  {
   border-top: 10px solid var(--ck-color-suggestion-marker-insertion-border);
   border-bottom: 10px solid var(--ck-color-suggestion-marker-insertion-border);
   background: var(--ck-color-suggestion-marker-insertion-background);
@@ -65,6 +67,17 @@
 }
 
 .diffing  hr[data-diff-node="del"]  {
+  border-top: 10px solid var(--ck-color-suggestion-marker-deletion-border);
+  border-bottom: 10px solid var(--ck-color-suggestion-marker-deletion-border);
+  text-decoration: line-through;
+  text-decoration-color: currentcolor;
+  text-decoration-thickness: auto;
+  text-decoration-color: var(--ck-color-suggestion-marker-deletion-stroke);
+  text-decoration-thickness: 3px;
+  background: var(--ck-color-suggestion-marker-deletion-background);
+}
+
+.diffing del hr {
   border-top: 10px solid var(--ck-color-suggestion-marker-deletion-border);
   border-bottom: 10px solid var(--ck-color-suggestion-marker-deletion-border);
   text-decoration: line-through;
