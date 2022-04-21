@@ -19,6 +19,7 @@ import { BASE_URL, EVENT_URL } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 // import TeacherNavigation from '../../../components/Navigation/TeacherNavigation'
+import DocumentViewer from 'pages/documents/common/DocumentViewer'
 
 const { scroller } = Scroll
 
@@ -33,7 +34,12 @@ class Timeline extends Component {
       currentBlock: null,
       hasAccess: false,
       loading: true,
+      viewingDocument: null,
+      scrollToBlock: null
     }
+
+    this.onLinkClickAdditionalAction = this.onLinkClickAdditionalAction.bind(this)
+    this.onViewingDocumentChange = this.onViewingDocumentChange.bind(this)
   }
 
   componentDidMount() {
@@ -50,7 +56,7 @@ class Timeline extends Component {
 
     const url = `${BASE_URL + EVENT_URL}?courseInstance=${
       params.course_id
-    }&_join=courseInstance,uses,recommends`
+    }&_join=courseInstance,uses,recommends,documentReference`
 
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
@@ -92,6 +98,36 @@ class Timeline extends Component {
         })
       }
     }
+    const { scrollToBlock, viewingDocument } = this.state
+  
+    if (prevState.scrollToBlock == null && prevState.scrollToBlock !== scrollToBlock) {
+      scroller.scrollTo(scrollToBlock, {
+        duration: 500,
+        delay: 50,
+        smooth: true,
+        containerId: 'containerElement',
+      })
+      this.setState({
+        scrollToBlock: null
+      })
+    }
+  }
+
+  onLinkClickAdditionalAction(id) {
+    if (this.state.viewingDocument) {
+      this.setState({
+        scrollToBlock: id,
+      })
+    }
+    this.setState({
+      viewingDocument: null,
+    })
+  }
+
+  onViewingDocumentChange(document) {
+    this.setState({
+      viewingDocument: document
+    })
   }
 
   render() {
@@ -101,6 +137,7 @@ class Timeline extends Component {
       nestedEvents,
       hasAccess,
       loading,
+      viewingDocument
     } = this.state
     const { course } = this.props
     const courseId = course ? getShortId(course['@id']) : ''
@@ -134,7 +171,10 @@ class Timeline extends Component {
           <Container className="core-container">
             <Row className="timeline-row">
               <Col xs="3" className="timeline-left-col">
-                <BlockMenu courseEvents={timelineBlocks} />
+                <BlockMenu
+                  onLinkClickAdditionalAction={this.onLinkClickAdditionalAction}
+                  courseEvents={timelineBlocks}
+                />
                 {/*<BlockMenuToggle courseEvents={timelineBlocks} scroll />*/}
                 {/*{hasAccess &&*/}
                 {/*    <div className="button-container">*/}
@@ -152,7 +192,21 @@ class Timeline extends Component {
                 {/*/!*<NextCalendar />*!/*/}
               </Col>
               <Col className="event-list-col">
-                <EventsList courseEvents={nestedEvents} isAdmin={hasAccess} />
+                {viewingDocument && (
+                  <div className="events-list">
+                    <DocumentViewer
+                      document={viewingDocument}
+                      onViewingDocumentChange={this.onViewingDocumentChange}
+                    />
+                  </div>
+                )}
+                <div style={{ display: viewingDocument ? 'none' : 'block' }}>
+                  <EventsList
+                    courseEvents={nestedEvents}
+                    isAdmin={hasAccess}
+                    onViewableDocumentClick={this.onViewingDocumentChange}
+                  />
+                </div>
               </Col>
               {/*<TeacherNavigation currentKey={1} href_array={adminMenuRoutes} />*/}
             </Row>

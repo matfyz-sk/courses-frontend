@@ -18,7 +18,7 @@ import * as ROUTES from '../../../constants/routes'
 const ScrollLink = Scroll.Link
 const ScrollLink2 = Scroll.Link
 
-const EventsList = ({ courseEvents, isAdmin }) => (
+const EventsList = ({ onViewableDocumentClick, courseEvents, isAdmin }) => (
   <div className="events-list" id="containerElement">
     {courseEvents.map(event => (
       <EventCard
@@ -26,6 +26,7 @@ const EventsList = ({ courseEvents, isAdmin }) => (
         isAdmin={isAdmin}
         detail={false}
         key={event.id}
+        onViewableDocumentClick={onViewableDocumentClick}
       />
     ))}
   </div>
@@ -58,13 +59,14 @@ const SubEventList = ({ events }) => (
   </div>
 )
 
-const BlockMenu = ({ courseEvents }) => (
+const BlockMenu = ({ onLinkClickAdditionalAction, courseEvents }) => (
   <ListGroup className="block-menu block-menu-non-toggle">
     <ListGroupItem className="timeline">Timeline</ListGroupItem>
     {courseEvents.map(event => (
       <ListGroupItem key={event.id} className="block-menu-item">
         <ScrollLink
           to={`${event.id}`}
+          onClick={e => onLinkClickAdditionalAction(event.id)}
           spy
           smooth
           duration={500}

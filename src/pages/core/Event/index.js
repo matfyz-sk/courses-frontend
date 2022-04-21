@@ -15,6 +15,8 @@ import {BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, SESSIONS, TASKS_EXAMS,} from '
 import {axiosRequest, getData} from '../AxiosRequests'
 import {redirect} from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
+import EventDocumentList from 'pages/documents/common/EventDocumentList'
+import DocumentViewer from 'pages/documents/common/DocumentViewer'
 
 class Event extends React.Component {
   constructor(props) {
@@ -25,7 +27,15 @@ class Event extends React.Component {
       redirectTo: null,
       hasAccess: false,
       loading: true,
+      viewingDocument: null,
     }
+    this.onViewingDocumentChange = this.onViewingDocumentChange.bind(this)
+  }
+
+  onViewingDocumentChange(document) {
+    this.setState({
+      viewingDocument: document
+    })
   }
 
   componentDidMount() {
@@ -43,7 +53,7 @@ class Event extends React.Component {
 
     const url = `${BASE_URL + EVENT_URL}/${
       params.event_id
-    }?_join=courseInstance,uses,recommends`
+    }?_join=courseInstance,uses,recommends,documentReference`
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       this.setState({
@@ -73,6 +83,7 @@ class Event extends React.Component {
                 name: material.name,
               }
             }),
+            documentReference: eventData.documentReference,
             courseInstance: eventData.courseInstance[0]
               ? eventData.courseInstance[0]['@id']
               : eventData['@id'],
@@ -118,7 +129,7 @@ class Event extends React.Component {
   }
 
   render() {
-    const { event, redirectTo, hasAccess, loading } = this.state
+    const { event, redirectTo, hasAccess, loading, viewingDocument } = this.state
 
     if (redirectTo) {
       return <Redirect to={redirectTo} />
@@ -135,15 +146,31 @@ class Event extends React.Component {
     // const isAdmin = user ? user.isSuperAdmin : false
     return (
       <div>
-        <Container className="container-view">
-          {event && <EventCard event={event} isAdmin={hasAccess} detail />}
-        </Container>
+        {viewingDocument && (
+            <div style={{maxWidth: 1300, padding: 10, margin: "auto"}}>
+              <DocumentViewer
+                document={viewingDocument}
+                onViewingDocumentChange={this.onViewingDocumentChange}
+              />
+            </div>
+          )}
+        {!viewingDocument && <Container className="container-view">
+          
+          {event && (
+            <EventCard
+              onViewableDocumentClick={this.onViewingDocumentChange}
+              event={event}
+              isAdmin={hasAccess}
+              detail
+            />
+          )}
+        </Container>}
       </div>
     )
   }
 }
 
-const EventCard = ({ event, isAdmin, detail }) => (
+const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => {console.log({onViewableDocumentClick}); return (
   <Card id={`${event.id}`} name={`${event.id}`} className="event-card">
     <CardHeader className="event-card-header-flex">
       <NavLink
@@ -211,6 +238,17 @@ const EventCard = ({ event, isAdmin, detail }) => (
           </div>
         </div>
       )}
+      {event.documentReference && (
+        <>
+          <CardSubtitle  className="event-card-table-subtitle">
+            <div style={{width: "100%"}} className="event-subtitle">Documents</div>
+          </CardSubtitle>
+          <EventDocumentList
+            onViewableDocumentClick={onViewableDocumentClick}
+            documentReference={event.documentReference}
+          />
+        </>
+      )}
       {event.materials && event.materials.length > 0 && (
         <>
           <CardSubtitle className="event-card-table-subtitle">
@@ -232,7 +270,7 @@ const EventCard = ({ event, isAdmin, detail }) => (
       )}
     </CardBody>
   </Card>
-)
+)}
 
 const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
   return {

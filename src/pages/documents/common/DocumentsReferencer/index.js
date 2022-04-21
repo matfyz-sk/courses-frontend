@@ -21,6 +21,7 @@ import { makeStyles } from '@material-ui/styles'
 import { customTheme } from 'pages/documents/styles/styles'
 import getReferenceOfDocument from './documentReferenceCreation'
 import { setFolder } from 'redux/actions'
+import { datePickerDefaultProps } from '@material-ui/pickers/constants/prop-types'
 
 // dialog's intened behaviour is to reset the styling theme so this is a workaround for the progress bar
 const useStyles = makeStyles(() => ({
@@ -41,7 +42,6 @@ function DocumentReferencer({
   match,
   courseInstance,
 }) {
-  // TODO what when document is deleted
   const classes = useStyles()
 
   const [documents, setDocuments] = useState([])
@@ -65,25 +65,22 @@ function DocumentReferencer({
         return
       }
       setFolderId(getShortID(courseInstance.fileExplorerRoot[0]['@id']))
-      console.log({documentReferences})
+
       const docsPromises = []
       for (const docRef of documentReferences) {
         const entityUrl = `document/${getShortID(docRef.hasDocument)}`
         docsPromises.push(axiosGetEntities(entityUrl))
       }
       Promise.all(docsPromises).then(responses => {
-        const documents = responses.map(
-          response => getResponseBody(response)[0]
-        )
-        setDocuments(documents)
+        const documents = responses.map(response => getResponseBody(response)[0])
+        setDocuments(documents.filter(doc => !doc.isDeleted))
       })
     }
-  }, [courseInstance])
+  }, [courseInstance, documentReferences])
 
   useEffect(() => {
     if (folderId === '') return
     setLoading(true)
-    // TODO only nondeleted
     const entitiesUrl = `folder/${folderId}?courseInstance=${courseId}&_chain=parent&_join=content`
 
     axiosGetEntities(entitiesUrl)
@@ -100,8 +97,6 @@ function DocumentReferencer({
         const fsObjects = data[0].content
         setFsObjects(fsObjects.filter(doc => !doc.isDeleted))
         setLoading(false)
-        // props.setFolder(data[0])
-        // props.fetchFolder(folderId)
         setFsPath(data.slice().reverse())
       })
   }, [courseId, folderId])
@@ -110,7 +105,7 @@ function DocumentReferencer({
     const documentRefId = await getReferenceOfDocument(document, courseInstance)
     onDocumentReferencesChange([
       ...documentReferences.filter(ref => ref['@id'] !== documentRefId),
-      { '@id': documentRefId, hasDocument: document, courseInstance },
+      { '@id': documentRefId, hasDocument: document["@id"], courseInstance },
     ])
     setDocuments([
       ...documents.filter(doc => doc['@id'] !== document['@id']),
