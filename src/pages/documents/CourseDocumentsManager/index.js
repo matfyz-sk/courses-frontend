@@ -68,7 +68,8 @@ function CourseDocumentManager(props) {
     setFsObjects([])
     if (showingDeleted) {
       getDeletedDocuments(
-        getShortID(courseInstance.fileExplorerRoot[0]?.['@id'])
+        // getShortID(courseInstance.fileExplorerRoot[0]?.['@id'])
+        courseId
       ).then(deleted => {
         setLoading(false)
         setFsObjects(deleted)
@@ -76,7 +77,7 @@ function CourseDocumentManager(props) {
       return
     }
 
-    const entitiesUrl = `folder/${folderId}?courseInstance=${courseId}&_chain=parent&_join=content`
+    const entitiesUrl = `folder/${folderId}?_chain=parent&_join=content`
 
     axiosGetEntities(entitiesUrl)
       .then(response => {

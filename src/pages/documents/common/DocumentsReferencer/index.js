@@ -81,7 +81,7 @@ function DocumentReferencer({
   useEffect(() => {
     if (folderId === '') return
     setLoading(true)
-    const entitiesUrl = `folder/${folderId}?courseInstance=${courseId}&_chain=parent&_join=content`
+    const entitiesUrl = `folder/${folderId}?_chain=parent&_join=content`
 
     axiosGetEntities(entitiesUrl)
       .then(response => {
