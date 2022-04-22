@@ -45,6 +45,8 @@ class Submit extends React.Component {
     const hasInstructor = instructors.map(instructor => {
       return instructor.fullId
     })
+
+    const hasDocument = courseInstance.hasDocument.map(doc => doc["@id"])
     
     const data = {
       name, 
@@ -53,6 +55,7 @@ class Submit extends React.Component {
       endDate,
       hasInstructor,
       instanceOf: courseFullId,
+      hasDocument
     }
 
     const url = BASE_URL + COURSE_INSTANCE_URL
@@ -61,7 +64,7 @@ class Submit extends React.Component {
       .then(async response => {
         if (response && response.status === 200) {
           this.createEvents(response.data.resource.iri)
-          console.log({response})
+          
           const newCourseInstanceId = response.data.resource.iri
           const data = {
             fileExplorerRoot: await copyFileSystem(
@@ -70,6 +73,17 @@ class Submit extends React.Component {
             )
           }
           axiosUpdateEntity(data, `courseInstance/${getShortId(newCourseInstanceId)}`)
+            .then(response => {
+              if (response.failed) {
+                errors.push(
+                  'There was a problem with server while sending your form. Try again later.'
+                )
+                return
+              }
+              this.setState({
+                sent: true,
+              })
+            })
         } else {
           errors.push(
             'There was a problem with server while sending your form. Try again later.'
@@ -131,10 +145,6 @@ class Submit extends React.Component {
     if (errors.length > 0) {
       console.log(errors)
     }
-
-    this.setState({
-      sent: true,
-    })
   }
 
   render() {
