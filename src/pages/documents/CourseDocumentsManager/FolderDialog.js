@@ -15,12 +15,14 @@ function FolderDialog({
   handleClose,
   folderName,
   setFolderName,
-  submitHandler,
+  onCreate,
+  onEdit
 }) {
 
   const onSubmit = (e) => {
-    if (folderName.length !== 0)
-      submitHandler(e)
+    if (folderName.length !== 0) {
+      isEdit ? onEdit() : onCreate()
+    }
   }
 
   return (
@@ -34,6 +36,7 @@ function FolderDialog({
           {isEdit ? 'Edit' : 'Create'} folder
         </DialogTitle>
         <DialogContent>
+          {/* TODO resolve tip */}
           <DialogContentText>
             Beware! A folder can be deleted only if it's empty
           </DialogContentText>
@@ -52,10 +55,10 @@ function FolderDialog({
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClose} color="primary" style={{ outline: "none" }}>
             Cancel
           </Button>
-          <Button onClick={onSubmit} color="primary">
+          <Button onClick={onSubmit} color="primary" style={{ outline: "none" }}>
             Submit
           </Button>
         </DialogActions>

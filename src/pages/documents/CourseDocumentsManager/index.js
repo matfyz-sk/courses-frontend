@@ -35,15 +35,24 @@ import getDeletedDocuments from '../functions/getDeletedDocuments'
 import { useMediaQuery } from '@material-ui/core'
 
 function CourseDocumentManager(props) {
-  const { courseInstance, folder, match, showingDeleted, setFolder, history } = props
-  const [uglyFolderHack, setUglyFolderHack] = useState(0)
-  const isMobile = useMediaQuery('(max-width:600px)');
+  const {
+    courseInstance,
+    folder,
+    match,
+    showingDeleted,
+    setFolder,
+    history,
+  } = props
+  const [renderHack, setRenderHack] = useState(0)
+  const isMobile = useMediaQuery('(max-width:600px)')
 
   const folderId = match.params.folder_id
   const courseId = match.params.course_id
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [folderName, setFolderName] = useState('')
+  const [isFolderEdit, setIsFolderEdit] = useState(false)
+  const [editFolderId, setEditFolderId] = useState(null)
 
   const [fsPath, setFsPath] = useState([])
 
@@ -58,11 +67,12 @@ function CourseDocumentManager(props) {
     setSearch('')
     setFsObjects([])
     if (showingDeleted) {
-      getDeletedDocuments(getShortID(courseInstance.fileExplorerRoot[0]?.["@id"]))
-        .then(deleted => {
-          setLoading(false)
-          setFsObjects(deleted)
-        })
+      getDeletedDocuments(
+        getShortID(courseInstance.fileExplorerRoot[0]?.['@id'])
+      ).then(deleted => {
+        setLoading(false)
+        setFsObjects(deleted)
+      })
       return
     }
 
@@ -80,16 +90,13 @@ function CourseDocumentManager(props) {
       })
       .then(data => {
         const fsObjects = data[0].content
-        console.log({fsObjects})
-        setFsObjects(
-          fsObjects.filter(doc => doc.isDeleted === showingDeleted)
-        )
-        console.log(fsObjects.filter(doc => doc.isDeleted === showingDeleted))
+        console.log({ fsObjects })
+        setFsObjects(fsObjects.filter(doc => doc.isDeleted === showingDeleted))
         setLoading(false)
         setFolder(data[0])
         setFsPath(data.slice().reverse())
       })
-  }, [courseId, folderId, showingDeleted, uglyFolderHack])
+  }, [courseId, folderId, showingDeleted, renderHack])
 
   // TODO to retire...
   const invertDeletionFlag = fsObject => {
@@ -103,9 +110,7 @@ function CourseDocumentManager(props) {
         console.error('Inverting was unsuccessful')
         setStatus(response.response ? response.response.status : 500)
       } else {
-        setFsObjects(
-          fsObjects.filter(obj => obj.isDeleted === showingDeleted)
-        )
+        setFsObjects(fsObjects.filter(obj => obj.isDeleted === showingDeleted))
       }
     })
   }
@@ -122,9 +127,7 @@ function CourseDocumentManager(props) {
       return
     }
     history.push(
-      redirect(ROUTES.EDIT_DOCUMENT, [
-        { key: 'course_id', value: courseId },
-      ]),
+      redirect(ROUTES.EDIT_DOCUMENT, [{ key: 'course_id', value: courseId }]),
       {
         documentId: getShortID(fsObject['@id']),
         parentFolderId: getShortID(folder.id),
@@ -159,6 +162,7 @@ function CourseDocumentManager(props) {
       var entityUrl = `folder/${folderId}`
       var data = {
         content: [...fsObjects.map(doc => doc['@id']), newFolderId],
+        lastChanged: new Date(),
       }
 
       axiosUpdateEntity(data, entityUrl).then(response => {
@@ -167,9 +171,36 @@ function CourseDocumentManager(props) {
           setStatus(response.response ? response.response.status : 500)
           return
         }
-        setUglyFolderHack(x => x + 1)
+        setRenderHack(x => x + 1)
       })
     }
+  }
+
+  const handleFolderCreate = () => {
+    toggleFolderDialog()
+    setIsFolderEdit(false)
+  }
+
+  const beginFolderEdit = folder => {
+    toggleFolderDialog()
+    setFolderName(folder.name)
+    setEditFolderId(getShortID(folder['@id']))
+    setIsFolderEdit(true)
+  }
+
+  const editFolder = () => {
+    const folderUrl = `folder/${editFolderId}`
+    const data = { name: folderName, lastChanged: new Date() }
+    toggleFolderDialog()
+    axiosUpdateEntity(data, folderUrl).then(response => {
+      if (response.failed) {
+        console.error('Folder edit failed: ', response.error)
+        setStatus(response.response ? response.response.status : 500)
+        return
+      }
+      axiosUpdateEntity({ lastChanged: new Date() }, `folder/${folderId}`)
+      setRenderHack(x => x + 1)
+    })
   }
 
   if (status === 404) {
@@ -212,12 +243,12 @@ function CourseDocumentManager(props) {
           >
             <CreateDocumentMenu
               style={{ display: 'inline-block', float: 'left' }}
-              dialogOpenHandler={setDialogOpen}
+              onFolderCreate={handleFolderCreate}
               loading={loading || folder.loading}
             />
             <div style={{ float: 'right' }}>
               <Button
-                style={{ outline: "none" }}
+                style={{ outline: 'none' }}
                 variant="contained"
                 disabled={loading || folder.loading}
                 onClick={() =>
@@ -259,15 +290,17 @@ function CourseDocumentManager(props) {
           onRowClickHandler={onFsObjectRowClick}
           onPathFolderClickHandler={onPathFolderClick}
           loading={loading || folder.loading}
+          editFolder={beginFolderEdit}
         />
       </div>
       <FolderDialog
-        // isEdit
         open={dialogOpen}
         handleClose={toggleFolderDialog}
         folderName={folderName}
         setFolderName={setFolderName}
-        submitHandler={createFolder}
+        onCreate={createFolder}
+        onEdit={editFolder}
+        isEdit={isFolderEdit}
       />
     </ThemeProvider>
   )

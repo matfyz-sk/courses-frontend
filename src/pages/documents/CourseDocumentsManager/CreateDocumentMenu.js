@@ -1,11 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { withRouter } from 'react-router'
-import {
-  Button,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-} from '@material-ui/core'
+import { Button, Menu, MenuItem, ListItemIcon } from '@material-ui/core'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import { MdFolder, MdCode, MdLink, MdAttachFile } from 'react-icons/md'
@@ -19,11 +14,9 @@ const CustomListItemIcon = withStyles({
   },
 })(ListItemIcon)
 
-function CreateDocumentMenu(props) {
-  const { dialogOpenHandler, loading } = props
-
+function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
   const [anchorEl, setAnchorEl] = React.useState(null)
-  const [courseId, setCourseId] = useState(props.match.params.course_id)
+  const courseId = match.params.course_id
 
   const handleClick = event => {
     setAnchorEl(event.currentTarget)
@@ -31,13 +24,13 @@ function CreateDocumentMenu(props) {
 
   const handleClose = path => {
     setAnchorEl(null)
-    props.history.push(path)
+    history.push(path)
   }
 
   return (
-    <ThemeProvider	theme={customTheme}>
+    <ThemeProvider theme={customTheme}>
       <Button
-        style={{ outline: "none"}}
+        style={{ outline: 'none' }}
         variant="contained"
         aria-controls="simple-menu"
         aria-haspopup="true"
@@ -54,10 +47,15 @@ function CreateDocumentMenu(props) {
         open={Boolean(anchorEl)}
         onClose={handleClose}
         getContentAnchorEl={null}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        transformOrigin={{ vertical: "top", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <MenuItem onClick={() => dialogOpenHandler(true)}>
+        <MenuItem
+          onClick={() => {
+            handleClose()
+            onFolderCreate()
+          }}
+        >
           <CustomListItemIcon>
             <MdFolder />
           </CustomListItemIcon>

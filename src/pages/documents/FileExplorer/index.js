@@ -17,6 +17,7 @@ import { withRouter } from 'react-router'
 import {
   MdDelete,
   MdRestorePage,
+  MdEdit
 } from 'react-icons/md'
 import Path from './Path'
 import { DocumentEnums } from '../enums/document-enums'
@@ -159,7 +160,8 @@ function FileExplorer(props) {
     fsPath,
     onRowClickHandler,
     onPathFolderClickHandler,
-    isReferencer
+    isReferencer,
+    editFolder
   } = props
 
   const classes = useFileExplorerStyles()
@@ -182,6 +184,18 @@ function FileExplorer(props) {
         f.name.includes(search) ||
         timestampToString2(f.createdAt).includes(search)
     )
+  }
+
+  const lastChangedSwap = files => {
+    // folder specific because createdAt attr updated in db
+    const newFiles = files.map(file => {
+        if (file.lastChanged) {
+          return {...file, createdAt: file.lastChanged }
+        }
+        return file
+      }
+    )
+    return newFiles
   }
 
   return (
@@ -228,7 +242,7 @@ function FileExplorer(props) {
             <TableBody>
               {stableSort(
                 stableSort(
-                  filterSearched(files),
+                  filterSearched(lastChangedSwap(files)),
                   getComparator(order, orderBy)
                 ),
                 getComparator('desc', '@type')
@@ -264,6 +278,18 @@ function FileExplorer(props) {
                     </TableCell>
                     {!isReferencer && (
                       <TableCell onClick={e => e.stopPropagation()} align="right">
+                        
+                        {getShortType(file['@type']) === DocumentEnums.folder.entityName && (
+                          <IconButton
+                            aria-label={"edit folder"}
+                            onClick={(e) => editFolder(file)}
+                            size="small"
+                            style={{fontSize: "90%", outline: "none"}}                        
+                          >
+                            <MdEdit className={classes.actionsButton} />
+                          </IconButton>
+                        )}
+                        
                         <IconButton
                           aria-label={showingDeleted ? "delele item" : "restore item"}
                           onClick={() => invertDeletionFlag(file)}
@@ -276,6 +302,7 @@ function FileExplorer(props) {
                             <MdDelete className={classes.actionsButton} />
                           )}
                         </IconButton>
+                        
                       </TableCell>
                     )}                    
                   </CustomTableRow>

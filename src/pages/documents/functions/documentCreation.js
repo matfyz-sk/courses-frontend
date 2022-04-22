@@ -96,6 +96,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
         previousVersionId,
         ...oldDocument.historicVersion.map(doc => doc['@id']),
       ],
+      courseInstance: oldDocument.courseInstance
     }
   }
   return newVersion
@@ -190,6 +191,7 @@ const replaceInParentFolder = async (newVersionId, oldVersionId, props) => {
         .map(fsObj => fsObj['@id'])
         .filter(id => id !== oldVersionId),
     ],
+    lastChanged: new Date()
   }
   // * easy deletion
   // const folderContent = {
