@@ -96,7 +96,6 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
         previousVersionId,
         ...oldDocument.historicVersion.map(doc => doc['@id']),
       ],
-      courseInstance: oldDocument.courseInstance
     }
   }
   return newVersion
