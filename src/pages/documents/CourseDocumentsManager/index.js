@@ -67,12 +67,10 @@ function CourseDocumentManager(props) {
     setSearch('')
     setFsObjects([])
     if (showingDeleted) {
-      getDeletedDocuments(
-        // getShortID(courseInstance.fileExplorerRoot[0]?.['@id'])
-        courseId
-      ).then(deleted => {
+      getDeletedDocuments(courseId).then(deleted => {
         setLoading(false)
         setFsObjects(deleted)
+        setFsPath([{ name: 'Deleted documents' }])
       })
       return
     }
