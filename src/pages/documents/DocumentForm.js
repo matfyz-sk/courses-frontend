@@ -26,7 +26,7 @@ import { Alert, Form, Label } from 'reactstrap'
 import { HiDownload } from 'react-icons/hi'
 import CustomEditor from './wysiwyg/ckeditor'
 import { DocumentEnums } from './enums/document-enums'
-import { fetchFolder } from '../../redux/actions'
+import { fetchFolder, setCurrentDocumentsOfCourseInstance } from '../../redux/actions'
 import * as ROUTES from '../../constants/routes'
 import { redirect } from '../../constants/redirect'
 import Page404 from '../errors/Page404'
@@ -45,6 +45,7 @@ function DocumentForm({
   match,
   user,
   fetchFolder,
+  setCurrentDocumentsOfCourseInstance,
   location
 }) {
   // FIXME large base64 file uploads not working
@@ -170,6 +171,7 @@ function DocumentForm({
       courseInstance,
       folder,
       user,
+      setCurrentDocumentsOfCourseInstance
     }
     // if (isMaterial) {
     //   console.log('implement')
@@ -512,5 +514,5 @@ const mapStateToProps = state => {
 }
 
 export default withRouter(
-  connect(mapStateToProps, { fetchFolder })(DocumentForm)
+  connect(mapStateToProps, { fetchFolder, setCurrentDocumentsOfCourseInstance })(DocumentForm)
 )

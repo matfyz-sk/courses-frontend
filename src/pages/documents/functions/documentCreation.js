@@ -126,9 +126,7 @@ const setSuccessorOfOldVersion = async (successorId, oldVersionId, props) => {
 }
 
 const updateDocumentReferences = async (newVersionId, oldVersionId, props) => {
-  const entitiesUrl = `documentReference?courseInstance=${getShortID(
-    props.courseInstance['@id']
-  )}`
+  const entitiesUrl = `documentReference?courseInstance=${props.courseId}`
   const response = await axiosGetEntities(entitiesUrl)
   if (response.failed) {
     console.error(response.error)
@@ -204,8 +202,37 @@ const replaceInParentFolder = async (newVersionId, oldVersionId, props) => {
     props.setStatus(response.response ? response.response.status : 500)
     return
   }
-  // props.setFolderContent???
 }
+
+const replaceInCurrentDocuments = async (newVersionId, oldVersionId, props) => {
+  // TODO change copy file system
+  const currentDocuments = {
+    hasDocument: [
+      newVersionId,
+      ...props.courseInstance.hasDocument
+        .map(doc => doc['@id'])
+        .filter(id => id !== oldVersionId),
+    ],
+  }
+  // * easy deletion
+  // const currentDocuments = {
+  //     hasDocument: []
+  // }
+  const entityUrl = `courseInstance/${props.courseId}`
+
+  const response = await axiosUpdateEntity(currentDocuments, entityUrl)
+  if (response.failed) {
+    console.error(response.error)
+    props.setStatus(response.response ? response.response.status : 500)
+    return
+  }
+  // because if i don't reload page courseInstance is not fetched again
+  props.setCurrentDocumentsOfCourseInstance(
+    currentDocuments.hasDocument.map(doc => ({ '@id': doc }))
+  )
+}
+
+
 
 const editDocument = async (newDocument, oldDocument, props) => {
   const data = await createNewVersionData(newDocument, oldDocument, props)
@@ -226,6 +253,7 @@ const editDocument = async (newDocument, oldDocument, props) => {
     updateDocumentReferences(newVersionId, oldDocument['@id'], props) // no need for await
   }
   // await needed so we can see the change via redux
+  replaceInCurrentDocuments(newVersionId, oldDocument['@id'], props)
   await replaceInParentFolder(newVersionId, oldDocument['@id'], props)
   return getShortID(newVersionId)
 }

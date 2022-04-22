@@ -11,7 +11,7 @@ import {
 import { redirect } from '../../constants/redirect'
 import * as ROUTES from '../../constants/routes'
 import { Link } from 'react-router-dom'
-import { fetchFolder } from '../../redux/actions'
+import { fetchFolder, setCurrentDocumentsOfCourseInstance } from '../../redux/actions'
 import diff from 'node-htmldiff'
 import { DocumentEnums } from './enums/document-enums'
 import editDocument from './functions/documentCreation'
@@ -214,6 +214,7 @@ function DocumentHistory({
   folder,
   user,
   courseInstance,
+  setCurrentDocumentsOfCourseInstance,
   location
 }) {
 
@@ -342,6 +343,7 @@ function DocumentHistory({
       courseInstance,
       folder,
       user,
+      setCurrentDocumentsOfCourseInstance
     }
     // if (isMaterial) {
     //   console.log("implement")
@@ -595,5 +597,5 @@ const mapStateToProps = ({
 }
 
 export default withRouter(
-  connect(mapStateToProps, { fetchFolder })(DocumentHistory)
+  connect(mapStateToProps, { fetchFolder, setCurrentDocumentsOfCourseInstance })(DocumentHistory)
 )
