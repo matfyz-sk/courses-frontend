@@ -238,7 +238,7 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) =>  (
           </div>
         </div>
       )}
-      {event.documentReference && (
+      {event.documentReference && event.documentReference.length > 0 && (
         <>
           <CardSubtitle  className="event-card-table-subtitle">
             <div style={{width: "100%"}} className="event-subtitle">Documents</div>
