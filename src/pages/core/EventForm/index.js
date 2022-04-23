@@ -314,7 +314,7 @@ class EventForm extends Component {
     const typeLowerCase = this.lowerFirstLetter(type)
     const url = `${BASE_URL}/${typeLowerCase}/${id}`
 
-    axiosRequest('delete', null, url).then(response => {
+    axiosRequest('delete', {}, url).then(response => {
       if (response && response.status === 200) {
         callBack(null)
       } else {

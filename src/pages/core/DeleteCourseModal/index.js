@@ -95,7 +95,7 @@ class DeleteForm extends Component {
     const url = `${
       BASE_URL + (type === 'course' ? COURSE_URL : COURSE_INSTANCE_URL)
     }/${type === 'course' ? course.id : courseInstance.id}`
-    axiosRequest('delete', null, url).then(response => {
+    axiosRequest('delete', {}, url).then(response => {
       if (response && response.status === 200) {
         callback()
       } else {

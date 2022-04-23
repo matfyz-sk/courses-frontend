@@ -142,7 +142,7 @@ export const axiosDeleteEntity = ( entity ) => {
   return axiosRequest(
     'delete',
     `${REST_URL}/${entity}`,
-    null
+    {}
   )
 }
 
