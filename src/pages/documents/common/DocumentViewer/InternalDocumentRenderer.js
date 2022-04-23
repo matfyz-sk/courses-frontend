@@ -13,7 +13,7 @@ function InternalDocumentRenderer({ setNumPages, pageNumber, payloadContent, mim
   const [pages, setPages] = useState([])
 
   useEffect(() => {
-    var newPages = []
+    let newPages
     if (mimeType === 'text/html') {
       newPages = payloadContent.split('<hr>')
     } else {
@@ -28,7 +28,7 @@ function InternalDocumentRenderer({ setNumPages, pageNumber, payloadContent, mim
     if (mimeType === 'text/markdown') {
       return marked.parse(pages[pageNumber - 1], markedOptions)
     }
-    return pages[pageNumber]
+    return pages[pageNumber - 1]
   }
 
   return (
