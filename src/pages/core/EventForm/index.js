@@ -272,7 +272,7 @@ class EventForm extends Component {
                 { fileExplorerRoot },
                 `courseInstance/${newEventId}`
               )
-            }            
+            }
 
             callBack(newEventId)
           }
@@ -491,7 +491,7 @@ class EventForm extends Component {
             />
           </FormGroup>
 
-          <FormGroup 
+          <FormGroup
               style={{ maxWidth: 700 }} className="new-event-formGroup">
             <DocumentReferencer
               label="Uses documents"
@@ -500,65 +500,65 @@ class EventForm extends Component {
             />
           </FormGroup>
 
-          <FormGroup className="new-event-formGroup">
-            <Label
-              id="usesMaterials"
-              for="usesMaterials"
-              className="new-event-label"
-            >
-              Used Materials
-            </Label>
-            <Autocomplete
-              multiple
-              name="usesMaterials"
-              id="usesMaterials"
-              options={docs}
-              getOptionLabel={option => option.name}
-              onChange={this.onUsesChange}
-              value={uses}
-              style={{ minWidth: 200, maxWidth: 700 }}
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  placeholder=""
-                  InputProps={{
-                    ...params.InputProps,
-                    disableUnderline: true,
-                  }}
-                />
-              )}
-            />
-          </FormGroup>
+          {/*<FormGroup className="new-event-formGroup">*/}
+          {/*  <Label*/}
+          {/*    id="usesMaterials"*/}
+          {/*    for="usesMaterials"*/}
+          {/*    className="new-event-label"*/}
+          {/*  >*/}
+          {/*    Used Materials*/}
+          {/*  </Label>*/}
+          {/*  <Autocomplete*/}
+          {/*    multiple*/}
+          {/*    name="usesMaterials"*/}
+          {/*    id="usesMaterials"*/}
+          {/*    options={docs}*/}
+          {/*    getOptionLabel={option => option.name}*/}
+          {/*    onChange={this.onUsesChange}*/}
+          {/*    value={uses}*/}
+          {/*    style={{ minWidth: 200, maxWidth: 700 }}*/}
+          {/*    renderInput={params => (*/}
+          {/*      <TextField*/}
+          {/*        {...params}*/}
+          {/*        placeholder=""*/}
+          {/*        InputProps={{*/}
+          {/*          ...params.InputProps,*/}
+          {/*          disableUnderline: true,*/}
+          {/*        }}*/}
+          {/*      />*/}
+          {/*    )}*/}
+          {/*  />*/}
+          {/*</FormGroup>*/}
 
-          <FormGroup className="new-event-formGroup">
-            <Label
-              id="recommendsMaterials"
-              for="recommendsMaterials"
-              className="new-event-label"
-            >
-              Recommended Materials
-            </Label>
-            <Autocomplete
-              multiple
-              name="recommendsMaterials"
-              id="recommendsMaterials"
-              options={docs}
-              getOptionLabel={option => option.name}
-              onChange={this.onRecommendsChange}
-              value={recommends}
-              style={{ minWidth: 200, maxWidth: 700 }}
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  placeholder=""
-                  InputProps={{
-                    ...params.InputProps,
-                    disableUnderline: true,
-                  }}
-                />
-              )}
-            />
-          </FormGroup>
+          {/*<FormGroup className="new-event-formGroup">*/}
+          {/*  <Label*/}
+          {/*    id="recommendsMaterials"*/}
+          {/*    for="recommendsMaterials"*/}
+          {/*    className="new-event-label"*/}
+          {/*  >*/}
+          {/*    Recommended Materials*/}
+          {/*  </Label>*/}
+          {/*  <Autocomplete*/}
+          {/*    multiple*/}
+          {/*    name="recommendsMaterials"*/}
+          {/*    id="recommendsMaterials"*/}
+          {/*    options={docs}*/}
+          {/*    getOptionLabel={option => option.name}*/}
+          {/*    onChange={this.onRecommendsChange}*/}
+          {/*    value={recommends}*/}
+          {/*    style={{ minWidth: 200, maxWidth: 700 }}*/}
+          {/*    renderInput={params => (*/}
+          {/*      <TextField*/}
+          {/*        {...params}*/}
+          {/*        placeholder=""*/}
+          {/*        InputProps={{*/}
+          {/*          ...params.InputProps,*/}
+          {/*          disableUnderline: true,*/}
+          {/*        }}*/}
+          {/*      />*/}
+          {/*    )}*/}
+          {/*  />*/}
+          {/*</FormGroup>*/}
 
           {type === 'Block' && (
             <SubEvents

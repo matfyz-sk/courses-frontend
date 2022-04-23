@@ -155,7 +155,7 @@ class Event extends React.Component {
             </div>
           )}
         {!viewingDocument && <Container className="container-view">
-          
+
           {event && (
             <EventCard
               onViewableDocumentClick={this.onViewingDocumentChange}
@@ -170,7 +170,7 @@ class Event extends React.Component {
   }
 }
 
-const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => {console.log({onViewableDocumentClick}); return (
+const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) =>  (
   <Card id={`${event.id}`} name={`${event.id}`} className="event-card">
     <CardHeader className="event-card-header-flex">
       <NavLink
@@ -249,28 +249,28 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => {cons
           />
         </>
       )}
-      {event.materials && event.materials.length > 0 && (
-        <>
-          <CardSubtitle className="event-card-table-subtitle">
-            Materials
-          </CardSubtitle>
-          <Table key={event.id} className="materials-table">
-            <tbody>
-              {event.materials.map(material => (
-                <tr key={material.id} className="event-list-group-item">
-                  <td className="materials-td">
-                    {getIcon('Material')}
-                    <div className="material-name">{material.name}</div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </>
-      )}
+      {/*{event.materials && event.materials.length > 0 && (*/}
+      {/*  <>*/}
+      {/*    <CardSubtitle className="event-card-table-subtitle">*/}
+      {/*      Materials*/}
+      {/*    </CardSubtitle>*/}
+      {/*    <Table key={event.id} className="materials-table">*/}
+      {/*      <tbody>*/}
+      {/*        {event.materials.map(material => (*/}
+      {/*          <tr key={material.id} className="event-list-group-item">*/}
+      {/*            <td className="materials-td">*/}
+      {/*              {getIcon('Material')}*/}
+      {/*              <div className="material-name">{material.name}</div>*/}
+      {/*            </td>*/}
+      {/*          </tr>*/}
+      {/*        ))}*/}
+      {/*      </tbody>*/}
+      {/*    </Table>*/}
+      {/*  </>*/}
+      {/*)}*/}
     </CardBody>
   </Card>
-)}
+)
 
 const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
   return {

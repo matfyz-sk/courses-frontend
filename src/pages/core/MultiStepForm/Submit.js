@@ -47,9 +47,9 @@ class Submit extends React.Component {
     })
 
     const hasDocument = courseInstance.hasDocument.map(doc => doc["@id"])
-    
+
     const data = {
-      name, 
+      name,
       description,
       startDate,
       endDate,
@@ -64,7 +64,7 @@ class Submit extends React.Component {
       .then(async response => {
         if (response && response.status === 200) {
           this.createEvents(response.data.resource.iri)
-          
+
           const newCourseInstanceId = response.data.resource.iri
           const data = {
             fileExplorerRoot: await copyFileSystem(
@@ -115,6 +115,10 @@ class Submit extends React.Component {
       if (checkedEvents.includes(event.id)) {
         const newStartDate = addDays(event.startDate, noOfDays)
         const newEndDate = addDays(event.endDate, noOfDays)
+        const newDocumentReference = event.documentReference.map(ref => ({
+          hasDocument: ref.hasDocument,
+          courseInstance: courseId,
+        }))
         const e = {
           name: event.name,
           description: event.description,
@@ -122,6 +126,7 @@ class Submit extends React.Component {
           endDate: newEndDate,
           courseInstance: courseId,
           _type: event.type,
+          documentReference: newDocumentReference
         }
         eventsToAdd.push(e)
       }

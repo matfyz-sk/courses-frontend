@@ -56,7 +56,7 @@ class Timeline extends Component {
 
     const url = `${BASE_URL + EVENT_URL}?courseInstance=${
       params.course_id
-    }&_join=courseInstance,uses,recommends,documentReference`
+    }&_join=courseInstance,documentReference`
 
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
@@ -99,7 +99,7 @@ class Timeline extends Component {
       }
     }
     const { scrollToBlock, viewingDocument } = this.state
-  
+
     if (prevState.scrollToBlock == null && prevState.scrollToBlock !== scrollToBlock) {
       scroller.scrollTo(scrollToBlock, {
         duration: 500,
