@@ -28,7 +28,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     ...properties
   } = oldDocument
 
-  const { name, mimeType, uri, filename } = newDocument
+  const { name, mimeType, uri, filename, isDeleted } = newDocument
   if (newDocument.payload) {
     var content = newDocument.payload[0].content
   }
@@ -53,7 +53,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     _type: props.entityName, // TODO should be multiple
     name,
     parent: props.folder.id,
-    isDeleted: false,
+    isDeleted,
     restoredFrom: props.restoredFrom,
     author: [props.user.fullURI],
     owner: props.user.fullURI,
@@ -64,7 +64,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
   var subclassParams = {}
   switch (props.entityName) {
     case DocumentEnums.internalDocument.entityName:
-      subclassParams = { 
+      subclassParams = {
         payload,
         mimeType,
       }
@@ -82,7 +82,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     default:
       break
   }
-  
+
   newVersion = {
     ...newVersion,
     ...subclassParams,

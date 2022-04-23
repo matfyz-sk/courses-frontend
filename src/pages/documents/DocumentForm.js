@@ -35,7 +35,8 @@ import editDocument from './functions/documentCreation'
 import downloadBase64File from './functions/downloadBase64File'
 import MaterialForm from './MaterialForm'
 import { customTheme } from './styles/styles'
-import { MdDelete, MdHistory } from 'react-icons/md'
+import { MdDelete, MdRestorePage, MdHistory } from 'react-icons/md'
+import removeDocumentReference from "./functions/removeDocumentReference";
 
 function DocumentForm({
   courseInstance,
@@ -71,10 +72,11 @@ function DocumentForm({
   )
   const [loadingDocument, setLoadingDocument] = useState(isInEditingMode)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  const [isSaveDisabled, setIsSaveDisabled] = useState(false)
 
   // shared among all document subclasses
   const [name, setName] = useState('')
+  const [isDeleted, setIsDeleted] = useState(false);
 
   const [isMaterial, setIsMaterial] = useState(false) // TODO resolve whether doc is material
   const [description, setDescription] = useState("")
@@ -111,16 +113,10 @@ function DocumentForm({
       .then(data => {
         const responseDocument = data[0]
         console.log({ responseDocument })
-        if (
-          responseDocument.isDeleted // TODO make readonly?
-        ) {
-          history.push(
-            redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])
-          )
-          return
-        }
         setDocument(responseDocument)
         setName(responseDocument.name)
+        setIsDeleted(responseDocument.isDeleted)
+        setIsSaveDisabled(responseDocument.isDeleted)
         if (getShortID(folder.id) !== location.state.parentFolderId)
           fetchFolder(location.state.parentFolderId)
         switch (responseDocument['@type']) {
@@ -156,13 +152,19 @@ function DocumentForm({
     }
   }, [loadingDocument, loadingMaterialRelations, folder.loading])
 
-  const handleEdit = async e => {
+  const handleDelete = async e => {
+    e.persist()
+    await removeDocumentReference(documentId, courseId)
+    await handleEdit(e, true)
+  }
+
+  const handleEdit = async (e, isBeingDeleted = false) => {
     e.preventDefault()
     if (!formValid()) {
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
-    setSaving(true)
+    setIsSaveDisabled(true)
     var editProps = {
       courseId,
       entityName,
@@ -195,13 +197,14 @@ function DocumentForm({
         uri,
         filename,
         payload: [{ content }],
+        isDeleted: isBeingDeleted,
       },
       document,
       editProps
     )
     if (!newVersionId) {
       setStatus(500)
-      setSaving(false)
+      setIsSaveDisabled(false)
       return
     }
     history.push(
@@ -303,14 +306,14 @@ function DocumentForm({
                 <MdHistory />
               </IconButton>
               <IconButton
-                aria-label="delete"
+                aria-label={isDeleted ? "restore" : "delete"}
                 style={{
                   outline: 'none',
                   color: customTheme.palette.primary.main,
                 }}
-                // TODO onClick
+                onClick={isDeleted ? handleEdit : handleDelete}
               >
-                <MdDelete />
+                {isDeleted ? <MdRestorePage /> : <MdDelete /> }
               </IconButton>
             </div>
           )}
@@ -327,6 +330,7 @@ function DocumentForm({
             onChange={e => setName(e.target.value)}
             helperText={name.length === 0 ? 'Name is required' : ''}
             variant="outlined"
+            disabled={isSaveDisabled}
           />
         </div>
         <br />
@@ -342,6 +346,7 @@ function DocumentForm({
               onChange={e => setUri(e.target.value)}
               helperText={!isValidHttpUrl(uri) ? 'Valid url is required' : ''}
               variant="outlined"
+              disabled={isSaveDisabled}
             />
           </div>
         )}
@@ -355,12 +360,13 @@ function DocumentForm({
               aria-describedby="file-upload-helper-text"
               value={filePath}
               onChange={onChangeFile}
+              disabled={isSaveDisabled}
             />
             <InputLabel
               style={{ display: 'inline' }}
               htmlFor="upload-button-file"
             >
-              <Button variant="contained" color="primary" component="span">
+              <Button disabled={isSaveDisabled} variant="contained" color="primary" component="span">
                 Upload
               </Button>
             </InputLabel>
@@ -431,6 +437,7 @@ function DocumentForm({
               content={content}
               setContent={setContent}
               mimeType={mimeType}
+              isReadOnly={isSaveDisabled}
             />
             {content.length === 0 && (
               <p style={{ color: customTheme.palette.error.main }}>
@@ -447,6 +454,7 @@ function DocumentForm({
               checked={isMaterial}
               onChange={e => setIsMaterial(e.target.checked)}
               inputProps={{ 'aria-label': 'is material' }}
+              disabled={isSaveDisabled}
             />
           }
         />
@@ -493,7 +501,7 @@ function DocumentForm({
             type="submit"
             color="primary"
             variant="contained"
-            disabled={saving}
+            disabled={isSaveDisabled}
           >
             Save document
           </Button>
