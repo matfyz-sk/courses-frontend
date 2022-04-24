@@ -23,16 +23,15 @@ function DocumentViewer({document, onViewingDocumentChange}) {
   // event listener doesn't work when I change page with buttons so this is a fix...
   const focusHackRef = useRef()
 
-  const documentId = getShortID(document.payload[0]['@id'])
+  const payloadId = getShortID(document.payload[0]['@id'])
 
   const [numPages, setNumPages] = useState(null)
   const [pageNumber, setPageNumber] = useState(1)
   const [payloadContent, setPayloadContent] = useState('')
   const entityName = getShortType(document['@type'])
-  const getPayloadContent = () => document.payload[0].content
 
   useEffect(() => {
-    const payloadUrl = `payload/${documentId}`
+    const payloadUrl = `payload/${payloadId}`
     axiosGetEntities(payloadUrl)
       .then(response => {
         if (response.failed) {
@@ -44,7 +43,7 @@ function DocumentViewer({document, onViewingDocumentChange}) {
       .then(payload => {
         setPayloadContent(payload.content)
       })
-  }, [documentId])
+  }, [payloadId])
 
   const changePage = offset => {
     setPageNumber(prevPageNumber => prevPageNumber + offset)
@@ -120,9 +119,9 @@ function DocumentViewer({document, onViewingDocumentChange}) {
             }}
           />
           of {numPages}
-          {/* <div style={{margin: "auto"}}>
+          <div style={{margin: "auto"}}>
             <strong>{document.name}</strong>
-          </div> */}
+          </div>
           <IconButton
             onClick={() => onViewingDocumentChange(null)}
             style={{
@@ -137,7 +136,7 @@ function DocumentViewer({document, onViewingDocumentChange}) {
             aria-label="download pdf"
             onClick={() =>
               downloadBase64File(
-                getPayloadContent(),
+                payloadContent,
                 document.filename,
                 document.mimeType,
                 window
@@ -179,7 +178,7 @@ function DocumentViewer({document, onViewingDocumentChange}) {
                     setPageNumber={setPageNumber}
                     numPages={numPages}
                     setNumPages={setNumPages}
-                    pdf={getPayloadContent()}
+                    pdf={payloadContent}
                   />
                 )}
               {entityName === DocumentEnums.internalDocument.entityName && (

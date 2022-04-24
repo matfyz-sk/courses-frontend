@@ -15,24 +15,6 @@
   outline: none;
 }
 
-@media (max-width: 600px) {
-  .document-viewer header {
-    flex-wrap: wrap;
-  }
-
-  .document-viewer header div:nth-child(4) {
-    order: 1;
-    width: 100%;
-    text-align: center;
-    padding-bottom: 0.5em;
-    word-break: break-all;
-  }
-
-  .document-viewer__container__document {
-    left: 0;
-  }
-}
-
 .document-viewer__container {
   display: flex;
   flex-direction: row;
@@ -82,7 +64,7 @@
 }
 
 .document-viewer__container__document .react-pdf__message {
-  padding: 0px;
+  padding: 0;
   color: white;
 }
 
@@ -97,4 +79,29 @@
 
 .react-pdf__Document {
   line-height: initial;
+}
+
+@media only screen and (max-width: 767px) {
+  .document-viewer header {
+    flex-wrap: wrap;
+  }
+  .document-viewer__container {
+    padding: 0
+  }
+  .document-viewer header div:nth-child(4) {
+    order: 1;
+    width: 100%;
+    text-align: center;
+    padding-bottom: 0.5em;
+    word-break: break-all;
+  }
+
+  .document-viewer__container .page-control {
+    display: none;
+  }
+
+  .document-viewer__container__document {
+    /*left: 0;*/
+    width: 100%;
+  }
 }

@@ -5,8 +5,8 @@ import throttle from 'lodash.throttle'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
 
-function PdfRenderer({pageNumber, setNumPages, setPageNumber, pdf, width}) {
-  const [PDFwidth, setPDFWidth] = useState(null)
+function PdfRenderer({pageNumber, setNumPages, setPageNumber, pdf}) {
+  const [PDFWidth, setPDFWidth] = useState(null)
   const myInput = useRef()
   const throttledSetPDFWidth = throttle(doSetPDFWidth, 250)
 
@@ -34,7 +34,7 @@ function PdfRenderer({pageNumber, setNumPages, setPageNumber, pdf, width}) {
     setPageNumber(itemPageNumber)
   }
 
-  // fix for misalinged text layer
+  // fix for misaligned text layer
   const removeTextLayerOffset = () => {
     const textLayers = document.querySelectorAll(
       '.react-pdf__Page__textContent'
@@ -58,7 +58,7 @@ function PdfRenderer({pageNumber, setNumPages, setPageNumber, pdf, width}) {
       <Page
         onLoadSuccess={removeTextLayerOffset}
         pageNumber={pageNumber}
-        width={PDFwidth}
+        width={PDFWidth}
       />
     </Document>
   )
