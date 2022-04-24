@@ -53,6 +53,7 @@ export default function DocumentsList({
   onRemoveHandler,
   toggleSelection,
   title,
+  isReadOnly
 }) {
   const classes = useStyles()
 
@@ -73,6 +74,7 @@ export default function DocumentsList({
             button
             onClick={() => toggleSelection()}
             className={classes.listAdd}
+            disabled={isReadOnly}
           >
             <MdAdd className={classes.listAddButton} />
           </ListItem>

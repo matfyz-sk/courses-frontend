@@ -72,13 +72,13 @@ function DocumentForm({
   )
   const [loadingDocument, setLoadingDocument] = useState(isInEditingMode)
   const [loading, setLoading] = useState(true)
-  const [isSaveDisabled, setIsSaveDisabled] = useState(false)
+  const [isReadOnly, setIsReadOnly] = useState(false)
 
   // shared among all document subclasses
   const [name, setName] = useState('')
   const [isDeleted, setIsDeleted] = useState(false);
 
-  const [isMaterial, setIsMaterial] = useState(false) // TODO resolve whether doc is material
+  const [isMaterial, setIsMaterial] = useState(true) // TODO resolve whether doc is material
   const [description, setDescription] = useState("")
   const [covers, setCovers] = useState([])
   const [mentions, setMentions] = useState([])
@@ -115,7 +115,7 @@ function DocumentForm({
         setDocument(responseDocument)
         setName(responseDocument.name)
         setIsDeleted(responseDocument.isDeleted)
-        setIsSaveDisabled(responseDocument.isDeleted)
+        setIsReadOnly(responseDocument.isDeleted)
         if (getShortID(folder.id) !== location.state.parentFolderId)
           fetchFolder(location.state.parentFolderId)
         switch (responseDocument['@type']) {
@@ -163,7 +163,7 @@ function DocumentForm({
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
-    setIsSaveDisabled(true)
+    setIsReadOnly(true)
     let editProps = {
       courseId,
       entityName,
@@ -203,7 +203,7 @@ function DocumentForm({
     )
     if (!newVersionId) {
       setStatus(500)
-      setIsSaveDisabled(false)
+      setIsReadOnly(false)
       return
     }
     history.push(
@@ -328,7 +328,7 @@ function DocumentForm({
             onChange={e => setName(e.target.value)}
             helperText={name.length === 0 ? 'Name is required' : ''}
             variant="outlined"
-            disabled={isSaveDisabled}
+            disabled={isReadOnly}
           />
         </div>
         <br />
@@ -344,7 +344,7 @@ function DocumentForm({
               onChange={e => setUri(e.target.value)}
               helperText={!isValidHttpUrl(uri) ? 'Valid url is required' : ''}
               variant="outlined"
-              disabled={isSaveDisabled}
+              disabled={isReadOnly}
             />
           </div>
         )}
@@ -358,13 +358,13 @@ function DocumentForm({
               aria-describedby="file-upload-helper-text"
               value={filePath}
               onChange={onChangeFile}
-              disabled={isSaveDisabled}
+              disabled={isReadOnly}
             />
             <InputLabel
               style={{ display: 'inline' }}
               htmlFor="upload-button-file"
             >
-              <Button disabled={isSaveDisabled} variant="contained" color="primary" component="span">
+              <Button disabled={isReadOnly} variant="contained" color="primary" component="span">
                 Upload
               </Button>
             </InputLabel>
@@ -436,7 +436,7 @@ function DocumentForm({
               content={content}
               setContent={setContent}
               mimeType={mimeType}
-              isReadOnly={isSaveDisabled}
+              isReadOnly={isReadOnly}
             />
             {content.length === 0 && (
               <p style={{ color: customTheme.palette.error.main }}>
@@ -453,7 +453,7 @@ function DocumentForm({
               checked={isMaterial}
               onChange={e => setIsMaterial(e.target.checked)}
               inputProps={{ 'aria-label': 'is material' }}
-              disabled={isSaveDisabled}
+              disabled={isReadOnly}
             />
           }
         />
@@ -480,6 +480,7 @@ function DocumentForm({
             setRequires={setRequires}
             assumes={assumes}
             setAssumes={setAssumes}
+            isReadOnly={isReadOnly}
           />
         )}
         {status !== 200 && (
@@ -500,7 +501,7 @@ function DocumentForm({
             type="submit"
             color="primary"
             variant="contained"
-            disabled={isSaveDisabled}
+            disabled={isReadOnly}
           >
             Save document
           </Button>

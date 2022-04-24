@@ -23,6 +23,7 @@ export default function MaterialForm({
   setRequires,
   assumes,
   setAssumes,
+  isReadOnly
 }) {
   // TODO add readonly mode
   const [topics, setTopics] = useState([])
@@ -58,6 +59,7 @@ export default function MaterialForm({
           variant="outlined"
           value={description}
           onChange={e => setDescription(e.target.value)}
+          disabled={isReadOnly}
         />
       </Box>
       <br />
@@ -81,6 +83,7 @@ export default function MaterialForm({
               items={covers}
               setItems={setCovers}
               label={'covers'}
+              isReadOnly={isReadOnly}
             />
           </Grid>
           <Grid item xs={12}>
@@ -89,6 +92,7 @@ export default function MaterialForm({
               items={mentions}
               setItems={setMentions}
               label={'mentions'}
+              isReadOnly={isReadOnly}
             />
           </Grid>
           <Grid item xs={12}>
@@ -97,6 +101,7 @@ export default function MaterialForm({
               items={requires}
               setItems={setRequires}
               label={'required'}
+              isReadOnly={isReadOnly}
             />
           </Grid>
           <Grid item xs={12}>
@@ -105,6 +110,7 @@ export default function MaterialForm({
               items={assumes}
               setItems={setAssumes}
               label={'assumes mastery of'}
+              isReadOnly={isReadOnly}
             />
           </Grid>
         </Grid>
@@ -123,6 +129,7 @@ export default function MaterialForm({
               label="is an alternative to"
               documentReferences={isAlternativeTo}
               onDocumentReferencesChange={setIsAlternativeTo}
+              isReadOnly={isReadOnly}
             />
           </Grid>
           <Grid item xs={12}>
@@ -130,6 +137,7 @@ export default function MaterialForm({
               label="refers to"
               documentReferences={refersTo}
               onDocumentReferencesChange={setRefersTo}
+              isReadOnly={isReadOnly}
             />
           </Grid>
           <Grid item xs={12}>
@@ -137,6 +145,7 @@ export default function MaterialForm({
               label="generalizes"
               documentReferences={generalizes}
               onDocumentReferencesChange={setGeneralizes}
+              isReadOnly={isReadOnly}
             />
           </Grid>
 

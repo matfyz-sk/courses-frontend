@@ -7,6 +7,7 @@ export default function MultipleSelectCheckmarks({
   items,
   setItems,
   label,
+  isReadOnly
 }) {
   const handleChange = (event, values) => {
     setItems(values)
@@ -26,6 +27,7 @@ export default function MultipleSelectCheckmarks({
         renderInput={params => (
           <TextField {...params} label={label} variant="outlined" />
         )}
+        disabled={isReadOnly}
       />
     </div>
   )

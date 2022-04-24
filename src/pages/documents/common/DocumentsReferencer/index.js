@@ -40,6 +40,7 @@ function DocumentReferencer({
   onDocumentReferencesChange,
   match,
   courseInstance,
+  isReadOnly
 }) {
   // TODO readonly mode
   const classes = useStyles()
@@ -144,6 +145,7 @@ function DocumentReferencer({
         toggleSelection={() => setOpen(true)}
         documents={documents}
         onRemoveHandler={removeFromDocuments}
+        isReadOnly={isReadOnly}
       />
       <Dialog
         open={open}
