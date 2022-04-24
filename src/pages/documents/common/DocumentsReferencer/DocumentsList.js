@@ -14,7 +14,7 @@ import {
 import { MdClear, MdAdd, MdExpandMore } from 'react-icons/md'
 import FileIcon from '../FileIcon'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   list: {
     width: '100%',
   },
@@ -71,7 +71,7 @@ export default function DocumentsList({
         <List className={classes.list}>
           <ListItem
             button
-            onClick={e => toggleSelection()}
+            onClick={() => toggleSelection()}
             className={classes.listAdd}
           >
             <MdAdd className={classes.listAddButton} />
@@ -86,7 +86,7 @@ export default function DocumentsList({
                 primary={document.name}
               />
               <IconButton
-                onClick={e => onRemoveHandler(document)}
+                onClick={() => onRemoveHandler(document)}
                 edge="end"
                 aria-label="remove"
                 className={classes.removeButtonWrap}

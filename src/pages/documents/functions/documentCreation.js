@@ -6,7 +6,7 @@ import {
   getIRIFromAddResponse,
   getResponseBody,
   getShortID,
-} from 'helperFunctions'
+} from '../../../helperFunctions'
 
 const PAYLOAD_ENTITIES = [
   DocumentEnums.file.entityName,
@@ -60,8 +60,8 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     courseInstance: [props.courseInstance['@id']], // TODO push to existing ones
   }
 
-  // add addtional params
-  var subclassParams = {}
+  // add additional params
+  let subclassParams = {};
   switch (props.entityName) {
     case DocumentEnums.internalDocument.entityName:
       subclassParams = {
@@ -200,7 +200,6 @@ const replaceInParentFolder = async (newVersionId, oldVersionId, props) => {
   if (response.failed) {
     console.error(response.error)
     props.setStatus(response.response ? response.response.status : 500)
-    return
   }
 }
 
@@ -226,7 +225,7 @@ const replaceInCurrentDocuments = async (newVersionId, oldVersionId, props) => {
     props.setStatus(response.response ? response.response.status : 500)
     return
   }
-  // because if i don't reload page courseInstance is not fetched again
+  // because if I don't reload page courseInstance is not fetched again
   props.setCurrentDocumentsOfCourseInstance(
     currentDocuments.hasDocument.map(doc => ({ '@id': doc }))
   )

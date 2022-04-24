@@ -6,11 +6,11 @@ import {
   getResponseBody,
   getShortID,
   getShortType,
-} from 'helperFunctions'
+} from '../../../helperFunctions'
 import { DocumentEnums } from '../enums/document-enums'
 
 async function copyFolder(folderId, parentId, courseInstanceId) {
-  // foldercontent is objects of folders which will be recursively created
+  // folder content is objects of folders which will be recursively created
   //    + ids of documents
   const response = await axiosGetEntities(`folder/${folderId}?_join=content`)
   const oldFolder = getResponseBody(response)[0]
@@ -60,7 +60,7 @@ async function copyFolder(folderId, parentId, courseInstanceId) {
     { content: folderNewContent },
     `folder/${getShortID(newFolderId)}`
   )
-  return newFolderId  
+  return newFolderId
 }
 
 export default async function copyFileSystem(

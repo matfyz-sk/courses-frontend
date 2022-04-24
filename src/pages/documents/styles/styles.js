@@ -36,11 +36,6 @@ const customTheme = createMuiTheme({
   },
 }, baseTheme)
 
-const useGeneralStyles = makeStyles(({
-  icons: {
-    fontSize: "400%",
-  }
-}))
 
 const useFileExplorerStyles = makeStyles(theme => ({
   root: {
@@ -95,4 +90,4 @@ const usePdfRendererStyles = makeStyles(({
 },
 }))
 
-export { customTheme, useGeneralStyles, useFileExplorerStyles, usePdfRendererStyles }
+export { customTheme, useFileExplorerStyles, usePdfRendererStyles }

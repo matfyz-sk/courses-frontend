@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import MultipleSelectCheckmarks from './common/MultipleSelectCheckmarks'
-import { axiosGetEntities, getResponseBody } from 'helperFunctions'
+import { axiosGetEntities, getResponseBody } from '../../helperFunctions'
 import { Box, Grid, TextField } from '@material-ui/core'
 import DocumentsReferencer from './common/DocumentsReferencer'
 
@@ -24,6 +24,7 @@ export default function MaterialForm({
   assumes,
   setAssumes,
 }) {
+  // TODO add readonly mode
   const [topics, setTopics] = useState([])
 
   useEffect(() => {
@@ -138,7 +139,7 @@ export default function MaterialForm({
               onDocumentReferencesChange={setGeneralizes}
             />
           </Grid>
-          
+
         </Grid>
       </Grid>
       <hr style={{ borderColor: 'lightgray' }} />

@@ -21,7 +21,7 @@ import {
   getResponseBody,
   fileToBase64,
   getShortID,
-} from 'helperFunctions'
+} from '../../helperFunctions'
 import { Alert, Form, Label } from 'reactstrap'
 import { HiDownload } from 'react-icons/hi'
 import CustomEditor from './wysiwyg/ckeditor'
@@ -58,7 +58,7 @@ function DocumentForm({
     return <Redirect to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}/>
   }
 
-  // when creating a brand new document
+  // when creating a brand-new document
   const [entityName, setEntityName] = useState(creating || '')
 
   // both used when document already exists
@@ -89,7 +89,6 @@ function DocumentForm({
   const [generalizes, setGeneralizes] = useState([])
 
   // document subclass specific
-  const [fileLoaded, setFileLoaded] = useState(false)
   const [filePath, setFilePath] = useState('')
   const [filename, setFilename] = useState('')
   const [uri, setUri] = useState('')
@@ -165,7 +164,7 @@ function DocumentForm({
       return
     }
     setIsSaveDisabled(true)
-    var editProps = {
+    let editProps = {
       courseId,
       entityName,
       setStatus,
@@ -174,7 +173,7 @@ function DocumentForm({
       folder,
       user,
       setCurrentDocumentsOfCourseInstance
-    }
+    };
     // if (isMaterial) {
     //   console.log('implement')
     //   editProps = {
@@ -218,7 +217,6 @@ function DocumentForm({
   const onChangeFile = e => {
     fileToBase64(e.target.files[0]).then(base64Content => {
       setContent(base64Content)
-      setFileLoaded(true)
       console.log({ loaded: true })
     })
     setMimeType(e.target.files[0].type)
@@ -288,7 +286,7 @@ function DocumentForm({
                   outline: 'none',
                   color: customTheme.palette.primary.main,
                 }}
-                onClick={e =>
+                onClick={() =>
                   history.push(
                     redirect(ROUTES.DOCUMENT_HISTORY, [
                       {
@@ -388,6 +386,7 @@ function DocumentForm({
                     <img
                       style={{ display: 'inline', maxWidth: '150px' }}
                       src={content}
+                      alt="image of document"
                     />
                   ) : (
                     <HiDownload

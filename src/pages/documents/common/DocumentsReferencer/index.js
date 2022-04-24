@@ -6,7 +6,7 @@ import {
   getShortID,
   axiosGetEntities,
   getResponseBody,
-} from 'helperFunctions'
+} from '../../../../helperFunctions'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router'
 import {
@@ -18,12 +18,11 @@ import {
 import { Alert } from '@material-ui/lab'
 import DocumentsList from './DocumentsList'
 import { makeStyles } from '@material-ui/styles'
-import { customTheme } from 'pages/documents/styles/styles'
+import { customTheme } from '../../styles/styles'
 import getReferenceOfDocument from './documentReferenceCreation'
-import { setFolder } from 'redux/actions'
-import { datePickerDefaultProps } from '@material-ui/pickers/constants/prop-types'
+import { setFolder } from '../../../../redux/actions'
 
-// dialog's intened behaviour is to reset the styling theme so this is a workaround for the progress bar
+// dialog's intended behaviour is to reset the styling theme so this is a workaround for the progress bar
 const useStyles = makeStyles(() => ({
   root: {
     '& .MuiLinearProgress-colorPrimary': {
@@ -42,6 +41,7 @@ function DocumentReferencer({
   match,
   courseInstance,
 }) {
+  // TODO readonly mode
   const classes = useStyles()
 
   const [documents, setDocuments] = useState([])

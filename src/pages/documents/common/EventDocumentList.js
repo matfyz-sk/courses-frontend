@@ -6,7 +6,7 @@ import {
   getResponseBody,
   getShortID,
   getShortType,
-} from 'helperFunctions'
+} from '../../../helperFunctions'
 import { Link } from 'react-router-dom'
 import { DocumentEnums } from '../enums/document-enums'
 import downloadBase64File from '../functions/downloadBase64File'
@@ -21,7 +21,7 @@ import {
 import { makeStyles } from '@material-ui/core/node_modules/@material-ui/styles'
 import { customTheme } from '../styles/styles'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   listItemRoot: {
     '&:hover': { color: customTheme.palette.primary.main },
   },
@@ -57,7 +57,7 @@ function EventDocumentList({ onViewableDocumentClick, documentReference }) {
     <List className="event-documents-list" dense>
       {documents.map((doc, i) => {
         const entityName = getShortType(doc['@type'])
-        var navProps = {}
+        let navProps;
         switch (entityName) {
           case DocumentEnums.externalDocument.entityName:
             navProps = {
@@ -75,14 +75,14 @@ function EventDocumentList({ onViewableDocumentClick, documentReference }) {
               navProps = {
                 component: Link,
                 to: {},
-                onClick: e => loadFile(doc),
+                onClick: () => loadFile(doc),
               }
               break
             }
             navProps = {
               component: Link,
               to: {},
-              onClick: e => onViewableDocumentClick(doc),
+              onClick: () => onViewableDocumentClick(doc),
             }
             break
         }

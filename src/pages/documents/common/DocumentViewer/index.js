@@ -4,8 +4,8 @@ import {
   getResponseBody,
   getShortID,
   getShortType,
-} from 'helperFunctions'
-import { DocumentEnums } from 'pages/documents/enums/document-enums'
+} from '../../../../helperFunctions'
+import { DocumentEnums } from '../../enums/document-enums'
 import PdfRenderer from './PdfRenderer'
 import InternalDocumentRenderer from './InternalDocumentRenderer'
 import './styles/DocumentViewer.css'
@@ -20,17 +20,16 @@ import {
 import { HiDownload } from 'react-icons/hi'
 import { MdFullscreenExit } from 'react-icons/md'
 import { usePdfRendererStyles, customTheme } from '../../styles/styles'
-import downloadBase64File from 'pages/documents/functions/downloadBase64File'
+import downloadBase64File from '../../functions/downloadBase64File'
 import useEventListener from '@use-it/event-listener'
 
 function DocumentViewer({ document, onViewingDocumentChange }) {
   const classes = usePdfRendererStyles()
-  // eventl listener doesnt work when i change page with buttons so this is a fix...
+  // event listener doesn't work when I change page with buttons so this is a fix...
   const focusHackRef = useRef()
 
-  const [documentId, setDocumentId] = useState(
-    getShortID(document.payload[0]['@id'])
-  )
+  const documentId = getShortID(document.payload[0]['@id'])
+
   const [numPages, setNumPages] = useState(null)
   const [pageNumber, setPageNumber] = useState(1)
   const [payloadContent, setPayloadContent] = useState('')
@@ -130,7 +129,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
             <strong>{document.name}</strong>
           </div> */}
           <IconButton
-            onClick={e => onViewingDocumentChange(null)}
+            onClick={() => onViewingDocumentChange(null)}
             style={{
               fontSize: '150%',
               outline: 'none',
@@ -141,7 +140,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
           </IconButton>
           <IconButton
             aria-label="download pdf"
-            onClick={e =>
+            onClick={() =>
               downloadBase64File(
                 getPayloadContent(),
                 document.filename,

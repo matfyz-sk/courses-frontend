@@ -7,7 +7,7 @@ import {
   getResponseBody,
   getShortType,
   timestampToString2,
-} from 'helperFunctions'
+} from '../../helperFunctions'
 import { redirect } from '../../constants/redirect'
 import * as ROUTES from '../../constants/routes'
 import { Link } from 'react-router-dom'
@@ -29,6 +29,7 @@ import { MdChevronRight } from 'react-icons/md'
 import { HiDownload } from 'react-icons/hi'
 import downloadBase64File from './functions/downloadBase64File'
 import { customTheme } from './styles/styles'
+import Page404 from "../errors/Page404";
 
 function TextComparator({ textA, textB }) {
   if (textB.length === 0 || textA === textB) {
@@ -89,10 +90,7 @@ const useStyles = makeStyles({
   },
 })
 
-const isNewestVersion = version => {
-  // FIXME
-  return !version.isDeleted
-}
+// TODO restoring should consider parent folder
 const getPayloadContent = version => version.payload[0].content
 const hasEmptyContent = version => version.payload[0].content.length === 0
 
@@ -145,7 +143,6 @@ function RevisionsSidebar({
               <Radio
                 style={{
                   visibility: selectedAfter < i ? 'visible' : 'hidden',
-                  marginLeft: '21px',
                   marginLeft: 'auto',
                   color: customTheme.palette.primary.light,
                 }}
@@ -219,18 +216,18 @@ function DocumentHistory({
 }) {
 
   const courseId = match.params.course_id
-  
+
   if (!location.state) {
     return <Redirect to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}/>
   }
-  
+
   const style = useStyles()
   const newestVersionId = location.state.documentId
   const parentFolderId = location.state.parentFolderId
   const isMobile = useMediaQuery('(max-width:600px)')
   const [showSidebar, setShowSidebar] = useState(false)
 
-  
+
   const [status, setStatus] = useState(200)
   const [entityName, setEntityName] = useState('')
   const [versions, setVersions] = useState([])
@@ -244,14 +241,15 @@ function DocumentHistory({
   const latestVersion = () => versions[0]
 
   const createOriginDummyVersion = firstVersion => {
-    var dummy = {
+    const dummy = {
       name: '',
       createdAt: firstVersion.createdAt,
       restoredFrom: '',
-    }
+    };
+    let subclassSpecificParams
     switch (getShortType(firstVersion['@type'])) {
       case DocumentEnums.internalDocument.entityName:
-        var subclassSpecificParams = {
+        subclassSpecificParams = {
           mimeType: '',
           payload: [
             {
@@ -261,10 +259,10 @@ function DocumentHistory({
         }
         break
       case DocumentEnums.externalDocument.entityName:
-        var subclassSpecificParams = { uri: '' }
+        subclassSpecificParams = { uri: '' }
         break
       case DocumentEnums.file.entityName:
-        var subclassSpecificParams = {
+        subclassSpecificParams = {
           filename: '',
           mimeType: '',
           payload: [
@@ -295,12 +293,6 @@ function DocumentHistory({
         return
       }
       const data = getResponseBody(response)
-      if (!isNewestVersion(data[0])) {
-        history.push(
-          redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])
-        )
-        return
-      }
       if (folder.id !== parentFolderId)
         fetchFolder(parentFolderId)
       setEntityName(getShortType(data[0]['@type']))
@@ -379,8 +371,8 @@ function DocumentHistory({
       return
     }
 
-    var before = getPayloadContent(pickedVersionB)
-    var after = getPayloadContent(pickedVersionA)
+    let before = getPayloadContent(pickedVersionB);
+    let after = getPayloadContent(pickedVersionA);
     if (pickedVersionA.mimeType === 'text/markdown') {
       before = marked.parse(before, markedOptions)
       after = marked.parse(after, markedOptions)
@@ -389,13 +381,13 @@ function DocumentHistory({
     after = after.replaceAll('<hr>', '<hr>a</hr>')
 
     const documentsDiff = diff(before, after, 'revisions-diff')
-    var cleanedDiff = documentsDiff.replaceAll('<hr>a</hr>', '<hr>')
+    let cleanedDiff = documentsDiff.replaceAll('<hr>a</hr>', '<hr>');
     cleanedDiff = cleanedDiff.replaceAll(
-      /<hr data-diff-node="ins" data-operation-index="\d+"><ins data-operation-index="\d+" class=\"revisions-diff\">a<\/ins><\/hr>/g,
+      /<hr data-diff-node="ins" data-operation-index="\d+"><ins data-operation-index="\d+" class="revisions-diff">a<\/ins><\/hr>/g,
       '<hr data-diff-node="ins" class="revisions-diff">'
     )
     cleanedDiff = cleanedDiff.replaceAll(
-      /<hr data-diff-node="del" data-operation-index="\d+"><del data-operation-index="\d+" class=\"revisions-diff\">a<\/del><\/hr>/g,
+      /<hr data-diff-node="del" data-operation-index="\d+"><del data-operation-index="\d+" class="revisions-diff">a<\/del><\/hr>/g,
       '<hr data-diff-node="del" class="revisions-diff">'
     )
     return cleanedDiff
@@ -442,7 +434,7 @@ function DocumentHistory({
                 {isMobile && !showSidebar && (
                   <IconButton
                     style={{ marginLeft: 'auto', outline: 'none' }}
-                    onClick={e => setShowSidebar(true)}
+                    onClick={() => setShowSidebar(true)}
                   >
                     <MdChevronRight />
                   </IconButton>
@@ -506,6 +498,7 @@ function DocumentHistory({
                               <img
                                 style={{ display: 'inline', maxWidth: '120px' }}
                                 src={getPayloadContent(pickedVersionB)}
+                                alt="image of the older document version"
                               />
                             ) : (
                               <HiDownload
@@ -534,6 +527,7 @@ function DocumentHistory({
                         <img
                           style={{ display: 'inline', maxWidth: '120px' }}
                           src={getPayloadContent(pickedVersionA)}
+                          alt="image of the newer document version"
                         />
                       ) : (
                         <HiDownload

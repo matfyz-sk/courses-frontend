@@ -1,7 +1,7 @@
 import {
   axiosGetEntities,
   getResponseBody,
-} from 'helperFunctions'
+} from '../../../helperFunctions'
 
 
 export default async function getDeletedDocuments(courseId) {

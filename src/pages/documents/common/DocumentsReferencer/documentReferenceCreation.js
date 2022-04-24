@@ -4,9 +4,9 @@ import {
   getIRIFromAddResponse,
   getResponseBody,
   getShortID,
-} from 'helperFunctions'
+} from '../../../../helperFunctions'
 
-async function createReferenceOfDocumment(document, courseInstance) {
+async function createReferenceOfDocument(document, courseInstance) {
   const referenceData = {
     hasDocument: document['@id'],
     courseInstance: courseInstance['@id'],
@@ -33,5 +33,5 @@ export default async function getReferenceOfDocument(document, courseInstance) {
   if (wantedRef.length > 0) {
     return wantedRef[0]['@id']
   }
-  return await createReferenceOfDocumment(document, courseInstance)
+  return await createReferenceOfDocument(document, courseInstance)
 }

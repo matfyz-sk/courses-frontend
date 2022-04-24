@@ -1,7 +1,7 @@
 import React from 'react'
 import * as ROUTES from '../../constants/routes'
 import Documents from './index'
-import InstructorRoute from 'router/routes/InstructorRoute'
+import InstructorRoute from '../../router/routes/InstructorRoute'
 import CourseLayout from '../../layouts/CourseLayout'
 
 

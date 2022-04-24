@@ -1,10 +1,10 @@
 import React from 'react'
-import { customTheme, useFileExplorerStyles } from '../styles/styles'
+import { useFileExplorerStyles } from '../styles/styles'
 import { MdFolder, MdCode, MdLink, MdAttachFile } from 'react-icons/md'
 import { BsBook } from 'react-icons/bs'
 import { DocumentEnums } from '../enums/document-enums'
-import { getShortType } from 'helperFunctions'
-import { ThemeProvider, useMediaQuery } from '@material-ui/core'
+import { getShortType } from '../../../helperFunctions'
+import { useMediaQuery } from '@material-ui/core'
 
 const entityToIcon = {
   [DocumentEnums.internalDocument.entityName]: <MdCode />,
@@ -17,7 +17,7 @@ const FileIcon = ({ file }) => {
   const classes = useFileExplorerStyles()
   const entityName = getShortType(file['@type'])
   const isMobile = useMediaQuery('(max-width: 600px)')
-  
+
 
   return (
     <div className={classes.infoButton} style={{ fontSize: isMobile && '80%' }}>

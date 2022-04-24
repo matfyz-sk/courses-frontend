@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import {
   IconButton,
-  withStyles,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -10,15 +10,11 @@ import {
   TableRow,
   TableSortLabel,
   Toolbar,
-  Paper,
+  withStyles,
 } from '@material-ui/core'
-import { timestampToString2, getShortType } from 'helperFunctions'
+import { getShortType, timestampToString2 } from '../../../helperFunctions'
 import { withRouter } from 'react-router'
-import {
-  MdDelete,
-  MdRestorePage,
-  MdEdit
-} from 'react-icons/md'
+import { MdDelete, MdEdit, MdRestorePage } from 'react-icons/md'
 import Path from './Path'
 import { DocumentEnums } from '../enums/document-enums'
 import { useFileExplorerStyles } from '../styles/styles'
@@ -188,14 +184,13 @@ function FileExplorer(props) {
 
   const lastChangedSwap = files => {
     // folder specific because createdAt attr updated in db
-    const newFiles = files.map(file => {
+    return files.map(file => {
         if (file.lastChanged) {
-          return {...file, createdAt: file.lastChanged }
+          return {...file, createdAt: file.lastChanged}
         }
         return file
       }
     )
-    return newFiles
   }
 
   return (
@@ -203,7 +198,7 @@ function FileExplorer(props) {
       <Paper elevation={4} className={classes.paper}>
         <TableContainer>
           <Toolbar>
-            <Path 
+            <Path
               fsPath={fsPath}
               onPathFolderClickHandler={onPathFolderClickHandler}
              />
@@ -229,7 +224,7 @@ function FileExplorer(props) {
                   <col style={{width: "10%"}}/>
                 </>
               )}
-              
+
             </colgroup>
             <EnhancedTableHead
               classes={classes}
@@ -278,23 +273,23 @@ function FileExplorer(props) {
                     </TableCell>
                     {!isReferencer && (
                       <TableCell onClick={e => e.stopPropagation()} align="right">
-                        
+
                         {getShortType(file['@type']) === DocumentEnums.folder.entityName && (
                           <IconButton
                             aria-label={"edit folder"}
-                            onClick={(e) => editFolder(file)}
+                            onClick={() => editFolder(file)}
                             size="small"
-                            style={{fontSize: "90%", outline: "none"}}                        
+                            style={{fontSize: "90%", outline: "none"}}
                           >
                             <MdEdit className={classes.actionsButton} />
                           </IconButton>
                         )}
-                        
+
                         <IconButton
-                          aria-label={showingDeleted ? "delele item" : "restore item"}
+                          aria-label={showingDeleted ? "delete item" : "restore item"}
                           onClick={() => invertDeletionFlag(file)}
                           size="small"
-                          style={{fontSize: "90%", outline: "none"}}                        
+                          style={{fontSize: "90%", outline: "none"}}
                         >
                           {showingDeleted ? (
                             <MdRestorePage className={classes.actionsButton} />
@@ -302,9 +297,9 @@ function FileExplorer(props) {
                             <MdDelete className={classes.actionsButton} />
                           )}
                         </IconButton>
-                        
+
                       </TableCell>
-                    )}                    
+                    )}
                   </CustomTableRow>
                 )
               })}

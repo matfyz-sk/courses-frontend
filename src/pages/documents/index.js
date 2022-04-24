@@ -6,11 +6,11 @@ import DocumentHistory from './DocumentHistory'
 import DocumentForm from './DocumentForm'
 import { DocumentEnums } from './enums/document-enums'
 import * as ROUTES from '../../constants/routes'
-import { redirect } from 'constants/redirect'
+import { redirect } from '../../constants/redirect'
 import Page404 from '../errors/Page404'
-import { getShortID } from 'helperFunctions'
+import { getShortID } from '../../helperFunctions'
 import CourseDocumentManager from './CourseDocumentsManager'
-import { fetchFolder } from 'redux/actions'
+import { fetchFolder } from '../../redux/actions'
 
 function DocumentsNavigation({ match, courseInstance, folder, fetchFolder }) {
   const [loading, setLoading] = useState(true)
