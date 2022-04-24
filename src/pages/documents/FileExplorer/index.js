@@ -106,14 +106,14 @@ const headCells = [
 ]
 
 function EnhancedTableHead(props) {
-  const { classes, order, orderBy, onRequestSort, isReferencer } = props
+  const {classes, order, orderBy, onRequestSort, isReferencer} = props
   const createSortHandler = property => event => {
     onRequestSort(event, property)
   }
 
   return (
-    <TableHead style={{ position: 'static' }}>
-      <TableRow style={{ position: 'static' }}>
+    <TableHead style={{position: 'static'}}>
+      <TableRow style={{position: 'static'}}>
         {headCells.slice(...(isReferencer ? [0, -1] : [0])).map(headCell => (
           <TableCell
             key={headCell.id}
@@ -201,7 +201,7 @@ function FileExplorer(props) {
             <Path
               fsPath={fsPath}
               onPathFolderClickHandler={onPathFolderClickHandler}
-             />
+            />
           </Toolbar>
           <Table
             size="small"
@@ -210,20 +210,20 @@ function FileExplorer(props) {
           >
             <colgroup>
               {isReferencer ? (
-                <>
-                  <col style={{width: "10%"}}/>
-                  <col style={{width: "70%"}}/>
-                  <col style={{width: "20%"}}/>
-                </>
-              )
-              : (
-                <>
-                  <col style={{width: "10%"}}/>
-                  <col style={{width: "60%"}}/>
-                  <col style={{width: "20%"}}/>
-                  <col style={{width: "10%"}}/>
-                </>
-              )}
+                  <>
+                    <col style={{width: "10%"}}/>
+                    <col style={{width: "70%"}}/>
+                    <col style={{width: "20%"}}/>
+                  </>
+                )
+                : (
+                  <>
+                    <col style={{width: "10%"}}/>
+                    <col style={{width: "60%"}}/>
+                    <col style={{width: "20%"}}/>
+                    <col style={{width: "10%"}}/>
+                  </>
+                )}
 
             </colgroup>
             <EnhancedTableHead
@@ -257,7 +257,7 @@ function FileExplorer(props) {
                       padding="default"
                       className={classes.cell}
                     >
-                      <FileIcon file={file} />
+                      <FileIcon file={file}/>
                     </TableCell>
                     <TableCell
                       component="th"
@@ -281,7 +281,7 @@ function FileExplorer(props) {
                             size="small"
                             style={{fontSize: "90%", outline: "none"}}
                           >
-                            <MdEdit className={classes.actionsButton} />
+                            <MdEdit className={classes.actionsButton}/>
                           </IconButton>
                         )}
 
@@ -292,9 +292,9 @@ function FileExplorer(props) {
                           style={{fontSize: "90%", outline: "none"}}
                         >
                           {showingDeleted ? (
-                            <MdRestorePage className={classes.actionsButton} />
+                            <MdRestorePage className={classes.actionsButton}/>
                           ) : (
-                            <MdDelete className={classes.actionsButton} />
+                            <MdDelete className={classes.actionsButton}/>
                           )}
                         </IconButton>
 

@@ -1,23 +1,23 @@
 import React from 'react'
 import {
   Button,
-  TextField,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  TextField,
 } from '@material-ui/core'
 
 function FolderDialog({
-  isEdit,
-  open,
-  handleClose,
-  folderName,
-  setFolderName,
-  onCreate,
-  onEdit
-}) {
+                        isEdit,
+                        open,
+                        handleClose,
+                        folderName,
+                        setFolderName,
+                        onCreate,
+                        onEdit
+                      }) {
 
   const onSubmit = (e) => {
     if (folderName.length !== 0) {
@@ -55,10 +55,10 @@ function FolderDialog({
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary" style={{ outline: "none" }}>
+          <Button onClick={handleClose} color="primary" style={{outline: "none"}}>
             Cancel
           </Button>
-          <Button onClick={onSubmit} color="primary" style={{ outline: "none" }}>
+          <Button onClick={onSubmit} color="primary" style={{outline: "none"}}>
             Submit
           </Button>
         </DialogActions>

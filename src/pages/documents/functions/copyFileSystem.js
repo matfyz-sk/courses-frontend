@@ -57,7 +57,7 @@ async function copyFolder(folderId, parentId, courseInstanceId) {
     folderNewContent.push(fsObject['@id'])
   }
   axiosUpdateEntity(
-    { content: folderNewContent },
+    {content: folderNewContent},
     `folder/${getShortID(newFolderId)}`
   )
   return newFolderId

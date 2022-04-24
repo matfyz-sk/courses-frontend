@@ -1,61 +1,61 @@
 :root {
-  --ck-color-suggestion-marker-insertion-border: rgba(30,174,49,0.35);
-  --ck-color-suggestion-marker-insertion-border-active: rgba(19,109,31,0.5);
-  --ck-color-suggestion-marker-insertion-background: rgba(102,229,119,0.35);
-  --ck-color-suggestion-marker-insertion-background-active: rgba(37,218,61,0.5);
-  --ck-color-suggestion-marker-deletion-border: rgba(174,30,66,0.35);
-  --ck-color-suggestion-marker-deletion-border-active: rgba(109,19,41,0.5);
-  --ck-color-suggestion-marker-deletion-background: rgba(229,102,134,0.35);
-  --ck-color-suggestion-marker-deletion-background-active: rgba(218,37,82,0.5);
-  --ck-color-suggestion-marker-deletion-stroke: rgba(87,15,33,0.5);
-  --ck-color-suggestion-marker-format-border: rgba(10,160,194,0.4);
-  --ck-color-suggestion-marker-format-border-active: rgba(10,160,194,0.65);
+  --ck-color-suggestion-marker-insertion-border: rgba(30, 174, 49, 0.35);
+  --ck-color-suggestion-marker-insertion-border-active: rgba(19, 109, 31, 0.5);
+  --ck-color-suggestion-marker-insertion-background: rgba(102, 229, 119, 0.35);
+  --ck-color-suggestion-marker-insertion-background-active: rgba(37, 218, 61, 0.5);
+  --ck-color-suggestion-marker-deletion-border: rgba(174, 30, 66, 0.35);
+  --ck-color-suggestion-marker-deletion-border-active: rgba(109, 19, 41, 0.5);
+  --ck-color-suggestion-marker-deletion-background: rgba(229, 102, 134, 0.35);
+  --ck-color-suggestion-marker-deletion-background-active: rgba(218, 37, 82, 0.5);
+  --ck-color-suggestion-marker-deletion-stroke: rgba(87, 15, 33, 0.5);
+  --ck-color-suggestion-marker-format-border: rgba(10, 160, 194, 0.4);
+  --ck-color-suggestion-marker-format-border-active: rgba(10, 160, 194, 0.65);
 }
 
-.ck-content ins img  {
+.ck-content ins img {
   border: 3px solid var(--ck-color-suggestion-marker-insertion-border);
-  max-width:100%;
-  max-height:100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 
-.ck-content del img  {
+.ck-content del img {
   border: 3px solid var(--ck-color-suggestion-marker-deletion-border);
-  max-width:100%;
-  max-height:100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
-.ck-content ins iframe  {
+.ck-content ins iframe {
   border: 3px solid var(--ck-color-suggestion-marker-insertion-border);
 }
 
 
-.ck-content del iframe  {
+.ck-content del iframe {
   border: 3px solid var(--ck-color-suggestion-marker-deletion-border);
 }
 
-.diffing ins.revisions-diff  {
+.diffing ins.revisions-diff {
   border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
   border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
   background: var(--ck-color-suggestion-marker-insertion-background);
   text-decoration: none;
 }
 
-.diffing hr[data-diff-node="ins"]  {
+.diffing hr[data-diff-node="ins"] {
   border-top: 10px solid var(--ck-color-suggestion-marker-insertion-border);
   border-bottom: 10px solid var(--ck-color-suggestion-marker-insertion-border);
   background: var(--ck-color-suggestion-marker-insertion-background);
   text-decoration: none;
 }
 
-.diffing ins hr  {
+.diffing ins hr {
   border-top: 10px solid var(--ck-color-suggestion-marker-insertion-border);
   border-bottom: 10px solid var(--ck-color-suggestion-marker-insertion-border);
   background: var(--ck-color-suggestion-marker-insertion-background);
   text-decoration: none;
 }
 
-.diffing del.revisions-diff  {
+.diffing del.revisions-diff {
   border-top: 3px solid var(--ck-color-suggestion-marker-deletion-border);
   border-bottom: 3px solid var(--ck-color-suggestion-marker-deletion-border);
   text-decoration: line-through;
@@ -66,7 +66,7 @@
   background: var(--ck-color-suggestion-marker-deletion-background);
 }
 
-.diffing  hr[data-diff-node="del"]  {
+.diffing hr[data-diff-node="del"] {
   border-top: 10px solid var(--ck-color-suggestion-marker-deletion-border);
   border-bottom: 10px solid var(--ck-color-suggestion-marker-deletion-border);
   text-decoration: line-through;

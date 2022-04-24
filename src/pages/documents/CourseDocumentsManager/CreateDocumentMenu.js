@@ -1,9 +1,9 @@
 import React from 'react'
 import { withRouter } from 'react-router'
-import { Button, Menu, MenuItem, ListItemIcon } from '@material-ui/core'
+import { Button, ListItemIcon, Menu, MenuItem } from '@material-ui/core'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
-import { MdFolder, MdCode, MdLink, MdAttachFile } from 'react-icons/md'
+import { MdAttachFile, MdCode, MdFolder, MdLink } from 'react-icons/md'
 import { ThemeProvider, withStyles } from '@material-ui/styles'
 import { customTheme } from '../styles/styles'
 
@@ -14,7 +14,7 @@ const CustomListItemIcon = withStyles({
   },
 })(ListItemIcon)
 
-function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
+function CreateDocumentMenu({onFolderCreate, loading, match, history}) {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const courseId = match.params.course_id
 
@@ -30,7 +30,7 @@ function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
   return (
     <ThemeProvider theme={customTheme}>
       <Button
-        style={{ outline: 'none' }}
+        style={{outline: 'none'}}
         variant="contained"
         aria-controls="simple-menu"
         aria-haspopup="true"
@@ -47,8 +47,8 @@ function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
         open={Boolean(anchorEl)}
         onClose={handleClose}
         getContentAnchorEl={null}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+        transformOrigin={{vertical: 'top', horizontal: 'center'}}
       >
         <MenuItem
           onClick={() => {
@@ -57,7 +57,7 @@ function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
           }}
         >
           <CustomListItemIcon>
-            <MdFolder />
+            <MdFolder/>
           </CustomListItemIcon>
           Folder
         </MenuItem>
@@ -65,13 +65,13 @@ function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
           onClick={() =>
             handleClose(
               redirect(ROUTES.CREATE_INTERNAL_DOCUMENT, [
-                { key: 'course_id', value: courseId },
+                {key: 'course_id', value: courseId},
               ])
             )
           }
         >
           <CustomListItemIcon>
-            <MdCode />
+            <MdCode/>
           </CustomListItemIcon>
           Internal
         </MenuItem>
@@ -79,13 +79,13 @@ function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
           onClick={() =>
             handleClose(
               redirect(ROUTES.CREATE_EXTERNAL_DOCUMENT, [
-                { key: 'course_id', value: courseId },
+                {key: 'course_id', value: courseId},
               ])
             )
           }
         >
           <CustomListItemIcon>
-            <MdLink />
+            <MdLink/>
           </CustomListItemIcon>
           External
         </MenuItem>
@@ -93,13 +93,13 @@ function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
           onClick={() =>
             handleClose(
               redirect(ROUTES.CREATE_FILE_DOCUMENT, [
-                { key: 'course_id', value: courseId },
+                {key: 'course_id', value: courseId},
               ])
             )
           }
         >
           <CustomListItemIcon>
-            <MdAttachFile />
+            <MdAttachFile/>
           </CustomListItemIcon>
           File
         </MenuItem>

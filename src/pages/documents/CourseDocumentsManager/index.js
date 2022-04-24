@@ -2,29 +2,20 @@ import React, { useEffect, useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Alert } from '@material-ui/lab'
+import { Button, LinearProgress, TextField, ThemeProvider, useMediaQuery, } from '@material-ui/core'
 import {
-  Button,
-  TextField,
-  ThemeProvider,
-  LinearProgress,
-} from '@material-ui/core'
-import {
+  axiosAddEntity,
   axiosGetEntities,
   axiosUpdateEntity,
-  getShortType,
+  getIRIFromAddResponse,
   getResponseBody,
   getShortID,
-  axiosAddEntity,
-  getIRIFromAddResponse,
+  getShortType,
 } from 'helperFunctions'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import Page404 from '../../errors/Page404'
-import {
-  setFolder,
-  setFolderContent,
-  fetchFolder,
-} from '../../../redux/actions'
+import { fetchFolder, setFolder, setFolderContent, } from '../../../redux/actions'
 import FileExplorer from '../FileExplorer'
 import { DocumentEnums } from '../enums/document-enums'
 import { customTheme } from '../styles/styles'
@@ -32,7 +23,6 @@ import FolderDialog from './FolderDialog'
 import CreateDocumentMenu from './CreateDocumentMenu'
 import { MdDelete } from 'react-icons/md'
 import getDeletedDocuments from '../functions/getDeletedDocuments'
-import { useMediaQuery } from '@material-ui/core'
 
 function CourseDocumentManager(props) {
   const {
@@ -70,7 +60,7 @@ function CourseDocumentManager(props) {
       getDeletedDocuments(courseId).then(deleted => {
         setLoading(false)
         setFsObjects(deleted)
-        setFsPath([{ name: 'Deleted documents' }])
+        setFsPath([{name: 'Deleted documents'}])
       })
       return
     }
@@ -89,7 +79,7 @@ function CourseDocumentManager(props) {
       })
       .then(data => {
         const fsObjects = data[0].content
-        console.log({ fsObjects })
+        console.log({fsObjects})
         setFsObjects(fsObjects.filter(doc => doc.isDeleted === showingDeleted))
         setLoading(false)
         setFolder(data[0])
@@ -104,7 +94,7 @@ function CourseDocumentManager(props) {
     )}`
 
     fsObject.isDeleted = !fsObject.isDeleted // ? is this valid react, check with react strict mode?
-    axiosUpdateEntity({ isDeleted: fsObject.isDeleted }, url).then(response => {
+    axiosUpdateEntity({isDeleted: fsObject.isDeleted}, url).then(response => {
       if (response.failed) {
         console.error('Inverting was unsuccessful')
         setStatus(response.response ? response.response.status : 500)
@@ -116,17 +106,17 @@ function CourseDocumentManager(props) {
 
   const onFsObjectRowClick = (_, fsObject) => {
     if (DocumentEnums.folder.entityName === getShortType(fsObject['@type'])) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      window.scrollTo({top: 0, behavior: 'smooth'})
       history.push(
         redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
-          { key: 'course_id', value: courseId },
-          { key: 'folder_id', value: getShortID(fsObject['@id']) },
+          {key: 'course_id', value: courseId},
+          {key: 'folder_id', value: getShortID(fsObject['@id'])},
         ])
       )
       return
     }
     history.push(
-      redirect(ROUTES.EDIT_DOCUMENT, [{ key: 'course_id', value: courseId }]),
+      redirect(ROUTES.EDIT_DOCUMENT, [{key: 'course_id', value: courseId}]),
       {
         documentId: getShortID(fsObject['@id']),
         parentFolderId: getShortID(folder.id),
@@ -189,7 +179,7 @@ function CourseDocumentManager(props) {
 
   const editFolder = () => {
     const folderUrl = `folder/${editFolderId}`
-    const data = { name: folderName, lastChanged: new Date() }
+    const data = {name: folderName, lastChanged: new Date()}
     toggleFolderDialog()
     axiosUpdateEntity(data, folderUrl).then(response => {
       if (response.failed) {
@@ -197,13 +187,13 @@ function CourseDocumentManager(props) {
         setStatus(response.response ? response.response.status : 500)
         return
       }
-      axiosUpdateEntity({ lastChanged: new Date() }, `folder/${folderId}`)
+      axiosUpdateEntity({lastChanged: new Date()}, `folder/${folderId}`)
       setRenderHack(x => x + 1)
     })
   }
 
   if (status === 404) {
-    return <Page404 />
+    return <Page404/>
   }
 
   const toggleFolderDialog = () => {
@@ -214,22 +204,22 @@ function CourseDocumentManager(props) {
   const onPathFolderClick = folderId => {
     history.push(
       redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
-        { key: 'course_id', value: match.params.course_id },
-        { key: 'folder_id', value: folderId },
+        {key: 'course_id', value: match.params.course_id},
+        {key: 'folder_id', value: folderId},
       ])
     )
   }
 
   return (
     <ThemeProvider theme={customTheme}>
-      <div style={{ maxWidth: 1000, margin: 'auto', padding: 20 }}>
-        <br />
+      <div style={{maxWidth: 1000, margin: 'auto', padding: 20}}>
+        <br/>
         {status !== 200 && (
           <>
             <Alert severity="warning">
               There has been a server error, try again please!
             </Alert>
-            <br />
+            <br/>
           </>
         )}
         {!showingDeleted && (
@@ -241,32 +231,32 @@ function CourseDocumentManager(props) {
             }}
           >
             <CreateDocumentMenu
-              style={{ display: 'inline-block', float: 'left' }}
+              style={{display: 'inline-block', float: 'left'}}
               onFolderCreate={handleFolderCreate}
               loading={loading || folder.loading}
             />
-            <div style={{ float: 'right' }}>
+            <div style={{float: 'right'}}>
               <Button
-                style={{ outline: 'none' }}
+                style={{outline: 'none'}}
                 variant="contained"
                 disabled={loading || folder.loading}
                 onClick={() =>
                   history.push(
                     redirect(ROUTES.DELETED_DOCUMENTS, [
-                      { key: 'course_id', value: courseId },
+                      {key: 'course_id', value: courseId},
                     ])
                   )
                 }
-                startIcon={<MdDelete />}
+                startIcon={<MdDelete/>}
               >
                 Deleted documents
               </Button>
             </div>
           </div>
         )}
-        <br />
+        <br/>
         <TextField
-          style={{ width: isMobile ? '100%' : '35%' }}
+          style={{width: isMobile ? '100%' : '35%'}}
           id="search-textfield"
           label="search"
           type="text"
@@ -275,10 +265,10 @@ function CourseDocumentManager(props) {
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        <br />
-        <br />
+        <br/>
+        <br/>
         <LinearProgress
-          style={{ visibility: loading ? 'visible' : 'hidden' }}
+          style={{visibility: loading ? 'visible' : 'hidden'}}
         />
         <FileExplorer
           files={fsObjects}
@@ -305,15 +295,15 @@ function CourseDocumentManager(props) {
   )
 }
 
-const mapStateToProps = ({ courseInstanceReducer, folderReducer }) => {
+const mapStateToProps = ({courseInstanceReducer, folderReducer}) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
-    folder: { ...folderReducer },
+    folder: {...folderReducer},
   }
 }
 
 export default withRouter(
-  connect(mapStateToProps, { setFolder, setFolderContent, fetchFolder })(
+  connect(mapStateToProps, {setFolder, setFolderContent, fetchFolder})(
     CourseDocumentManager
   )
 )

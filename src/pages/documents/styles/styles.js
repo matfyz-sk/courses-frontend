@@ -1,6 +1,6 @@
 import { grey, red } from '@material-ui/core/colors'
 import { makeStyles } from '@material-ui/core/styles'
-import { createMuiTheme  } from '@material-ui/core'
+import { createMuiTheme } from '@material-ui/core'
 
 const baseTheme = createMuiTheme({
   palette: {
@@ -77,17 +77,17 @@ const usePdfRendererStyles = makeStyles(({
   input: {
     width: 45,
     '& input[type=number]': {
-        '-moz-appearance': 'textfield'
+      '-moz-appearance': 'textfield'
     },
     '& input[type=number]::-webkit-outer-spin-button': {
-        '-webkit-appearance': 'none',
-        margin: 0
+      '-webkit-appearance': 'none',
+      margin: 0
     },
     '& input[type=number]::-webkit-inner-spin-button': {
-        '-webkit-appearance': 'none',
-        margin: 0
+      '-webkit-appearance': 'none',
+      margin: 0
     }
-},
+  },
 }))
 
 export { customTheme, useFileExplorerStyles, usePdfRendererStyles }

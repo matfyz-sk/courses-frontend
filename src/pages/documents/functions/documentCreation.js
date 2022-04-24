@@ -28,7 +28,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     ...properties
   } = oldDocument
 
-  const { name, mimeType, uri, filename, isDeleted } = newDocument
+  const {name, mimeType, uri, filename, isDeleted} = newDocument
   if (newDocument.payload) {
     var content = newDocument.payload[0].content
   }
@@ -70,7 +70,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
       }
       break;
     case DocumentEnums.externalDocument.entityName:
-      subclassParams = { uri }
+      subclassParams = {uri}
       break
     case DocumentEnums.file.entityName:
       subclassParams = {
@@ -102,7 +102,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
 }
 
 const createNewVersion = async (newVersion, props) => {
-  console.log({ newVersion })
+  console.log({newVersion})
   const response = await axiosAddEntity(newVersion, 'document')
   if (response.failed) {
     console.error(response.error)
@@ -227,10 +227,9 @@ const replaceInCurrentDocuments = async (newVersionId, oldVersionId, props) => {
   }
   // because if I don't reload page courseInstance is not fetched again
   props.setCurrentDocumentsOfCourseInstance(
-    currentDocuments.hasDocument.map(doc => ({ '@id': doc }))
+    currentDocuments.hasDocument.map(doc => ({'@id': doc}))
   )
 }
-
 
 
 const editDocument = async (newDocument, oldDocument, props) => {

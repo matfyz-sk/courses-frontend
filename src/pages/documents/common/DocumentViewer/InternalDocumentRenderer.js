@@ -9,7 +9,7 @@ const markedOptions = {
   headerIds: false,
 }
 
-function InternalDocumentRenderer({ setNumPages, pageNumber, payloadContent, mimeType }) {
+function InternalDocumentRenderer({setNumPages, pageNumber, payloadContent, mimeType}) {
   const [pages, setPages] = useState([])
 
   useEffect(() => {
@@ -41,7 +41,7 @@ function InternalDocumentRenderer({ setNumPages, pageNumber, payloadContent, mim
           aria-label="Rich Text Editor, main"
           lang="en"
           contentEditable={false}
-          dangerouslySetInnerHTML={{ __html: preparePayloadContent() }}
+          dangerouslySetInnerHTML={{__html: preparePayloadContent()}}
         />
       </div>
     </>

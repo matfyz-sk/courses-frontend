@@ -13,10 +13,10 @@ const useStyles = makeStyles({
 
 function Path(props) {
   const classes = useStyles()
-  const { fsPath, onPathFolderClickHandler } = props
+  const {fsPath, onPathFolderClickHandler} = props
   return (
     <div>
-      <Breadcrumbs style={{ display: "block"}} aria-label="breadcrumb">
+      <Breadcrumbs style={{display: "block"}} aria-label="breadcrumb">
         {fsPath.map((folder, i) =>
           i !== fsPath.length - 1 ? (
             <Link

@@ -1,27 +1,22 @@
 import {
   Button,
-  MenuItem,
-  Select,
+  Checkbox,
   FormControl,
   FormControlLabel,
   FormHelperText,
-  Checkbox,
+  IconButton,
+  Input,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   ThemeProvider,
-  InputLabel,
-  Input,
-  IconButton,
 } from '@material-ui/core'
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Redirect, withRouter } from 'react-router'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
-import {
-  axiosGetEntities,
-  getResponseBody,
-  fileToBase64,
-  getShortID,
-} from '../../helperFunctions'
+import { axiosGetEntities, fileToBase64, getResponseBody, getShortID, } from '../../helperFunctions'
 import { Alert, Form, Label } from 'reactstrap'
 import { HiDownload } from 'react-icons/hi'
 import CustomEditor from './wysiwyg/ckeditor'
@@ -35,27 +30,27 @@ import editDocument from './functions/documentCreation'
 import downloadBase64File from './functions/downloadBase64File'
 import MaterialForm from './MaterialForm'
 import { customTheme } from './styles/styles'
-import { MdDelete, MdRestorePage, MdHistory } from 'react-icons/md'
+import { MdDelete, MdHistory, MdRestorePage } from 'react-icons/md'
 import removeDocumentReference from "./functions/removeDocumentReference";
 
 function DocumentForm({
-  courseInstance,
-  creating,
-  folder,
-  history,
-  match,
-  user,
-  fetchFolder,
-  setCurrentDocumentsOfCourseInstance,
-  location
-}) {
+                        courseInstance,
+                        creating,
+                        folder,
+                        history,
+                        match,
+                        user,
+                        fetchFolder,
+                        setCurrentDocumentsOfCourseInstance,
+                        location
+                      }) {
   // FIXME large base64 file uploads not working
   // FIXME only owner can do or see
   const [status, setStatus] = useState(200)
 
   const courseId = match.params.course_id
   if (!location.state && !creating) {
-    return <Redirect to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}/>
+    return <Redirect to={redirect(ROUTES.DOCUMENTS, [{key: 'course_id', value: courseId}])}/>
   }
 
   // when creating a brand-new document
@@ -111,7 +106,7 @@ function DocumentForm({
       })
       .then(data => {
         const responseDocument = data[0]
-        console.log({ responseDocument })
+        console.log({responseDocument})
         setDocument(responseDocument)
         setName(responseDocument.name)
         setIsDeleted(responseDocument.isDeleted)
@@ -160,7 +155,7 @@ function DocumentForm({
   const handleEdit = async (e, isBeingDeleted = false) => {
     e.preventDefault()
     if (!formValid()) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      window.scrollTo({top: 0, behavior: 'smooth'})
       return
     }
     setIsReadOnly(true)
@@ -195,7 +190,7 @@ function DocumentForm({
         mimeType,
         uri,
         filename,
-        payload: [{ content }],
+        payload: [{content}],
         isDeleted: isBeingDeleted,
       },
       document,
@@ -208,8 +203,8 @@ function DocumentForm({
     }
     history.push(
       redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
-        { key: 'course_id', value: courseId },
-        { key: 'folder_id', value: getShortID(folder.id) },
+        {key: 'course_id', value: courseId},
+        {key: 'folder_id', value: getShortID(folder.id)},
       ])
     )
   }
@@ -217,7 +212,7 @@ function DocumentForm({
   const onChangeFile = e => {
     fileToBase64(e.target.files[0]).then(base64Content => {
       setContent(base64Content)
-      console.log({ loaded: true })
+      console.log({loaded: true})
     })
     setMimeType(e.target.files[0].type)
     setFilename(e.target.files[0].name)
@@ -245,7 +240,7 @@ function DocumentForm({
   }
 
   if (status === 404) {
-    return <Page404 />
+    return <Page404/>
   }
 
   if (loading) {
@@ -259,7 +254,7 @@ function DocumentForm({
   return (
     <ThemeProvider theme={customTheme}>
       <Form
-        style={{ maxWidth: '1100px', margin: '20px auto', padding: 10 }}
+        style={{maxWidth: '1100px', margin: '20px auto', padding: 10}}
         onSubmit={handleEdit}
       >
         <div>
@@ -301,7 +296,7 @@ function DocumentForm({
                   )
                 }
               >
-                <MdHistory />
+                <MdHistory/>
               </IconButton>
               <IconButton
                 aria-label={isDeleted ? "restore" : "delete"}
@@ -311,13 +306,13 @@ function DocumentForm({
                 }}
                 onClick={isDeleted ? handleEdit : handleDelete}
               >
-                {isDeleted ? <MdRestorePage /> : <MdDelete /> }
+                {isDeleted ? <MdRestorePage/> : <MdDelete/>}
               </IconButton>
             </div>
           )}
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{display: 'flex', justifyContent: 'center'}}>
           <TextField
             error={name.length === 0}
             id="name-textfield"
@@ -331,9 +326,9 @@ function DocumentForm({
             disabled={isReadOnly}
           />
         </div>
-        <br />
+        <br/>
         {entityName === DocumentEnums.externalDocument.entityName && (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{display: 'flex', justifyContent: 'center'}}>
             <TextField
               error={!isValidHttpUrl(uri)}
               id="url-textfield"
@@ -354,21 +349,21 @@ function DocumentForm({
               error={filename.length === 0}
               id="upload-button-file"
               type="file"
-              style={{ display: 'none' }}
+              style={{display: 'none'}}
               aria-describedby="file-upload-helper-text"
               value={filePath}
               onChange={onChangeFile}
               disabled={isReadOnly}
             />
             <InputLabel
-              style={{ display: 'inline' }}
+              style={{display: 'inline'}}
               htmlFor="upload-button-file"
             >
               <Button disabled={isReadOnly} variant="contained" color="primary" component="span">
                 Upload
               </Button>
             </InputLabel>
-            <span style={{ marginLeft: '3em' }}>
+            <span style={{marginLeft: '3em'}}>
               {filename.length === 0 ? 'No file chosen' : filename}
             </span>
 
@@ -380,11 +375,11 @@ function DocumentForm({
                 {filename.length === 0 ? 'Have to chose file' : ''}
               </FormHelperText>
             ) : (
-              <Label style={{ marginLeft: '1.5em' }} for="file-download">
+              <Label style={{marginLeft: '1.5em'}} for="file-download">
                 <Link id="file-download" to={{}} onClick={onDownloadFile}>
                   {mimeType.startsWith('image') ? (
                     <img
-                      style={{ display: 'inline', maxWidth: '150px' }}
+                      style={{display: 'inline', maxWidth: '150px'}}
                       src={content}
                       alt="image of document"
                     />
@@ -406,7 +401,7 @@ function DocumentForm({
           <>
             {!isInEditingMode && (
               <>
-                <FormControl variant="outlined" style={{ minWidth: 250 }}>
+                <FormControl variant="outlined" style={{minWidth: 250}}>
                   <InputLabel id="format-select-label">Format</InputLabel>
                   <Select
                     labelId="format-select-label"
@@ -424,9 +419,9 @@ function DocumentForm({
                     Can't change after saving document
                   </FormHelperText>
                 </FormControl>
-                <br />
-                <br />
-                <p style={{ color: 'grey' }}>
+                <br/>
+                <br/>
+                <p style={{color: 'grey'}}>
                   Note: page breaks can be set via the horizontal line button
                 </p>
               </>
@@ -439,25 +434,25 @@ function DocumentForm({
               isReadOnly={isReadOnly}
             />
             {content.length === 0 && (
-              <p style={{ color: customTheme.palette.error.main }}>
+              <p style={{color: customTheme.palette.error.main}}>
                 Document can't be empty
               </p>
             )}
           </>
         )}
-        <br />
+        <br/>
         <FormControlLabel
           label="Is material"
           control={
             <Checkbox
               checked={isMaterial}
               onChange={e => setIsMaterial(e.target.checked)}
-              inputProps={{ 'aria-label': 'is material' }}
+              inputProps={{'aria-label': 'is material'}}
               disabled={isReadOnly}
             />
           }
         />
-        <br />
+        <br/>
 
         {isMaterial && (
           <MaterialForm
@@ -496,7 +491,7 @@ function DocumentForm({
           }}
         >
           <Button
-            style={{ width: '30%', margin: 'auto' }}
+            style={{width: '30%', margin: 'auto'}}
             size="large"
             type="submit"
             color="primary"
@@ -513,14 +508,14 @@ function DocumentForm({
 }
 
 const mapStateToProps = state => {
-  const { authReducer, courseInstanceReducer, folderReducer } = state
+  const {authReducer, courseInstanceReducer, folderReducer} = state
   return {
     user: authReducer.user,
     courseInstance: courseInstanceReducer.courseInstance,
-    folder: { ...folderReducer },
+    folder: {...folderReducer},
   }
 }
 
 export default withRouter(
-  connect(mapStateToProps, { fetchFolder, setCurrentDocumentsOfCourseInstance })(DocumentForm)
+  connect(mapStateToProps, {fetchFolder, setCurrentDocumentsOfCourseInstance})(DocumentForm)
 )

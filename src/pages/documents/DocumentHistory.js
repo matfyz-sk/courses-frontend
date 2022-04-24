@@ -1,13 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Alert, ListGroup, ListGroupItem } from 'reactstrap'
 import { Redirect, withRouter } from 'react-router'
 import { connect } from 'react-redux'
-import {
-  axiosGetEntities,
-  getResponseBody,
-  getShortType,
-  timestampToString2,
-} from '../../helperFunctions'
+import { axiosGetEntities, getResponseBody, getShortType, timestampToString2, } from '../../helperFunctions'
 import { redirect } from '../../constants/redirect'
 import * as ROUTES from '../../constants/routes'
 import { Link } from 'react-router-dom'
@@ -18,20 +13,14 @@ import editDocument from './functions/documentCreation'
 import './styles/diff.css'
 import './styles/mdStyling.css'
 import { marked } from 'marked'
-import {
-  Radio,
-  ThemeProvider,
-  makeStyles,
-  useMediaQuery,
-  IconButton,
-} from '@material-ui/core'
-import { MdChevronRight, MdChevronLeft } from 'react-icons/md'
+import { IconButton, makeStyles, Radio, ThemeProvider, useMediaQuery, } from '@material-ui/core'
+import { MdChevronLeft, MdChevronRight } from 'react-icons/md'
 import { HiDownload } from 'react-icons/hi'
 import downloadBase64File from './functions/downloadBase64File'
 import { customTheme } from './styles/styles'
 import Page404 from "../errors/Page404";
 
-function TextComparator({ textA, textB }) {
+function TextComparator({textA, textB}) {
   if (textB.length === 0 || textA === textB) {
     return <p>{textA}</p>
   }
@@ -39,7 +28,7 @@ function TextComparator({ textA, textB }) {
   return (
     <p>
       <del
-        style={{ wordBreak: 'break-all', whiteSpace: 'normal' }}
+        style={{wordBreak: 'break-all', whiteSpace: 'normal'}}
         className="revisions-diff"
       >
         {textB}
@@ -52,7 +41,7 @@ function TextComparator({ textA, textB }) {
         }}
       />
       <ins
-        style={{ wordBreak: 'break-all', whiteSpace: 'normal' }}
+        style={{wordBreak: 'break-all', whiteSpace: 'normal'}}
         className="revisions-diff"
       >
         {textA}
@@ -95,16 +84,16 @@ const getPayloadContent = version => version.payload[0].content
 const hasEmptyContent = version => version.payload[0].content.length === 0
 
 function RevisionsSidebar({
-  versions,
-  setPickedVersionA,
-  setPickedVersionB,
-  selectedAfter,
-  selectedBefore,
-  setSelectedAfter,
-  setSelectedBefore,
-  handleRestore,
-  setShowSidebar,
-}) {
+                            versions,
+                            setPickedVersionA,
+                            setPickedVersionB,
+                            selectedAfter,
+                            selectedBefore,
+                            setSelectedAfter,
+                            setSelectedBefore,
+                            handleRestore,
+                            setShowSidebar,
+                          }) {
   const style = useStyles()
   const isMobile = useMediaQuery('(max-width:760px)')
   const firstVersion = versions[0]
@@ -132,78 +121,81 @@ function RevisionsSidebar({
       <ListGroup flush>
         {isMobile && (
           <ListGroupItem onClick={() => setShowSidebar(false)}>
-            <div style={{display: "flex", justifyContent: "center"}}><MdChevronLeft
-              style={{fontSize: "200%", color: "grey"}}/></div>
+            <div style={{display: "flex", justifyContent: "center"}}>
+              <MdChevronLeft
+                style={{fontSize: "200%", color: "grey"}}
+              />
+            </div>
           </ListGroupItem>
         )}
-      {versions.map((v, i) => {
-        return (
-          <ListGroupItem className={style.sidebarRow} key={i}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              {timestampToString2(v.createdAt)}
-
-              {!v.isDeleted && <><Radio
+        {versions.map((v, i) => {
+          return (
+            <ListGroupItem className={style.sidebarRow} key={i}>
+              <div
                 style={{
-                  visibility: selectedAfter < i ? 'visible' : 'hidden',
-                  marginLeft: 'auto',
-                  color: customTheme.palette.primary.light,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}
-                checked={selectedBefore === i}
-                onChange={handleChangeB}
-                value={i}
-                name="before-revisions"
-                inputProps={{
-                  'aria-label': `before from ${timestampToString2(v.createdAt)}`,
-                }}
-              />
-                <Radio
-                  style={{
-                    visibility: i < selectedBefore ? 'visible' : 'hidden', color: customTheme.palette.primary.light,
-                  }}
-                  checked={selectedAfter === i}
-                  onChange={handleChangeA}
-                  value={i}
-                  name="after-revisions"
-                  inputProps={{
-                    'aria-label': `after all revisions up to ${timestampToString2(v.createdAt)}`,
-                  }}
-                /></>}
-            </div>
-            {i === 0 && (
-              <p style={{color: 'grey', marginBottom: 0}}>Current version</p>
-            )}
-            {v.isDeleted && (
-              <p style={{color: 'grey', marginBottom: 0}}> Was deleted</p>
-            )}
-            {v.restoredFrom && (
-              <p style={{color: 'grey', marginBottom: 0}}>
-                Restored from {timestampToString2(v.restoredFrom)}
-              </p>
-            )}
-            {i > 0 && i < versions.length - 1 && (
-              <>
-                {!firstVersion.isDeleted && (
-                  <a
-                    style={{color: customTheme.palette.primary.light}}
-                    href="#"
-                    onClick={e => handleRestore(e, v)}
-                  >
-                    restore
-                  </a>
-                )}
-              </>
+              >
+                {timestampToString2(v.createdAt)}
 
-            )}
-          </ListGroupItem>
-        )
-      })}
-    </ListGroup></div>
+                {!v.isDeleted && <><Radio
+                  style={{
+                    visibility: selectedAfter < i ? 'visible' : 'hidden',
+                    marginLeft: 'auto',
+                    color: customTheme.palette.primary.light,
+                  }}
+                  checked={selectedBefore === i}
+                  onChange={handleChangeB}
+                  value={i}
+                  name="before-revisions"
+                  inputProps={{
+                    'aria-label': `before from ${timestampToString2(v.createdAt)}`,
+                  }}
+                />
+                  <Radio
+                    style={{
+                      visibility: i < selectedBefore ? 'visible' : 'hidden', color: customTheme.palette.primary.light,
+                    }}
+                    checked={selectedAfter === i}
+                    onChange={handleChangeA}
+                    value={i}
+                    name="after-revisions"
+                    inputProps={{
+                      'aria-label': `after all revisions up to ${timestampToString2(v.createdAt)}`,
+                    }}
+                  /></>}
+              </div>
+              {i === 0 && (
+                <p style={{color: 'grey', marginBottom: 0}}>Current version</p>
+              )}
+              {v.isDeleted && (
+                <p style={{color: 'grey', marginBottom: 0}}> Was deleted</p>
+              )}
+              {v.restoredFrom && (
+                <p style={{color: 'grey', marginBottom: 0}}>
+                  Restored from {timestampToString2(v.restoredFrom)}
+                </p>
+              )}
+              {i > 0 && i < versions.length - 1 && (
+                <>
+                  {!firstVersion.isDeleted && (
+                    <a
+                      style={{color: customTheme.palette.primary.light}}
+                      href="#"
+                      onClick={e => handleRestore(e, v)}
+                    >
+                      restore
+                    </a>
+                  )}
+                </>
+
+              )}
+            </ListGroupItem>
+          )
+        })}
+      </ListGroup></div>
   )
 }
 
@@ -216,20 +208,20 @@ const markedOptions = {
 }
 
 function DocumentHistory({
-  match,
-  history,
-  fetchFolder,
-  folder,
-  user,
-  courseInstance,
-  setCurrentDocumentsOfCourseInstance,
-  location
-}) {
+                           match,
+                           history,
+                           fetchFolder,
+                           folder,
+                           user,
+                           courseInstance,
+                           setCurrentDocumentsOfCourseInstance,
+                           location
+                         }) {
 
   const courseId = match.params.course_id
 
   if (!location.state) {
-    return <Redirect to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}/>
+    return <Redirect to={redirect(ROUTES.DOCUMENTS, [{key: 'course_id', value: courseId}])}/>
   }
 
   const style = useStyles()
@@ -270,7 +262,7 @@ function DocumentHistory({
         }
         break
       case DocumentEnums.externalDocument.entityName:
-        subclassSpecificParams = { uri: '' }
+        subclassSpecificParams = {uri: ''}
         break
       case DocumentEnums.file.entityName:
         subclassSpecificParams = {
@@ -313,7 +305,6 @@ function DocumentHistory({
       ]
       const firstNonDeleted = paddedData.findIndex(doc => !doc.isDeleted)
       const secondNonDeleted = paddedData.findIndex((doc, i) => !doc.isDeleted && i !== firstNonDeleted)
-      console.log({firstNonDeleted, secondNonDeleted})
       setSelectedAfter(firstNonDeleted)
       setSelectedBefore(secondNonDeleted)
       setPickedVersionA(paddedData[firstNonDeleted])
@@ -376,8 +367,8 @@ function DocumentHistory({
     if (!newVersionId) return
     history.push(
       redirect(ROUTES.EDIT_DOCUMENT, [
-        { key: 'course_id', value: courseId },
-        { key: 'document_id', value: newVersionId },
+        {key: 'course_id', value: courseId},
+        {key: 'document_id', value: newVersionId},
       ])
     )
   }
@@ -415,7 +406,7 @@ function DocumentHistory({
   }
 
   if (status === 404) {
-    return <Page404 />
+    return <Page404/>
   }
 
   if (loading) {
@@ -449,10 +440,10 @@ function DocumentHistory({
                 <h5>Name:</h5>
                 {isMobile && !showSidebar && (
                   <IconButton
-                    style={{ marginLeft: 'auto', outline: 'none' }}
+                    style={{marginLeft: 'auto', outline: 'none'}}
                     onClick={() => setShowSidebar(true)}
                   >
-                    <MdChevronRight />
+                    <MdChevronRight/>
                   </IconButton>
                 )}
               </div>
@@ -503,16 +494,16 @@ function DocumentHistory({
                   <>
                     {!hasEmptyContent(pickedVersionB) &&
                       getPayloadContent(pickedVersionB) !==
-                        getPayloadContent(pickedVersionA) && (
+                      getPayloadContent(pickedVersionA) && (
                         <>
                           <Link
                             id="file-download"
-                            to={{ textDecoration: 'none' }}
+                            to={{textDecoration: 'none'}}
                             onClick={e => onDownloadFile(e, pickedVersionB)}
                           >
                             {pickedVersionB.mimeType.startsWith('image') ? (
                               <img
-                                style={{ display: 'inline', maxWidth: '120px' }}
+                                style={{display: 'inline', maxWidth: '120px'}}
                                 src={getPayloadContent(pickedVersionB)}
                                 alt="image of the older document version"
                               />
@@ -536,12 +527,12 @@ function DocumentHistory({
                       )}
                     <Link
                       id="file-download"
-                      to={{ textDecoration: 'none' }}
+                      to={{textDecoration: 'none'}}
                       onClick={e => onDownloadFile(e, pickedVersionA)}
                     >
                       {pickedVersionA.mimeType.startsWith('image') ? (
                         <img
-                          style={{ display: 'inline', maxWidth: '120px' }}
+                          style={{display: 'inline', maxWidth: '120px'}}
                           src={getPayloadContent(pickedVersionA)}
                           alt="image of the newer document version"
                         />
@@ -568,7 +559,7 @@ function DocumentHistory({
                       aria-label="Rich Text Editor, main"
                       lang="en"
                       contentEditable={false}
-                      dangerouslySetInnerHTML={{ __html: diffPayloads() }}
+                      dangerouslySetInnerHTML={{__html: diffPayloads()}}
                     />
                   </div>
                 </>
@@ -595,17 +586,17 @@ function DocumentHistory({
 }
 
 const mapStateToProps = ({
-  authReducer,
-  courseInstanceReducer,
-  folderReducer,
-}) => {
+                           authReducer,
+                           courseInstanceReducer,
+                           folderReducer,
+                         }) => {
   return {
     user: authReducer.user,
     courseInstance: courseInstanceReducer.courseInstance,
-    folder: { ...folderReducer },
+    folder: {...folderReducer},
   }
 }
 
 export default withRouter(
-  connect(mapStateToProps, { fetchFolder, setCurrentDocumentsOfCourseInstance })(DocumentHistory)
+  connect(mapStateToProps, {fetchFolder, setCurrentDocumentsOfCourseInstance})(DocumentHistory)
 )

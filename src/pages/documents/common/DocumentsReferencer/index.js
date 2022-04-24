@@ -1,20 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import FileExplorer from '../../FileExplorer'
 import { DocumentEnums } from '../../enums/document-enums'
-import {
-  getShortType,
-  getShortID,
-  axiosGetEntities,
-  getResponseBody,
-} from '../../../../helperFunctions'
+import { axiosGetEntities, getResponseBody, getShortID, getShortType, } from '../../../../helperFunctions'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router'
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  LinearProgress,
-} from '@material-ui/core'
+import { Dialog, DialogContent, DialogTitle, LinearProgress, } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import DocumentsList from './DocumentsList'
 import { makeStyles } from '@material-ui/styles'
@@ -35,13 +25,13 @@ const useStyles = makeStyles(() => ({
 }))
 
 function DocumentReferencer({
-  label,
-  documentReferences,
-  onDocumentReferencesChange,
-  match,
-  courseInstance,
-  isReadOnly
-}) {
+                              label,
+                              documentReferences,
+                              onDocumentReferencesChange,
+                              match,
+                              courseInstance,
+                              isReadOnly
+                            }) {
   // TODO readonly mode
   const classes = useStyles()
 
@@ -106,7 +96,7 @@ function DocumentReferencer({
     const documentRefId = await getReferenceOfDocument(document, courseInstance)
     onDocumentReferencesChange([
       ...documentReferences.filter(ref => ref['@id'] !== documentRefId),
-      { '@id': documentRefId, hasDocument: document["@id"], courseInstance },
+      {'@id': documentRefId, hasDocument: document["@id"], courseInstance},
     ])
     setDocuments([
       ...documents.filter(doc => doc['@id'] !== document['@id']),
@@ -127,7 +117,7 @@ function DocumentReferencer({
     const fileEntity = getShortType(fsObject['@type'])
     if (DocumentEnums.folder.entityName === fileEntity) {
       setFolderId(getShortID(fsObject['@id']))
-      dialogRef.current.scrollTo({ top: 0, behavior: 'smooth' })
+      dialogRef.current.scrollTo({top: 0, behavior: 'smooth'})
       return
     }
     addToDocuments(fsObject)
@@ -153,7 +143,7 @@ function DocumentReferencer({
         aria-labelledby="referencer-dialog-title"
         maxWidth="md"
         fullWidth
-        style={{ padding: "8px 12px" }}
+        style={{padding: "8px 12px"}}
       >
         <DialogTitle id="referencer-dialog-title" aria-label="add document">
           Choose document to add
@@ -186,12 +176,12 @@ function DocumentReferencer({
   )
 }
 
-const mapStateToProps = ({ courseInstanceReducer }) => {
+const mapStateToProps = ({courseInstanceReducer}) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
   }
 }
 
 export default withRouter(
-  connect(mapStateToProps, { setFolder })(DocumentReferencer)
+  connect(mapStateToProps, {setFolder})(DocumentReferencer)
 )

@@ -1,16 +1,16 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import throttle from 'lodash.throttle'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
 
-function PdfRenderer({ pageNumber, setNumPages, setPageNumber, pdf, width }) {
+function PdfRenderer({pageNumber, setNumPages, setPageNumber, pdf, width}) {
   const [PDFwidth, setPDFWidth] = useState(null)
   const myInput = useRef()
   const throttledSetPDFWidth = throttle(doSetPDFWidth, 250)
 
-  const onDocumentLoadSuccess = ({ numPages }) => {
+  const onDocumentLoadSuccess = ({numPages}) => {
     setNumPages(numPages)
   }
 
@@ -30,7 +30,7 @@ function PdfRenderer({ pageNumber, setNumPages, setPageNumber, pdf, width }) {
     setPDFWidth(width)
   }
 
-  const onItemClick = ({ pageNumber: itemPageNumber }) => {
+  const onItemClick = ({pageNumber: itemPageNumber}) => {
     setPageNumber(itemPageNumber)
   }
 
@@ -40,7 +40,7 @@ function PdfRenderer({ pageNumber, setNumPages, setPageNumber, pdf, width }) {
       '.react-pdf__Page__textContent'
     )
     textLayers.forEach(layer => {
-      const { style } = layer
+      const {style} = layer
       style.top = '0'
       style.left = '0'
       style.transform = ''

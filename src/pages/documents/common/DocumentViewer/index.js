@@ -1,10 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-import {
-  axiosGetEntities,
-  getResponseBody,
-  getShortID,
-  getShortType,
-} from '../../../../helperFunctions'
+import React, { useEffect, useRef, useState } from 'react'
+import { axiosGetEntities, getResponseBody, getShortID, getShortType, } from '../../../../helperFunctions'
 import { DocumentEnums } from '../../enums/document-enums'
 import PdfRenderer from './PdfRenderer'
 import InternalDocumentRenderer from './InternalDocumentRenderer'
@@ -12,18 +7,18 @@ import './styles/DocumentViewer.css'
 import { IconButton, TextField, ThemeProvider } from '@material-ui/core'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import {
-  MdKeyboardArrowUp,
+  MdFullscreenExit,
   MdKeyboardArrowDown,
   MdKeyboardArrowLeft,
   MdKeyboardArrowRight,
+  MdKeyboardArrowUp,
 } from 'react-icons/md'
 import { HiDownload } from 'react-icons/hi'
-import { MdFullscreenExit } from 'react-icons/md'
-import { usePdfRendererStyles, customTheme } from '../../styles/styles'
+import { customTheme, usePdfRendererStyles } from '../../styles/styles'
 import downloadBase64File from '../../functions/downloadBase64File'
 import useEventListener from '@use-it/event-listener'
 
-function DocumentViewer({ document, onViewingDocumentChange }) {
+function DocumentViewer({document, onViewingDocumentChange}) {
   const classes = usePdfRendererStyles()
   // event listener doesn't work when I change page with buttons so this is a fix...
   const focusHackRef = useRef()
@@ -82,7 +77,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
     }
   }
 
-  function onKeyDown({ key }) {
+  function onKeyDown({key}) {
     if (key === 'ArrowLeft' && pageNumber > 1) {
       previousPage()
     } else if (key === 'ArrowRight' && pageNumber < numPages) {
@@ -100,17 +95,17 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
             aria-label="previous page"
             disabled={pageNumber <= 1}
             onClick={previousPage}
-            style={{ fontSize: '150%', outline: 'none' }}
+            style={{fontSize: '150%', outline: 'none'}}
           >
-            <MdKeyboardArrowDown />
+            <MdKeyboardArrowDown/>
           </IconButton>
           <IconButton
             aria-label="next page"
             disabled={pageNumber >= numPages}
             onClick={nextPage}
-            style={{ fontSize: '150%', outline: 'none' }}
+            style={{fontSize: '150%', outline: 'none'}}
           >
-            <MdKeyboardArrowUp />
+            <MdKeyboardArrowUp/>
           </IconButton>
           <TextField
             id="page-number"
@@ -136,7 +131,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
               marginLeft: 'auto',
             }}
           >
-            <MdFullscreenExit />
+            <MdFullscreenExit/>
           </IconButton>
           <IconButton
             aria-label="download pdf"
@@ -154,7 +149,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
             }}
           >
             {' '}
-            <HiDownload />
+            <HiDownload/>
           </IconButton>
         </header>
         <div className="document-viewer__container">
@@ -172,7 +167,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
                 backgroundColor: 'transparent',
               }}
             >
-              <MdKeyboardArrowLeft />
+              <MdKeyboardArrowLeft/>
             </IconButton>
           </div>
           <div className="document-viewer__container__document">
@@ -189,7 +184,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
                 )}
               {entityName === DocumentEnums.internalDocument.entityName && (
                 <InternalDocumentRenderer
-                  style={{ boxSizing: 'border-box', width: '100%' }}
+                  style={{boxSizing: 'border-box', width: '100%'}}
                   pageNumber={pageNumber}
                   setNumPages={setNumPages}
                   payloadContent={payloadContent}
@@ -214,7 +209,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
                 backgroundColor: 'transparent',
               }}
             >
-              <MdKeyboardArrowRight />
+              <MdKeyboardArrowRight/>
             </IconButton>
           </div>
         </div>
