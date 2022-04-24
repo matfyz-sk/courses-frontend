@@ -25,7 +25,7 @@ import {
   useMediaQuery,
   IconButton,
 } from '@material-ui/core'
-import { MdChevronRight } from 'react-icons/md'
+import { MdChevronRight, MdChevronLeft } from 'react-icons/md'
 import { HiDownload } from 'react-icons/hi'
 import downloadBase64File from './functions/downloadBase64File'
 import { customTheme } from './styles/styles'
@@ -63,12 +63,12 @@ function TextComparator({ textA, textB }) {
 
 const useStyles = makeStyles({
   sidebar: {
-    overflowY: 'scroll',
-    display: 'table-cell',
+    overflow: 'scroll',
     width: '20%',
+    float: 'left',
     verticalAlign: 'top',
     borderLeft: '2px solid lightgrey',
-    height: '100vh',
+    height: 'calc(100vh - 80px)',
   },
   sidebarRow: {
     borderWidth: '0 0 1px',
@@ -79,10 +79,11 @@ const useStyles = makeStyles({
     width: '100%',
   },
   versionContentContainer: {
-    overflowY: 'scroll',
-    display: 'table-cell',
+    float: "left",
     width: '80%',
     verticalAlign: 'top',
+    height: 'calc(100vh - 80px)',
+    overflow: 'scroll',
   },
   versionContent: {
     width: '80%',
@@ -90,7 +91,6 @@ const useStyles = makeStyles({
   },
 })
 
-// TODO restoring should consider parent folder
 const getPayloadContent = version => version.payload[0].content
 const hasEmptyContent = version => version.payload[0].content.length === 0
 
@@ -106,7 +106,8 @@ function RevisionsSidebar({
   setShowSidebar,
 }) {
   const style = useStyles()
-  const isMobile = useMediaQuery('(max-width:600px)')
+  const isMobile = useMediaQuery('(max-width:760px)')
+  const firstVersion = versions[0]
 
   const handleChangeA = e => {
     if (isMobile) {
@@ -127,7 +128,14 @@ function RevisionsSidebar({
   }
 
   return (
-    <ListGroup flush className={style.sidebar}>
+    <div style={{width: isMobile && "100%"}} className={style.sidebar}>
+      <ListGroup flush>
+        {isMobile && (
+          <ListGroupItem onClick={() => setShowSidebar(false)}>
+            <div style={{display: "flex", justifyContent: "center"}}><MdChevronLeft
+              style={{fontSize: "200%", color: "grey"}}/></div>
+          </ListGroupItem>
+        )}
       {versions.map((v, i) => {
         return (
           <ListGroupItem className={style.sidebarRow} key={i}>
@@ -140,7 +148,7 @@ function RevisionsSidebar({
             >
               {timestampToString2(v.createdAt)}
 
-              <Radio
+              {!v.isDeleted && <><Radio
                 style={{
                   visibility: selectedAfter < i ? 'visible' : 'hidden',
                   marginLeft: 'auto',
@@ -151,48 +159,51 @@ function RevisionsSidebar({
                 value={i}
                 name="before-revisions"
                 inputProps={{
-                  'aria-label': `before from ${timestampToString2(
-                    v.createdAt
-                  )}`,
+                  'aria-label': `before from ${timestampToString2(v.createdAt)}`,
                 }}
               />
-              <Radio
-                style={{
-                  visibility: i < selectedBefore ? 'visible' : 'hidden',
-                  color: customTheme.palette.primary.light,
-                }}
-                checked={selectedAfter === i}
-                onChange={handleChangeA}
-                value={i}
-                name="after-revisions"
-                inputProps={{
-                  'aria-label': `after all revisions up to ${timestampToString2(
-                    v.createdAt
-                  )}`,
-                }}
-              />
+                <Radio
+                  style={{
+                    visibility: i < selectedBefore ? 'visible' : 'hidden', color: customTheme.palette.primary.light,
+                  }}
+                  checked={selectedAfter === i}
+                  onChange={handleChangeA}
+                  value={i}
+                  name="after-revisions"
+                  inputProps={{
+                    'aria-label': `after all revisions up to ${timestampToString2(v.createdAt)}`,
+                  }}
+                /></>}
             </div>
             {i === 0 && (
-              <p style={{ color: 'grey', marginBottom: 0 }}>Current version</p>
+              <p style={{color: 'grey', marginBottom: 0}}>Current version</p>
+            )}
+            {v.isDeleted && (
+              <p style={{color: 'grey', marginBottom: 0}}> Was deleted</p>
             )}
             {v.restoredFrom && (
-              <p style={{ color: 'grey', marginBottom: 0 }}>
+              <p style={{color: 'grey', marginBottom: 0}}>
                 Restored from {timestampToString2(v.restoredFrom)}
               </p>
             )}
             {i > 0 && i < versions.length - 1 && (
-              <a
-                style={{ color: customTheme.palette.primary.light }}
-                href="#"
-                onClick={e => handleRestore(e, v)}
-              >
-                restore
-              </a>
+              <>
+                {!firstVersion.isDeleted && (
+                  <a
+                    style={{color: customTheme.palette.primary.light}}
+                    href="#"
+                    onClick={e => handleRestore(e, v)}
+                  >
+                    restore
+                  </a>
+                )}
+              </>
+
             )}
           </ListGroupItem>
         )
       })}
-    </ListGroup>
+    </ListGroup></div>
   )
 }
 
@@ -224,7 +235,7 @@ function DocumentHistory({
   const style = useStyles()
   const newestVersionId = location.state.documentId
   const parentFolderId = location.state.parentFolderId
-  const isMobile = useMediaQuery('(max-width:600px)')
+  const isMobile = useMediaQuery('(max-width:760px)')
   const [showSidebar, setShowSidebar] = useState(false)
 
 
@@ -300,8 +311,13 @@ function DocumentHistory({
         ...data,
         createOriginDummyVersion(data[data.length - 1]),
       ]
-      setPickedVersionA(paddedData[0])
-      setPickedVersionB(paddedData[1])
+      const firstNonDeleted = paddedData.findIndex(doc => !doc.isDeleted)
+      const secondNonDeleted = paddedData.findIndex((doc, i) => !doc.isDeleted && i !== firstNonDeleted)
+      console.log({firstNonDeleted, secondNonDeleted})
+      setSelectedAfter(firstNonDeleted)
+      setSelectedBefore(secondNonDeleted)
+      setPickedVersionA(paddedData[firstNonDeleted])
+      setPickedVersionB(paddedData[secondNonDeleted])
       setVersions(paddedData)
       setLoadingVersions(false)
     })
@@ -414,7 +430,7 @@ function DocumentHistory({
     <ThemeProvider theme={customTheme}>
       <div className={style.mainPage}>
         {(!isMobile || !showSidebar) && (
-          <div className={style.versionContentContainer}>
+          <div style={{width: isMobile && "100%"}} className={style.versionContentContainer}>
             <div
               className="diffing"
               style={{
