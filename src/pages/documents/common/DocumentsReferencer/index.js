@@ -30,7 +30,8 @@ function DocumentReferencer({
                               onDocumentReferencesChange,
                               match,
                               courseInstance,
-                              isReadOnly
+                              isReadOnly,
+                              user
                             }) {
   const classes = useStyles()
 
@@ -173,9 +174,10 @@ function DocumentReferencer({
   )
 }
 
-const mapStateToProps = ({courseInstanceReducer}) => {
+const mapStateToProps = ({courseInstanceReducer, authReducer}) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
+    user: authReducer.user
   }
 }
 
