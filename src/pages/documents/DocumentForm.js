@@ -45,7 +45,6 @@ function DocumentForm({
                         location
                       }) {
   // FIXME large base64 file uploads not working
-  // FIXME only owner can do or see
   const [status, setStatus] = useState(200)
 
   const courseId = match.params.course_id

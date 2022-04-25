@@ -11,7 +11,7 @@ import {
   getResponseBody,
   getShortID,
   getShortType,
-} from 'helperFunctions'
+} from '../../../helperFunctions'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import Page404 from '../../errors/Page404'
@@ -32,6 +32,7 @@ function CourseDocumentManager(props) {
     showingDeleted,
     setFolder,
     history,
+    user
   } = props
   const [renderHack, setRenderHack] = useState(0)
   const isMobile = useMediaQuery('(max-width:600px)')
@@ -75,11 +76,14 @@ function CourseDocumentManager(props) {
           setStatus(response.response ? response.response.status : 500)
           return
         }
-        return getResponseBody(response)
-      })
-      .then(data => {
+        const data = getResponseBody(response)
+
+        if (folderId !== getShortID(courseInstance.fileExplorerRoot[0]["@id"])
+          && data[0].createdBy["@id"] !== user.fullURI) {
+          props.history.push(ROUTES.ACCESS_DENIED)
+          return
+        }
         const fsObjects = data[0].content
-        console.log({fsObjects})
         setFsObjects(fsObjects.filter(doc => doc.isDeleted === showingDeleted))
         setLoading(false)
         setFolder(data[0])
@@ -295,10 +299,11 @@ function CourseDocumentManager(props) {
   )
 }
 
-const mapStateToProps = ({courseInstanceReducer, folderReducer}) => {
+const mapStateToProps = ({courseInstanceReducer, folderReducer, authReducer}) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
     folder: {...folderReducer},
+    user: authReducer.user
   }
 }
 
