@@ -88,7 +88,7 @@
   .document-viewer__container {
     padding: 0
   }
-  .document-viewer header div:nth-child(4) {
+  .document-viewer header div:nth-child(5) {
     order: 1;
     width: 100%;
     text-align: center;

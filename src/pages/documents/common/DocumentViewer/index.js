@@ -4,7 +4,7 @@ import { DocumentEnums } from '../../enums/document-enums'
 import PdfRenderer from './PdfRenderer'
 import InternalDocumentRenderer from './InternalDocumentRenderer'
 import './styles/DocumentViewer.css'
-import { IconButton, TextField, ThemeProvider } from '@material-ui/core'
+import { IconButton, TextField, ThemeProvider, useMediaQuery } from '@material-ui/core'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import {
   MdFullscreenExit,
@@ -20,6 +20,7 @@ import useEventListener from '@use-it/event-listener'
 
 function DocumentViewer({document, onViewingDocumentChange}) {
   const classes = usePdfRendererStyles()
+  const isMobile = useMediaQuery('(max-width: 767px)')
   // event listener doesn't work when I change page with buttons so this is a fix...
   const focusHackRef = useRef()
 
@@ -94,17 +95,17 @@ function DocumentViewer({document, onViewingDocumentChange}) {
             aria-label="previous page"
             disabled={pageNumber <= 1}
             onClick={previousPage}
-            style={{fontSize: '150%', outline: 'none'}}
+            style={{fontSize: '125%', outline: 'none'}}
           >
-            <MdKeyboardArrowDown/>
+            <MdKeyboardArrowUp/>
           </IconButton>
           <IconButton
             aria-label="next page"
             disabled={pageNumber >= numPages}
             onClick={nextPage}
-            style={{fontSize: '150%', outline: 'none'}}
+            style={{fontSize: '125%', outline: 'none'}}
           >
-            <MdKeyboardArrowUp/>
+            <MdKeyboardArrowDown/>
           </IconButton>
           <TextField
             id="page-number"
@@ -114,11 +115,15 @@ function DocumentViewer({document, onViewingDocumentChange}) {
             className={classes.input}
             variant="outlined"
             size="small"
+            style={{marginLeft: isMobile && "auto"}}
             onFocus={event => {
               event.target.select()
             }}
           />
-          of {numPages}
+          <span
+            style={{marginRight: isMobile && "auto"}}
+          >of {numPages}</span>
+
           <div style={{margin: "auto"}}>
             <strong>{document.name}</strong>
           </div>
@@ -132,24 +137,26 @@ function DocumentViewer({document, onViewingDocumentChange}) {
           >
             <MdFullscreenExit/>
           </IconButton>
-          <IconButton
-            aria-label="download pdf"
-            onClick={() =>
-              downloadBase64File(
-                payloadContent,
-                document.filename,
-                document.mimeType,
-                window
-              )
-            }
-            style={{
-              fontSize: '150%',
-              outline: 'none',
-            }}
-          >
-            {' '}
-            <HiDownload/>
-          </IconButton>
+          {entityName === DocumentEnums.file.entityName && (
+            <IconButton
+              aria-label="download pdf"
+              onClick={() =>
+                downloadBase64File(
+                  payloadContent,
+                  document.filename,
+                  document.mimeType,
+                  window
+                )
+              }
+              style={{
+                fontSize: '150%',
+                outline: 'none',
+              }}
+            >
+              {' '}
+              <HiDownload/>
+            </IconButton>
+          )}
         </header>
         <div className="document-viewer__container">
           <div
