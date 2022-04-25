@@ -72,7 +72,7 @@ function DocumentForm({
   const [name, setName] = useState('')
   const [isDeleted, setIsDeleted] = useState(false);
 
-  const [isMaterial, setIsMaterial] = useState(true) // TODO resolve whether doc is material
+  const [isMaterial, setIsMaterial] = useState(false) // TODO resolve whether doc is material
   const [description, setDescription] = useState("")
   const [covers, setCovers] = useState([])
   const [mentions, setMentions] = useState([])
@@ -101,9 +101,7 @@ function DocumentForm({
           setStatus(response.response ? response.response.status : 500)
           return
         }
-        return getResponseBody(response)
-      })
-      .then(data => {
+        const data = getResponseBody(response)
         const responseDocument = data[0]
         console.log({responseDocument})
         setDocument(responseDocument)
@@ -211,7 +209,6 @@ function DocumentForm({
   const onChangeFile = e => {
     fileToBase64(e.target.files[0]).then(base64Content => {
       setContent(base64Content)
-      console.log({loaded: true})
     })
     setMimeType(e.target.files[0].type)
     setFilename(e.target.files[0].name)

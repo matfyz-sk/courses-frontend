@@ -89,9 +89,9 @@ class EnrollForm extends Component {
 
       axiosRequest(
         'patch',
-        JSON.stringify({
+        {
           requests: newRequests,
-        }),
+        },
         url
       ).then(response => {
         if (response && response.status === 200) {

@@ -39,9 +39,7 @@ function DocumentViewer({document, onViewingDocumentChange}) {
           console.error("Couldn't fetch document content")
           return
         }
-        return getResponseBody(response)[0]
-      })
-      .then(payload => {
+        const payload = getResponseBody(response)[0]
         setPayloadContent(payload.content)
       })
   }, [payloadId])

@@ -82,11 +82,10 @@ function DocumentReferencer({
           setLoading(false)
           return
         }
-        return getResponseBody(response)
-      })
-      .then(data => {
+        const data = getResponseBody(response)
+
         const fsObjects = data[0].content
-        setFsObjects(fsObjects.filter(doc => !doc.isDeleted))
+        setFsObjects(fsObjects.filter(doc => doc.createdBy === user.fullURI && !doc.isDeleted))
         setLoading(false)
         setFsPath(data.slice().reverse())
       })

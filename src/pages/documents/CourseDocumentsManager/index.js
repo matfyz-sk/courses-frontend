@@ -84,7 +84,7 @@ function CourseDocumentManager(props) {
           return
         }
         const fsObjects = data[0].content
-        setFsObjects(fsObjects.filter(doc => doc.isDeleted === showingDeleted))
+        setFsObjects(fsObjects.filter(doc => doc.createdBy === user.fullURI && doc.isDeleted === showingDeleted))
         setLoading(false)
         setFolder(data[0])
         setFsPath(data.slice().reverse())
