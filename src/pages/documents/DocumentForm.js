@@ -103,7 +103,7 @@ function DocumentForm({
         }
         const data = getResponseBody(response)
         const responseDocument = data[0]
-        console.log({responseDocument})
+
         setDocument(responseDocument)
         setName(responseDocument.name)
         setIsDeleted(responseDocument.isDeleted)

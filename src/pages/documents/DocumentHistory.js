@@ -320,17 +320,6 @@ function DocumentHistory({
     }
   }, [loadingVersions, folder.loading])
 
-  // useEffect(() => {
-  //   // TODO loading
-  //   var promises = []
-  //   for (const version of versions) {
-  //     const materialUrl = `material?document=${getShortID(version["@id"])}`
-  //     promises.push(axiosGetEntities(materialUrl))
-  //   }
-  //   Promise.all(promises)
-  //     .then(values => setMaterials(values))
-  // }, [versions])
-
   const handleRestore = async (e, versionToRestore) => {
     e.preventDefault()
     const editProps = {

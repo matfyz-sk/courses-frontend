@@ -32,7 +32,6 @@ function DocumentReferencer({
                               courseInstance,
                               isReadOnly
                             }) {
-  // TODO readonly mode
   const classes = useStyles()
 
   const [documents, setDocuments] = useState([])
@@ -50,7 +49,6 @@ function DocumentReferencer({
   useEffect(() => {
     // folder gets set and document references find their corresponding docs
     if (courseInstance) {
-      // TODO remove
       if (!courseInstance.fileExplorerRoot[0]) {
         console.error('File system not initialized')
         return

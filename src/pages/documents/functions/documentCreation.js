@@ -57,7 +57,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     restoredFrom: props.restoredFrom,
     author: [props.user.fullURI],
     owner: props.user.fullURI,
-    courseInstance: [props.courseInstance['@id']], // TODO push to existing ones
+    courseInstance: [props.courseInstance['@id']],
   }
 
   // add additional params
@@ -102,7 +102,6 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
 }
 
 const createNewVersion = async (newVersion, props) => {
-  console.log({newVersion})
   const response = await axiosAddEntity(newVersion, 'document')
   if (response.failed) {
     console.error(response.error)
@@ -204,7 +203,6 @@ const replaceInParentFolder = async (newVersionId, oldVersionId, props) => {
 }
 
 const replaceInCurrentDocuments = async (newVersionId, oldVersionId, props) => {
-  // TODO change copy file system
   const currentDocuments = {
     hasDocument: [
       newVersionId,
