@@ -7,7 +7,7 @@ import {
   RESULTS_ADD_TYPE,
   RESULTS_UPDATE_TYPE,
   RESULTS_REMOVE_TYPE,
-  SET_CURRENT_DOCUMENTS,
+  SET_CURRENT_DOCUMENTS, SET_FILE_EXPLORER_ROOT,
 } from '../types'
 
 const initialState = {
@@ -17,12 +17,21 @@ const initialState = {
 export default function courseInstanceReducer(state = initialState, action) {
   const ci = state.courseInstance
   switch (action.type) {
+    case SET_FILE_EXPLORER_ROOT: {
+      if (ci && ci.fileExplorerRoot) {
+        ci.fileExplorerRoot = action.item
+      }
+      return {
+        ...state,
+        courseInstance: ci
+      };
+    }
     case SET_CURRENT_DOCUMENTS: {
       if (ci && ci.hasDocument)
         ci.hasDocument = action.item
       return {
         ...state,
-        hasDocument: ci
+        courseInstance: ci
       };
     }
     case SET_COURSE_INSTANCE:
