@@ -21,7 +21,7 @@ export const timestampToString = (timestamp) => {
 }
 
 export const timestampToString2 = (timestamp) => {
-  return moment(timestamp).format('DD/MM/YYYY HH:mm'); 
+  return moment(timestamp).format('DD/MM/YYYY HH:mm');
 }
 
 export const datesComparator = (date1, date2, isUnix = false, olderFirst = false ) => {
@@ -138,6 +138,22 @@ export const axiosUpdateEntity = ( data, entity ) => {
   )
 }
 
+export const axiosPartialEntityUpdate = ( data, entity ) => {
+  return axiosRequest(
+    'put',
+    `${REST_URL}/${entity}`,
+    data
+  )
+}
+
+export const axiosDeleteAttributeValueOfEntity = (data, entity ) => {
+  return axiosRequest(
+    'delete',
+    `${REST_URL}/${entity}`,
+    data
+  )
+}
+
 export const axiosDeleteEntity = ( entity ) => {
   return axiosRequest(
     'delete',
@@ -232,13 +248,13 @@ export const compareByName = sortAscending => {
 }
 
 function stringComparator(a, b) {
-  if (a === undefined && b === undefined) 
+  if (a === undefined && b === undefined)
     return 0
   else if (a === undefined)
     return -1
   else if (b === undefined)
     return 1
-  
+
   a = a.toLowerCase()
   b = b.toLowerCase()
   return a < b ? -1 : a > b ? 1 : 0
