@@ -167,7 +167,6 @@ function DocumentForm({
   }
 
   const handlePaste = async parent => {
-    console.log(parent)
     setIsRelocateDialogOpen(false)
     await createNewDocumentVersion(parent)
   }

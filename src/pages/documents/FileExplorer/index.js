@@ -118,9 +118,8 @@ function EnhancedTableHead({
   order,
   orderBy,
   onRequestSort,
-  hasActionColumn
+  hasActionColumn,
 }) {
-
   const createSortHandler = property => event => {
     onRequestSort(event, property)
   }
@@ -172,21 +171,19 @@ const CustomListItemIcon = withStyles({
   },
 })(ListItemIcon)
 
-function FileExplorer(props) {
-  // TODO list keys!
-  const {
-    files,
-    search,
-    fsPath,
-    onRowClickHandler,
-    onPathFolderClickHandler,
-    onPaste,
-    onCut,
-    isRelocator,
-    editFolder,
-    clipboard,
-    hasActionColumn,
-  } = props
+function FileExplorer({
+  files,
+  search,
+  fsPath,
+  onRowClickHandler,
+  onPathFolderClickHandler,
+  onPaste,
+  onCut,
+  isRelocator,
+  editFolder,
+  clipboard,
+  hasActionColumn,
+}) {
 
   const classes = useFileExplorerStyles()
   const currentFolder = fsPath?.[fsPath?.length - 1] ?? {}
@@ -308,7 +305,7 @@ function FileExplorer(props) {
             />
             <TableBody>
               {prepareFiles(files).map((file, i) => {
-                const labelId = `enhanced-table-checkbox-${i}`
+                const labelId = `enhanced-table-${file['@id']}`
                 const entityName = getShortType(file['@type'])
 
                 return (
@@ -406,9 +403,8 @@ function FileExplorer(props) {
   )
 }
 
-const mapStateToProps = ({folderReducer, clipboardReducer}) => {
+const mapStateToProps = ({clipboardReducer}) => {
   return {
-    folder: {...folderReducer},
     clipboard: {...clipboardReducer}
   }
 }

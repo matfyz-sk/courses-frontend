@@ -142,7 +142,7 @@ function RevisionsSidebar({
         )}
         {versions.map((v, i) => {
           return (
-            <ListGroupItem className={style.sidebarRow} key={i}>
+            <ListGroupItem className={style.sidebarRow} key={v["@id"]}>
               <div
                 style={{
                   display: 'flex',
@@ -269,6 +269,7 @@ function DocumentHistory({
 
   const createOriginDummyVersion = firstVersion => {
     const dummy = {
+      "@id": `dummy-version-${firstVersion["@id"]}`,
       name: '',
       createdAt: firstVersion.createdAt,
       restoredFrom: '',

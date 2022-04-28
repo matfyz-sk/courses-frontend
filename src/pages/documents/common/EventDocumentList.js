@@ -87,7 +87,7 @@ function EventDocumentList({ onViewableDocumentClick, documentReference }) {
             break
         }
         return (
-          <div key={i}>
+          <div key={doc["@id"]}>
             <ListItem
               button={true}
               className={classes.listItemRoot}
