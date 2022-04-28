@@ -17,19 +17,19 @@ function DocumentsNavigation({ match, courseInstance, folder, fetchFolder }) {
   const courseId = match.params.course_id
 
   useEffect(() => {
-    if (courseInstance && folder["@id"]) {
+    if (courseInstance && folder['@id']) {
       setLoading(false)
     } else {
       setLoading(true)
       if (
         courseInstance &&
         courseInstance.fileExplorerRoot.length !== 0 &&
-        !folder["@id"]
+        !folder['@id']
       ) {
         fetchFolder(getShortID(courseInstance.fileExplorerRoot[0]['@id']))
       }
     }
-  }, [courseInstance, folder["@id"]])
+  }, [courseInstance, folder['@id']])
 
   if (loading) {
     return (
@@ -39,15 +39,6 @@ function DocumentsNavigation({ match, courseInstance, folder, fetchFolder }) {
     )
   }
 
-  // if (courseInstance && courseInstance.fileExplorerRoot.length === 0) {
-  //     // TODO initializeFileSystem() // means creating root folder for the courseInstance and setting redux state
-  //     // TODO remove if possible
-  //     return (
-  //         <Alert color="secondary" className="empty-message">
-  //             Initializing file system...
-  //         </Alert>
-  //     )
-  // }
   return (
     <Switch>
       <Route exact path={ROUTES.DOCUMENTS}>

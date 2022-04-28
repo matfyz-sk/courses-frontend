@@ -1,14 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { axiosGetEntities, getResponseBody, getShortID, getShortType, } from '../../../helperFunctions'
+import {
+  axiosGetEntities,
+  getResponseBody,
+  getShortID,
+  getShortType,
+} from '../../../helperFunctions'
 import { DocumentEnums } from '../enums/document-enums'
-import { Dialog, DialogContent, DialogTitle, LinearProgress, } from '@material-ui/core'
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  LinearProgress,
+} from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import FileExplorer from '../FileExplorer'
 import { makeStyles } from '@material-ui/styles'
 import { customTheme } from '../styles/styles'
 import { withRouter } from 'react-router'
 import { connect } from 'react-redux'
-import { changeParent } from '../functions/changeParent'
 
 // dialog's intended behaviour is to reset the styling theme so this is a workaround for the progress bar
 const useStyles = makeStyles(() => ({
@@ -128,15 +137,10 @@ function RelocateDialog({
   )
 }
 
-const mapStateToProps = ({
-  courseInstanceReducer,
-  authReducer,
-  folderReducer,
-}) => {
+const mapStateToProps = ({ courseInstanceReducer, authReducer }) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
     user: authReducer.user,
-    folder: { ...folderReducer },
   }
 }
 

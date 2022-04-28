@@ -36,9 +36,9 @@ function FolderDialog({
         </DialogTitle>
         <DialogContent>
           {/* TODO resolve tip */}
-          <DialogContentText>
-            Beware! A folder can be deleted only if it's empty
-          </DialogContentText>
+          {/*<DialogContentText>*/}
+          {/*  Beware! A folder can be deleted only if it's empty*/}
+          {/*</DialogContentText>*/}
           <TextField
             error={folderName.length === 0}
             autoFocus

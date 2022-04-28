@@ -15,8 +15,8 @@ import {BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, SESSIONS, TASKS_EXAMS,} from '
 import {axiosRequest, getData} from '../AxiosRequests'
 import {redirect} from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
-import EventDocumentList from 'pages/documents/common/EventDocumentList'
-import DocumentViewer from 'pages/documents/common/DocumentViewer'
+import EventDocumentList from '../../documents/common/EventDocumentList'
+import DocumentViewer from '../../documents/common/DocumentViewer'
 
 class Event extends React.Component {
   constructor(props) {
