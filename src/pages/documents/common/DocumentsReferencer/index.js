@@ -25,14 +25,14 @@ const useStyles = makeStyles(() => ({
 }))
 
 function DocumentReferencer({
-                              label,
-                              documentReferences,
-                              onDocumentReferencesChange,
-                              match,
-                              courseInstance,
-                              isReadOnly,
-                              user
-                            }) {
+  label,
+  documentReferences,
+  onDocumentReferencesChange,
+  match,
+  courseInstance,
+  isReadOnly,
+  user,
+}) {
   const classes = useStyles()
 
   const [documents, setDocuments] = useState([])
@@ -62,7 +62,9 @@ function DocumentReferencer({
         docsPromises.push(axiosGetEntities(entityUrl))
       }
       Promise.all(docsPromises).then(responses => {
-        const documents = responses.map(response => getResponseBody(response)[0])
+        const documents = responses.map(
+          response => getResponseBody(response)[0]
+        )
         setDocuments(documents.filter(doc => !doc.isDeleted))
       })
     }
@@ -73,28 +75,31 @@ function DocumentReferencer({
     setLoading(true)
     const entitiesUrl = `folder/${folderId}?_chain=parent&_join=content`
 
-    axiosGetEntities(entitiesUrl)
-      .then(response => {
-        setStatus(response.response ? response.response.status : 500)
-        if (response.failed) {
-          console.error("Couldn't fetch files, try again")
-          setLoading(false)
-          return
-        }
-        const data = getResponseBody(response)
-
-        const fsObjects = data[0].content
-        setFsObjects(fsObjects.filter(doc => doc.createdBy === user.fullURI && !doc.isDeleted))
+    axiosGetEntities(entitiesUrl).then(response => {
+      setStatus(response.response ? response.response.status : 500)
+      if (response.failed) {
+        console.error("Couldn't fetch files, try again")
         setLoading(false)
-        setFsPath(data.slice().reverse())
-      })
+        return
+      }
+      const data = getResponseBody(response)
+
+      const fsObjects = data[0].content
+      setFsObjects(
+        fsObjects.filter(
+          doc => doc.createdBy === user.fullURI && !doc.isDeleted
+        )
+      )
+      setLoading(false)
+      setFsPath(data.slice().reverse())
+    })
   }, [courseId, folderId])
 
   const addToDocuments = async document => {
     const documentRefId = await getReferenceOfDocument(document, courseInstance)
     onDocumentReferencesChange([
       ...documentReferences.filter(ref => ref['@id'] !== documentRefId),
-      {'@id': documentRefId, hasDocument: document["@id"], courseInstance},
+      { '@id': documentRefId, hasDocument: document['@id'], courseInstance },
     ])
     setDocuments([
       ...documents.filter(doc => doc['@id'] !== document['@id']),
@@ -104,9 +109,7 @@ function DocumentReferencer({
 
   const removeFromDocuments = document => {
     onDocumentReferencesChange(
-      documentReferences.filter(
-        ref => ref.hasDocument !== document['@id']
-      )
+      documentReferences.filter(ref => ref.hasDocument !== document['@id'])
     )
     setDocuments(documents.filter(doc => doc['@id'] !== document['@id']))
   }
@@ -115,7 +118,7 @@ function DocumentReferencer({
     const fileEntity = getShortType(fsObject['@type'])
     if (DocumentEnums.folder.entityName === fileEntity) {
       setFolderId(getShortID(fsObject['@id']))
-      dialogRef.current.scrollTo({top: 0, behavior: 'smooth'})
+      dialogRef.current.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
     addToDocuments(fsObject)
@@ -141,7 +144,7 @@ function DocumentReferencer({
         aria-labelledby="referencer-dialog-title"
         maxWidth="md"
         fullWidth
-        style={{padding: "8px 12px"}}
+        style={{ padding: '8px 12px' }}
       >
         <DialogTitle id="referencer-dialog-title" aria-label="add document">
           Choose document to add
@@ -174,10 +177,10 @@ function DocumentReferencer({
   )
 }
 
-const mapStateToProps = ({courseInstanceReducer, authReducer}) => {
+const mapStateToProps = ({ courseInstanceReducer, authReducer }) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
-    user: authReducer.user
+    user: authReducer.user,
   }
 }
 

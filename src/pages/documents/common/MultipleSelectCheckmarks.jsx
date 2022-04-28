@@ -3,12 +3,12 @@ import { TextField } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 
 export default function MultipleSelectCheckmarks({
-                                                   allItems,
-                                                   items,
-                                                   setItems,
-                                                   label,
-                                                   isReadOnly
-                                                 }) {
+  allItems,
+  items,
+  setItems,
+  label,
+  isReadOnly,
+}) {
   const handleChange = (event, values) => {
     setItems(values)
   }
@@ -23,9 +23,9 @@ export default function MultipleSelectCheckmarks({
         getOptionSelected={(option, value) => option['@id'] === value['@id']}
         onChange={handleChange}
         value={items}
-        style={{width: '95%', border: '0', padding: '0', margin: 'auto'}}
+        style={{ width: '95%', border: '0', padding: '0', margin: 'auto' }}
         renderInput={params => (
-          <TextField {...params} label={label} variant="outlined"/>
+          <TextField {...params} label={label} variant="outlined" />
         )}
         disabled={isReadOnly}
       />

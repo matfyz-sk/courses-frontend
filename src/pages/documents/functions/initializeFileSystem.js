@@ -2,23 +2,22 @@ import {
   axiosAddEntity,
   axiosUpdateEntity,
   getIRIFromAddResponse,
-  getResponseBody,
-  getShortID
+  getShortID,
 } from '../../../helperFunctions'
 
 export async function initializeFileSystem(courseFullId) {
   const toCreate = {
-      name: 'Home',
-      courseInstance: courseFullId,
+    name: 'Home',
+    courseInstance: courseFullId,
   }
-  const response = await axiosAddEntity(toCreate, "folder")
+  const response = await axiosAddEntity(toCreate, 'folder')
   if (response.failed) {
-    console.error("error!")
+    console.error('error!')
     return
   }
   const newFolderId = getIRIFromAddResponse(response)
   const toUpdate = {
-    fileExplorerRoot: newFolderId
+    fileExplorerRoot: newFolderId,
   }
   await axiosUpdateEntity(
     toUpdate,

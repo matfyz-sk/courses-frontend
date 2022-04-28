@@ -12,7 +12,7 @@ import { getShortID } from '../../helperFunctions'
 import CourseDocumentManager from './CourseDocumentsManager'
 import { fetchFolder } from '../../redux/actions'
 
-function DocumentsNavigation({match, courseInstance, folder, fetchFolder}) {
+function DocumentsNavigation({ match, courseInstance, folder, fetchFolder }) {
   const [loading, setLoading] = useState(true)
   const courseId = match.params.course_id
 
@@ -53,7 +53,7 @@ function DocumentsNavigation({match, courseInstance, folder, fetchFolder}) {
       <Route exact path={ROUTES.DOCUMENTS}>
         <Redirect
           to={redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
-            {key: 'course_id', value: courseId},
+            { key: 'course_id', value: courseId },
             {
               key: 'folder_id',
               value: getShortID(courseInstance.fileExplorerRoot[0]['@id']),
@@ -64,47 +64,51 @@ function DocumentsNavigation({match, courseInstance, folder, fetchFolder}) {
       <Route
         exact
         path={ROUTES.DOCUMENTS_IN_FOLDER}
-        render={() => <CourseDocumentManager showingDeleted={false}/>}
+        render={() => <CourseDocumentManager showingDeleted={false} />}
       />
-      <Route exact path={ROUTES.DELETED_DOCUMENTS} render={() => <CourseDocumentManager showingDeleted={true}/>}/>
+      <Route
+        exact
+        path={ROUTES.DELETED_DOCUMENTS}
+        render={() => <CourseDocumentManager showingDeleted={true} />}
+      />
       <Route
         exact
         path={ROUTES.EDIT_DOCUMENT}
-        render={() => <DocumentForm/>}
+        render={() => <DocumentForm />}
       />
       <Route
         exact
         path={ROUTES.CREATE_INTERNAL_DOCUMENT}
         render={() => (
-          <DocumentForm creating={DocumentEnums.internalDocument.entityName}/>
+          <DocumentForm creating={DocumentEnums.internalDocument.entityName} />
         )}
       />
       <Route
         exact
         path={ROUTES.CREATE_EXTERNAL_DOCUMENT}
         render={() => (
-          <DocumentForm creating={DocumentEnums.externalDocument.entityName}/>
+          <DocumentForm creating={DocumentEnums.externalDocument.entityName} />
         )}
       />
       <Route
         exact
         path={ROUTES.CREATE_FILE_DOCUMENT}
-        render={() => <DocumentForm creating={DocumentEnums.file.entityName}/>}
+        render={() => <DocumentForm creating={DocumentEnums.file.entityName} />}
       />
       <Route
         exact
         path={ROUTES.DOCUMENT_HISTORY}
-        render={() => <DocumentHistory/>}
+        render={() => <DocumentHistory />}
       />
-      <Route key="404" component={Page404}/>
+      <Route key="404" component={Page404} />
     </Switch>
   )
 }
 
-const mapStateToProps = ({courseInstanceReducer, folderReducer}) => {
+const mapStateToProps = ({ courseInstanceReducer, folderReducer }) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
-    folder: {...folderReducer},
+    folder: { ...folderReducer },
   }
 }
 

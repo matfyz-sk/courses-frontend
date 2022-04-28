@@ -10,16 +10,15 @@ import {
 } from '@material-ui/core'
 
 function FolderDialog({
-                        isEdit,
-                        open,
-                        handleClose,
-                        folderName,
-                        setFolderName,
-                        onCreate,
-                        onEdit
-                      }) {
-
-  const onSubmit = (e) => {
+  isEdit,
+  open,
+  handleClose,
+  folderName,
+  setFolderName,
+  onCreate,
+  onEdit,
+}) {
+  const onSubmit = e => {
     if (folderName.length !== 0) {
       isEdit ? onEdit() : onCreate()
     }
@@ -55,10 +54,18 @@ function FolderDialog({
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary" style={{outline: "none"}}>
+          <Button
+            onClick={handleClose}
+            color="primary"
+            style={{ outline: 'none' }}
+          >
             Cancel
           </Button>
-          <Button onClick={onSubmit} color="primary" style={{outline: "none"}}>
+          <Button
+            onClick={onSubmit}
+            color="primary"
+            style={{ outline: 'none' }}
+          >
             Submit
           </Button>
         </DialogActions>

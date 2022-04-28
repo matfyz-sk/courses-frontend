@@ -1,16 +1,19 @@
 import {
   axiosDeleteAttributeValueOfEntity,
-  axiosPartialEntityUpdate, axiosUpdateEntity, getShortID, getShortType,
+  axiosPartialEntityUpdate,
+  axiosUpdateEntity,
+  getShortID,
+  getShortType,
 } from '../../../helperFunctions'
-import { DocumentEnums } from "../enums/document-enums";
+import { DocumentEnums } from '../enums/document-enums'
 
 export async function changeParent(fsObject, newParentFullId, oldParentFullId) {
-  const entityName = getShortType(fsObject["@type"])
+  const entityName = getShortType(fsObject['@type'])
   if (entityName === DocumentEnums.folder.entityName) {
     const toUpdate = {
-      parent: newParentFullId
+      parent: newParentFullId,
     }
-    await axiosUpdateEntity(toUpdate, `folder/${getShortID(fsObject["@id"])}`)
+    await axiosUpdateEntity(toUpdate, `folder/${getShortID(fsObject['@id'])}`)
   }
   await axiosPartialEntityUpdate(
     { lastChanged: new Date() },

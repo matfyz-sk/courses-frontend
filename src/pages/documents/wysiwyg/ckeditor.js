@@ -2,7 +2,7 @@ import React from 'react'
 import { CKEditor } from '@ckeditor/ckeditor5-react'
 import * as CKSUPEREDITOR from 'courses-wysiwyg-superbuild'
 
-function CustomEditor({content, setContent, mimeType, isReadOnly}) {
+function CustomEditor({ content, setContent, mimeType, isReadOnly }) {
   return (
     <>
       {mimeType === 'text/html' && (
@@ -13,7 +13,7 @@ function CustomEditor({content, setContent, mimeType, isReadOnly}) {
                 {
                   name: /^(div|section|article|span)$/,
                   attributes: {
-                    class: true
+                    class: true,
                   },
                   styles: true,
                 },
@@ -65,7 +65,7 @@ function CustomEditor({content, setContent, mimeType, isReadOnly}) {
                 {
                   name: /^(div|section|article|span)$/,
                   attributes: {
-                    class: true
+                    class: true,
                   },
                   styles: true,
                 },

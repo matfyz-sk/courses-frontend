@@ -2,25 +2,39 @@ import React, { useEffect, useState } from 'react'
 import { Alert, ListGroup, ListGroupItem } from 'reactstrap'
 import { Redirect, withRouter } from 'react-router'
 import { connect } from 'react-redux'
-import { axiosGetEntities, getResponseBody, getShortType, timestampToString2, } from '../../helperFunctions'
+import {
+  axiosGetEntities,
+  getResponseBody,
+  getShortType,
+  timestampToString2,
+} from '../../helperFunctions'
 import { redirect } from '../../constants/redirect'
 import * as ROUTES from '../../constants/routes'
 import { Link } from 'react-router-dom'
-import { fetchFolder, setCurrentDocumentsOfCourseInstance } from '../../redux/actions'
+import {
+  fetchFolder,
+  setCurrentDocumentsOfCourseInstance,
+} from '../../redux/actions'
 import diff from 'node-htmldiff'
 import { DocumentEnums } from './enums/document-enums'
 import editDocument from './functions/documentCreation'
 import './styles/diff.css'
 import './styles/mdStyling.css'
 import { marked } from 'marked'
-import { IconButton, makeStyles, Radio, ThemeProvider, useMediaQuery, } from '@material-ui/core'
+import {
+  IconButton,
+  makeStyles,
+  Radio,
+  ThemeProvider,
+  useMediaQuery,
+} from '@material-ui/core'
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md'
 import { HiDownload } from 'react-icons/hi'
 import downloadBase64File from './functions/downloadBase64File'
 import { customTheme } from './styles/styles'
-import Page404 from "../errors/Page404";
+import Page404 from '../errors/Page404'
 
-function TextComparator({textA, textB}) {
+function TextComparator({ textA, textB }) {
   if (textB.length === 0 || textA === textB) {
     return <p>{textA}</p>
   }
@@ -28,7 +42,7 @@ function TextComparator({textA, textB}) {
   return (
     <p>
       <del
-        style={{wordBreak: 'break-all', whiteSpace: 'normal'}}
+        style={{ wordBreak: 'break-all', whiteSpace: 'normal' }}
         className="revisions-diff"
       >
         {textB}
@@ -41,7 +55,7 @@ function TextComparator({textA, textB}) {
         }}
       />
       <ins
-        style={{wordBreak: 'break-all', whiteSpace: 'normal'}}
+        style={{ wordBreak: 'break-all', whiteSpace: 'normal' }}
         className="revisions-diff"
       >
         {textA}
@@ -68,7 +82,7 @@ const useStyles = makeStyles({
     width: '100%',
   },
   versionContentContainer: {
-    float: "left",
+    float: 'left',
     width: '80%',
     verticalAlign: 'top',
     height: 'calc(100vh - 80px)',
@@ -84,16 +98,16 @@ const getPayloadContent = version => version.payload[0].content
 const hasEmptyContent = version => version.payload[0].content.length === 0
 
 function RevisionsSidebar({
-                            versions,
-                            setPickedVersionA,
-                            setPickedVersionB,
-                            selectedAfter,
-                            selectedBefore,
-                            setSelectedAfter,
-                            setSelectedBefore,
-                            handleRestore,
-                            setShowSidebar,
-                          }) {
+  versions,
+  setPickedVersionA,
+  setPickedVersionB,
+  selectedAfter,
+  selectedBefore,
+  setSelectedAfter,
+  setSelectedBefore,
+  handleRestore,
+  setShowSidebar,
+}) {
   const style = useStyles()
   const isMobile = useMediaQuery('(max-width:760px)')
   const firstVersion = versions[0]
@@ -117,14 +131,12 @@ function RevisionsSidebar({
   }
 
   return (
-    <div style={{width: isMobile && "100%"}} className={style.sidebar}>
+    <div style={{ width: isMobile && '100%' }} className={style.sidebar}>
       <ListGroup flush>
         {isMobile && (
           <ListGroupItem onClick={() => setShowSidebar(false)}>
-            <div style={{display: "flex", justifyContent: "center"}}>
-              <MdChevronLeft
-                style={{fontSize: "200%", color: "grey"}}
-              />
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <MdChevronLeft style={{ fontSize: '200%', color: 'grey' }} />
             </div>
           </ListGroupItem>
         )}
@@ -140,41 +152,52 @@ function RevisionsSidebar({
               >
                 {timestampToString2(v.createdAt)}
 
-                {!v.isDeleted && <><Radio
-                  style={{
-                    visibility: selectedAfter < i ? 'visible' : 'hidden',
-                    marginLeft: 'auto',
-                    color: customTheme.palette.primary.light,
-                  }}
-                  checked={selectedBefore === i}
-                  onChange={handleChangeB}
-                  value={i}
-                  name="before-revisions"
-                  inputProps={{
-                    'aria-label': `before from ${timestampToString2(v.createdAt)}`,
-                  }}
-                />
-                  <Radio
-                    style={{
-                      visibility: i < selectedBefore ? 'visible' : 'hidden', color: customTheme.palette.primary.light,
-                    }}
-                    checked={selectedAfter === i}
-                    onChange={handleChangeA}
-                    value={i}
-                    name="after-revisions"
-                    inputProps={{
-                      'aria-label': `after all revisions up to ${timestampToString2(v.createdAt)}`,
-                    }}
-                  /></>}
+                {!v.isDeleted && (
+                  <>
+                    <Radio
+                      style={{
+                        visibility: selectedAfter < i ? 'visible' : 'hidden',
+                        marginLeft: 'auto',
+                        color: customTheme.palette.primary.light,
+                      }}
+                      checked={selectedBefore === i}
+                      onChange={handleChangeB}
+                      value={i}
+                      name="before-revisions"
+                      inputProps={{
+                        'aria-label': `before from ${timestampToString2(
+                          v.createdAt
+                        )}`,
+                      }}
+                    />
+                    <Radio
+                      style={{
+                        visibility: i < selectedBefore ? 'visible' : 'hidden',
+                        color: customTheme.palette.primary.light,
+                      }}
+                      checked={selectedAfter === i}
+                      onChange={handleChangeA}
+                      value={i}
+                      name="after-revisions"
+                      inputProps={{
+                        'aria-label': `after all revisions up to ${timestampToString2(
+                          v.createdAt
+                        )}`,
+                      }}
+                    />
+                  </>
+                )}
               </div>
               {i === 0 && (
-                <p style={{color: 'grey', marginBottom: 0}}>Current version</p>
+                <p style={{ color: 'grey', marginBottom: 0 }}>
+                  Current version
+                </p>
               )}
               {v.isDeleted && (
-                <p style={{color: 'grey', marginBottom: 0}}> Was deleted</p>
+                <p style={{ color: 'grey', marginBottom: 0 }}> Was deleted</p>
               )}
               {v.restoredFrom && (
-                <p style={{color: 'grey', marginBottom: 0}}>
+                <p style={{ color: 'grey', marginBottom: 0 }}>
                   Restored from {timestampToString2(v.restoredFrom)}
                 </p>
               )}
@@ -182,7 +205,7 @@ function RevisionsSidebar({
                 <>
                   {!firstVersion.isDeleted && (
                     <a
-                      style={{color: customTheme.palette.primary.light}}
+                      style={{ color: customTheme.palette.primary.light }}
                       href="#"
                       onClick={e => handleRestore(e, v)}
                     >
@@ -190,12 +213,12 @@ function RevisionsSidebar({
                     </a>
                   )}
                 </>
-
               )}
             </ListGroupItem>
           )
         })}
-      </ListGroup></div>
+      </ListGroup>
+    </div>
   )
 }
 
@@ -204,24 +227,27 @@ const markedOptions = {
   breaks: true,
   tables: true,
   xhtml: true,
-  headerIds: false
+  headerIds: false,
 }
 
 function DocumentHistory({
-                           match,
-                           history,
-                           fetchFolder,
-                           folder,
-                           user,
-                           courseInstance,
-                           setCurrentDocumentsOfCourseInstance,
-                           location
-                         }) {
-
+  match,
+  history,
+  fetchFolder,
+  folder,
+  user,
+  courseInstance,
+  setCurrentDocumentsOfCourseInstance,
+  location,
+}) {
   const courseId = match.params.course_id
 
   if (!location.state) {
-    return <Redirect to={redirect(ROUTES.DOCUMENTS, [{key: 'course_id', value: courseId}])}/>
+    return (
+      <Redirect
+        to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}
+      />
+    )
   }
 
   const style = useStyles()
@@ -229,7 +255,6 @@ function DocumentHistory({
   const parentFolderId = location.state.parentFolderId
   const isMobile = useMediaQuery('(max-width:760px)')
   const [showSidebar, setShowSidebar] = useState(false)
-
 
   const [status, setStatus] = useState(200)
   const [entityName, setEntityName] = useState('')
@@ -248,7 +273,7 @@ function DocumentHistory({
       name: '',
       createdAt: firstVersion.createdAt,
       restoredFrom: '',
-    };
+    }
     let subclassSpecificParams
     switch (getShortType(firstVersion['@type'])) {
       case DocumentEnums.internalDocument.entityName:
@@ -262,7 +287,7 @@ function DocumentHistory({
         }
         break
       case DocumentEnums.externalDocument.entityName:
-        subclassSpecificParams = {uri: ''}
+        subclassSpecificParams = { uri: '' }
         break
       case DocumentEnums.file.entityName:
         subclassSpecificParams = {
@@ -296,15 +321,16 @@ function DocumentHistory({
         return
       }
       const data = getResponseBody(response)
-      if (folder.id !== parentFolderId)
-        fetchFolder(parentFolderId)
+      if (folder.id !== parentFolderId) fetchFolder(parentFolderId)
       setEntityName(getShortType(data[0]['@type']))
       const paddedData = [
         ...data,
         createOriginDummyVersion(data[data.length - 1]),
       ]
       const firstNonDeleted = paddedData.findIndex(doc => !doc.isDeleted)
-      const secondNonDeleted = paddedData.findIndex((doc, i) => !doc.isDeleted && i !== firstNonDeleted)
+      const secondNonDeleted = paddedData.findIndex(
+        (doc, i) => !doc.isDeleted && i !== firstNonDeleted
+      )
       setSelectedAfter(firstNonDeleted)
       setSelectedBefore(secondNonDeleted)
       setPickedVersionA(paddedData[firstNonDeleted])
@@ -331,7 +357,7 @@ function DocumentHistory({
       courseInstance,
       folder,
       user,
-      setCurrentDocumentsOfCourseInstance
+      setCurrentDocumentsOfCourseInstance,
     }
     // if (isMaterial) {
     //   console.log("implement")
@@ -356,8 +382,8 @@ function DocumentHistory({
     if (!newVersionId) return
     history.push(
       redirect(ROUTES.EDIT_DOCUMENT, [
-        {key: 'course_id', value: courseId},
-        {key: 'document_id', value: newVersionId},
+        { key: 'course_id', value: courseId },
+        { key: 'document_id', value: newVersionId },
       ])
     )
   }
@@ -367,8 +393,8 @@ function DocumentHistory({
       return
     }
 
-    let before = getPayloadContent(pickedVersionB);
-    let after = getPayloadContent(pickedVersionA);
+    let before = getPayloadContent(pickedVersionB)
+    let after = getPayloadContent(pickedVersionA)
     if (pickedVersionA.mimeType === 'text/markdown') {
       before = marked.parse(before, markedOptions)
       after = marked.parse(after, markedOptions)
@@ -377,7 +403,7 @@ function DocumentHistory({
     after = after.replaceAll('<hr>', '<hr>a</hr>')
 
     const documentsDiff = diff(before, after, 'revisions-diff')
-    let cleanedDiff = documentsDiff.replaceAll('<hr>a</hr>', '<hr>');
+    let cleanedDiff = documentsDiff.replaceAll('<hr>a</hr>', '<hr>')
     cleanedDiff = cleanedDiff.replaceAll(
       /<hr data-diff-node="ins" data-operation-index="\d+"><ins data-operation-index="\d+" class="revisions-diff">a<\/ins><\/hr>/g,
       '<hr data-diff-node="ins" class="revisions-diff">'
@@ -395,7 +421,7 @@ function DocumentHistory({
   }
 
   if (status === 404) {
-    return <Page404/>
+    return <Page404 />
   }
 
   if (loading) {
@@ -410,7 +436,10 @@ function DocumentHistory({
     <ThemeProvider theme={customTheme}>
       <div className={style.mainPage}>
         {(!isMobile || !showSidebar) && (
-          <div style={{width: isMobile && "100%"}} className={style.versionContentContainer}>
+          <div
+            style={{ width: isMobile && '100%' }}
+            className={style.versionContentContainer}
+          >
             <div
               className="diffing"
               style={{
@@ -429,10 +458,10 @@ function DocumentHistory({
                 <h5>Name:</h5>
                 {isMobile && !showSidebar && (
                   <IconButton
-                    style={{marginLeft: 'auto', outline: 'none'}}
+                    style={{ marginLeft: 'auto', outline: 'none' }}
                     onClick={() => setShowSidebar(true)}
                   >
-                    <MdChevronRight/>
+                    <MdChevronRight />
                   </IconButton>
                 )}
               </div>
@@ -483,16 +512,16 @@ function DocumentHistory({
                   <>
                     {!hasEmptyContent(pickedVersionB) &&
                       getPayloadContent(pickedVersionB) !==
-                      getPayloadContent(pickedVersionA) && (
+                        getPayloadContent(pickedVersionA) && (
                         <>
                           <Link
                             id="file-download"
-                            to={{textDecoration: 'none'}}
+                            to={{ textDecoration: 'none' }}
                             onClick={e => onDownloadFile(e, pickedVersionB)}
                           >
                             {pickedVersionB.mimeType.startsWith('image') ? (
                               <img
-                                style={{display: 'inline', maxWidth: '120px'}}
+                                style={{ display: 'inline', maxWidth: '120px' }}
                                 src={getPayloadContent(pickedVersionB)}
                                 alt="image of the older document version"
                               />
@@ -516,12 +545,12 @@ function DocumentHistory({
                       )}
                     <Link
                       id="file-download"
-                      to={{textDecoration: 'none'}}
+                      to={{ textDecoration: 'none' }}
                       onClick={e => onDownloadFile(e, pickedVersionA)}
                     >
                       {pickedVersionA.mimeType.startsWith('image') ? (
                         <img
-                          style={{display: 'inline', maxWidth: '120px'}}
+                          style={{ display: 'inline', maxWidth: '120px' }}
                           src={getPayloadContent(pickedVersionA)}
                           alt="image of the newer document version"
                         />
@@ -548,7 +577,7 @@ function DocumentHistory({
                       aria-label="Rich Text Editor, main"
                       lang="en"
                       contentEditable={false}
-                      dangerouslySetInnerHTML={{__html: diffPayloads()}}
+                      dangerouslySetInnerHTML={{ __html: diffPayloads() }}
                     />
                   </div>
                 </>

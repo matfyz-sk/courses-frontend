@@ -5,26 +5,26 @@ import { Box, Grid, TextField } from '@material-ui/core'
 import DocumentsReferencer from './common/DocumentsReferencer'
 
 export default function MaterialForm({
-                                       description,
-                                       setDescription,
-                                       handleLoading,
-                                       statusHandler,
-                                       isAlternativeTo,
-                                       setIsAlternativeTo,
-                                       refersTo,
-                                       setRefersTo,
-                                       generalizes,
-                                       setGeneralizes,
-                                       covers,
-                                       setCovers,
-                                       mentions,
-                                       setMentions,
-                                       requires,
-                                       setRequires,
-                                       assumes,
-                                       setAssumes,
-                                       isReadOnly
-                                     }) {
+  description,
+  setDescription,
+  handleLoading,
+  statusHandler,
+  isAlternativeTo,
+  setIsAlternativeTo,
+  refersTo,
+  setRefersTo,
+  generalizes,
+  setGeneralizes,
+  covers,
+  setCovers,
+  mentions,
+  setMentions,
+  requires,
+  setRequires,
+  assumes,
+  setAssumes,
+  isReadOnly,
+}) {
   const [topics, setTopics] = useState([])
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function MaterialForm({
 
   return (
     <>
-      <hr style={{borderColor: 'lightgray'}}/>
+      <hr style={{ borderColor: 'lightgray' }} />
       <Box
         style={{
           display: 'flex',
@@ -52,7 +52,7 @@ export default function MaterialForm({
       >
         <TextField
           id="description-textarea"
-          style={{width: '50%'}}
+          style={{ width: '50%' }}
           label="Description"
           multiline
           variant="outlined"
@@ -61,19 +61,13 @@ export default function MaterialForm({
           disabled={isReadOnly}
         />
       </Box>
-      <br/>
-      <h5 style={{textAlign: 'center'}}>
+      <br />
+      <h5 style={{ textAlign: 'center' }}>
         Select the material's relations to other
       </h5>
-      <Grid container spacing={3} style={{width: '95%', margin: 'auto'}}>
-        <Grid
-          container
-          item
-          spacing={2}
-          xs={12}
-          sm={6}
-        >
-          <Grid style={{textAlign: 'center'}} item xs={12}>
+      <Grid container spacing={3} style={{ width: '95%', margin: 'auto' }}>
+        <Grid container item spacing={2} xs={12} sm={6}>
+          <Grid style={{ textAlign: 'center' }} item xs={12}>
             Topics
           </Grid>
           <Grid item xs={12}>
@@ -113,14 +107,8 @@ export default function MaterialForm({
             />
           </Grid>
         </Grid>
-        <Grid
-          container
-          item
-          spacing={2}
-          xs={12}
-          sm={6}
-        >
-          <Grid style={{textAlign: 'center'}} item xs={12}>
+        <Grid container item spacing={2} xs={12} sm={6}>
+          <Grid style={{ textAlign: 'center' }} item xs={12}>
             Materials
           </Grid>
           <Grid item xs={12}>
@@ -147,10 +135,9 @@ export default function MaterialForm({
               isReadOnly={isReadOnly}
             />
           </Grid>
-
         </Grid>
       </Grid>
-      <hr style={{borderColor: 'lightgray'}}/>
+      <hr style={{ borderColor: 'lightgray' }} />
     </>
   )
 }

@@ -28,7 +28,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     ...properties
   } = oldDocument
 
-  const {name, mimeType, uri, filename, isDeleted} = newDocument
+  const { name, mimeType, uri, filename, isDeleted } = newDocument
   if (newDocument.payload) {
     var content = newDocument.payload[0].content
   }
@@ -61,22 +61,22 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
   }
 
   // add additional params
-  let subclassParams = {};
+  let subclassParams = {}
   switch (props.entityName) {
     case DocumentEnums.internalDocument.entityName:
       subclassParams = {
         payload,
         mimeType,
       }
-      break;
+      break
     case DocumentEnums.externalDocument.entityName:
-      subclassParams = {uri}
+      subclassParams = { uri }
       break
     case DocumentEnums.file.entityName:
       subclassParams = {
         payload,
         filename,
-        mimeType
+        mimeType,
       }
       break
     default:
@@ -147,7 +147,6 @@ const updateDocumentReferences = async (newVersionId, oldVersionId, props) => {
   }
 }
 
-
 const replaceInParentFolder = async (newVersionId, oldVersionId, props) => {
   const folderContent = {
     content: [
@@ -156,7 +155,7 @@ const replaceInParentFolder = async (newVersionId, oldVersionId, props) => {
         .map(fsObj => fsObj['@id'])
         .filter(id => id !== oldVersionId),
     ],
-    lastChanged: new Date()
+    lastChanged: new Date(),
   }
   // * easy deletion
   // const folderContent = {
@@ -194,10 +193,9 @@ const replaceInCurrentDocuments = async (newVersionId, oldVersionId, props) => {
   }
   // because if I don't reload page courseInstance is not fetched again
   props.setCurrentDocumentsOfCourseInstance(
-    currentDocuments.hasDocument.map(doc => ({'@id': doc}))
+    currentDocuments.hasDocument.map(doc => ({ '@id': doc }))
   )
 }
-
 
 const editDocument = async (newDocument, oldDocument, props) => {
   const data = await createNewVersionData(newDocument, oldDocument, props)

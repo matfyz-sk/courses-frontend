@@ -1,4 +1,9 @@
-import { axiosDeleteEntity, axiosGetEntities, getResponseBody, getShortID } from "../../../helperFunctions";
+import {
+  axiosDeleteEntity,
+  axiosGetEntities,
+  getResponseBody,
+  getShortID,
+} from '../../../helperFunctions'
 
 const removeDocumentReference = async (documentId, courseId) => {
   const referenceUrl = `documentReference?courseInstance=${courseId}`

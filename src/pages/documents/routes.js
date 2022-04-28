@@ -4,7 +4,6 @@ import Documents from './index'
 import InstructorRoute from '../../router/routes/InstructorRoute'
 import CourseLayout from '../../layouts/CourseLayout'
 
-
 const DocumentsRoutes = [
   <InstructorRoute
     key={ROUTES.DOCUMENTS}
@@ -13,6 +12,6 @@ const DocumentsRoutes = [
     layout={CourseLayout}
     auth
   />,
-];
+]
 
-export default DocumentsRoutes;
+export default DocumentsRoutes

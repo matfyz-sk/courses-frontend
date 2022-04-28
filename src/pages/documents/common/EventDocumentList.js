@@ -1,21 +1,33 @@
 import React, { useEffect, useState } from 'react'
 import '../../core/Events/Events.css'
 import { getIcon } from '../../core/Helper'
-import { axiosGetEntities, getResponseBody, getShortID, getShortType, } from '../../../helperFunctions'
+import {
+  axiosGetEntities,
+  getResponseBody,
+  getShortID,
+  getShortType,
+} from '../../../helperFunctions'
 import { Link } from 'react-router-dom'
 import { DocumentEnums } from '../enums/document-enums'
 import downloadBase64File from '../functions/downloadBase64File'
-import { Divider, List, ListItem, ListItemIcon, ListItemText, useMediaQuery, } from '@material-ui/core'
+import {
+  Divider,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  useMediaQuery,
+} from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/node_modules/@material-ui/styles'
 import { customTheme } from '../styles/styles'
 
 const useStyles = makeStyles(() => ({
   listItemRoot: {
-    '&:hover': {color: customTheme.palette.primary.main},
+    '&:hover': { color: customTheme.palette.primary.main },
   },
 }))
 
-function EventDocumentList({onViewableDocumentClick, documentReference}) {
+function EventDocumentList({ onViewableDocumentClick, documentReference }) {
   const classes = useStyles()
   const isMobile = useMediaQuery('(max-width:600px)')
   const [documents, setDocuments] = useState([])
@@ -45,7 +57,7 @@ function EventDocumentList({onViewableDocumentClick, documentReference}) {
     <List className="event-documents-list" dense>
       {documents.map((doc, i) => {
         const entityName = getShortType(doc['@type'])
-        let navProps;
+        let navProps
         switch (entityName) {
           case DocumentEnums.externalDocument.entityName:
             navProps = {
@@ -79,13 +91,13 @@ function EventDocumentList({onViewableDocumentClick, documentReference}) {
             <ListItem
               button={true}
               className={classes.listItemRoot}
-              style={{paddingLeft: !isMobile && '10%'}}
+              style={{ paddingLeft: !isMobile && '10%' }}
               {...navProps}
             >
               <ListItemIcon>{getIcon('Material')}</ListItemIcon>
-              <ListItemText primary={doc.name}/>
+              <ListItemText primary={doc.name} />
             </ListItem>
-            {i !== documents.length - 1 && <Divider/>}
+            {i !== documents.length - 1 && <Divider />}
           </div>
         )
       })}

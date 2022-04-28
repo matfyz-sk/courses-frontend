@@ -113,21 +113,27 @@ const headCells = [
   },
 ]
 
-function EnhancedTableHead({classes, order, orderBy, onRequestSort, isReferencer, isReplacer}) {
+function EnhancedTableHead({
+  classes,
+  order,
+  orderBy,
+  onRequestSort,
+  isReferencer,
+  isReplacer,
+}) {
   const hasThreeColumns = isReferencer || isReplacer
   const createSortHandler = property => event => {
     onRequestSort(event, property)
   }
 
   const prepareHeadCells = headCells => {
-    if (hasThreeColumns)
-      return headCells.slice(0, -1)
+    if (hasThreeColumns) return headCells.slice(0, -1)
     return headCells
   }
 
   return (
-    <TableHead style={{position: 'static'}}>
-      <TableRow style={{position: 'static'}}>
+    <TableHead style={{ position: 'static' }}>
+      <TableRow style={{ position: 'static' }}>
         {prepareHeadCells(headCells).map(headCell => (
           <TableCell
             key={headCell.id}
@@ -180,7 +186,7 @@ function FileExplorer(props) {
     isReferencer,
     isReplacer,
     editFolder,
-    clipboard
+    clipboard,
   } = props
 
   const hasThreeColumns = isReferencer || isReplacer
@@ -237,13 +243,12 @@ function FileExplorer(props) {
         return { ...file, createdAt: file.lastChanged }
       }
       return file
-    }
-    )
+    })
   }
 
   const filterToBeCut = files => {
     if (isReplacer && clipboard.beingCut) {
-      return files.filter(file => file["@id"] !== clipboard.beingCut["@id"])
+      return files.filter(file => file['@id'] !== clipboard.beingCut['@id'])
     }
     return files
   }
@@ -273,34 +278,28 @@ function FileExplorer(props) {
                 aria-haspopup={true}
                 onClick={e => onPaste(e, currentFolder)}
                 size="small"
-                style={{ fontSize: '90%', outline: 'none', marginLeft: "auto" }}
+                style={{ fontSize: '90%', outline: 'none', marginLeft: 'auto' }}
               >
                 <MdContentPaste className={classes.actionsButton} />
               </IconButton>
             )}
           </Toolbar>
-          <Table
-            size="small"
-            aria-label="file explorer table"
-            stickyHeader
-          >
+          <Table size="small" aria-label="file explorer table" stickyHeader>
             <colgroup>
               {hasThreeColumns ? (
-                  <>
-                    <col style={{width: "10%"}}/>
-                    <col style={{width: "70%"}}/>
-                    <col style={{width: "20%"}}/>
-                  </>
-                )
-                : (
-                  <>
-                    <col style={{width: "10%"}}/>
-                    <col style={{width: "60%"}}/>
-                    <col style={{width: "20%"}}/>
-                    <col style={{width: "10%"}}/>
-                  </>
-                )}
-
+                <>
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '70%' }} />
+                  <col style={{ width: '20%' }} />
+                </>
+              ) : (
+                <>
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '60%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '10%' }} />
+                </>
+              )}
             </colgroup>
             <EnhancedTableHead
               classes={classes}
@@ -319,7 +318,7 @@ function FileExplorer(props) {
                   <CustomTableRow
                     hover
                     onClick={event => handleClick(event, file)}
-                    key={file["@id"]}
+                    key={file['@id']}
                   >
                     <TableCell
                       component="th"
@@ -328,7 +327,7 @@ function FileExplorer(props) {
                       padding="default"
                       className={classes.cell}
                     >
-                      <FileIcon file={file}/>
+                      <FileIcon file={file} />
                     </TableCell>
                     <TableCell
                       component="th"
@@ -373,7 +372,9 @@ function FileExplorer(props) {
                           }}
                         >
                           <MenuItem
-                            onClick={e => handleOptionsClose(e, i, file,'relocate')}
+                            onClick={e =>
+                              handleOptionsClose(e, i, file, 'relocate')
+                            }
                           >
                             <CustomListItemIcon>
                               <MdContentCut />
@@ -383,7 +384,9 @@ function FileExplorer(props) {
                           {entityName === DocumentEnums.folder.entityName && (
                             <div key={labelId}>
                               <MenuItem
-                                onClick={e => handleOptionsClose(e, i, file,'folder edit')}
+                                onClick={e =>
+                                  handleOptionsClose(e, i, file, 'folder edit')
+                                }
                               >
                                 <CustomListItemIcon>
                                   <MdEdit />
@@ -414,7 +417,7 @@ const mapStateToProps = ({folderReducer, clipboardReducer}) => {
 }
 
 export default withRouter(
-  connect(mapStateToProps, { })(
+  connect(mapStateToProps, {})(
     FileExplorer
   )
 )
