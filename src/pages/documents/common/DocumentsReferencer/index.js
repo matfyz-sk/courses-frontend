@@ -169,7 +169,6 @@ function DocumentReferencer({
             fsPath={fsPath}
             onRowClickHandler={onFsObjectRowClick}
             onPathFolderClickHandler={onPathFolderClick}
-            isReferencer
           />
         </DialogContent>
       </Dialog>

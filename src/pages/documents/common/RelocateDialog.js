@@ -121,7 +121,7 @@ function RelocateDialog({
           onRowClickHandler={onFsObjectRowClick}
           onPathFolderClickHandler={onPathFolderClick}
           onPaste={handlePaste}
-          isReplacer
+          isRelocator
         />
       </DialogContent>
     </Dialog>

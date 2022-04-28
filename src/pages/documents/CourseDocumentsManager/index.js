@@ -309,6 +309,7 @@ function CourseDocumentManager(props) {
           onCut={handleFsObjectCut}
           loading={loading}
           editFolder={beginFolderEdit}
+          hasActionColumn={!showingDeleted}
         />
       </div>
       <FolderDialog

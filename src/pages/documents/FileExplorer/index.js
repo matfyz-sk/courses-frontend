@@ -118,16 +118,15 @@ function EnhancedTableHead({
   order,
   orderBy,
   onRequestSort,
-  isReferencer,
-  isReplacer,
+  hasActionColumn
 }) {
-  const hasThreeColumns = isReferencer || isReplacer
+
   const createSortHandler = property => event => {
     onRequestSort(event, property)
   }
 
   const prepareHeadCells = headCells => {
-    if (hasThreeColumns) return headCells.slice(0, -1)
+    if (!hasActionColumn) return headCells.slice(0, -1)
     return headCells
   }
 
@@ -183,13 +182,12 @@ function FileExplorer(props) {
     onPathFolderClickHandler,
     onPaste,
     onCut,
-    isReferencer,
-    isReplacer,
+    isRelocator,
     editFolder,
     clipboard,
+    hasActionColumn,
   } = props
 
-  const hasThreeColumns = isReferencer || isReplacer
   const classes = useFileExplorerStyles()
   const currentFolder = fsPath?.[fsPath?.length - 1] ?? {}
   const [anchorEls, setAnchorEls] = React.useState([])
@@ -247,7 +245,7 @@ function FileExplorer(props) {
   }
 
   const filterToBeCut = files => {
-    if (isReplacer && clipboard.beingCut) {
+    if (isRelocator && clipboard.beingCut) {
       return files.filter(file => file['@id'] !== clipboard.beingCut['@id'])
     }
     return files
@@ -272,7 +270,7 @@ function FileExplorer(props) {
               fsPath={fsPath}
               onPathFolderClickHandler={onPathFolderClickHandler}
             />
-            {isReplacer && (
+            {isRelocator && (
               <IconButton
                 aria-label={'show options'}
                 aria-haspopup={true}
@@ -286,7 +284,7 @@ function FileExplorer(props) {
           </Toolbar>
           <Table size="small" aria-label="file explorer table" stickyHeader>
             <colgroup>
-              {hasThreeColumns ? (
+              {!hasActionColumn ? (
                 <>
                   <col style={{ width: '10%' }} />
                   <col style={{ width: '70%' }} />
@@ -306,8 +304,7 @@ function FileExplorer(props) {
               order={order}
               orderBy={orderBy}
               onRequestSort={handleRequestSort}
-              isReferencer={isReferencer}
-              isReplacer={isReplacer}
+              hasActionColumn={hasActionColumn}
             />
             <TableBody>
               {prepareFiles(files).map((file, i) => {
@@ -341,7 +338,7 @@ function FileExplorer(props) {
                     <TableCell align="right">
                       {timestampToString2(file.createdAt)}
                     </TableCell>
-                    {!hasThreeColumns && (
+                    {hasActionColumn && (
                       <TableCell
                         onClick={e => e.stopPropagation()}
                         align="right"
