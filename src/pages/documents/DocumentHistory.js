@@ -349,14 +349,11 @@ function DocumentHistory({
   const handleRestore = async (e, versionToRestore) => {
     e.preventDefault()
     const editProps = {
-      courseId,
       entityName,
-      setStatus,
       isInEditingMode: true,
       restoredFrom: versionToRestore.createdAt,
       courseInstance,
       folder,
-      user,
       setCurrentDocumentsOfCourseInstance,
     }
     // if (isMaterial) {

@@ -168,13 +168,10 @@ function DocumentForm({
     }
     setIsReadOnly(true)
     let editProps = {
-      courseId,
       entityName,
-      setStatus,
       isInEditingMode,
       courseInstance,
       folder,
-      user,
       setCurrentDocumentsOfCourseInstance,
     }
     // if (isMaterial) {
@@ -194,6 +191,7 @@ function DocumentForm({
     // }
     const newVersionId = await editDocument(
       {
+        entityName,
         name,
         mimeType,
         uri,
@@ -454,7 +452,7 @@ function DocumentForm({
         )}
         <br />
         <FormControlLabel
-          label="Is material"
+          label="Is material (not working atm)"
           control={
             <Checkbox
               checked={isMaterial}

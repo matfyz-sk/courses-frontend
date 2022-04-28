@@ -28,18 +28,20 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     ...properties
   } = oldDocument
 
-  const { name, mimeType, uri, filename, isDeleted } = newDocument
+  const { entityName, name, mimeType, uri, filename, isDeleted } = newDocument
+  let content;
   if (newDocument.payload) {
-    var content = newDocument.payload[0].content
+    content = newDocument.payload[0].content
   }
 
-  if (canCreatePayload(props.entityName)) {
-    if (props.entityName === DocumentEnums.file.entityName) {
-      var payload = {
+  let payload;
+  if (canCreatePayload(entityName)) {
+    if (entityName === DocumentEnums.file.entityName) {
+      payload = {
         content,
       }
     } else {
-      var payload = {
+      payload = {
         content: `""${content}""`, // needed for sparql/rdf
       }
     }
@@ -50,19 +52,17 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     // TODO add material attrs
     // ...props.materialAttrs.map(attr => ({attr: attr.map(ref => ref['@id'])})),
     // refersTo: props.materialAttrs.refersTo.map(ref => ref["@id"]),
-    _type: props.entityName, // TODO should be multiple
+    _type: entityName, // TODO should be multiple
     name,
     parent: props.folder.id,
     isDeleted,
     restoredFrom: props.restoredFrom,
-    author: [props.user.fullURI],
-    owner: props.user.fullURI,
     courseInstance: [props.courseInstance['@id']],
   }
 
   // add additional params
   let subclassParams = {}
-  switch (props.entityName) {
+  switch (entityName) {
     case DocumentEnums.internalDocument.entityName:
       subclassParams = {
         payload,
@@ -101,18 +101,17 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
   return newVersion
 }
 
-const createNewVersion = async (newVersion, props) => {
+const createNewVersion = async newVersion => {
   const response = await axiosAddEntity(newVersion, 'document')
   if (response.failed) {
     console.error(response.error)
-    props.setStatus(response.response ? response.response.status : 500)
     return
   }
   return getIRIFromAddResponse(response)
 }
 
-const setSuccessorOfOldVersion = async (successorId, oldVersionId, props) => {
-  const entityUrl = `${props.entityName}/${getShortID(oldVersionId)}`
+const setSuccessorOfOldVersion = async (successorId, oldVersionFullId, entityName) => {
+  const entityUrl = `${entityName}/${getShortID(oldVersionFullId)}`
   const dataToUpdate = {
     nextVersion: successorId,
   }
@@ -120,25 +119,23 @@ const setSuccessorOfOldVersion = async (successorId, oldVersionId, props) => {
   const response = await axiosUpdateEntity(dataToUpdate, entityUrl)
   if (response.failed) {
     console.error(response.error)
-    props.setStatus(response.response ? response.response.status : 500)
   }
 }
 
-const updateDocumentReferences = async (newVersionId, oldVersionId, props) => {
-  const entitiesUrl = `documentReference?courseInstance=${props.courseId}`
+const updateDocumentReferences = async (newVersionFullId, oldVersionFullId, courseInstance) => {
+  const entitiesUrl = `documentReference?courseInstance=${getShortID(courseInstance["@id"])}`
   const response = await axiosGetEntities(entitiesUrl)
   if (response.failed) {
     console.error(response.error)
-    props.setStatus(response.response ? response.response.status : 500)
     return
   }
   const docRefs = getResponseBody(response).filter(
-    ref => ref.hasDocument[0]['@id'] === oldVersionId
+    ref => ref.hasDocument[0]['@id'] === oldVersionFullId
   )
   for (const ref of docRefs) {
     const entityUrl = `documentReference/${getShortID(ref['@id'])}`
     const data = {
-      hasDocument: newVersionId,
+      hasDocument: newVersionFullId,
     }
     const refResponse = await axiosUpdateEntity(data, entityUrl)
     if (refResponse.failed) {
@@ -147,51 +144,43 @@ const updateDocumentReferences = async (newVersionId, oldVersionId, props) => {
   }
 }
 
-const replaceInParentFolder = async (newVersionId, oldVersionId, props) => {
+const replaceInParentFolder = async (newVersionFullId, oldVersionFullId, folder) => {
   const folderContent = {
     content: [
-      newVersionId,
-      ...props.folder.content
+      newVersionFullId,
+      ...folder.content
         .map(fsObj => fsObj['@id'])
-        .filter(id => id !== oldVersionId),
+        .filter(id => id !== oldVersionFullId),
     ],
     lastChanged: new Date(),
   }
-  // * easy deletion
-  // const folderContent = {
-  //     content: []
-  // }
-  const entityUrl = `folder/${getShortID(props.folder.id)}`
+
+  const entityUrl = `folder/${getShortID(folder.id)}`
 
   const response = await axiosUpdateEntity(folderContent, entityUrl)
   if (response.failed) {
     console.error(response.error)
-    props.setStatus(response.response ? response.response.status : 500)
   }
 }
 
-const replaceInCurrentDocuments = async (newVersionId, oldVersionId, props) => {
+const replaceInCurrentDocuments = async (newVersionFullId, oldVersionFullId, props) => {
   const currentDocuments = {
     hasDocument: [
-      newVersionId,
+      newVersionFullId,
       ...props.courseInstance.hasDocument
         .map(doc => doc['@id'])
-        .filter(id => id !== oldVersionId),
+        .filter(id => id !== oldVersionFullId),
     ],
   }
-  // * easy deletion
-  // const currentDocuments = {
-  //     hasDocument: []
-  // }
-  const entityUrl = `courseInstance/${props.courseId}`
+
+  const entityUrl = `courseInstance/${getShortID(props.courseInstance["@id"])}`
 
   const response = await axiosUpdateEntity(currentDocuments, entityUrl)
   if (response.failed) {
     console.error(response.error)
-    props.setStatus(response.response ? response.response.status : 500)
     return
   }
-  // because if I don't reload page courseInstance is not fetched again
+  // because if I don't reload page courseInstance is not fetched again, but I need it up to date
   props.setCurrentDocumentsOfCourseInstance(
     currentDocuments.hasDocument.map(doc => ({ '@id': doc }))
   )
@@ -203,22 +192,22 @@ const editDocument = async (newDocument, oldDocument, props) => {
     console.error('Editing was unsuccessful!')
     return
   }
-  const newVersionId = await createNewVersion(data, props)
-  if (!newVersionId) {
+  const newVersionFullId = await createNewVersion(data)
+  if (!newVersionFullId) {
     console.error('Editing was unsuccessful!')
     return
   }
   // if (props.isMaterial) {
-  //   createMaterial(newVersionId, props.materialAttrs)
+  //   createMaterial(newVersionFullId, props.materialAttrs)
   // }
   if (props.isInEditingMode) {
-    setSuccessorOfOldVersion(newVersionId, oldDocument['@id'], props) // no need for await
-    updateDocumentReferences(newVersionId, oldDocument['@id'], props) // no need for await
+    setSuccessorOfOldVersion(newVersionFullId, oldDocument['@id'], newDocument.entityName) // no need for await
+    updateDocumentReferences(newVersionFullId, oldDocument['@id'], props.courseInstance) // no need for await
   }
-  // await needed so we can see the change via redux
-  replaceInCurrentDocuments(newVersionId, oldDocument['@id'], props)
-  await replaceInParentFolder(newVersionId, oldDocument['@id'], props)
-  return getShortID(newVersionId)
+
+  await replaceInCurrentDocuments(newVersionFullId, oldDocument['@id'], props)
+  await replaceInParentFolder(newVersionFullId, oldDocument['@id'], props.folder)
+  return getShortID(newVersionFullId)
 }
 
 export default editDocument
