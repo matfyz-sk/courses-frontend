@@ -140,44 +140,13 @@ const updateDocumentReferences = async (newVersionId, oldVersionId, props) => {
     const data = {
       hasDocument: newVersionId,
     }
-    const refResponse = axiosUpdateEntity(data, entityUrl)
+    const refResponse = await axiosUpdateEntity(data, entityUrl)
     if (refResponse.failed) {
       console.error(refResponse.error)
     }
   }
 }
 
-// const replaceNewerVersionInEvents = async (newVersionId, oldVersionId, courseInstanceId) => {
-//   const entitiesUrl = `event?courseInstance=${courseInstanceId}`
-//   const response = await axiosGetEntities(entitiesUrl)
-//   if (response.failed) {
-//     console.error(response.error)
-//     props.setStatus(response.response ? response.response.status : 500)
-//     return
-//   }
-//   const events = getResponseBody(response)
-//   for (const event of events) {
-//     if (event.hasDocument.map(material => material['@id']).includes(oldVersionId)) {
-//       const patchData = {
-//         hasDocument: [
-//           newVersionId,
-//           ...data.hasDocument
-//             .map(doc => doc['@id'])
-//             .filter(id => id !== oldVersionId),
-//         ],
-//       }
-//       axiosUpdateEntity(patchData, `event/${getShortID(event["@id"])}`)
-//         .then(response => {
-//           // TODO resolve
-//           if (response.failed) {
-//             console.error(response.error)
-//             props.setStatus(response.response ? response.response.status : 500)
-//           }
-//         })
-
-//     }
-//   }
-// }
 
 const replaceInParentFolder = async (newVersionId, oldVersionId, props) => {
   const folderContent = {

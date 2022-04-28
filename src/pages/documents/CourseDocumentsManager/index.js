@@ -15,7 +15,8 @@ import {
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import Page404 from '../../errors/Page404'
-import { fetchFolder, setFolder, setFolderContent, } from '../../../redux/actions'
+import { fetchFolder, setFolder, setFolderContent, setClipboardBeingCut,
+   setClipboardOldParent } from '../../../redux/actions'
 import FileExplorer from '../FileExplorer'
 import { DocumentEnums } from '../enums/document-enums'
 import { customTheme } from '../styles/styles'
@@ -23,6 +24,7 @@ import FolderDialog from './FolderDialog'
 import CreateDocumentMenu from './CreateDocumentMenu'
 import { MdDelete } from 'react-icons/md'
 import getDeletedDocuments from '../functions/getDeletedDocuments'
+import RelocateDialog from "../common/RelocateDialog";
 
 function CourseDocumentManager(props) {
   const {
@@ -32,7 +34,9 @@ function CourseDocumentManager(props) {
     showingDeleted,
     setFolder,
     history,
-    user
+    user,
+    setClipboardBeingCut,
+    setClipboardOldParent,
   } = props
   const [renderHack, setRenderHack] = useState(0)
   const isMobile = useMediaQuery('(max-width:600px)')
@@ -40,18 +44,21 @@ function CourseDocumentManager(props) {
   const folderId = match.params.folder_id
   const courseId = match.params.course_id
 
+  // folder create and edit
   const [dialogOpen, setDialogOpen] = useState(false)
   const [folderName, setFolderName] = useState('')
   const [isFolderEdit, setIsFolderEdit] = useState(false)
   const [editFolderId, setEditFolderId] = useState(null)
 
   const [fsPath, setFsPath] = useState([])
-
   const [fsObjects, setFsObjects] = useState([])
 
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState(200)
   const [loading, setLoading] = useState(true)
+
+  // for relocate function
+  const [isRelocateDialogOpen, setIsRelocateDialogOpen] = useState(false);
 
   useEffect(() => {
     setLoading(true)
@@ -214,6 +221,13 @@ function CourseDocumentManager(props) {
     )
   }
 
+
+  const handleFsObjectCut = fsObject => {
+    setClipboardBeingCut(fsObject)
+    setClipboardOldParent(folder)
+    setIsRelocateDialogOpen(true)
+  }
+
   return (
     <ThemeProvider theme={customTheme}>
       <div style={{maxWidth: 1000, margin: 'auto', padding: 20}}>
@@ -282,6 +296,7 @@ function CourseDocumentManager(props) {
           fsPath={fsPath}
           onRowClickHandler={onFsObjectRowClick}
           onPathFolderClickHandler={onPathFolderClick}
+          onCut={handleFsObjectCut}
           loading={loading || folder.loading}
           editFolder={beginFolderEdit}
         />
@@ -295,20 +310,27 @@ function CourseDocumentManager(props) {
         onEdit={editFolder}
         isEdit={isFolderEdit}
       />
+      <RelocateDialog
+        isOpen={isRelocateDialogOpen}
+        onIsOpenChanged={setIsRelocateDialogOpen}
+        label={'Move to'}
+        setRenderHack={setRenderHack}
+      />
     </ThemeProvider>
   )
 }
 
-const mapStateToProps = ({courseInstanceReducer, folderReducer, authReducer}) => {
+const mapStateToProps = ({courseInstanceReducer, folderReducer, authReducer, clipboardReducer}) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
     folder: {...folderReducer},
-    user: authReducer.user
+    clipboard: {...clipboardReducer},
+    user: authReducer.user,
   }
 }
 
 export default withRouter(
-  connect(mapStateToProps, {setFolder, setFolderContent, fetchFolder})(
+  connect(mapStateToProps, {setFolder, setFolderContent, fetchFolder, setClipboardBeingCut, setClipboardOldParent})(
     CourseDocumentManager
   )
 )

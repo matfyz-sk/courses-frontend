@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import {
   IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -14,11 +17,17 @@ import {
 } from '@material-ui/core'
 import { getShortType, timestampToString2 } from '../../../helperFunctions'
 import { withRouter } from 'react-router'
-import { MdDelete, MdEdit, MdRestorePage } from 'react-icons/md'
+import {
+  MdContentCut,
+  MdContentPaste,
+  MdEdit,
+  MdMoreVert,
+} from 'react-icons/md'
 import Path from './Path'
 import { DocumentEnums } from '../enums/document-enums'
-import { useFileExplorerStyles } from '../styles/styles'
+import { customTheme, useFileExplorerStyles } from '../styles/styles'
 import FileIcon from '../common/FileIcon'
+import { connect } from 'react-redux'
 
 const CustomTableRow = withStyles({
   root: {
@@ -96,7 +105,6 @@ const headCells = [
     label: 'Last changed',
   },
   {
-    //TODO remove
     id: 'actionsButton',
     disableSort: true,
     numeric: true,
@@ -105,16 +113,22 @@ const headCells = [
   },
 ]
 
-function EnhancedTableHead(props) {
-  const {classes, order, orderBy, onRequestSort, isReferencer} = props
+function EnhancedTableHead({classes, order, orderBy, onRequestSort, isReferencer, isReplacer}) {
+  const hasThreeColumns = isReferencer || isReplacer
   const createSortHandler = property => event => {
     onRequestSort(event, property)
+  }
+
+  const prepareHeadCells = headCells => {
+    if (hasThreeColumns)
+      return headCells.slice(0, -1)
+    return headCells
   }
 
   return (
     <TableHead style={{position: 'static'}}>
       <TableRow style={{position: 'static'}}>
-        {headCells.slice(...(isReferencer ? [0, -1] : [0])).map(headCell => (
+        {prepareHeadCells(headCells).map(headCell => (
           <TableCell
             key={headCell.id}
             align={headCell.numeric ? 'right' : 'left'}
@@ -146,23 +160,57 @@ function EnhancedTableHead(props) {
   )
 }
 
+const CustomListItemIcon = withStyles({
+  root: {
+    minWidth: '30px',
+    color: customTheme.palette.primary.main,
+  },
+})(ListItemIcon)
 
 function FileExplorer(props) {
+  // TODO list keys!
   const {
     files,
-    showingDeleted,
-    invertDeletionFlag,
     search,
     fsPath,
     onRowClickHandler,
     onPathFolderClickHandler,
+    onPaste,
+    onCut,
     isReferencer,
-    editFolder
+    isReplacer,
+    editFolder,
+    clipboard
   } = props
 
+  const hasThreeColumns = isReferencer || isReplacer
   const classes = useFileExplorerStyles()
+  const currentFolder = fsPath?.[fsPath?.length - 1] ?? {}
+  const [anchorEls, setAnchorEls] = React.useState([])
   const [order, setOrder] = useState('desc')
   const [orderBy, setOrderBy] = useState('createdAt')
+
+  const handleOptionsClick = (event, i) => {
+    let newAnchorEls = anchorEls.slice()
+    newAnchorEls[i] = event.currentTarget
+    setAnchorEls(newAnchorEls)
+  }
+
+  const handleOptionsClose = (event, i, file, additionalAction = '') => {
+    let newAnchorEls = anchorEls.slice()
+    newAnchorEls[i] = null
+    setAnchorEls(newAnchorEls)
+    switch (additionalAction) {
+      case 'folder edit':
+        editFolder(file)
+        break
+      case 'relocate':
+        onCut(file)
+        break
+      default:
+        break
+    }
+  }
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -185,11 +233,28 @@ function FileExplorer(props) {
   const lastChangedSwap = files => {
     // folder specific because createdAt attr updated in db
     return files.map(file => {
-        if (file.lastChanged) {
-          return {...file, createdAt: file.lastChanged}
-        }
-        return file
+      if (file.lastChanged) {
+        return { ...file, createdAt: file.lastChanged }
       }
+      return file
+    }
+    )
+  }
+
+  const filterToBeCut = files => {
+    if (isReplacer && clipboard.beingCut) {
+      return files.filter(file => file["@id"] !== clipboard.beingCut["@id"])
+    }
+    return files
+  }
+
+  const prepareFiles = files => {
+    return stableSort(
+      stableSort(
+        filterSearched(lastChangedSwap(filterToBeCut(files))),
+        getComparator(order, orderBy)
+      ),
+      getComparator('desc', '@type')
     )
   }
 
@@ -202,6 +267,17 @@ function FileExplorer(props) {
               fsPath={fsPath}
               onPathFolderClickHandler={onPathFolderClickHandler}
             />
+            {isReplacer && (
+              <IconButton
+                aria-label={'show options'}
+                aria-haspopup={true}
+                onClick={e => onPaste(e, currentFolder)}
+                size="small"
+                style={{ fontSize: '90%', outline: 'none', marginLeft: "auto" }}
+              >
+                <MdContentPaste className={classes.actionsButton} />
+              </IconButton>
+            )}
           </Toolbar>
           <Table
             size="small"
@@ -209,7 +285,7 @@ function FileExplorer(props) {
             stickyHeader
           >
             <colgroup>
-              {isReferencer ? (
+              {hasThreeColumns ? (
                   <>
                     <col style={{width: "10%"}}/>
                     <col style={{width: "70%"}}/>
@@ -231,18 +307,13 @@ function FileExplorer(props) {
               order={order}
               orderBy={orderBy}
               onRequestSort={handleRequestSort}
-              rowCount={files.length}
               isReferencer={isReferencer}
+              isReplacer={isReplacer}
             />
             <TableBody>
-              {stableSort(
-                stableSort(
-                  filterSearched(lastChangedSwap(files)),
-                  getComparator(order, orderBy)
-                ),
-                getComparator('desc', '@type')
-              ).map((file, index) => {
-                const labelId = `enhanced-table-checkbox-${index}`
+              {prepareFiles(files).map((file, i) => {
+                const labelId = `enhanced-table-checkbox-${i}`
+                const entityName = getShortType(file['@type'])
 
                 return (
                   <CustomTableRow
@@ -271,33 +342,57 @@ function FileExplorer(props) {
                     <TableCell align="right">
                       {timestampToString2(file.createdAt)}
                     </TableCell>
-                    {!isReferencer && (
-                      <TableCell onClick={e => e.stopPropagation()} align="right">
-
-                        {getShortType(file['@type']) === DocumentEnums.folder.entityName && (
-                          <IconButton
-                            aria-label={"edit folder"}
-                            onClick={() => editFolder(file)}
-                            size="small"
-                            style={{fontSize: "90%", outline: "none"}}
-                          >
-                            <MdEdit className={classes.actionsButton}/>
-                          </IconButton>
-                        )}
-
+                    {!hasThreeColumns && (
+                      <TableCell
+                        onClick={e => e.stopPropagation()}
+                        align="right"
+                      >
                         <IconButton
-                          aria-label={showingDeleted ? "delete item" : "restore item"}
-                          onClick={() => invertDeletionFlag(file)}
+                          aria-label={'show options'}
+                          aria-haspopup={true}
+                          onClick={e => handleOptionsClick(e, i)}
                           size="small"
-                          style={{fontSize: "90%", outline: "none"}}
+                          style={{ fontSize: '90%', outline: 'none' }}
                         >
-                          {showingDeleted ? (
-                            <MdRestorePage className={classes.actionsButton}/>
-                          ) : (
-                            <MdDelete className={classes.actionsButton}/>
-                          )}
+                          <MdMoreVert className={classes.actionsButton} />
                         </IconButton>
-
+                        <Menu
+                          id="simple-menu"
+                          anchorEl={anchorEls[i]}
+                          keepMounted
+                          open={Boolean(anchorEls[i])}
+                          onClose={e => handleOptionsClose(e, i, file)}
+                          getContentAnchorEl={null}
+                          anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'center',
+                          }}
+                          transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                          }}
+                        >
+                          <MenuItem
+                            onClick={e => handleOptionsClose(e, i, file,'relocate')}
+                          >
+                            <CustomListItemIcon>
+                              <MdContentCut />
+                            </CustomListItemIcon>
+                            Cut
+                          </MenuItem>
+                          {entityName === DocumentEnums.folder.entityName && (
+                            <div key={labelId}>
+                              <MenuItem
+                                onClick={e => handleOptionsClose(e, i, file,'folder edit')}
+                              >
+                                <CustomListItemIcon>
+                                  <MdEdit />
+                                </CustomListItemIcon>
+                                Edit
+                              </MenuItem>
+                            </div>
+                          )}
+                        </Menu>
                       </TableCell>
                     )}
                   </CustomTableRow>
@@ -311,4 +406,15 @@ function FileExplorer(props) {
   )
 }
 
-export default withRouter(FileExplorer)
+const mapStateToProps = ({folderReducer, clipboardReducer}) => {
+  return {
+    folder: {...folderReducer},
+    clipboard: {...clipboardReducer}
+  }
+}
+
+export default withRouter(
+  connect(mapStateToProps, { })(
+    FileExplorer
+  )
+)
