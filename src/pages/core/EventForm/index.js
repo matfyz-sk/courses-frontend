@@ -491,14 +491,16 @@ class EventForm extends Component {
             />
           </FormGroup>
 
-          <FormGroup
-              style={{ maxWidth: 700 }} className="new-event-formGroup">
-            <DocumentReferencer
-              label="Uses documents"
-              documentReferences={documentReference}
-              onDocumentReferencesChange={this.onDocumentReferencesChange}
-            />
-          </FormGroup>
+          {['Create', 'Edit'].includes(typeOfForm) && (
+            <FormGroup
+                style={{ maxWidth: 700 }} className="new-event-formGroup">
+              <DocumentReferencer
+                label="Uses documents"
+                documentReferences={documentReference}
+                onDocumentReferencesChange={this.onDocumentReferencesChange}
+              />
+            </FormGroup>
+          )}
 
           {/*<FormGroup className="new-event-formGroup">*/}
           {/*  <Label*/}
