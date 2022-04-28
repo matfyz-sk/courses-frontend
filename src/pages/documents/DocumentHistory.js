@@ -203,7 +203,7 @@ function RevisionsSidebar({
               )}
               {i > 0 && i < versions.length - 1 && (
                 <>
-                  {!firstVersion.isDeleted && (
+                  {!firstVersion.isDeleted && !v.isDeleted && (
                     <a
                       style={{ color: customTheme.palette.primary.light }}
                       href="#"
