@@ -20,7 +20,7 @@ const canCreatePayload = entityName => {
 const createNewVersionData = async (newDocument, oldDocument, props) => {
   // destructuring previous version
   const {
-    '@id': previousVersionId,
+    '@id': previousVersionFullId,
     '@type': type,
     createdAt,
     createdBy,
@@ -54,7 +54,6 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     // refersTo: props.materialAttrs.refersTo.map(ref => ref["@id"]),
     _type: entityName, // TODO should be multiple
     name,
-    parent: props.folder["@id"],
     isDeleted,
     restoredFrom,
     courseInstance: [props.courseInstance['@id']],
@@ -91,9 +90,9 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
   if (props.isInEditingMode) {
     newVersion = {
       ...newVersion,
-      previousVersion: previousVersionId,
+      previousVersion: previousVersionFullId,
       historicVersion: [
-        previousVersionId,
+        previousVersionFullId,
         ...oldDocument.historicVersion.map(doc => doc['@id']),
       ],
     }
@@ -110,10 +109,10 @@ const createNewVersion = async newVersion => {
   return getIRIFromAddResponse(response)
 }
 
-const setSuccessorOfOldVersion = async (successorId, oldVersionFullId, entityName) => {
+const setSuccessorOfOldVersion = async (successorFullId, oldVersionFullId, entityName) => {
   const entityUrl = `${entityName}/${getShortID(oldVersionFullId)}`
   const dataToUpdate = {
-    nextVersion: successorId,
+    nextVersion: successorFullId,
   }
 
   const response = await axiosUpdateEntity(dataToUpdate, entityUrl)
@@ -144,20 +143,20 @@ const updateDocumentReferences = async (newVersionFullId, oldVersionFullId, cour
   }
 }
 
-const replaceInParentFolder = async (newVersionFullId, oldVersionFullId, folder) => {
-  const folderContent = {
+const replaceInParentFolder = async (newVersionFullId, oldVersionFullId, parent) => {
+  const parentContent = {
     content: [
       newVersionFullId,
-      ...folder.content
+      ...parent.content
         .map(fsObj => fsObj['@id'])
         .filter(id => id !== oldVersionFullId),
     ],
     lastChanged: new Date(),
   }
 
-  const entityUrl = `folder/${getShortID(folder["@id"])}`
+  const entityUrl = `folder/${getShortID(parent["@id"])}`
 
-  const response = await axiosUpdateEntity(folderContent, entityUrl)
+  const response = await axiosUpdateEntity(parentContent, entityUrl)
   if (response.failed) {
     console.error(response.error)
   }
@@ -206,7 +205,7 @@ const editDocument = async (newDocument, oldDocument, props) => {
   }
 
   await replaceInCurrentDocuments(newVersionFullId, oldDocument['@id'], props)
-  await replaceInParentFolder(newVersionFullId, oldDocument['@id'], props.folder)
+  await replaceInParentFolder(newVersionFullId, oldDocument['@id'], newDocument.parent)
   return getShortID(newVersionFullId)
 }
 

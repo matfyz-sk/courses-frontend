@@ -235,7 +235,6 @@ function DocumentHistory({
   history,
   fetchFolder,
   folder,
-  user,
   courseInstance,
   setCurrentDocumentsOfCourseInstance,
   location,
@@ -321,7 +320,8 @@ function DocumentHistory({
         return
       }
       const data = getResponseBody(response)
-      if (folder["@id"] !== parentFolderId) fetchFolder(parentFolderId)
+      if (folder["@id"] !== parentFolderId)
+        fetchFolder(parentFolderId)
       setEntityName(getShortType(data[0]['@type']))
       const paddedData = [
         ...data,
@@ -351,7 +351,6 @@ function DocumentHistory({
     const editProps = {
       isInEditingMode: true,
       courseInstance,
-      folder,
       setCurrentDocumentsOfCourseInstance,
     }
     // if (isMaterial) {
@@ -373,6 +372,7 @@ function DocumentHistory({
       ...versionToRestore,
       restoredFrom: versionToRestore.createdAt,
       entityName,
+      parent: folder
     }
     const newVersionId = await editDocument(
       versionToRestore,
@@ -609,7 +609,6 @@ const mapStateToProps = ({
                            folderReducer,
                          }) => {
   return {
-    user: authReducer.user,
     courseInstance: courseInstanceReducer.courseInstance,
     folder: {...folderReducer},
   }

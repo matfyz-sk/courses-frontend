@@ -40,6 +40,7 @@ import MaterialForm from './MaterialForm'
 import { customTheme } from './styles/styles'
 import { MdDelete, MdHistory, MdRestorePage } from 'react-icons/md'
 import removeDocumentReference from './functions/removeDocumentReference'
+import RelocateDialog from "./common/RelocateDialog";
 
 function DocumentForm({
   courseInstance,
@@ -47,7 +48,6 @@ function DocumentForm({
   folder,
   history,
   match,
-  user,
   fetchFolder,
   setCurrentDocumentsOfCourseInstance,
   location,
@@ -56,6 +56,7 @@ function DocumentForm({
   const [status, setStatus] = useState(200)
 
   const courseId = match.params.course_id
+  // TODO error num of hooks differ
   if (!location.state && !creating) {
     return (
       <Redirect
@@ -100,6 +101,8 @@ function DocumentForm({
   const [uri, setUri] = useState('')
   const [content, setContent] = useState('')
   const [mimeType, setMimeType] = useState('text/html')
+
+  const [isRelocateDialogOpen, setIsRelocateDialogOpen] = useState(false);
 
   const fetchDocument = useCallback(() => {
     if (!isInEditingMode) return
@@ -155,22 +158,35 @@ function DocumentForm({
   }, [loadingDocument, loadingMaterialRelations, folder.loading])
 
   const handleDelete = async e => {
-    e.persist()
     await removeDocumentReference(documentId, courseId)
-    await handleEdit(e, true)
+    await createNewDocumentVersion(folder,  true)
   }
 
-  const handleEdit = async (e, isBeingDeleted = false) => {
+  const handleRestore = e => {
+    setIsRelocateDialogOpen(true)
+  }
+
+  const handlePaste = async parent => {
+    console.log(parent)
+    setIsRelocateDialogOpen(false)
+    await createNewDocumentVersion(parent)
+  }
+
+  const handleEdit = async e => {
     e.preventDefault()
+    await createNewDocumentVersion(folder)
+  }
+
+  const createNewDocumentVersion = async (parent, isBeingDeleted = false, ) => {
     if (!formValid()) {
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
+
     setIsReadOnly(true)
     let editProps = {
       isInEditingMode,
       courseInstance,
-      folder,
       setCurrentDocumentsOfCourseInstance,
     }
     // if (isMaterial) {
@@ -190,6 +206,7 @@ function DocumentForm({
     // }
     const newVersionId = await editDocument(
       {
+        parent,
         entityName,
         name,
         mimeType,
@@ -308,7 +325,7 @@ function DocumentForm({
                   outline: 'none',
                   color: customTheme.palette.primary.main,
                 }}
-                onClick={isDeleted ? handleEdit : handleDelete}
+                onClick={isDeleted ? handleRestore : handleDelete}
               >
                 {isDeleted ? <MdRestorePage /> : <MdDelete />}
               </IconButton>
@@ -512,14 +529,19 @@ function DocumentForm({
         </div>
         {/* <pre>{JSON.stringify(document, null, 2)}</pre> */}
       </Form>
+      <RelocateDialog
+        isOpen={isRelocateDialogOpen}
+        onIsOpenChanged={setIsRelocateDialogOpen}
+        label={'Restore to'}
+        onPaste={handlePaste}
+      />
     </ThemeProvider>
   )
 }
 
 const mapStateToProps = state => {
-  const {authReducer, courseInstanceReducer, folderReducer} = state
+  const {courseInstanceReducer, folderReducer} = state
   return {
-    user: authReducer.user,
     courseInstance: courseInstanceReducer.courseInstance,
     folder: {...folderReducer},
   }

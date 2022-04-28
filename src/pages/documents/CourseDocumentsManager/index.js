@@ -34,6 +34,7 @@ import CreateDocumentMenu from './CreateDocumentMenu'
 import { MdDelete } from 'react-icons/md'
 import getDeletedDocuments from '../functions/getDeletedDocuments'
 import RelocateDialog from '../common/RelocateDialog'
+import { changeParent } from "../functions/changeParent";
 
 function CourseDocumentManager(props) {
   const {
@@ -46,6 +47,7 @@ function CourseDocumentManager(props) {
     user,
     setClipboardBeingCut,
     setClipboardOldParent,
+    clipboard
   } = props
   const [renderHack, setRenderHack] = useState(0)
   const isMobile = useMediaQuery('(max-width:600px)')
@@ -225,6 +227,19 @@ function CourseDocumentManager(props) {
     setIsRelocateDialogOpen(true)
   }
 
+  const handlePaste = (pastingToFolder) => {
+    setLoading(true)
+    changeParent(
+      clipboard.beingCut,
+      pastingToFolder['@id'],
+      clipboard.oldParent["@id"]
+    ).then(() => {
+      setIsRelocateDialogOpen(false)
+      setLoading(false)
+      setRenderHack(prev => prev + 1)
+    })
+  }
+
   return (
     <ThemeProvider theme={customTheme}>
       <div style={{ maxWidth: 1000, margin: 'auto', padding: 20 }}>
@@ -309,7 +324,7 @@ function CourseDocumentManager(props) {
         isOpen={isRelocateDialogOpen}
         onIsOpenChanged={setIsRelocateDialogOpen}
         label={'Move to'}
-        setRenderHack={setRenderHack}
+        onPaste={handlePaste}
       />
     </ThemeProvider>
   )

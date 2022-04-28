@@ -27,10 +27,9 @@ function RelocateDialog({
   match,
   isOpen,
   onIsOpenChanged,
-  setRenderHack,
   courseInstance,
   user,
-  clipboard,
+  onPaste,
 }) {
   const classes = useStyles()
   const courseId = match.params.course_id
@@ -87,16 +86,7 @@ function RelocateDialog({
   }
 
   const handlePaste = (_, pastingToFolder) => {
-    setLoading(true)
-    changeParent(
-      clipboard.beingCut,
-      pastingToFolder['@id'],
-      clipboard.oldParent["@id"]
-    ).then(() => {
-      onIsOpenChanged(false)
-      setLoading(false)
-      setRenderHack(prev => prev + 1)
-    })
+    onPaste(pastingToFolder)
   }
 
   return (
@@ -140,13 +130,11 @@ const mapStateToProps = ({
   courseInstanceReducer,
   authReducer,
   folderReducer,
-  clipboardReducer,
 }) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
     user: authReducer.user,
     folder: { ...folderReducer },
-    clipboard: { ...clipboardReducer },
   }
 }
 
