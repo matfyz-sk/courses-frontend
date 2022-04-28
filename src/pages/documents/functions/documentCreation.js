@@ -28,7 +28,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     ...properties
   } = oldDocument
 
-  const { entityName, name, mimeType, uri, filename, isDeleted } = newDocument
+  const { entityName, name, mimeType, uri, filename, isDeleted, restoredFrom } = newDocument
   let content;
   if (newDocument.payload) {
     content = newDocument.payload[0].content
@@ -54,9 +54,9 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
     // refersTo: props.materialAttrs.refersTo.map(ref => ref["@id"]),
     _type: entityName, // TODO should be multiple
     name,
-    parent: props.folder.id,
+    parent: props.folder["@id"],
     isDeleted,
-    restoredFrom: props.restoredFrom,
+    restoredFrom,
     courseInstance: [props.courseInstance['@id']],
   }
 
@@ -155,7 +155,7 @@ const replaceInParentFolder = async (newVersionFullId, oldVersionFullId, folder)
     lastChanged: new Date(),
   }
 
-  const entityUrl = `folder/${getShortID(folder.id)}`
+  const entityUrl = `folder/${getShortID(folder["@id"])}`
 
   const response = await axiosUpdateEntity(folderContent, entityUrl)
   if (response.failed) {

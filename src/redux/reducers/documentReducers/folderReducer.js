@@ -1,7 +1,7 @@
 import { FETCH_FOLDER_BEGIN, FETCH_FOLDER_SUCCESS, FETCH_FOLDER_FAILURE, SET_FOLDER_CONTENT, SET_FOLDER } from '../../types'
 
 const initialState = {
-  id: "",
+  "@id": "",
   name: "",
   parent: "",
   content: [],
@@ -14,7 +14,7 @@ export default function folderReducer(state = initialState, action) {
     case SET_FOLDER:
       return {
         ...state,
-        id: action.item["@id"],
+        "@id": action.item["@id"],
         name: action.item.name,
         parent: action.item.parent,
         content: action.item.content
@@ -34,7 +34,7 @@ export default function folderReducer(state = initialState, action) {
       return {
         ...state,
         loading: false,
-        id: action.item["@id"],
+        "@id": action.item["@id"],
         name: action.item.name,
         parent: action.item.parent,
         content: action.item.content

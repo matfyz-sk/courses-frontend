@@ -321,7 +321,7 @@ function DocumentHistory({
         return
       }
       const data = getResponseBody(response)
-      if (folder.id !== parentFolderId) fetchFolder(parentFolderId)
+      if (folder["@id"] !== parentFolderId) fetchFolder(parentFolderId)
       setEntityName(getShortType(data[0]['@type']))
       const paddedData = [
         ...data,
@@ -349,9 +349,7 @@ function DocumentHistory({
   const handleRestore = async (e, versionToRestore) => {
     e.preventDefault()
     const editProps = {
-      entityName,
       isInEditingMode: true,
-      restoredFrom: versionToRestore.createdAt,
       courseInstance,
       folder,
       setCurrentDocumentsOfCourseInstance,
@@ -371,6 +369,11 @@ function DocumentHistory({
     //     }
     //   }
     // }
+    versionToRestore = {
+      ...versionToRestore,
+      restoredFrom: versionToRestore.createdAt,
+      entityName,
+    }
     const newVersionId = await editDocument(
       versionToRestore,
       latestVersion(),

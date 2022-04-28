@@ -119,7 +119,7 @@ function DocumentForm({
       setName(responseDocument.name)
       setIsDeleted(responseDocument.isDeleted)
       setIsReadOnly(responseDocument.isDeleted)
-      if (getShortID(folder.id) !== location.state.parentFolderId)
+      if (getShortID(folder["@id"]) !== location.state.parentFolderId)
         fetchFolder(location.state.parentFolderId)
       switch (responseDocument['@type']) {
         case DocumentEnums.internalDocument.id:
@@ -168,7 +168,6 @@ function DocumentForm({
     }
     setIsReadOnly(true)
     let editProps = {
-      entityName,
       isInEditingMode,
       courseInstance,
       folder,
@@ -210,7 +209,7 @@ function DocumentForm({
     history.push(
       redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
         { key: 'course_id', value: courseId },
-        { key: 'folder_id', value: getShortID(folder.id) },
+        { key: 'folder_id', value: getShortID(folder["@id"]) },
       ])
     )
   }

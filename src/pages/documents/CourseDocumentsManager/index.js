@@ -128,7 +128,7 @@ function CourseDocumentManager(props) {
       redirect(ROUTES.EDIT_DOCUMENT, [{ key: 'course_id', value: courseId }]),
       {
         documentId: getShortID(fsObject['@id']),
-        parentFolderId: getShortID(folder.id),
+        parentFolderId: getShortID(folder["@id"]),
       }
     )
   }

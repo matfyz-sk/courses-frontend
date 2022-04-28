@@ -91,7 +91,7 @@ function RelocateDialog({
     changeParent(
       clipboard.beingCut,
       pastingToFolder['@id'],
-      clipboard.oldParent.id
+      clipboard.oldParent["@id"]
     ).then(() => {
       onIsOpenChanged(false)
       setLoading(false)

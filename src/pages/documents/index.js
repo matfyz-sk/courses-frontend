@@ -17,19 +17,19 @@ function DocumentsNavigation({ match, courseInstance, folder, fetchFolder }) {
   const courseId = match.params.course_id
 
   useEffect(() => {
-    if (courseInstance && folder.id) {
+    if (courseInstance && folder["@id"]) {
       setLoading(false)
     } else {
       setLoading(true)
       if (
         courseInstance &&
         courseInstance.fileExplorerRoot.length !== 0 &&
-        !folder.id
+        !folder["@id"]
       ) {
         fetchFolder(getShortID(courseInstance.fileExplorerRoot[0]['@id']))
       }
     }
-  }, [courseInstance, folder.id])
+  }, [courseInstance, folder["@id"]])
 
   if (loading) {
     return (
