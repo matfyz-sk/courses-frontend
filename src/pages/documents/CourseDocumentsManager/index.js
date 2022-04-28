@@ -15,7 +15,7 @@ import {
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import Page404 from '../../errors/Page404'
-import { fetchFolder, setFolder, setFolderContent, setClipboardBeingCut,
+import { setFolder, setClipboardBeingCut,
    setClipboardOldParent } from '../../../redux/actions'
 import FileExplorer from '../FileExplorer'
 import { DocumentEnums } from '../enums/document-enums'
@@ -98,36 +98,19 @@ function CourseDocumentManager(props) {
       })
   }, [courseId, folderId, showingDeleted, renderHack])
 
-  // TODO to retire...
-  const invertDeletionFlag = fsObject => {
-    const url = `${getShortType(fsObject['@type'])}/${getShortID(
-      fsObject['@id']
-    )}`
-
-    fsObject.isDeleted = !fsObject.isDeleted // ? is this valid react, check with react strict mode?
-    axiosUpdateEntity({isDeleted: fsObject.isDeleted}, url).then(response => {
-      if (response.failed) {
-        console.error('Inverting was unsuccessful')
-        setStatus(response.response ? response.response.status : 500)
-      } else {
-        setFsObjects(fsObjects.filter(obj => obj.isDeleted === showingDeleted))
-      }
-    })
-  }
-
   const onFsObjectRowClick = (_, fsObject) => {
     if (DocumentEnums.folder.entityName === getShortType(fsObject['@type'])) {
-      window.scrollTo({top: 0, behavior: 'smooth'})
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       history.push(
         redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
-          {key: 'course_id', value: courseId},
-          {key: 'folder_id', value: getShortID(fsObject['@id'])},
+          { key: 'course_id', value: courseId },
+          { key: 'folder_id', value: getShortID(fsObject['@id']) },
         ])
       )
       return
     }
     history.push(
-      redirect(ROUTES.EDIT_DOCUMENT, [{key: 'course_id', value: courseId}]),
+      redirect(ROUTES.EDIT_DOCUMENT, [{ key: 'course_id', value: courseId }]),
       {
         documentId: getShortID(fsObject['@id']),
         parentFolderId: getShortID(folder.id),
@@ -136,7 +119,7 @@ function CourseDocumentManager(props) {
   }
 
   const createFolder = async () => {
-    var data = {
+    let data = {
       name: folderName,
       isDeleted: false,
       courseInstance: courseInstance['@id'],
@@ -159,8 +142,8 @@ function CourseDocumentManager(props) {
     })
 
     if (newFolderId) {
-      var entityUrl = `folder/${folderId}`
-      var data = {
+      const entityUrl = `folder/${folderId}`
+      data = {
         content: [...fsObjects.map(doc => doc['@id']), newFolderId],
         lastChanged: new Date(),
       }
@@ -251,13 +234,13 @@ function CourseDocumentManager(props) {
             <CreateDocumentMenu
               style={{display: 'inline-block', float: 'left'}}
               onFolderCreate={handleFolderCreate}
-              loading={loading || folder.loading}
+              loading={loading}
             />
             <div style={{float: 'right'}}>
               <Button
                 style={{outline: 'none'}}
                 variant="contained"
-                disabled={loading || folder.loading}
+                disabled={loading}
                 onClick={() =>
                   history.push(
                     redirect(ROUTES.DELETED_DOCUMENTS, [
@@ -290,14 +273,12 @@ function CourseDocumentManager(props) {
         />
         <FileExplorer
           files={fsObjects}
-          invertDeletionFlag={invertDeletionFlag}
-          showingDeleted={showingDeleted}
           search={search}
           fsPath={fsPath}
           onRowClickHandler={onFsObjectRowClick}
           onPathFolderClickHandler={onPathFolderClick}
           onCut={handleFsObjectCut}
-          loading={loading || folder.loading}
+          loading={loading}
           editFolder={beginFolderEdit}
         />
       </div>
@@ -330,7 +311,7 @@ const mapStateToProps = ({courseInstanceReducer, folderReducer, authReducer, cli
 }
 
 export default withRouter(
-  connect(mapStateToProps, {setFolder, setFolderContent, fetchFolder, setClipboardBeingCut, setClipboardOldParent})(
+  connect(mapStateToProps, {setFolder, setClipboardBeingCut, setClipboardOldParent})(
     CourseDocumentManager
   )
 )
