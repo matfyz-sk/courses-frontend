@@ -93,7 +93,7 @@ function DocumentReferencer({
       setLoading(false)
       setFsPath(data.slice().reverse())
     })
-  }, [courseId, folderId])
+  }, [courseId, folderId, open])
 
   const addToDocuments = async document => {
     const documentRefId = await getReferenceOfDocument(document, courseInstance)

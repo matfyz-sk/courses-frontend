@@ -45,8 +45,10 @@ function RelocateDialog({
   useEffect(() => {
     if (courseInstance) {
       setFolderId(getShortID(courseInstance.fileExplorerRoot[0]['@id']))
+      setFsObjects([])
+      setFsPath([])
     }
-  }, [courseInstance])
+  }, [courseInstance, isOpen])
 
   useEffect(() => {
     if (folderId === '') return
