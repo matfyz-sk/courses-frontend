@@ -2,10 +2,10 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
-import { API_URL } from '../../../../configuration/api'
 import QuestionNewData from '../question/question-new-data'
 import SavedQuestion from './saved-question/saved-question'
 import { setAnswers } from '../../common/functions/answers-functions'
+import { API_URL } from "../../../../constants";
 
 function QuestionOverview({
                             match,
@@ -25,7 +25,7 @@ function QuestionOverview({
       const fetchData = async () => {
         return axios
           .get(
-            `${API_URL}/${questionTypeOld}/${questionIdOld}?_join=hasAnswer,comment&_chain=previous`,
+            `${API_URL}${questionTypeOld}/${questionIdOld}?_join=hasAnswer,comment&_chain=previous`,
             {
               headers: {
                 Accept: 'application/json',

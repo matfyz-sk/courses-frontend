@@ -1,24 +1,10 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import {
-  Alert,
-  Button,
-  Col, Collapse,
-  Container,
-  Form,
-  FormFeedback,
-  FormGroup,
-  Input,
-  Label,
-  Row,
-} from 'reactstrap'
-import {
-  emailValidator,
-  textValidator,
-} from '../../../functions/validators'
-import { authHeader, getUserID, setUserProfile} from '../../../components/Auth';
-import { BACKEND_URL } from '../../../configuration/api'
+import { Alert, Button, Col, Collapse, Container, Form, FormFeedback, FormGroup, Input, Label, Row, } from 'reactstrap'
+import { emailValidator, textValidator, } from '../../../functions/validators'
+import { authHeader, getUserID, setUserProfile } from '../../../components/Auth';
+import { BACKEND_URL } from "../../../constants";
 
 class Profile extends Component {
   constructor(props) {
@@ -39,7 +25,7 @@ class Profile extends Component {
   componentDidMount() {
     this.fetchCurrentData()
     document.addEventListener('keyup', event => {
-      if (event.keyCode === 13) {
+      if(event.keyCode === 13) {
         event.preventDefault()
         this.handleSubmit()
       }
@@ -47,28 +33,28 @@ class Profile extends Component {
   }
 
   handleInputChange(event) {
-    const { target } = event
+    const {target} = event
     const value = target.type === 'checkbox' ? target.checked : target.value
-    const { name } = target
-    const { user } = this.state
+    const {name} = target
+    const {user} = this.state
     user[name] = value
-    this.setState({ user })
+    this.setState({user})
   }
 
   validation() {
-    const { errors, user } = this.state
-    if (user === null) {
+    const {errors, user} = this.state
+    if(user === null) {
       return false
     }
     errors.firstName = textValidator(user.firstName, 3, 20)
     errors.lastName = textValidator(user.lastName, 3, 20)
     errors.email = emailValidator(user.email)
-    if (user.useNickName) {
+    if(user.useNickName) {
       errors.nickname = textValidator(user.nickname, 5, 20)
     } else {
       errors.nickname = null
     }
-    this.setState({ errors })
+    this.setState({errors})
     return (
       errors.firstName.result &&
       errors.lastName.result &&
@@ -78,18 +64,18 @@ class Profile extends Component {
   }
 
   handleSubmit() {
-    if (this.validation()) {
-      const { user } = this.state
+    if(this.validation()) {
+      const {user} = this.state
       const updatedAttrs = [
         'firstName', 'lastName', 'description', 'email',
         'nickname', 'useNickName', 'nickNameTeamException', 'allowContact', 'publicProfile', 'showBadges', 'showCourses'
       ]
       const body = {}
-      for (let i = 0; i < updatedAttrs.length; i++) {
+      for(let i = 0; i < updatedAttrs.length; i++) {
         body[updatedAttrs[i]] = user[updatedAttrs[i]]
       }
 
-      fetch(`${BACKEND_URL}/data/user/${getUserID()}`, {
+      fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, {
         method: 'PATCH',
         headers: authHeader(),
         mode: 'cors',
@@ -97,7 +83,7 @@ class Profile extends Component {
         body: JSON.stringify(body),
       })
         .then(response => {
-          if (!response.ok) throw new Error(response)
+          if(!response.ok) throw new Error(response)
           else return response.json()
         })
         .then(data => {
@@ -108,44 +94,44 @@ class Profile extends Component {
   }
 
   handleToggleNickException() {
-    const { user } = this.state
+    const {user} = this.state
     user.nickNameTeamException = !user.nickNameTeamException
-    this.setState({ user })
+    this.setState({user})
   }
 
   fetchCurrentData() {
-    fetch(`${BACKEND_URL}/data/user/${getUserID()}`, {
+    fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',
       credentials: 'omit',
     })
       .then(response => {
-        if (!response.ok) throw new Error(response);
+        if(!response.ok) throw new Error(response);
         else return response.json();
       })
       .then(data => {
-        if (data && data['@graph']) {
+        if(data && data['@graph']) {
           const user = data['@graph'][0]
-          this.setState({ user })
+          this.setState({user})
         }
       })
   }
 
   render() {
-    const { user, errors, be_error, success } = this.state
+    const {user, errors, be_error, success} = this.state
     return (
       <Container>
         <h1 className="mb-5">Profile settings</h1>
-        {be_error ? <Alert color="danger">Error!{be_error}</Alert> : null}
-        {success ? <Alert color="success">Profile has been updated!</Alert> : null}
+        { be_error ? <Alert color="danger">Error!{ be_error }</Alert> : null }
+        { success ? <Alert color="success">Profile has been updated!</Alert> : null }
         <Row>
-          <Col sm={6} xs={12} key="col1">
+          <Col sm={ 6 } xs={ 12 } key="col1">
             <h3>Basic information</h3>
             <p>Complete all required information to register your profile.</p>
             <Form>
               <Row form>
-                <Col md={6} key="bi-1">
+                <Col md={ 6 } key="bi-1">
                   <FormGroup>
                     <Label for="firstName">Name *</Label>
                     <Input
@@ -153,8 +139,8 @@ class Profile extends Component {
                       name="firstName"
                       id="firstName"
                       placeholder="My first name"
-                      value={user ? user.firstName : ''}
-                      onChange={this.handleInputChange}
+                      value={ user ? user.firstName : '' }
+                      onChange={ this.handleInputChange }
                       autoComplete="firstName"
                       valid={
                         textValidator(user ? user.firstName : '', 3, 20).result
@@ -166,11 +152,11 @@ class Profile extends Component {
                       }
                     />
                     <FormFeedback tooltip>
-                      {errors && errors.firstName ? errors.firstName.msg : ''}
+                      { errors && errors.firstName ? errors.firstName.msg : '' }
                     </FormFeedback>
                   </FormGroup>
                 </Col>
-                <Col md={6} key="bi-2">
+                <Col md={ 6 } key="bi-2">
                   <FormGroup>
                     <Label for="lastName">Surname *</Label>
                     <Input
@@ -178,8 +164,8 @@ class Profile extends Component {
                       name="lastName"
                       id="lastName"
                       placeholder="My last name"
-                      value={user ? user.lastName : ''}
-                      onChange={this.handleInputChange}
+                      value={ user ? user.lastName : '' }
+                      onChange={ this.handleInputChange }
                       autoComplete="lastName"
                       valid={
                         textValidator(user ? user.lastName : '', 3, 20).result
@@ -191,13 +177,13 @@ class Profile extends Component {
                       }
                     />
                     <FormFeedback tooltip>
-                      {errors && errors.lastName ? errors.lastName.msg : ''}
+                      { errors && errors.lastName ? errors.lastName.msg : '' }
                     </FormFeedback>
                   </FormGroup>
                 </Col>
               </Row>
               <Row form>
-                <Col md={6}>
+                <Col md={ 6 }>
                   <FormGroup>
                     <Label for="email">Email *</Label>
                     <Input
@@ -205,10 +191,10 @@ class Profile extends Component {
                       name="email"
                       id="email"
                       placeholder="name@domain.com"
-                      value={user ? user.email : ''}
-                      onChange={this.handleInputChange}
+                      value={ user ? user.email : '' }
+                      onChange={ this.handleInputChange }
                       autoComplete="email"
-                      valid={emailValidator(user ? user.email : '').result}
+                      valid={ emailValidator(user ? user.email : '').result }
                       invalid={
                         errors && errors.email
                           ? errors.email.result !== true
@@ -216,7 +202,7 @@ class Profile extends Component {
                       }
                     />
                     <FormFeedback tooltip>
-                      {errors && errors.email ? errors.email.msg : ''}
+                      { errors && errors.email ? errors.email.msg : '' }
                     </FormFeedback>
                   </FormGroup>
                 </Col>
@@ -228,20 +214,20 @@ class Profile extends Component {
                   name="description"
                   id="description"
                   placeholder="I am ..."
-                  rows={3}
-                  value={user ? user.description : ''}
-                  onChange={this.handleInputChange}
+                  rows={ 3 }
+                  value={ user ? user.description : '' }
+                  onChange={ this.handleInputChange }
                   valid={
                     textValidator(user ? user.description : '', 0, 254).result
                   }
                 />
               </FormGroup>
-              <Button onClick={this.handleSubmit} className="mt-3">
+              <Button onClick={ this.handleSubmit } className="mt-3">
                 Update
               </Button>
             </Form>
           </Col>
-          <Col sm={6} xs={12} key="col2">
+          <Col sm={ 6 } xs={ 12 } key="col2">
             <h3>Privacy settings</h3>
             <p>This settings can be filled or changed later.</p>
             <Form>
@@ -250,14 +236,14 @@ class Profile extends Component {
                   type="checkbox"
                   name="useNickName"
                   id="useNickName"
-                  onChange={this.handleInputChange}
-                  checked={user ? user.useNickName : false}
+                  onChange={ this.handleInputChange }
+                  checked={ user ? user.useNickName : false }
                 />
                 <Label for="useNickName" check>
                   I want to hide my name and use nickname
                 </Label>
               </FormGroup>
-              <Collapse isOpen={user ? user.useNickName : false}>
+              <Collapse isOpen={ user ? user.useNickName : false }>
                 <FormGroup>
                   <Label for="nickname">My nickname will be</Label>
                   <Input
@@ -265,8 +251,8 @@ class Profile extends Component {
                     name="nickname"
                     id="nickname"
                     placeholder="TheBestStudentEver"
-                    onChange={this.handleInputChange}
-                    value={user ? user.nickname : ''}
+                    onChange={ this.handleInputChange }
+                    value={ user ? user.nickname : '' }
                     valid={
                       textValidator(user ? user.nickname : '', 5, 20).result
                     }
@@ -277,7 +263,7 @@ class Profile extends Component {
                     }
                   />
                   <FormFeedback tooltip>
-                    {errors && errors.nickname ? errors.nickname.msg : ''}
+                    { errors && errors.nickname ? errors.nickname.msg : '' }
                   </FormFeedback>
                 </FormGroup>
                 <FormGroup check>
@@ -285,8 +271,8 @@ class Profile extends Component {
                     type="checkbox"
                     name="nickNameTeamException"
                     id="nickNameTeamException-teacher"
-                    onChange={() => this.handleToggleNickException()}
-                    checked={user ? !user.nickNameTeamException : false}
+                    onChange={ () => this.handleToggleNickException() }
+                    checked={ user ? !user.nickNameTeamException : false }
                   />
                   <Label for="nickNameTeamException-teacher" check>
                     Only teacher can see my real name
@@ -297,8 +283,8 @@ class Profile extends Component {
                     type="checkbox"
                     name="nickNameTeamException"
                     id="nickNameTeamException"
-                    onChange={() => this.handleToggleNickException()}
-                    checked={user ? user.nickNameTeamException : false}
+                    onChange={ () => this.handleToggleNickException() }
+                    checked={ user ? user.nickNameTeamException : false }
                   />
                   <Label for="nickNameTeamException" check>
                     Only teacher <b>and my team members</b> can see my real name
@@ -311,21 +297,21 @@ class Profile extends Component {
                   type="checkbox"
                   name="publicProfile"
                   id="publicProfile"
-                  onChange={this.handleInputChange}
-                  checked={user ? user.publicProfile : false}
+                  onChange={ this.handleInputChange }
+                  checked={ user ? user.publicProfile : false }
                 />
                 <Label for="publicProfile" check>
                   My profile is completely public
                 </Label>
               </FormGroup>
-              <Collapse isOpen={user && !user.publicProfile} className="ml-3 mt-2 font-weight-normal">
+              <Collapse isOpen={ user && !user.publicProfile } className="ml-3 mt-2 font-weight-normal">
                 <FormGroup check>
                   <Input
                     type="checkbox"
                     name="showCourses"
                     id="showCourses"
-                    onChange={this.handleInputChange}
-                    checked={user ? user.showCourses : false}
+                    onChange={ this.handleInputChange }
+                    checked={ user ? user.showCourses : false }
                   />
                   <Label for="showCourses">Show my courses</Label>
                 </FormGroup>
@@ -334,8 +320,8 @@ class Profile extends Component {
                     type="checkbox"
                     name="showBadges"
                     id="showBadges"
-                    onChange={this.handleInputChange}
-                    checked={user ? user.showBadges : false}
+                    onChange={ this.handleInputChange }
+                    checked={ user ? user.showBadges : false }
                   />
                   <Label for="showBadges">Show my badges</Label>
                 </FormGroup>
@@ -344,8 +330,8 @@ class Profile extends Component {
                     type="checkbox"
                     name="allowContact"
                     id="allowContact"
-                    onChange={this.handleInputChange}
-                    checked={user ? user.allowContact : false}
+                    onChange={ this.handleInputChange }
+                    checked={ user ? user.allowContact : false }
                   />
                   <Label for="allowContact">Allow contact me</Label>
                 </FormGroup>

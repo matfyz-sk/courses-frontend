@@ -8,11 +8,11 @@ import {
   ListGroupItemText,
 } from 'reactstrap'
 import { Link } from 'react-router-dom'
-import { BACKEND_URL } from '../../../configuration/api'
 import { authHeader, getUserID } from '../../../components/Auth'
 import { redirect } from '../../../constants/redirect'
 import { COURSE_TEAM_DETAIL, TIMELINE}  from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
+import { BACKEND_URL } from "../../../constants";
 
 const MyTeams = props => {
   const [data, setData] = useState(null)
@@ -22,7 +22,7 @@ const MyTeams = props => {
     // ? the ?. seems to have fixed this typeerror here, not sure if this is the right way...
     if (detail?.instanceOf && detail?.instanceOf.length > 0) {
       fetch(
-        `${BACKEND_URL}/data/team/${getShortID(
+        `${BACKEND_URL}data/team/${getShortID(
           detail.instanceOf[0]['@id']
         )}?_join=courseInstance`,
         {
@@ -56,7 +56,7 @@ const MyTeams = props => {
   }
 
   function getData() {
-    fetch(`${BACKEND_URL}/data/teamInstance?hasUser=${getUserID()}`, {
+    fetch(`${BACKEND_URL}data/teamInstance?hasUser=${getUserID()}`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',

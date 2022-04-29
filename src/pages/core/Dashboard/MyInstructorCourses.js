@@ -6,17 +6,17 @@ import {
   ListGroupItemText,
 } from 'reactstrap'
 import { Link } from 'react-router-dom'
-import { BACKEND_URL } from '../../../configuration/api'
 import { authHeader, getUserID } from '../../../components/Auth'
 import { formatDate } from '../../../functions/global'
 import { redirect } from '../../../constants/redirect'
 import { TIMELINE } from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
+import { BACKEND_URL } from "../../../constants";
 
 const MyInstructorCourses = props => {
   const [data, setData] = useState(null)
   function getData() {
-    fetch(`${BACKEND_URL}/data/courseInstance?hasInstructor=${getUserID()}`, {
+    fetch(`${BACKEND_URL}data/courseInstance?hasInstructor=${getUserID()}`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',

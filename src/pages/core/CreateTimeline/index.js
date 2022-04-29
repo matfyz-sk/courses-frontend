@@ -157,7 +157,7 @@ class CreateTimeline extends React.Component {
         const block = blocks[i]
         block.courseInstance = course['@id']
         const url = BASE_URL + BLOCK_URL
-        axiosRequest('post', JSON.stringify(block), url)
+        axiosRequest('post', {...block}, url)
           .then(response => {
             if (response && response.status === 200) {
             } else {

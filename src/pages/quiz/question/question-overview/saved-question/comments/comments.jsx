@@ -1,18 +1,12 @@
 /* eslint-disable react/prefer-stateless-function */
 import React, { useState } from 'react'
-import {
-  FormGroup,
-  InputGroup,
-  Input,
-  InputGroupAddon,
-  Button,
-} from 'reactstrap'
+import { Button, FormGroup, Input, InputGroup, InputGroupAddon, } from 'reactstrap'
 import axios from 'axios'
-import { API_URL } from '../../../../../../configuration/api'
 import Comment from './comment/comment'
+import { API_URL } from "../../../../../../constants";
 
-function Comments({ comments, questionAddress, token, callback }) {
-  const [newComment, setNewComment] = useState('')
+function Comments({comments, questionAddress, token, callback}) {
+  const [ newComment, setNewComment ] = useState('')
 
   const onChangeNewComment = event => {
     setNewComment(event.target.value)
@@ -21,15 +15,15 @@ function Comments({ comments, questionAddress, token, callback }) {
   const onSendNewComment = () => {
     axios
       .put(
-        `${API_URL}${questionAddress}`,
-        JSON.stringify({
+        `${ API_URL }${ questionAddress }`,
+        {
           comment: [
             {
               _type: 'comment',
-              commentText: `\"\"${newComment}\"\"`,
+              commentText: `\"\"${ newComment }\"\"`,
             },
           ],
-        }),
+        },
         {
           headers: {
             Accept: 'application/json',
@@ -38,8 +32,8 @@ function Comments({ comments, questionAddress, token, callback }) {
           },
         }
       )
-      .then(({ status: statusQuestionAssignment }) => {
-        if (statusQuestionAssignment === 200) {
+      .then(({status: statusQuestionAssignment}) => {
+        if(statusQuestionAssignment === 200) {
           setNewComment('')
           callback()
         }
@@ -48,29 +42,29 @@ function Comments({ comments, questionAddress, token, callback }) {
   }
   return (
     <>
-      {comments.map(comment => {
-        const { id, commentText, createdAt, createdBy } = comment
+      { comments.map(comment => {
+        const {id, commentText, createdAt, createdBy} = comment
         return (
           <Comment
-            key={id}
-            id={id}
-            commentText={commentText}
-            createdAt={createdAt}
-            createdBy={createdBy}
-            token={token}
+            key={ id }
+            id={ id }
+            commentText={ commentText }
+            createdAt={ createdAt }
+            createdBy={ createdBy }
+            token={ token }
           />
         )
-      })}
+      }) }
       <FormGroup className="mt-2" color="warning">
         <InputGroup>
           <Input
             type="textarea"
             name="newComment"
             placeholder="Write a comment..."
-            onChange={onChangeNewComment}
+            onChange={ onChangeNewComment }
           />
           <InputGroupAddon addonType="append">
-            <Button color="warning" onClick={onSendNewComment}>
+            <Button color="warning" onClick={ onSendNewComment }>
               Send
             </Button>
           </InputGroupAddon>

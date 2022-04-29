@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import { API_URL } from '../../configuration/api'
 import { Route, Switch } from 'react-router-dom'
 
 import { connect } from 'react-redux'
@@ -23,6 +22,8 @@ import SelfQuizNew from './quiz/self-quiz/self-quiz-new'
 import QuizTakesOverviewData from './quiz/quiz-take/quiz-takes-overview-data'
 import QuizTakeStudentResult from './quiz/quiz-take/quiz-take-student-result'
 import SelfQuizzes from './quiz/self-quiz/self-quizzes'
+import { DATA_PREFIX } from 'constants/ontology'
+import { API_URL } from '../../constants';
 
 class Quiz extends Component {
   componentDidMount() {
@@ -58,7 +59,7 @@ class Quiz extends Component {
 
   getUser = (userId, token) => {
       return axios
-        .get(`${API_URL}/user/${userId}`, {
+        .get(`${API_URL}user/${userId}`, {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -107,7 +108,7 @@ class Quiz extends Component {
     }
 
     const courseInstanceId = match?.params?.course_id
-      ? `http://www.courses.matfyz.sk/data/courseInstance/${match.params.course_id}`
+      ? `${ DATA_PREFIX }courseInstance/${ match.params.course_id }`
       : null
     let isTeacher = null
     if (

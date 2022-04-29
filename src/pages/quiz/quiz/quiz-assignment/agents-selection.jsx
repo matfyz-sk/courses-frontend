@@ -13,6 +13,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@material-ui/core'
+import { ONTOLOGY_PREFIX } from 'constants/ontology'
 import { customTheme, useStyles } from '../../common/style/styles'
 import { FaAngleDown, FaAngleUp, FaTimes } from 'react-icons/fa'
 import { Skeleton } from '@material-ui/lab'
@@ -170,7 +171,7 @@ function AgentSelection ({
                 return (
                   <ListItem button key={agent.id}>
                     <ListItemText
-                      primary={agent.type === "http://www.courses.matfyz.sk/ontology#Team" ?
+                      primary={agent.type === `${ ONTOLOGY_PREFIX }Team` ?
                         `${agent.name} (team)` : agent.name} />
                     <IconButton
                       onClick = {e => handleRemoveSelected(agent)}

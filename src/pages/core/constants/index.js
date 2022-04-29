@@ -1,4 +1,5 @@
-import apiConfig from '../../../configuration/api'
+import { API_URL } from "../../../constants";
+
 
 export const INITIAL_COURSE_STATE = {
   id: '',
@@ -36,15 +37,15 @@ export const INITIAL_EVENT_STATE = {
   documentReference: [],
 }
 
-export const BASE_URL = apiConfig.API_URL
-export const COURSE_URL = '/course'
-export const COURSE_INSTANCE_URL = '/courseInstance'
-export const EVENT_URL = '/event'
-export const BLOCK_URL = '/block'
-export const USER_URL = '/user'
-export const MATERIAL_URL = '/material'
+export const BASE_URL = API_URL
+export const COURSE_URL = 'course'
+export const COURSE_INSTANCE_URL = 'courseInstance'
+export const EVENT_URL = 'event'
+export const BLOCK_URL = 'block'
+export const USER_URL = 'user'
+export const MATERIAL_URL = 'material'
 
-export const TASKS_EXAMS = ['OralExam', 'TestTake']
+export const TASKS_EXAMS = [ 'OralExam', 'TestTake' ]
 
 export const TASKS_DEADLINES = [
   'AssignmentPeriod',
@@ -53,7 +54,7 @@ export const TASKS_DEADLINES = [
   'ManualQuizAssignment',
 ]
 
-export const SESSIONS = ['Lab', 'Lecture']
+export const SESSIONS = [ 'Lab', 'Lecture' ]
 
 export const INITIAL_MIGRATION_STATE = {
   initialized: false,

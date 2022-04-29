@@ -1,41 +1,37 @@
 import axios from 'axios'
-import {
-  SET_USER_ADMIN,
-  SET_SIGNED_IN,
-  SET_USER,
-} from '../types'
-import apiConfig from '../../configuration/api'
+import { SET_SIGNED_IN, SET_USER, SET_USER_ADMIN, } from '../types'
+import { API_URL } from "../../constants";
 
 export const setUser = user => {
   return dispatch => {
-    dispatch({ type: SET_USER, user })
+    dispatch({type: SET_USER, user})
   }
 }
 
 export const setUserAdmin = isAdmin => {
   return dispatch => {
-    dispatch({ type: SET_USER_ADMIN, isAdmin })
+    dispatch({type: SET_USER_ADMIN, isAdmin})
   }
 }
 
 export const setSignedInUser = isSignedIn => {
   return dispatch => {
-    dispatch({ type: SET_SIGNED_IN, isSignedIn })
+    dispatch({type: SET_SIGNED_IN, isSignedIn})
   }
 }
 
 export const fetchUser = (token, userId) => {
   return dispatch => {
     return axios
-      .get(`${apiConfig.API_URL}/user/${userId}`, {
+      .get(`${ API_URL }user/${ userId }`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
           Authorization: token,
         },
       })
-      .then(({ data }) => {
-        if (
+      .then(({data}) => {
+        if(
           data &&
           data['@graph'] &&
           data['@graph'].length &&
@@ -56,7 +52,7 @@ export const fetchUser = (token, userId) => {
             }
           })[0]
 
-          dispatch({ type: SET_USER, user })
+          dispatch({type: SET_USER, user})
         }
       })
       .catch(error => console.log(error))

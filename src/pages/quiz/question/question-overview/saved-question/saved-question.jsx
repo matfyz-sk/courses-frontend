@@ -1,19 +1,11 @@
 /* eslint-disable react/prefer-stateless-function */
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import {
-  Button,
-  ButtonDropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  FormText,
-  Input,
-} from 'reactstrap'
+import { Button, ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle, FormText, Input, } from 'reactstrap'
 
-import { API_URL } from '../../../../../configuration/api'
 import QuestionNew from '../../question/question-new'
 import Comments from './comments/comments'
+import { API_URL } from "../../../../../constants";
 
 const enText = {
   'edit-question': 'Edit question',
@@ -28,27 +20,29 @@ const enText = {
 }
 
 function SavedQuestion({
-  id,
-  comments,
-  question,
-  createdBy,
-  createdAt,
-  isTeacher,
-  changeShowEditQuestion,
-  canEdit,
-  canApprove,
-  canDisapprove,
-  isApproved,
-  showMetadata,
-  canApproveAsPrivate,
-  setScore,
-  token,
-  callback,
-  userId,
-}) {
-  const [toggleOpen, setToggleOpen] = useState(false)
-  const [author, setAuthor] = useState('')
-  const [regexpUserAnswer, setRegexpUserAnswer] = useState('')
+                         id,
+                         comments,
+                         question,
+                         createdBy,
+                         createdAt,
+                         isTeacher,
+                         changeShowEditQuestion,
+                         canEdit,
+                         canApprove,
+                         canDisapprove,
+                         isApproved,
+                         showMetadata,
+                         canApproveAsPrivate,
+                         setScore,
+                         token,
+                         callback,
+                         userId,
+                       }) {
+  const relativeId = id.substring(
+    id.lastIndexOf('/', id.lastIndexOf('/') - 1) + 1);
+  const [ toggleOpen, setToggleOpen ] = useState(false)
+  const [ author, setAuthor ] = useState('')
+  const [ regexpUserAnswer, setRegexpUserAnswer ] = useState('')
 
   const changeToggleOpen = () => {
     setToggleOpen(x => !x)
@@ -57,8 +51,8 @@ function SavedQuestion({
   const sendApprove = visibilityIsRestricted => {
     axios
       .patch(
-        `${API_URL}${id.substr(id.lastIndexOf('/', id.lastIndexOf('/') - 1))}`,
-        JSON.stringify({ approver: [userId], visibilityIsRestricted }),
+        `${ API_URL }${ relativeId }`,
+        {approver: [ userId ], visibilityIsRestricted},
         {
           headers: {
             Accept: 'application/json',
@@ -67,8 +61,8 @@ function SavedQuestion({
           },
         }
       )
-      .then(({ status: statusQuestionAssignment }) => {
-        if (statusQuestionAssignment === 200) {
+      .then(({status: statusQuestionAssignment}) => {
+        if(statusQuestionAssignment === 200) {
           callback()
         }
       })
@@ -78,8 +72,8 @@ function SavedQuestion({
   const sendDisapprove = () => {
     axios
       .patch(
-        `${API_URL}${id.substr(id.lastIndexOf('/', id.lastIndexOf('/') - 1))}`,
-        JSON.stringify({ approver: [], }),
+        `${ API_URL }${ relativeId }`,
+        {approver: [],},
         {
           headers: {
             Accept: 'application/json',
@@ -88,8 +82,8 @@ function SavedQuestion({
           },
         }
       )
-      .then(({ status: statusQuestionAssignment }) => {
-        if (statusQuestionAssignment === 200) {
+      .then(({status: statusQuestionAssignment}) => {
+        if(statusQuestionAssignment === 200) {
           // refetch
         }
       })
@@ -105,13 +99,13 @@ function SavedQuestion({
 
 
   useEffect(() => {
-    if (createdBy && isTeacher) {
-      const fetchData = async () => {
+    if(createdBy && isTeacher) {
+      const fetchData = async() => {
         return axios
           .get(
-            `${API_URL}/user/${createdBy.substring(
+            `${ API_URL }user/${ createdBy.substring(
               createdBy.lastIndexOf('/') + 1
-            )}`,
+            ) }`,
             {
               headers: {
                 Accept: 'application/json',
@@ -120,17 +114,17 @@ function SavedQuestion({
               },
             }
           )
-          .then(({ data }) => {
-            if (
+          .then(({data}) => {
+            if(
               data &&
               data['@graph'] &&
               data['@graph'].length &&
               data['@graph'].length > 0
             ) {
               data['@graph'].forEach(authorData => {
-                if (authorData) {
-                  const { firstName, lastName } = authorData
-                  setAuthor(`${firstName} ${lastName}`)
+                if(authorData) {
+                  const {firstName, lastName} = authorData
+                  setAuthor(`${ firstName } ${ lastName }`)
                 }
               })
             }
@@ -139,7 +133,7 @@ function SavedQuestion({
       }
       fetchData()
     }
-  }, [token, createdBy, isTeacher])
+  }, [ token, createdBy, isTeacher ])
   const {
     title,
     questionText,
@@ -155,18 +149,21 @@ function SavedQuestion({
     matchPairs,
   } = question
 
-  orderAnswers && orderAnswers.sort((a,b) => a.position < b.position ? -1 : 1)
-  matchPairs && matchPairs.sort((a,b) => a.position < b.position ? -1 : 1)
+  orderAnswers && orderAnswers.sort((a, b) => a.position < b.position ? -1 : 1)
+  matchPairs && matchPairs.sort((a, b) => a.position < b.position ? -1 : 1)
 
-  const matchAnswersAdapted = matchPairs && matchPairs.reduce((acc,pair) => {
+  const matchAnswersAdapted = matchPairs && matchPairs.reduce((acc, pair) => {
     const answer = {
       id: pair.position,
       text: pair.answer,
     }
     acc.push(answer)
     return acc
-  },[]).map(answer => answer.id === matchPairs.find(pair => pair.answer === answer.text).position ? answer : {...answer,text:''})
-  const matchPairsAdapted = matchPairs && matchPairs.reduce((acc,pair) => {
+  }, []).map(answer => answer.id === matchPairs.find(pair => pair.answer === answer.text).position ? answer : {
+    ...answer,
+    text: ''
+  })
+  const matchPairsAdapted = matchPairs && matchPairs.reduce((acc, pair) => {
     const pairAdapted = {
       position: pair.position,
       promptText: pair.prompt,
@@ -174,95 +171,93 @@ function SavedQuestion({
     }
     acc.push(pairAdapted)
     return acc
-  },[])
+  }, [])
 
   const metadata = () => (
     <>
-      {isApproved && <h2>{enText.approved}</h2>}
-      {isTeacher && (
+      { isApproved && <h2>{ enText.approved }</h2> }
+      { isTeacher && (
         <>
-          <FormText color="muted">{`${enText.by} ${author}`}</FormText>
+          <FormText color="muted">{ `${ enText.by } ${ author }` }</FormText>
           <FormText color="muted">
-            {`${enText.at} ${createdAt.toLocaleDateString()}`}
+            { `${ enText.at } ${ createdAt.toLocaleDateString() }` }
           </FormText>
         </>
-      )}
+      ) }
     </>
   )
   return (
     <div className="mb-3 mt-3">
       <QuestionNew
-        key={id}
-        metadata={showMetadata && metadata}
-        title={title}
-        question={questionText}
-        topic={topic}
-        questionType={questionType}
-        answers={answers}
-        regexp={regexp}
-        setRegexpUserAnswer={setRegexpUserAnswer}
-        regexpUserAnswer={regexpUserAnswer}
-        setUserAnswer={setUserAnswer}
-        userAnswer={userAnswer}
-        essay={essay}
+        key={ id }
+        metadata={ showMetadata && metadata }
+        title={ title }
+        question={ questionText }
+        topic={ topic }
+        questionType={ questionType }
+        answers={ answers }
+        regexp={ regexp }
+        setRegexpUserAnswer={ setRegexpUserAnswer }
+        regexpUserAnswer={ regexpUserAnswer }
+        setUserAnswer={ setUserAnswer }
+        userAnswer={ userAnswer }
+        essay={ essay }
         //ORDER Q
-        orderAnswers = {orderAnswers}
+        orderAnswers={ orderAnswers }
         //MATCH Q
         // matchAnswers = {matchAnswersAdapted}
         // matchPairs = {matchPairsAdapted}
-        matchPairs={matchPairs}
+        matchPairs={ matchPairs }
         disabled
-        isSaved={true}
-        color={isApproved ? '#f4f9ec' : null}
+        isSaved={ true }
+        color={ isApproved ? '#f4f9ec' : null }
       >
-        {setScore && <Input type="text" value={score} onChange={setScore} />}
-        {canEdit && changeShowEditQuestion && (
-          <Button className="mr-2" color="success" onClick={changeShowEditQuestion}>
-            {enText['edit-question']}
+        { setScore && <Input type="text" value={ score } onChange={ setScore }/> }
+        { canEdit && changeShowEditQuestion && (
+          <Button className="mr-2" color="success" onClick={ changeShowEditQuestion }>
+            { enText['edit-question'] }
           </Button>
-        )}
-        {canApprove && canApproveAsPrivate && (
-          <ButtonDropdown isOpen={toggleOpen} toggle={changeToggleOpen}>
+        ) }
+        { canApprove && canApproveAsPrivate && (
+          <ButtonDropdown isOpen={ toggleOpen } toggle={ changeToggleOpen }>
             <DropdownToggle caret color="success">
-              {enText.approveAs}
+              { enText.approveAs }
             </DropdownToggle>
             <DropdownMenu>
-              <DropdownItem onClick={approveAsPublic}>
-                {enText.approveAsPublic}
+              <DropdownItem onClick={ approveAsPublic }>
+                { enText.approveAsPublic }
               </DropdownItem>
-              <DropdownItem onClick={approveAsPrivate}>
-                {enText.approveAsPrivate}
+              <DropdownItem onClick={ approveAsPrivate }>
+                { enText.approveAsPrivate }
               </DropdownItem>
             </DropdownMenu>
           </ButtonDropdown>
-        )}
-        {canApprove && !canApproveAsPrivate && (
-          <Button color="success" onClick={approveAsPublic}>
-            {enText.approveAsPublic}
+        ) }
+        { canApprove && !canApproveAsPrivate && (
+          <Button color="success" onClick={ approveAsPublic }>
+            { enText.approveAsPublic }
           </Button>
-        )}
-        {canDisapprove && (
-          <Button className="" color="danger" onClick={sendDisapprove}>
-            {enText.disapprove}
+        ) }
+        { canDisapprove && (
+          <Button className="" color="danger" onClick={ sendDisapprove }>
+            { enText.disapprove }
           </Button>
-        )}
+        ) }
         {/* {isTeacher && (
           <Button color="danger" style={{float:"right"}}>
             {enText.delete}
           </Button>
-        )} */}
+        )} */ }
 
       </QuestionNew>
-      {comments && (
+      { comments && (
         <Comments
-          comments={comments}
-          token={token}
-          questionAddress={id.substr(
-            id.lastIndexOf('/', id.lastIndexOf('/') - 1)
-          )}
-          callback={callback}
+          comments={ comments }
+          token={ token }
+          questionAddress={ relativeId }
+          callback={ callback }
         />
-      )}
+      ) }
     </div>
   )
 }

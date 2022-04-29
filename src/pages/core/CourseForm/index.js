@@ -1,18 +1,13 @@
-import React, { Component } from 'react'
-import { Button, CardSubtitle, Form, FormGroup, Input, Label } from 'reactstrap'
+import React, {Component} from 'react'
+import {Button, Form, FormGroup, Input, Label} from 'reactstrap'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import './CourseForm.css'
-import { axiosRequest, getData } from '../AxiosRequests'
-import {
-  INITIAL_COURSE_STATE,
-  BASE_URL,
-  COURSE_URL,
-  USER_URL,
-} from '../constants'
-import { getShortId } from '../Helper'
-import { Redirect } from 'react-router-dom'
-import { connect } from 'react-redux'
+import {axiosRequest, getData} from '../AxiosRequests'
+import {BASE_URL, COURSE_URL, INITIAL_COURSE_STATE, USER_URL,} from '../constants'
+import {getShortId} from '../Helper'
+import {Redirect} from 'react-router-dom'
+import {connect} from 'react-redux'
 
 class CourseForm extends Component {
   constructor(props) {
@@ -27,7 +22,7 @@ class CourseForm extends Component {
   }
 
   componentDidMount() {
-    this.setState({ ...this.props })
+    this.setState({...this.props})
 
     let url = BASE_URL + COURSE_URL
     axiosRequest('get', null, url).then(response => {
@@ -67,7 +62,7 @@ class CourseForm extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.name !== this.props.name) {
-      this.setState({ ...this.props })
+      this.setState({...this.props})
     }
   }
 
@@ -80,11 +75,11 @@ class CourseForm extends Component {
       prerequisites,
       admins,
     } = this.state
-    const { typeOfForm } = this.props
+    const {typeOfForm} = this.props
 
     const errors = this.validate(name, description, abbreviation)
     if (errors.length > 0) {
-      this.setState({ errors })
+      this.setState({errors})
       event.preventDefault()
       return
     }
@@ -122,7 +117,7 @@ class CourseForm extends Component {
           const newCourseId = getShortId(response.data.resource.iri)
           newUrl = {
             pathname: `/newcourseinstance/${newCourseId}`,
-            state: { courseName: name },
+            state: {courseName: name},
           }
         } else {
           newUrl = `/course/${id}`
@@ -157,15 +152,15 @@ class CourseForm extends Component {
   }
 
   onChange = event => {
-    this.setState({ [event.target.name]: event.target.value })
+    this.setState({[event.target.name]: event.target.value})
   }
 
   onPrerequisitesChange = (event, values) => {
-    this.setState({ prerequisites: values })
+    this.setState({prerequisites: values})
   }
 
   onAdminsChange = (event, values) => {
-    this.setState({ admins: values })
+    this.setState({admins: values})
   }
 
   render() {
@@ -180,10 +175,10 @@ class CourseForm extends Component {
       redirect,
       errors,
     } = this.state
-    const { typeOfForm, user } = this.props
+    const {typeOfForm, user} = this.props
 
     if (redirect) {
-      return <Redirect to={redirect} />
+      return <Redirect to={redirect}/>
     }
 
     const isInvalid = name === '' || description === '' || abbreviation === ''
@@ -240,12 +235,12 @@ class CourseForm extends Component {
               getOptionLabel={option => option.name}
               value={prerequisites}
               onChange={this.onPrerequisitesChange}
-              style={{ maxWidth: 700 }}
+              style={{maxWidth: 700}}
               renderInput={params => (
                 <TextField
                   {...params}
                   placeholder=""
-                  InputProps={{ ...params.InputProps, disableUnderline: true }}
+                  InputProps={{...params.InputProps, disableUnderline: true}}
                 />
               )}
               className="form-input"
@@ -264,7 +259,7 @@ class CourseForm extends Component {
                   getOptionLabel={option => option.name}
                   onChange={this.onAdminsChange}
                   value={admins}
-                  style={{ maxWidth: 700 }}
+                  style={{maxWidth: 700}}
                   renderInput={params => (
                     <TextField
                       {...params}
@@ -294,7 +289,7 @@ class CourseForm extends Component {
   }
 }
 
-const mapStateToProps = ({ authReducer }) => {
+const mapStateToProps = ({authReducer}) => {
   return {
     user: authReducer.user,
   }

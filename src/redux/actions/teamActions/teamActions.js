@@ -1,6 +1,6 @@
 import { TEAM_ACTIONS } from '../../types'
 import { authHeader } from '../../../components/Auth'
-import { BACKEND_URL } from '../../../configuration/api'
+import { BACKEND_URL } from "../../../constants";
 
 export const setTeam = item => ({
   type: TEAM_ACTIONS.SET_TEAM,
@@ -13,7 +13,7 @@ export const destroyTeam = {
 
 export const fetchTeam = team_id => {
   return dispatch => {
-    fetch(`${BACKEND_URL}/data/team?id=${team_id}`, {
+    fetch(`${BACKEND_URL}data/team?id=${team_id}`, {
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',

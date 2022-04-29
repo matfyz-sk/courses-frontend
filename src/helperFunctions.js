@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { getToken } from './components/Auth';
-import { API_URL as REST_URL } from './configuration/api';
+import { API_URL as REST_URL } from './constants';
 import moment from 'moment';
 
 //time manipulation
@@ -125,7 +125,7 @@ export const getIRIFromAddResponse = (response) => {
 export const axiosAddEntity = ( data, entity  ) => {
   return axiosRequest(
     'post',
-    `${REST_URL}/${entity}`,
+    `${REST_URL}${entity}`,
     data
   )
 }
@@ -133,7 +133,7 @@ export const axiosAddEntity = ( data, entity  ) => {
 export const axiosUpdateEntity = ( data, entity ) => {
   return axiosRequest(
     'patch',
-    `${REST_URL}/${entity}`,
+    `${REST_URL}${entity}`,
     data
   )
 }
@@ -141,7 +141,7 @@ export const axiosUpdateEntity = ( data, entity ) => {
 export const axiosPartialEntityUpdate = ( data, entity ) => {
   return axiosRequest(
     'put',
-    `${REST_URL}/${entity}`,
+    `${REST_URL}${entity}`,
     data
   )
 }
@@ -149,7 +149,7 @@ export const axiosPartialEntityUpdate = ( data, entity ) => {
 export const axiosDeleteAttributeValueOfEntity = (data, entity ) => {
   return axiosRequest(
     'delete',
-    `${REST_URL}/${entity}`,
+    `${REST_URL}${entity}`,
     data
   )
 }
@@ -157,7 +157,7 @@ export const axiosDeleteAttributeValueOfEntity = (data, entity ) => {
 export const axiosDeleteEntity = ( entity ) => {
   return axiosRequest(
     'delete',
-    `${REST_URL}/${entity}`,
+    `${REST_URL}${entity}`,
     {}
   )
 }
@@ -169,7 +169,7 @@ export const axiosDeleteEntities = ( entities ) => {
 export const axiosGetEntities = (entity) => {
   return axiosRequest(
     'get',
-    `${REST_URL}/${entity}`,
+    `${REST_URL}${entity}`,
     null
   ).then( (response) =>{
   return response;

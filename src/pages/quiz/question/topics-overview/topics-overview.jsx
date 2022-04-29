@@ -4,8 +4,9 @@ import axios from 'axios'
 import PropTypes from 'prop-types'
 import { Card } from 'reactstrap'
 
-import { API_URL } from '../../../../configuration/api'
 import TopicPreview from './topic-preview/topic-preview'
+import { ONTOLOGY_PREFIX } from 'constants/ontology'
+import { API_URL } from '../../../../constants';
 
 class TopicsOverview extends Component {
   state = {
@@ -98,7 +99,7 @@ class TopicsOverview extends Component {
   deleteAssignment = (assignmentId, token) => {
     return axios
       .delete(
-        `${API_URL}/questionAssignment/${assignmentId.substring(
+        `${API_URL}questionAssignment/${assignmentId.substring(
           assignmentId.lastIndexOf('/') + 1
         )}`,
         {
@@ -139,7 +140,7 @@ class TopicsOverview extends Component {
       // if (hasAssignment) {
         promises.push(
           axios.get(
-            `${API_URL}/question${`?ofTopic=${topic.substring(
+            `${API_URL}question${`?ofTopic=${topic.substring(
               topic.lastIndexOf('/') + 1
             )}`}`,
             {
@@ -232,7 +233,7 @@ class TopicsOverview extends Component {
   getAssignments = (courseInstanceId, userId, token) => {
     return axios
       .get(
-        `${API_URL}/questionAssignment?courseInstance=${courseInstanceId}${
+        `${API_URL}questionAssignment?courseInstance=${courseInstanceId}${
           userId ? `&assignedTo=${userId}` : ''
         }`,
         {
@@ -257,7 +258,7 @@ class TopicsOverview extends Component {
               if (
                 questionAssignment &&
                 questionAssignment['@type'] ===
-                  'http://www.courses.matfyz.sk/ontology#QuestionAssignment' // GET /questionAssignment?courseInstance=aJpGT
+                  `${ ONTOLOGY_PREFIX }QuestionAssignment` // GET /questionAssignment?courseInstance=aJpGT
               ) {
                 const {
                   description,

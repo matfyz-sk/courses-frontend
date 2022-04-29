@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Page404 from '../../errors/Page404'
-import { BACKEND_URL } from '../../../configuration/api'
 // eslint-disable-next-line import/no-cycle
 import { authHeader } from '../../../components/Auth'
+import { BACKEND_URL } from "../../../constants";
 
 const withResultDetail = Component => props => {
   const { privileges, courseInstance } = props
@@ -12,7 +12,7 @@ const withResultDetail = Component => props => {
 
   function fetchResultType(id) {
     fetch(
-      `${BACKEND_URL}/data/resultType/${id}?_join=createdBy,correctionFor`,
+      `${BACKEND_URL}data/resultType/${id}?_join=createdBy,correctionFor`,
       {
         method: 'GET',
         headers: authHeader(),
