@@ -10,26 +10,19 @@ import { redirect } from '../../constants/redirect'
 import Page404 from '../errors/Page404'
 import { getShortID } from '../../helperFunctions'
 import CourseDocumentManager from './CourseDocumentsManager'
-import { fetchFolder } from '../../redux/actions'
 
-function DocumentsNavigation({ match, courseInstance, folder, fetchFolder }) {
+function DocumentsNavigation({ match, courseInstance }) {
   const [loading, setLoading] = useState(true)
   const courseId = match.params.course_id
 
   useEffect(() => {
-    if (courseInstance && folder['@id']) {
+    if (courseInstance && getShortID(courseInstance["@id"]) === courseId) {
       setLoading(false)
-    } else {
-      setLoading(true)
-      if (
-        courseInstance &&
-        courseInstance.fileExplorerRoot.length !== 0 &&
-        !folder['@id']
-      ) {
-        fetchFolder(getShortID(courseInstance.fileExplorerRoot[0]['@id']))
-      }
     }
-  }, [courseInstance, folder['@id']])
+    else {
+      setLoading(true)
+    }
+  }, [courseInstance, courseId])
 
   if (loading) {
     return (
@@ -96,13 +89,12 @@ function DocumentsNavigation({ match, courseInstance, folder, fetchFolder }) {
   )
 }
 
-const mapStateToProps = ({ courseInstanceReducer, folderReducer }) => {
+const mapStateToProps = ({ courseInstanceReducer }) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
-    folder: { ...folderReducer },
   }
 }
 
 export default withRouter(
-  connect(mapStateToProps, {fetchFolder})(DocumentsNavigation)
+  connect(mapStateToProps, {})(DocumentsNavigation)
 )

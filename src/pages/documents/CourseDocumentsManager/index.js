@@ -96,6 +96,7 @@ function CourseDocumentManager(props) {
       const data = getResponseBody(response)
 
       if (
+        getShortID(data[0].courseInstance[0]["@id"]) !== courseId ||
         folderId !== getShortID(courseInstance.fileExplorerRoot[0]['@id']) &&
         data[0].createdBy['@id'] !== user.fullURI
       ) {
