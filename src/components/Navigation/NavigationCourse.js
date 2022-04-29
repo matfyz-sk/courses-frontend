@@ -170,17 +170,19 @@ class NavigationCourseClass extends React.Component {
                 Assignments
               </NavLink>
             </NavItem>
-            <NavItem>
-              <NavLink
-                activeClassName="is-active"
-                to={redirect(ROUTES.DOCUMENTS, [
-                  { key: 'course_id', value: this.state.courseId },
-                ])}
-                className="nav-link nav-button"
-              >
-                Documents
-              </NavLink>
-            </NavItem>
+            {privileges.inCourseInstance === 'instructor' && (
+               <NavItem>
+                <NavLink
+                  activeClassName="is-active"
+                  to={redirect(ROUTES.DOCUMENTS, [
+                    { key: 'course_id', value: this.state.courseId },
+                  ])}
+                  className="nav-link nav-button"
+                >
+                  Documents
+                </NavLink>
+              </NavItem>
+            )}
             <NavItem>
               <NavLink
                 activeClassName="is-active"
