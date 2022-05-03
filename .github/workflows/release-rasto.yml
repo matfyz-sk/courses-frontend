@@ -1,0 +1,25 @@
+name: MW - Release workflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ documents_module ]
+    paths-ignore:
+      - .github/**
+      - README.md
+
+jobs:
+  release:
+    uses: matfyz-sk/courses-frontend/.github/workflows/deploy-rasto.yml@master
+    with:
+      FRONTEND_PATH: /home/www/devcourses3.matfyz.sk/htdocs/
+      BASE_WEBSITE_PORT: 4430
+      BRANCH: documents_module
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      WEBSITE: ${{ secrets.WEBSITE }}
+        
+      
+
