@@ -13,7 +13,7 @@ jobs:
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy-rasto.yml@master
     with:
       FRONTEND_PATH: /home/www/devcourses3.matfyz.sk/htdocs/
-      BASE_WEBSITE_PORT: 4430
+      BASE_WEBSITE_PORT: 443
       BRANCH: devcourses3
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
