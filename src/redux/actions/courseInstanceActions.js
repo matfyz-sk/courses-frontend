@@ -7,6 +7,7 @@ import {
   RESULTS_ADD_TYPE,
   RESULTS_UPDATE_TYPE,
   RESULTS_REMOVE_TYPE,
+  SET_FILE_EXPLORER_ROOT,
 } from '../types'
 import { authHeader, getUser, getUserID } from '../../components/Auth'
 import { BASE_URL, COURSE_INSTANCE_URL } from '../../pages/core/constants'
@@ -16,6 +17,12 @@ import {
   setCourseInstanceInstructor,
   setCourseInstancePrivileges,
 } from './privilegesActions'
+import { initializeFileSystem } from "../../pages/documents/functions/initializeFileSystem";
+
+export const setFileExplorerRoot = item => ({
+  type: SET_FILE_EXPLORER_ROOT,
+  item,
+})
 
 export const setCourseInstance = item => ({
   type: SET_COURSE_INSTANCE,
@@ -46,6 +53,13 @@ export const fetchCourseInstance = (history, course_id) => {
         if (data['@graph'].length > 0) {
           const course = data['@graph'][0]
           dispatch(setCourseInstance(course))
+
+          // special case where the already created courses haven't got a root folder at their creation
+          if (course.fileExplorerRoot.length === 0) {
+            const createRootFolder = async () => dispatch(setFileExplorerRoot(await initializeFileSystem(course['@id'])))
+            createRootFolder()
+          }
+
           let hasPrivilege = false
           if (getUser() && course.hasInstructor) {
             for (let i = 0; i < course.hasInstructor.length; i++) {

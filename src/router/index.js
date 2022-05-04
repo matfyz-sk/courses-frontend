@@ -7,6 +7,7 @@ import Page404 from '../pages/errors/Page404'
 import CoreRoutes from '../pages/core/routes'
 import QuizRoutes from '../pages/quiz/routes'
 import AuthRoutes from '../pages/auth/routes'
+import DocumentsRoutes from '../pages/documents/routes'
 import * as ROUTES from '../constants/routes'
 import Page401 from '../pages/errors/Page401'
 import PublicProfile from '../pages/core/PublicProfile'
@@ -18,6 +19,7 @@ const Router = () => (
         <Switch>
           {AuthRoutes}
           {QuizRoutes}
+          {DocumentsRoutes}
           {CoreRoutes}
           <Route
             key={ROUTES.ACCESS_DENIED}

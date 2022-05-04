@@ -12,6 +12,8 @@ import { connect } from 'react-redux'
 import { setCourseMigrationState } from '../../../redux/actions'
 import { getShortId } from '../Helper'
 import { addDays, dateDiffInDays } from '../Timeline/timeline-helper'
+import copyFileSystem from 'pages/documents/functions/copyFileSystem'
+import { axiosUpdateEntity } from 'helperFunctions'
 
 class Submit extends React.Component {
   constructor() {
@@ -32,6 +34,7 @@ class Submit extends React.Component {
       instanceOf,
       instructors,
     } = this.props.courseMigrationState
+    const courseInstance = this.props.courseInstance
 
     const { errors } = this.state
 
@@ -44,6 +47,8 @@ class Submit extends React.Component {
       return instructor.fullId
     })
 
+    const hasDocument = courseInstance.hasDocument.map(doc => doc["@id"])
+
     const data = {
       name,
       description,
@@ -51,14 +56,35 @@ class Submit extends React.Component {
       endDate,
       hasInstructor,
       instanceOf: courseFullId,
+      hasDocument
     }
 
     const url = BASE_URL + COURSE_INSTANCE_URL
 
-    axiosRequest('post', {...data}, url)
-      .then(response => {
+    axiosRequest('post', data, url)
+      .then(async response => {
         if (response && response.status === 200) {
           this.createEvents(response.data.resource.iri)
+
+          const newCourseInstanceId = response.data.resource.iri
+          const data = {
+            fileExplorerRoot: await copyFileSystem(
+              courseInstance.fileExplorerRoot[0],
+              newCourseInstanceId
+            )
+          }
+          axiosUpdateEntity(data, `courseInstance/${getShortId(newCourseInstanceId)}`)
+            .then(response => {
+              if (response.failed) {
+                errors.push(
+                  'There was a problem with server while sending your form. Try again later.'
+                )
+                return
+              }
+              this.setState({
+                sent: true,
+              })
+            })
         } else {
           errors.push(
             'There was a problem with server while sending your form. Try again later.'
@@ -90,6 +116,10 @@ class Submit extends React.Component {
       if (checkedEvents.includes(event.id)) {
         const newStartDate = addDays(event.startDate, noOfDays)
         const newEndDate = addDays(event.endDate, noOfDays)
+        const newDocumentReference = event.documentReference.map(ref => ({
+          hasDocument: ref.hasDocument,
+          courseInstance: courseId,
+        }))
         const e = {
           name: event.name,
           description: event.description,
@@ -97,6 +127,7 @@ class Submit extends React.Component {
           endDate: newEndDate,
           courseInstance: courseId,
           _type: event.type,
+          documentReference: newDocumentReference
         }
         eventsToAdd.push(e)
       }
@@ -105,7 +136,7 @@ class Submit extends React.Component {
     const url = BASE_URL + EVENT_URL
     let errors = []
     for (let event of eventsToAdd) {
-      axiosRequest('post', {...event}, url)
+      axiosRequest('post', event, url)
         .then(response => {
           if (response && response.status === 200) {
           } else {
@@ -120,10 +151,6 @@ class Submit extends React.Component {
     if (errors.length > 0) {
       console.log(errors)
     }
-
-    this.setState({
-      sent: true,
-    })
   }
 
   render() {

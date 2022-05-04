@@ -1,0 +1,109 @@
+.document-viewer {
+  width: 95%;
+  margin: auto;
+}
+
+.document-viewer header {
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+  padding: 5px;
+  margin-top: 2px;
+  /* add */
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  column-gap: 10px;
+  outline: none;
+}
+
+.document-viewer__container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  margin: 5px 0;
+  padding: 5px;
+}
+
+.document-viewer__container .page-control {
+  margin: 1em 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.6s;
+  width: 7.5%;
+}
+
+.document-viewer__container .page-control.enabled.left:hover {
+  background-image: linear-gradient(to left, grey, white);
+  cursor: pointer;
+}
+
+.document-viewer__container .page-control.enabled.right:hover {
+  background-image: linear-gradient(to right, grey, white);
+  cursor: pointer;
+}
+
+.document-viewer__container__load {
+  margin-top: 1em;
+  color: white;
+}
+
+.document-viewer__container__document {
+  margin: 1em 0;
+  width: 85%;
+}
+
+.document-viewer__container__document .react-pdf__Document {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.document-viewer__container__document .react-pdf__Page {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.document-viewer__container__document .react-pdf__message {
+  padding: 0;
+  color: white;
+}
+
+/* text highlighting */
+.react-pdf__Page__textContent span {
+  opacity: 0.1;
+}
+
+.react-pdf__Page__textContent span::selection {
+  background-color: blue;
+}
+
+.react-pdf__Document {
+  line-height: initial;
+}
+
+@media only screen and (max-width: 767px) {
+  .document-viewer header {
+    flex-wrap: wrap;
+  }
+
+  .document-viewer__container {
+    padding: 0
+  }
+
+  .document-viewer header div:nth-child(5) {
+    order: 1;
+    width: 100%;
+    text-align: center;
+    padding-bottom: 0.5em;
+    word-break: break-all;
+  }
+
+  .document-viewer__container .page-control {
+    display: none;
+  }
+
+  .document-viewer__container__document {
+    /*left: 0;*/
+    width: 100%;
+  }
+}

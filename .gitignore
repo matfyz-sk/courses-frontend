@@ -30,3 +30,5 @@ yarn-error.log*
 .firebase/hosting.YnVpbGQ.cache
 
 .idea
+.vscode
+/src/.tmp.driveupload

@@ -29,7 +29,7 @@ class EditEvent extends React.Component {
 
     const url = `${BASE_URL + EVENT_URL}/${
       params.event_id
-    }?_join=hasInstructor,uses,recommends`
+    }?_join=hasInstructor,uses,recommends,documentReference`
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)
       this.setState({
@@ -63,6 +63,7 @@ class EditEvent extends React.Component {
                 name: material.name,
               }
             }),
+            documentReference: eventData.documentReference,
             courseInstance: eventData.courseInstance[0]
               ? eventData.courseInstance[0]['@id']
               : '',

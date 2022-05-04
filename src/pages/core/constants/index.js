@@ -34,6 +34,7 @@ export const INITIAL_EVENT_STATE = {
   // materials: [],
   uses: [],
   recommends: [],
+  documentReference: [],
 }
 
 export const BASE_URL = API_URL

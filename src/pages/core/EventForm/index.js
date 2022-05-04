@@ -26,7 +26,8 @@ import ModalCreateEvent from '../ModalCreateEvent'
 import { SubEventList } from '../Events'
 import { getEvents, greater, greaterEqual, sortEventsFunction, } from '../Timeline/timeline-helper'
 import { connect } from 'react-redux'
-
+import { axiosAddEntity, axiosUpdateEntity, getIRIFromAddResponse } from 'helperFunctions'
+import DocumentReferencer from 'pages/documents/common/DocumentsReferencer'
 class EventForm extends Component {
   constructor(props) {
     super(props)
@@ -105,8 +106,8 @@ class EventForm extends Component {
   getSubEvents = () => {
     const {startDate, endDate, courseId} = this.state
 
-    if(courseId !== '') {
-      const url = `${ BASE_URL + EVENT_URL }?courseInstance=${ courseId }`
+    if (courseId !== '') {
+      const url = `${BASE_URL + EVENT_URL}?courseInstance=${courseId}&_join=documentReference`
 
       axiosRequest('get', null, url).then(response => {
         const data = getData(response)
@@ -167,6 +168,7 @@ class EventForm extends Component {
       instructors,
       uses,
       recommends,
+      documentReference,
     } = this.state
     const {typeOfForm, callBack} = this.props
 
@@ -210,6 +212,7 @@ class EventForm extends Component {
       location: place.split('"').join("'"),
       uses: usedMaterials,
       recommends: recommendedMaterials,
+      documentReference: documentReference.map(doc => doc["@id"])
     }
 
     if(type === 'CourseInstance') {
@@ -227,14 +230,33 @@ class EventForm extends Component {
       data.instanceOf = courseFullId
       data.hasInstructor = hasInstructor
     }
-
-    axiosRequest(method, {...data}, url)
-      .then(response => {
-        if(response && response.status === 200) {
-          if(typeOfForm === 'Edit') {
+    axiosRequest(method, data, url)
+      .then(async response => {
+        if (response && response.status === 200) {
+          console.log(typeOfForm)
+          if (typeOfForm === 'Edit') {
             callBack(id)
           } else {
             const newEventId = getShortId(response.data.resource.iri)
+
+            if (typeOfForm === 'New Course Instance') {
+              const folderData = {
+                name: 'Home',
+                courseInstance: response.data.resource.iri,
+              }
+              const fileExplorerRoot = await axiosAddEntity(
+                folderData,
+                'folder'
+              ).then(response => {
+                if (response.failed) return null
+                return getIRIFromAddResponse(response)
+              })
+              axiosUpdateEntity(
+                { fileExplorerRoot },
+                `courseInstance/${newEventId}`
+              )
+            }
+
             callBack(newEventId)
           }
         } else {
@@ -275,8 +297,8 @@ class EventForm extends Component {
     const typeLowerCase = this.lowerFirstLetter(type)
     const url = `${ BASE_URL }/${ typeLowerCase }/${ id }`
 
-    axiosRequest('delete', null, url).then(response => {
-      if(response && response.status === 200) {
+    axiosRequest('delete', {}, url).then(response => {
+      if (response && response.status === 200) {
         callBack(null)
       } else {
         const errors = []
@@ -312,6 +334,10 @@ class EventForm extends Component {
     this.setState({endDate: date})
   }
 
+  onDocumentReferencesChange = documentReference => {
+    this.setState({ documentReference })
+  }
+
   render() {
     const {
       name,
@@ -328,6 +354,7 @@ class EventForm extends Component {
       docs,
       uses,
       recommends,
+      documentReference
     } = this.state
     const {typeOfForm, options, from, to, user} = this.props
 
@@ -447,65 +474,76 @@ class EventForm extends Component {
             />
           </FormGroup>
 
-          <FormGroup className="new-event-formGroup">
-            <Label
-              id="usesMaterials"
-              for="usesMaterials"
-              className="new-event-label"
-            >
-              Used Materials
-            </Label>
-            <Autocomplete
-              multiple
-              name="usesMaterials"
-              id="usesMaterials"
-              options={ docs }
-              getOptionLabel={ option => option.name }
-              onChange={ this.onUsesChange }
-              value={ uses }
-              style={ {minWidth: 200, maxWidth: 700} }
-              renderInput={ params => (
-                <TextField
-                  { ...params }
-                  placeholder=""
-                  InputProps={ {
-                    ...params.InputProps,
-                    disableUnderline: true,
-                  } }
-                />
-              ) }
-            />
-          </FormGroup>
+          {['Create', 'Edit'].includes(typeOfForm) && (
+            <FormGroup
+                style={{ maxWidth: 700 }} className="new-event-formGroup">
+              <DocumentReferencer
+                label="Uses documents"
+                documentReferences={documentReference}
+                onDocumentReferencesChange={this.onDocumentReferencesChange}
+              />
+            </FormGroup>
+          )}
 
-          <FormGroup className="new-event-formGroup">
-            <Label
-              id="recommendsMaterials"
-              for="recommendsMaterials"
-              className="new-event-label"
-            >
-              Recommended Materials
-            </Label>
-            <Autocomplete
-              multiple
-              name="recommendsMaterials"
-              id="recommendsMaterials"
-              options={ docs }
-              getOptionLabel={ option => option.name }
-              onChange={ this.onRecommendsChange }
-              value={ recommends }
-              style={ {minWidth: 200, maxWidth: 700} }
-              renderInput={ params => (
-                <TextField
-                  { ...params }
-                  placeholder=""
-                  InputProps={ {
-                    ...params.InputProps,
-                    disableUnderline: true,
-                  } }
-                />
-              ) }
-            />
-          </FormGroup>
+          {/*<FormGroup className="new-event-formGroup">*/}
+          {/*  <Label*/}
+          {/*    id="usesMaterials"*/}
+          {/*    for="usesMaterials"*/}
+          {/*    className="new-event-label"*/}
+          {/*  >*/}
+          {/*    Used Materials*/}
+          {/*  </Label>*/}
+          {/*  <Autocomplete*/}
+          {/*    multiple*/}
+          {/*    name="usesMaterials"*/}
+          {/*    id="usesMaterials"*/}
+          {/*    options={docs}*/}
+          {/*    getOptionLabel={option => option.name}*/}
+          {/*    onChange={this.onUsesChange}*/}
+          {/*    value={uses}*/}
+          {/*    style={{ minWidth: 200, maxWidth: 700 }}*/}
+          {/*    renderInput={params => (*/}
+          {/*      <TextField*/}
+          {/*        {...params}*/}
+          {/*        placeholder=""*/}
+          {/*        InputProps={{*/}
+          {/*          ...params.InputProps,*/}
+          {/*          disableUnderline: true,*/}
+          {/*        }}*/}
+          {/*      />*/}
+          {/*    )}*/}
+          {/*  />*/}
+          {/*</FormGroup>*/}
+
+          {/*<FormGroup className="new-event-formGroup">*/}
+          {/*  <Label*/}
+          {/*    id="recommendsMaterials"*/}
+          {/*    for="recommendsMaterials"*/}
+          {/*    className="new-event-label"*/}
+          {/*  >*/}
+          {/*    Recommended Materials*/}
+          {/*  </Label>*/}
+          {/*  <Autocomplete*/}
+          {/*    multiple*/}
+          {/*    name="recommendsMaterials"*/}
+          {/*    id="recommendsMaterials"*/}
+          {/*    options={docs}*/}
+          {/*    getOptionLabel={option => option.name}*/}
+          {/*    onChange={this.onRecommendsChange}*/}
+          {/*    value={recommends}*/}
+          {/*    style={{ minWidth: 200, maxWidth: 700 }}*/}
+          {/*    renderInput={params => (*/}
+          {/*      <TextField*/}
+          {/*        {...params}*/}
+          {/*        placeholder=""*/}
+          {/*        InputProps={{*/}
+          {/*          ...params.InputProps,*/}
+          {/*          disableUnderline: true,*/}
+          {/*        }}*/}
+          {/*      />*/}
+          {/*    )}*/}
+          {/*  />*/}
+          {/*</FormGroup>*/}
 
           { type === 'Block' && (
             <SubEvents

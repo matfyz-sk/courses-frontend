@@ -1,3 +1,4 @@
+import documentReducers from './documentReducers'
 import quizReducers from './quizReducers'
 import assignmentsReducers from './assignmentsReducers'
 import userReducer from './userReducer'
@@ -10,6 +11,7 @@ import courseMigrationReducer from './courseMigrationReducer'
 import teacherNavReducer from './teacherNavReducer'
 
 export default {
+  ...documentReducers,
   ...quizReducers,
   ...assignmentsReducers,
   userReducer,
