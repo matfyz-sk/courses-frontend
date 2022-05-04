@@ -3,7 +3,7 @@ name: MW - Release workflow
 on:
   workflow_dispatch:
   push:
-    branches: [ documents_module ]
+    branches: [ devcourses3 ]
     paths-ignore:
       - .github/**
       - README.md
@@ -14,7 +14,7 @@ jobs:
     with:
       FRONTEND_PATH: /home/www/devcourses3.matfyz.sk/htdocs/
       BASE_WEBSITE_PORT: 4430
-      BRANCH: documents_module
+      BRANCH: devcourses3
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}
