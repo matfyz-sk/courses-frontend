@@ -1,4 +1,4 @@
-name: MW - Release workflow
+name: MW - Release to devcourses3
 
 on:
   workflow_dispatch:
