@@ -1,4 +1,4 @@
-name: Create directories for frontend
+name: Remove directories on frontend path
 
 on:
   workflow_call:

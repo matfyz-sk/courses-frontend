@@ -1,4 +1,4 @@
-name: Create directories for frontend
+name: Get PR number from backend counterpart
 
 on:
   workflow_call:

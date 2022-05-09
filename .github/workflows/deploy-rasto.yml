@@ -1,4 +1,4 @@
-name: Deployment of frontend
+name: Deployment of frontend for Rasto
 
 on:
   workflow_call:
