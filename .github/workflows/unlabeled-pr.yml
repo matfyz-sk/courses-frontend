@@ -1,0 +1,17 @@
+name: MW - Trigger build of master backend when unlabeled 'no backend'
+
+on: 
+  pull_request:
+    types: [unlabeled]
+  workflow_dispatch:
+
+jobs:
+  remove-backend:
+    if: ${{ github.event.label.name == 'no backend' }}
+    uses: matfyz-sk/courses-backend/.github/workflows/remove-backend.yml@master
+    with:
+      BRANCH: ${GITHUB_HEAD_REF}
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}

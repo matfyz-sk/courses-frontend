@@ -9,7 +9,7 @@ jobs:
   remove-frontend-directory:
     uses: matfyz-sk/courses-frontend/.github/workflows/remove-destination.yml@master
     with:
-      FRONTEND_PATH: /home/www/${GITHUB_REF##*/}.courses3.matfyz.sk
+      FRONTEND_PATH: /home/www/${GITHUB_HEAD_REF}.courses3.matfyz.sk
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}

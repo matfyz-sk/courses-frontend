@@ -3,6 +3,9 @@ name: Deployment of frontend
 on:
   workflow_call:
     inputs:
+      BRANCH:
+        required: true
+        type: string
       FRONTEND_PATH:
         required: true
         type: string
@@ -27,16 +30,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Set part of Virtuoso port
-        run: echo "PR_PORT_PART=$(printf "%03i" ${{ inputs.PR_NUMBER }})" >> $GITHUB_ENV
-      - name: Calculate Virtuoso port
+      - name: Calculate PR port
+        run: echo "PR_PORT_PART=$(printf "%03i" ${{ inputs.PR_NUMBER }} | tail -c 4)" >> $GITHUB_ENV
+      - name: Calculate Website port
         run: echo "WEBSITE_PORT=$(expr ${{ inputs.BASE_WEBSITE_PORT }} + ${{ env.PR_PORT_PART }})" >> $GITHUB_ENV
-      - name: Echo web port
-        run: echo "${{ env.WEBSITE_PORT }}"
       - name: Checkout
         uses: actions/checkout@v2
         with:
           repository: matfyz-sk/courses-frontend
+          ref: ${{ inputs.BRANCH }}
       - name: Setup nodeJS
         uses: actions/setup-node@v2
         with:
@@ -44,7 +46,7 @@ jobs:
       - name: Creating react env file
         env:
           WEBSITE: ${{ secrets.WEBSITE }}
-          WEBSITE_PORT: ${{ env.WEBSITE_PORT}}
+          WEBSITE_PORT: ${{ env.WEBSITE_PORT }}
         run: |
           echo "REACT_APP_BACKEND_URL=${WEBSITE}:${WEBSITE_PORT}/" > .env
           echo "REACT_APP_BASE_PREFIX=https://courses3.matfyz.sk/" >> .env

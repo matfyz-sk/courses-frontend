@@ -1,0 +1,49 @@
+name: MW - Deployment of testing enviroment for new or updated PR 
+
+on: 
+  pull_request:
+    types: [opened, reopened, labeled, unlabeled, edited, synchronized]
+  workflow_dispatch:
+
+jobs:
+  create-frontend-directory:
+    uses: matfyz-sk/courses-frontend/.github/workflows/create-destination.yml@master
+    with:
+      FRONTEND_PATH: /home/www/${GITHUB_HEAD_REF}.courses3.matfyz.sk/htdocs/
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+  deploy-frontend:
+    if: contains(github.event.pull_request.labels.*.name, 'no backend')
+    needs: create-frontend-directory
+    uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
+    with:
+      BRANCH: ${GITHUB_HEAD_REF}
+      FRONTEND_PATH: /home/www/${GITHUB_HEAD_REF}.courses3.matfyz.sk/htdocs/
+      BASE_WEBSITE_PORT: 10000
+      PR_NUMBER: ${{ github.event.number }}
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      WEBSITE: ${{ secrets.WEBSITE }}
+  get-pr-number:
+    if: contains(github.event.pull_request.labels.*.name, 'backend')
+    uses: matfyz-sk/courses-frontend/.github/workflows/get-pr-number.yml@master
+    with:
+      BRANCH: ${GITHUB_HEAD_REF}
+  deploy-frontend-with-backend-pr:
+    if: contains(github.event.pull_request.labels.*.name, 'backend')
+    needs: [create-frontend-directory, get-pr-number]
+    uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
+    with:
+      BRANCH: ${GITHUB_HEAD_REF}
+      FRONTEND_PATH: /home/www/${GITHUB_HEAD_REF}.courses3.matfyz.sk/htdocs/
+      BASE_WEBSITE_PORT: 9000
+      PR_NUMBER: ${{ needs.get-pr-number.outputs.pr-number }}
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      WEBSITE: ${{ secrets.WEBSITE }}

@@ -1,0 +1,28 @@
+name: Create directories for frontend
+
+on:
+  workflow_call:
+    inputs:
+      BRANCH:
+        required: true
+        type: string
+    outputs:
+      pr-number:
+        description: "Contains the PR number for specified branch"
+        value: ${{ jobs.get_pr_number.outputs.job_pr_number }}
+
+jobs:
+  get_pr_number:
+    runs-on: ubuntu-latest
+    outputs:
+      job_pr_number: ${{ steps.get_num.outputs.number }}
+    steps:
+      - name: Makes Rest response with PRs 
+        run: | 
+          curl \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/matfyz-sk/courses-backend/pulls \
+            -o pullrequests.json
+      - name: Get PR number
+        id: get_num 
+        run: echo "::set-output name=number::$(cat pullrequests.json | jq -ec '.[] | select(.head.ref == ${{ inputs.BRANCH }}).number')"

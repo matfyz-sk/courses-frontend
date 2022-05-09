@@ -1,0 +1,23 @@
+name: MW - Trigger build of master backend when labeled 'no backend'
+
+on: 
+  pull_request:
+    types: [labeled]
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    if: ${{ github.event.label.name == 'no backend' }}
+    uses: matfyz-sk/courses-backend/.github/workflows/old-deploy.yml@master
+    with:
+      BRANCH: ${GITHUB_HEAD_REF}
+      BASE_BACKEND_PORT: 7000
+      BASE_VIRTUOSO_PORT: 8890
+      PR_NUMBER: ${{ github.event.number }}
+      FRONTEND_BRANCH: master
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      IMPERSONATION_PASSWORD: ${{ secrets.IMPERSONATION_PASSWORD }}
