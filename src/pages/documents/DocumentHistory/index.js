@@ -7,19 +7,19 @@ import {
   getResponseBody,
   getShortType,
   timestampToString2,
-} from '../../helperFunctions'
-import { redirect } from '../../constants/redirect'
-import * as ROUTES from '../../constants/routes'
+} from '../../../helperFunctions'
+import { redirect } from '../../../constants/redirect'
+import * as ROUTES from '../../../constants/routes'
 import { Link } from 'react-router-dom'
 import {
   fetchFolder,
   setCurrentDocumentsOfCourseInstance,
-} from '../../redux/actions'
+} from '../../../redux/actions'
 import diff from 'node-htmldiff'
-import { DocumentEnums } from './enums/document-enums'
-import editDocument from './functions/documentCreation'
-import './styles/diff.css'
-import './styles/mdStyling.css'
+import { DocumentEnums } from '../common/enums/document-enums'
+import editDocument from '../common/functions/documentCreation'
+import './diff.css'
+import './mdStyling.css'
 import { marked } from 'marked'
 import {
   IconButton,
@@ -30,9 +30,9 @@ import {
 } from '@material-ui/core'
 import { MdChevronLeft, MdChevronRight } from 'react-icons/md'
 import { HiDownload } from 'react-icons/hi'
-import downloadBase64File from './functions/downloadBase64File'
-import { customTheme } from './styles/styles'
-import Page404 from '../errors/Page404'
+import downloadBase64File from '../common/functions/downloadBase64File'
+import { customTheme } from '../styles'
+import Page404 from '../../errors/Page404'
 
 function TextComparator({ textA, textB }) {
   if (textB.length === 0 || textA === textB) {
@@ -206,7 +206,7 @@ function RevisionsSidebar({
                   {!firstVersion.isDeleted && !v.isDeleted && (
                     <a
                       style={{ color: customTheme.palette.primary.light }}
-                      href="#"
+                      href="src/pages/documents/DocumentHistory/DocumentHistory#index.js"
                       onClick={e => handleRestore(e, v)}
                     >
                       restore

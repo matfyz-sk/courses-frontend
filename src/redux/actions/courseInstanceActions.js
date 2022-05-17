@@ -17,7 +17,7 @@ import {
   setCourseInstanceInstructor,
   setCourseInstancePrivileges,
 } from './privilegesActions'
-import { initializeFileSystem } from "../../pages/documents/functions/initializeFileSystem";
+import { initializeFileSystem } from "../../pages/documents/common/functions/initializeFileSystem";
 
 export const setFileExplorerRoot = item => ({
   type: SET_FILE_EXPLORER_ROOT,

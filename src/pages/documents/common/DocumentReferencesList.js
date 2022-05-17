@@ -8,8 +8,8 @@ import {
   getShortType,
 } from '../../../helperFunctions'
 import { Link } from 'react-router-dom'
-import { DocumentEnums } from '../enums/document-enums'
-import downloadBase64File from '../functions/downloadBase64File'
+import { DocumentEnums } from './enums/document-enums'
+import downloadBase64File from './functions/downloadBase64File'
 import {
   Divider,
   List,
@@ -19,7 +19,7 @@ import {
   useMediaQuery,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/node_modules/@material-ui/styles'
-import { customTheme } from '../styles/styles'
+import { customTheme } from '../styles'
 
 const useStyles = makeStyles(() => ({
   listItemRoot: {
@@ -27,7 +27,7 @@ const useStyles = makeStyles(() => ({
   },
 }))
 
-function EventDocumentList({ onViewableDocumentClick, documentReference }) {
+function DocumentReferencesList({ onViewableDocumentClick, documentReference }) {
   const classes = useStyles()
   const isMobile = useMediaQuery('(max-width:600px)')
   const [documents, setDocuments] = useState([])
@@ -105,4 +105,4 @@ function EventDocumentList({ onViewableDocumentClick, documentReference }) {
   )
 }
 
-export default EventDocumentList
+export default DocumentReferencesList

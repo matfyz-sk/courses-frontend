@@ -1,4 +1,4 @@
-import { axiosGetEntities, getResponseBody } from '../../../helperFunctions'
+import { axiosGetEntities, getResponseBody } from '../../../../helperFunctions'
 
 export default async function getDeletedDocuments(courseId) {
   const entitiesUrl = `document?hasDocument=${courseId}&isDeleted=true`

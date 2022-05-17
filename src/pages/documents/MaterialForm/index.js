@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import MultipleSelectCheckmarks from './common/MultipleSelectCheckmarks'
-import { axiosGetEntities, getResponseBody } from '../../helperFunctions'
+import MultipleSelectCheckmarks from '../common/MultipleSelectCheckmarks'
+import { axiosGetEntities, getResponseBody } from '../../../helperFunctions'
 import { Box, Grid, TextField } from '@material-ui/core'
-import DocumentsReferencer from './common/DocumentsReferencer'
+import DocumentsReferencer from '../common/DocumentsReferencer'
 
 export default function MaterialForm({
   description,

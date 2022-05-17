@@ -19,7 +19,7 @@ import { BASE_URL, EVENT_URL } from '../constants'
 import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 // import TeacherNavigation from '../../../components/Navigation/TeacherNavigation'
-import DocumentViewer from 'pages/documents/common/DocumentViewer'
+import DocumentViewer from '../../documents/DocumentViewer'
 
 const { scroller } = Scroll
 

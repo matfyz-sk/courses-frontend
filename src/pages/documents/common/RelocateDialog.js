@@ -5,7 +5,7 @@ import {
   getShortID,
   getShortType,
 } from '../../../helperFunctions'
-import { DocumentEnums } from '../enums/document-enums'
+import { DocumentEnums } from './enums/document-enums'
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,7 @@ import {
 import { Alert } from '@material-ui/lab'
 import FileExplorer from '../FileExplorer'
 import { makeStyles } from '@material-ui/styles'
-import { customTheme } from '../styles/styles'
+import { customTheme } from '../styles'
 import { withRouter } from 'react-router'
 import { connect } from 'react-redux'
 

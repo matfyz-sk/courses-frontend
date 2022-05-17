@@ -24,8 +24,8 @@ import {
   MdMoreVert,
 } from 'react-icons/md'
 import Path from './Path'
-import { DocumentEnums } from '../enums/document-enums'
-import { customTheme, useFileExplorerStyles } from '../styles/styles'
+import { DocumentEnums } from '../common/enums/document-enums'
+import { customTheme, useFileExplorerStyles } from '../styles'
 import FileIcon from '../common/FileIcon'
 import { connect } from 'react-redux'
 

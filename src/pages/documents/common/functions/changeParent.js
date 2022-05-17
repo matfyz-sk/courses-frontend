@@ -4,7 +4,7 @@ import {
   axiosUpdateEntity,
   getShortID,
   getShortType,
-} from '../../../helperFunctions'
+} from '../../../../helperFunctions'
 import { DocumentEnums } from '../enums/document-enums'
 
 export async function changeParent(fsObject, newParentFullId, oldParentFullId) {

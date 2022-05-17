@@ -21,26 +21,26 @@ import {
   fileToBase64,
   getResponseBody,
   getShortID,
-} from '../../helperFunctions'
+} from '../../../helperFunctions'
 import { Alert, Form, Label } from 'reactstrap'
 import { HiDownload } from 'react-icons/hi'
-import CustomEditor from './wysiwyg/ckeditor'
-import { DocumentEnums } from './enums/document-enums'
+import CustomEditor from '../CustomEditor'
+import { DocumentEnums } from '../common/enums/document-enums'
 import {
   fetchFolder,
   setCurrentDocumentsOfCourseInstance,
-} from '../../redux/actions'
-import * as ROUTES from '../../constants/routes'
-import { redirect } from '../../constants/redirect'
-import Page404 from '../errors/Page404'
-import { isValidHttpUrl } from '../../functions/validators'
-import editDocument from './functions/documentCreation'
-import downloadBase64File from './functions/downloadBase64File'
-import MaterialForm from './MaterialForm'
-import { customTheme } from './styles/styles'
+} from '../../../redux/actions'
+import * as ROUTES from '../../../constants/routes'
+import { redirect } from '../../../constants/redirect'
+import Page404 from '../../errors/Page404'
+import { isValidHttpUrl } from '../../../functions/validators'
+import editDocument from '../common/functions/documentCreation'
+import downloadBase64File from '../common/functions/downloadBase64File'
+import MaterialForm from '../MaterialForm'
+import { customTheme } from '../styles'
 import { MdDelete, MdHistory, MdRestorePage } from 'react-icons/md'
-import removeDocumentReference from './functions/removeDocumentReference'
-import RelocateDialog from "./common/RelocateDialog";
+import removeDocumentReference from '../common/functions/removeDocumentReference'
+import RelocateDialog from "../common/RelocateDialog";
 
 function DocumentForm({
   courseInstance,

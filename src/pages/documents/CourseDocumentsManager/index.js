@@ -27,14 +27,14 @@ import {
   setFolder,
 } from '../../../redux/actions'
 import FileExplorer from '../FileExplorer'
-import { DocumentEnums } from '../enums/document-enums'
-import { customTheme } from '../styles/styles'
+import { DocumentEnums } from '../common/enums/document-enums'
+import { customTheme } from '../styles'
 import FolderDialog from './FolderDialog'
 import CreateDocumentMenu from './CreateDocumentMenu'
 import { MdDelete } from 'react-icons/md'
-import getDeletedDocuments from '../functions/getDeletedDocuments'
+import getDeletedDocuments from '../common/functions/getDeletedDocuments'
 import RelocateDialog from '../common/RelocateDialog'
-import { changeParent } from "../functions/changeParent";
+import { changeParent } from "../common/functions/changeParent";
 
 function CourseDocumentManager(props) {
   const {
