@@ -9,7 +9,7 @@ import {
   RESULTS_REMOVE_TYPE,
 } from '../types'
 import { authHeader, getUser, getUserID } from '../../components/Auth'
-import { BASE_URL, COURSE_INSTANCE_URL } from '../../pages/core/constants'
+import { BASE_URL, COURSE_URL, COURSE_INSTANCE_URL } from '../../pages/core/constants'
 import { NOT_FOUND } from '../../constants/routes'
 import { getShortID } from '../../helperFunctions'
 import {
@@ -26,42 +26,58 @@ export const clearCourseInstance = () => ({
   type: CLEAR_COURSE_INSTANCE,
 })
 
-export const fetchCourseInstance = (history, course_id) => {
+export const fetchCourseInstance = (history, courseInstanceId) => {
   const header = authHeader()
-  return dispatch => {
-    fetch(
-      `${BASE_URL}${COURSE_INSTANCE_URL}/${course_id}?_join=instanceOf,covers,hasInstructor,hasGrading,hasResultType,hasPersonalSettings`,
+  return async dispatch => {
+    const response = await fetch(
+      `${BASE_URL}${COURSE_INSTANCE_URL}/${courseInstanceId}?_join=instanceOf,covers,hasInstructor,hasGrading,hasResultType,hasPersonalSettings`,
       {
         method: 'GET',
         headers: header,
         mode: 'cors',
         credentials: 'omit',
       }
-    )
-      .then(response => {
-        if (!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
-        if (data['@graph'].length > 0) {
-          const course = data['@graph'][0]
-          dispatch(setCourseInstance(course))
-          let hasPrivilege = false
-          if (getUser() && course.hasInstructor) {
-            for (let i = 0; i < course.hasInstructor.length; i++) {
-              if (getShortID(course.hasInstructor[i]['@id']) === getUserID()) {
-                dispatch(setCourseInstanceInstructor())
-                hasPrivilege = true
-              }
-            }
-          }
-          if (!hasPrivilege) {
-            dispatch(setCourseInstancePrivileges({ course_id }))
-          }
-        } else {
-          history.push(NOT_FOUND)
+    );
+    if (!response.ok) throw new Error(response);
+    const data = await response.json();
+    if (data['@graph'].length > 0) {
+      const courseInstance = data['@graph'][0];
+      const courseId = getShortID(courseInstance.instanceOf[0]['@id']);
+      console.log(courseInstance, courseId);
+      const courseResponse = await fetch(
+        `${BASE_URL}${COURSE_URL}/${courseId}?_join=covers,mentions`,
+        {
+          method: 'GET',
+          headers: header,
+          mode: 'cors',
+          credentials: 'omit',
         }
-      })
+      );
+      courseInstance.instanceOf = !courseResponse.ok ?
+        courseInstance.instanceOf :
+        await (async () => {
+          const courseData = (await courseResponse.json())['@graph'];
+          if (courseData.length > 0) {
+            return courseData;
+          }
+        })()
+      console.log(courseInstance);
+      dispatch(setCourseInstance(courseInstance))
+      let hasPrivilege = false
+      if (getUser() && courseInstance.hasInstructor) {
+        for (let i = 0; i < courseInstance.hasInstructor.length; i++) {
+          if (getShortID(courseInstance.hasInstructor[i]['@id']) === getUserID()) {
+            dispatch(setCourseInstanceInstructor())
+            hasPrivilege = true
+          }
+        }
+      }
+      if (!hasPrivilege) {
+        dispatch(setCourseInstancePrivileges({ course_id }))
+      }
+    } else {
+      history.push(NOT_FOUND)
+    }
   }
 }
 

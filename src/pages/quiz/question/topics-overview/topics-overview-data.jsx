@@ -58,7 +58,7 @@ class TopicsOverviewData extends Component {
         courseInstanceId={courseInstanceId}
         token={token}
         isTeacher={isTeacher}
-        topics={courseInstance && courseInstance.covers}
+        topics={courseInstance?.instanceOf[0]?.covers}
         userId={userId}
         match={match}
       />
