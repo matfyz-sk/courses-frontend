@@ -6,6 +6,10 @@ on:
       FRONTEND_PATH:
         required: true
         type: string
+      PR_BRANCH:
+        required: false
+        type: string
+        default: ''
     secrets:
       SSH_PRIVATE_KEY:
         required: true
@@ -15,13 +19,19 @@ on:
         required: true
 
 jobs:
-  deploy:
+  remove-destination:
     runs-on: ubuntu-latest
     steps:
+      - name: Use passed frontend path
+        if: ${{ inputs.PR_BRANCH == ''}}
+        run: echo "FRONTEND_PATH=${{ inputs.FRONTEND_PATH }}" >> $GITHUB_ENV
+      - name: Create path to the frontend
+        if: ${{ inputs.PR_BRANCH != ''}}
+        run: echo "FRONTEND_PATH=/home/www/${{ inputs.PR_BRANCH }}.${{ inputs.FRONTEND_PATH }}" >> $GITHUB_ENV
       - name: Remove frontend folder
         uses: appleboy/ssh-action@master
         env:
-          FRONTEND_PATH: ${{ inputs.FRONTEND_PATH }}
+          FRONTEND_PATH: ${{ env.FRONTEND_PATH }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}

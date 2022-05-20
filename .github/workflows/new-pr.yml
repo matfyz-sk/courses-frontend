@@ -9,7 +9,8 @@ jobs:
   create-frontend-directory:
     uses: matfyz-sk/courses-frontend/.github/workflows/create-destination.yml@master
     with:
-      FRONTEND_PATH: /home/www/${GITHUB_HEAD_REF}.courses3.matfyz.sk/htdocs/
+      FRONTEND_PATH: courses3.matfyz.sk/htdocs/
+      PR_BRANCH: ${GITHUB_HEAD_REF}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -20,9 +21,10 @@ jobs:
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
     with:
       BRANCH: ${GITHUB_HEAD_REF}
-      FRONTEND_PATH: /home/www/${GITHUB_HEAD_REF}.courses3.matfyz.sk/htdocs/
+      FRONTEND_PATH: courses3.matfyz.sk/htdocs/
       BASE_WEBSITE_PORT: 10000
       PR_NUMBER: ${{ github.event.number }}
+      PR_BRANCH: ${GITHUB_HEAD_REF}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -39,9 +41,10 @@ jobs:
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
     with:
       BRANCH: ${GITHUB_HEAD_REF}
-      FRONTEND_PATH: /home/www/${GITHUB_HEAD_REF}.courses3.matfyz.sk/htdocs/
+      FRONTEND_PATH: courses3.matfyz.sk/htdocs/
       BASE_WEBSITE_PORT: 9000
       PR_NUMBER: ${{ needs.get-pr-number.outputs.pr-number }}
+      PR_BRANCH: ${GITHUB_HEAD_REF}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}
