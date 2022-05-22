@@ -56,14 +56,6 @@ function DocumentForm({
   const [status, setStatus] = useState(200)
 
   const courseId = match.params.course_id
-  // TODO error num of hooks differ
-  if (!location.state && !creating) {
-    return (
-      <Redirect
-        to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}
-      />
-    )
-  }
 
   // when creating a brand-new document
   const [entityName, setEntityName] = useState(creating || '')
@@ -257,6 +249,14 @@ function DocumentForm({
         break
     }
     return valid
+  }
+
+  if (!location.state && !creating) {
+    return (
+      <Redirect
+        to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}
+      />
+    )
   }
 
   if (status === 404) {

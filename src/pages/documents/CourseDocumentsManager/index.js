@@ -79,12 +79,12 @@ function CourseDocumentManager(props) {
       getDeletedDocuments(courseId).then(deleted => {
         setLoading(false)
         setFsObjects(deleted)
-        setFsPath([{ name: 'Deleted documents' }])
+        setFsPath([{ name: 'Deleted documents', "@id": 'deleted' }])
       })
       return
     }
 
-    const entitiesUrl = `folder/${folderId}?_chain=parent&_join=content`
+    const entitiesUrl = `folder/${folderId}?_join=content`
 
     axiosGetEntities(entitiesUrl).then(response => {
       if (response.failed) {
@@ -112,8 +112,20 @@ function CourseDocumentManager(props) {
       )
       setLoading(false)
       setFolder(data[0])
+    })
+
+    const pathUrl = `folder/${folderId}?_chain=parent`
+    axiosGetEntities(pathUrl).then(response => {
+      if (response.failed) {
+        console.error("Couldn't fetch files, try again")
+        setLoading(false)
+        setStatus(response.response ? response.response.status : 500)
+        return
+      }
+      const data = getResponseBody(response)
       setFsPath(data.slice().reverse())
     })
+
   }, [courseId, folderId, showingDeleted, renderHack])
 
   const onFsObjectRowClick = (_, fsObject) => {

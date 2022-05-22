@@ -241,17 +241,9 @@ function DocumentHistory({
 }) {
   const courseId = match.params.course_id
 
-  if (!location.state) {
-    return (
-      <Redirect
-        to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}
-      />
-    )
-  }
-
   const style = useStyles()
-  const newestVersionId = location.state.documentId
-  const parentFolderId = location.state.parentFolderId
+  const newestVersionId = location.state?.documentId
+  const parentFolderId = location.state?.parentFolderId
   const isMobile = useMediaQuery('(max-width:760px)')
   const [showSidebar, setShowSidebar] = useState(false)
 
@@ -419,6 +411,14 @@ function DocumentHistory({
   const onDownloadFile = (e, v) => {
     e.preventDefault()
     downloadBase64File(v.payload[0].content, v.filename, v.mimeType, window)
+  }
+
+  if (!location.state) {
+    return (
+      <Redirect
+        to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}
+      />
+    )
   }
 
   if (status === 404) {
