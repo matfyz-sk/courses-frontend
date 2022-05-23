@@ -1,26 +1,28 @@
+import { ONTOLOGY_PREFIX } from "../../../../constants/ontology";
+
 export const DocumentEnums = Object.freeze({
   internalDocument: {
-    id: 'http://www.courses.matfyz.sk/ontology#InternalDocument',
+    id: `${ ONTOLOGY_PREFIX }InternalDocument`,
     entityName: 'internalDocument',
     name: 'Internal Document',
   },
   externalDocument: {
-    id: 'http://www.courses.matfyz.sk/ontology#ExternalDocument',
+    id: `${ ONTOLOGY_PREFIX }ExternalDocument`,
     entityName: 'externalDocument',
     name: 'External Document',
   },
   file: {
-    id: 'http://www.courses.matfyz.sk/ontology#File',
+    id: `${ ONTOLOGY_PREFIX }File`,
     entityName: 'file',
     name: 'File',
   },
   material: {
-    id: 'http://www.courses.matfyz.sk/ontology#Material',
+    id: `${ ONTOLOGY_PREFIX }Material`,
     entityName: 'material',
     name: 'Material',
   },
   folder: {
-    id: 'http://www.courses.matfyz.sk/ontology#Folder',
+    id: `${ ONTOLOGY_PREFIX }Folder`,
     entityName: 'folder',
     name: 'Folder',
   },
