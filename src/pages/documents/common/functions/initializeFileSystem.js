@@ -3,7 +3,7 @@ import {
   axiosUpdateEntity,
   getIRIFromAddResponse,
   getShortID,
-} from '../../../helperFunctions'
+} from '../../../../helperFunctions'
 
 export async function initializeFileSystem(courseFullId) {
   const toCreate = {

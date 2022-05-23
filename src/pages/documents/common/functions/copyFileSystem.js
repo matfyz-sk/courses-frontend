@@ -6,7 +6,7 @@ import {
   getResponseBody,
   getShortID,
   getShortType,
-} from '../../../helperFunctions'
+} from '../../../../helperFunctions'
 import { DocumentEnums } from '../enums/document-enums'
 
 async function copyFolder(folderId, parentId, courseInstanceId) {

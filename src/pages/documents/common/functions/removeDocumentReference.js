@@ -3,7 +3,7 @@ import {
   axiosGetEntities,
   getResponseBody,
   getShortID,
-} from '../../../helperFunctions'
+} from '../../../../helperFunctions'
 
 const removeDocumentReference = async (documentId, courseId) => {
   const referenceUrl = `documentReference?courseInstance=${courseId}`

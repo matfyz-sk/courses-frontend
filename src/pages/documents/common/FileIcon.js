@@ -1,8 +1,8 @@
 import React from 'react'
-import { useFileExplorerStyles } from '../styles/styles'
+import { useFileExplorerStyles } from '../styles'
 import { MdAttachFile, MdCode, MdFolder, MdLink } from 'react-icons/md'
 import { BsBook } from 'react-icons/bs'
-import { DocumentEnums } from '../enums/document-enums'
+import { DocumentEnums } from './enums/document-enums'
 import { getShortType } from '../../../helperFunctions'
 import { useMediaQuery } from '@material-ui/core'
 

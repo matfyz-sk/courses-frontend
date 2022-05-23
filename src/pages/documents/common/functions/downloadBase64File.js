@@ -1,4 +1,4 @@
-import { base64dataToFile } from '../../../helperFunctions'
+import { base64dataToFile } from '../../../../helperFunctions'
 
 const downloadBase64File = async (base64, filename, mimeType, window) => {
   const decodedFile = await base64dataToFile(base64, filename, mimeType)

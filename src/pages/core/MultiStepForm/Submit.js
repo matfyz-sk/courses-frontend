@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import { setCourseMigrationState } from '../../../redux/actions'
 import { getShortId } from '../Helper'
 import { addDays, dateDiffInDays } from '../Timeline/timeline-helper'
-import copyFileSystem from 'pages/documents/functions/copyFileSystem'
+import copyFileSystem from '../../documents/common/functions/copyFileSystem'
 import { axiosUpdateEntity } from 'helperFunctions'
 
 class Submit extends React.Component {

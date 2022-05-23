@@ -5,7 +5,7 @@ import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import { MdAttachFile, MdCode, MdFolder, MdLink } from 'react-icons/md'
 import { ThemeProvider, withStyles } from '@material-ui/styles'
-import { customTheme } from '../styles/styles'
+import { customTheme } from '../styles'
 
 const CustomListItemIcon = withStyles({
   root: {

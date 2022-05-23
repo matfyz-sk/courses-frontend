@@ -4,11 +4,11 @@ import {
   getResponseBody,
   getShortID,
   getShortType,
-} from '../../../../helperFunctions'
-import { DocumentEnums } from '../../enums/document-enums'
+} from '../../../helperFunctions'
+import { DocumentEnums } from '../common/enums/document-enums'
 import PdfRenderer from './PdfRenderer'
 import InternalDocumentRenderer from './InternalDocumentRenderer'
-import './styles/DocumentViewer.css'
+import './DocumentViewer.css'
 import {
   IconButton,
   TextField,
@@ -24,8 +24,8 @@ import {
   MdKeyboardArrowUp,
 } from 'react-icons/md'
 import { HiDownload } from 'react-icons/hi'
-import { customTheme, usePdfRendererStyles } from '../../styles/styles'
-import downloadBase64File from '../../functions/downloadBase64File'
+import { customTheme, usePdfRendererStyles } from '../styles'
+import downloadBase64File from '../common/functions/downloadBase64File'
 import useEventListener from '@use-it/event-listener'
 
 function DocumentViewer({ document, onViewingDocumentChange }) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import FileExplorer from '../../FileExplorer'
-import { DocumentEnums } from '../../enums/document-enums'
+import { DocumentEnums } from '../enums/document-enums'
 import { axiosGetEntities, getResponseBody, getShortID, getShortType, } from '../../../../helperFunctions'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router'
@@ -8,8 +8,8 @@ import { Dialog, DialogContent, DialogTitle, LinearProgress, } from '@material-u
 import { Alert } from '@material-ui/lab'
 import DocumentsList from './DocumentsList'
 import { makeStyles } from '@material-ui/styles'
-import { customTheme } from '../../styles/styles'
-import getReferenceOfDocument from './documentReferenceCreation'
+import { customTheme } from '../../styles'
+import getReferenceOfDocument from '../functions/documentReferenceCreation'
 import { setFolder } from '../../../../redux/actions'
 
 // dialog's intended behaviour is to reset the styling theme so this is a workaround for the progress bar

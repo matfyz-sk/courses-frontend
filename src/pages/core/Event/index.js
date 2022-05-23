@@ -15,8 +15,8 @@ import {BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, SESSIONS, TASKS_EXAMS,} from '
 import {axiosRequest, getData} from '../AxiosRequests'
 import {redirect} from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
-import EventDocumentList from '../../documents/common/EventDocumentList'
-import DocumentViewer from '../../documents/common/DocumentViewer'
+import DocumentReferencesList from '../../documents/common/DocumentReferencesList'
+import DocumentViewer from '../../documents/DocumentViewer'
 
 class Event extends React.Component {
   constructor(props) {
@@ -243,7 +243,7 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) =>  (
           <CardSubtitle  className="event-card-table-subtitle">
             <div style={{width: "100%"}} className="event-subtitle">Documents</div>
           </CardSubtitle>
-          <EventDocumentList
+          <DocumentReferencesList
             onViewableDocumentClick={onViewableDocumentClick}
             documentReference={event.documentReference}
           />

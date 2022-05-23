@@ -6,7 +6,7 @@ import {
   getIRIFromAddResponse,
   getResponseBody,
   getShortID,
-} from '../../../helperFunctions'
+} from '../../../../helperFunctions'
 
 const PAYLOAD_ENTITIES = [
   DocumentEnums.file.entityName,
