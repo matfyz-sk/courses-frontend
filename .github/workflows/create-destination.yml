@@ -27,7 +27,7 @@ jobs:
         run: echo "FRONTEND_PATH=${{ inputs.FRONTEND_PATH }}" >> $GITHUB_ENV
       - name: Create path to the frontend
         if: ${{ inputs.PR_BRANCH != ''}}
-        run: echo "FRONTEND_PATH=/home/www/${{ inputs.PR_BRANCH }}.${{ inputs.FRONTEND_PATH }}" >> $GITHUB_ENV
+        run: echo "FRONTEND_PATH=${{ inputs.FRONTEND_PATH }}${{ inputs.PR_BRANCH }}/htdocs/" >> $GITHUB_ENV
       - name: Remove backend docker container
         uses: appleboy/ssh-action@master
         env:
