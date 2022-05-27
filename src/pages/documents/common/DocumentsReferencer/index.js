@@ -31,7 +31,6 @@ function DocumentReferencer({
   match,
   courseInstance,
   isReadOnly,
-  user,
 }) {
   const classes = useStyles()
 
@@ -86,9 +85,7 @@ function DocumentReferencer({
 
       const fsObjects = data[0].content
       setFsObjects(
-        fsObjects.filter(
-          doc => doc.createdBy === user.fullURI && !doc.isDeleted
-        )
+        fsObjects.filter(doc => doc.isDeleted === false)
       )
       setLoading(false)
       setFsPath(data.slice().reverse())
@@ -176,10 +173,9 @@ function DocumentReferencer({
   )
 }
 
-const mapStateToProps = ({ courseInstanceReducer, authReducer }) => {
+const mapStateToProps = ({ courseInstanceReducer }) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
-    user: authReducer.user,
   }
 }
 
