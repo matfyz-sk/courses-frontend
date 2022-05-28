@@ -37,7 +37,6 @@ function RelocateDialog({
   isOpen,
   onIsOpenChanged,
   courseInstance,
-  user,
   onPaste,
 }) {
   const classes = useStyles()
@@ -75,9 +74,7 @@ function RelocateDialog({
 
       const fsObjects = data[0].content
       setFsObjects(
-        fsObjects.filter(
-          doc => doc.createdBy === user.fullURI && !doc.isDeleted
-        )
+        fsObjects.filter(doc => doc.isDeleted === false)
       )
       setLoading(false)
       setFsPath(data.slice().reverse())
@@ -137,10 +134,9 @@ function RelocateDialog({
   )
 }
 
-const mapStateToProps = ({ courseInstanceReducer, authReducer }) => {
+const mapStateToProps = ({ courseInstanceReducer }) => {
   return {
     courseInstance: courseInstanceReducer.courseInstance,
-    user: authReducer.user,
   }
 }
 

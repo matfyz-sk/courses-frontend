@@ -95,20 +95,13 @@ function CourseDocumentManager(props) {
       }
       const data = getResponseBody(response)
 
-      if (
-        getShortID(data[0].courseInstance[0]["@id"]) !== courseId ||
-        folderId !== getShortID(courseInstance.fileExplorerRoot[0]['@id']) &&
-        data[0].createdBy['@id'] !== user.fullURI
-      ) {
+      if (getShortID(data[0].courseInstance[0]["@id"]) !== courseId) {
         props.history.push(ROUTES.ACCESS_DENIED)
         return
       }
       const fsObjects = data[0].content
       setFsObjects(
-        fsObjects.filter(
-          doc =>
-            doc.createdBy === user.fullURI && doc.isDeleted === showingDeleted
-        )
+        fsObjects.filter(doc => doc.isDeleted === false)
       )
       setLoading(false)
       setFolder(data[0])
