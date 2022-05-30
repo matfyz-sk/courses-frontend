@@ -25,4 +25,4 @@ jobs:
             -o pullrequests.json
       - name: Get PR number
         id: get_num 
-        run: echo "::set-output name=number::$(cat pullrequests.json | jq -ec '.[] | select(.head.ref == ${{ inputs.BRANCH }}).number')"
+        run: echo "::set-output name=number::$(cat pullrequests.json | jq -ec --arg REF ${{ inputs.BRANCH }} '.[] | select(.head.ref == $REF).number')"
