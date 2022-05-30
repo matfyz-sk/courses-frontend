@@ -20,7 +20,7 @@ jobs:
     needs: create-frontend-directory
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
     with:
-      BRANCH: ${GITHUB_HEAD_REF}
+      BRANCH: ${{ github.event.pull_request.head.ref }}
       FRONTEND_PATH: /home/www/devcourses3.matfyz.sk/
       BASE_WEBSITE_PORT: 10000
       PR_NUMBER: ${{ github.event.number }}
@@ -40,7 +40,7 @@ jobs:
     needs: [create-frontend-directory, get-pr-number]
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
     with:
-      BRANCH: ${{ github.event.pull_request.head.sha }}
+      BRANCH: ${{ github.event.pull_request.head.ref }}
       FRONTEND_PATH: /home/www/devcourses3.matfyz.sk/
       BASE_WEBSITE_PORT: 9000
       PR_NUMBER: ${{ needs.get-pr-number.outputs.pr-number }}
