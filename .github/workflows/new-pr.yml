@@ -40,7 +40,7 @@ jobs:
     needs: [create-frontend-directory, get-pr-number]
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
     with:
-      BRANCH: ${GITHUB_HEAD_REF}
+      BRANCH: test
       FRONTEND_PATH: /home/www/devcourses3.matfyz.sk/
       BASE_WEBSITE_PORT: 9000
       PR_NUMBER: ${{ needs.get-pr-number.outputs.pr-number }}
