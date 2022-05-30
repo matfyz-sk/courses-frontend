@@ -14,8 +14,8 @@ on:
         type: number
       PR_NUMBER:
         required: false
-        type: number
-        default: 0
+        type: string
+        default: "0"
       PR_BRANCH:
         required: false
         type: string

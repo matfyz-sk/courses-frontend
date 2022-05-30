@@ -2,7 +2,7 @@ name: MW - Deployment of testing enviroment for new or updated PR
 
 on: 
   pull_request:
-    types: [opened, reopened, labeled, unlabeled, edited, synchronized]
+    types: [opened, reopened, labeled, edited, synchronized]
   workflow_dispatch:
 
 jobs:
