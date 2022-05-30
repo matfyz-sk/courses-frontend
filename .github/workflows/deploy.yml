@@ -45,7 +45,7 @@ jobs:
         if: ${{ inputs.PR_BRANCH != ''}}
         run: echo "FRONTEND_PATH=${{ inputs.FRONTEND_PATH }}${{ inputs.PR_BRANCH }}/htdocs/" >> $GITHUB_ENV
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: matfyz-sk/courses-frontend
           ref: ${{ inputs.BRANCH }}
