@@ -52,7 +52,6 @@ function DocumentForm({
   setCurrentDocumentsOfCourseInstance,
   location,
 }) {
-  // FIXME large base64 file uploads not working
   const [status, setStatus] = useState(200)
 
   const courseId = match.params.course_id
@@ -77,7 +76,7 @@ function DocumentForm({
   const [name, setName] = useState('')
   const [isDeleted, setIsDeleted] = useState(false)
 
-  const [isMaterial, setIsMaterial] = useState(false) // TODO resolve whether doc is material
+  const [isMaterial, setIsMaterial] = useState(false)
   const [description, setDescription] = useState('')
   const [covers, setCovers] = useState([])
   const [mentions, setMentions] = useState([])

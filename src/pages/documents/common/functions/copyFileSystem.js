@@ -27,7 +27,7 @@ async function copyFolder(folderId, parentId, courseInstanceId) {
   const folderNewContent = []
   for (const fsObject of oldFolder.content) {
     if (typeof fsObject['@type'] !== 'string') {
-      continue // TODO TEMP ?
+      continue // TODO multiple types
     }
     if (getShortType(fsObject['@type']) === DocumentEnums.folder.entityName) {
       if (!fsObject.isDeleted) {
@@ -41,7 +41,7 @@ async function copyFolder(folderId, parentId, courseInstanceId) {
       }
       continue
     }
-    const fsObjectUdpate = {
+    const fsObjectUpdate = {
       courseInstance: [
         ...oldFolder.courseInstance
           .map(ci => ci['@id'])
@@ -51,7 +51,7 @@ async function copyFolder(folderId, parentId, courseInstanceId) {
     }
     const entityName = getShortType(fsObject['@type'])
     axiosUpdateEntity(
-      fsObjectUdpate,
+      fsObjectUpdate,
       `${entityName}/${getShortID(fsObject['@id'])}`
     )
     folderNewContent.push(fsObject['@id'])
