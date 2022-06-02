@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Alert } from '@material-ui/lab'
 import {
-  Button,
+  Button, IconButton,
   LinearProgress,
   TextField,
   ThemeProvider,
@@ -32,6 +32,7 @@ import { customTheme } from '../styles'
 import FolderDialog from './FolderDialog'
 import CreateDocumentMenu from './CreateDocumentMenu'
 import { MdDelete } from 'react-icons/md'
+import { TiArrowBack } from 'react-icons/ti'
 import getDeletedDocuments from '../common/functions/getDeletedDocuments'
 import RelocateDialog from '../common/RelocateDialog'
 import { changeParent } from "../common/functions/changeParent";
@@ -271,36 +272,61 @@ function CourseDocumentManager(props) {
               onFolderCreate={handleFolderCreate}
               loading={loading}
             />
-            <div style={{ float: 'right' }}>
-              <Button
-                style={{ outline: 'none' }}
-                variant="contained"
-                disabled={loading}
-                onClick={() =>
-                  history.push(
-                    redirect(ROUTES.DELETED_DOCUMENTS, [
-                      { key: 'course_id', value: courseId },
-                    ])
-                  )
-                }
-                startIcon={<MdDelete />}
-              >
-                Deleted documents
-              </Button>
-            </div>
+            <Button
+              style={{ outline: 'none', float: 'right' }}
+              variant="contained"
+              disabled={loading}
+              onClick={() =>
+                history.push(
+                  redirect(ROUTES.DELETED_DOCUMENTS, [
+                    { key: 'course_id', value: courseId },
+                  ])
+                )
+              }
+              startIcon={<MdDelete />}
+            >
+              Deleted documents
+            </Button>
           </div>
         )}
         <br />
-        <TextField
-          style={{ width: isMobile ? '100%' : '35%' }}
-          id="search-textfield"
-          label="search"
-          type="text"
-          variant="outlined"
-          size="small"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <TextField
+            style={{ width: isMobile ? '100%' : '35%' }}
+            id="search-textfield"
+            label="search"
+            type="text"
+            variant="outlined"
+            size="small"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          {showingDeleted && (
+            <IconButton
+              style={{
+                marginLeft: "auto",
+                outline: "none"
+              }}
+              variant="contained"
+              onClick={() =>
+                history.push(
+                  redirect(ROUTES.DOCUMENTS, [
+                    { key: 'course_id', value: courseId },
+                  ])
+                )
+              }
+            >
+              <TiArrowBack/>
+            </IconButton>
+          )}
+        </div>
         <br />
         <br />
         <LinearProgress

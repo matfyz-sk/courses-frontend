@@ -466,7 +466,7 @@ function DocumentForm({
         )}
         <br />
         <FormControlLabel
-          label="Is material (not working atm)"
+          label="Is material"
           control={
             <Checkbox
               checked={isMaterial}
