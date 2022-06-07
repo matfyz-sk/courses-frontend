@@ -107,8 +107,11 @@ export default class CodeReview extends Component {
                 comments.length < 5 ? comments.length : 5
               })`
             : 'inherit',
+        hover: {
+          background: '#efefef',
+        },
       },
-      class: comments.length > 0 ? 'clickable' : '',
+      className: comments.length > 0 ? 'clickable' : 'commentable',
       onClick() {
         if (
           self.state.addComment !== null &&
@@ -140,6 +143,42 @@ export default class CodeReview extends Component {
             commentsLocation: null,
           })
         }
+      },
+      onMouseOver(e) {
+        if (
+          self.state.openAddComment ||
+          window.getSelection().toString() !== ''
+        )
+          return
+
+        const element = e.target
+
+        self.setState({
+          addComment: {
+            position: {
+              top: element.offsetTop,
+              left:
+                element.offsetLeft +
+                element.parentElement.parentElement.offsetWidth,
+            },
+            text: element.textContent.slice(0, -1),
+            element,
+            lineNumber,
+          },
+        })
+
+        // clear all timeouts
+        const highestId = window.setTimeout(() => {
+          for (let i = highestId; i >= 0; i--) {
+            window.clearTimeout(i)
+          }
+        }, 0)
+
+        setTimeout(() => {
+          if (!self.state.openAddComment) {
+            self.setState({ addComment: null })
+          }
+        }, 5000)
       },
       onMouseUp(e) {
         var selectedText = ''
@@ -403,6 +442,12 @@ export default class CodeReview extends Component {
                         </Label>
                         <div className="text-muted ml-auto">
                           {timestampToString(comment.createdAt)}
+                          <span
+                            style={{ color: 'blue' }}
+                            onClick={() => console.log('let me edit')}
+                          >
+                            edit
+                          </span>
                         </div>
                         <p className="text-muted">{comment.commentText}</p>
                         {comment.childComments.map(childComment => (
@@ -502,3 +547,4 @@ export default class CodeReview extends Component {
     )
   }
 }
+

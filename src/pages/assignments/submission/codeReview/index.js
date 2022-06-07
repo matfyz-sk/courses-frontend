@@ -22,6 +22,7 @@ import {
   getResponseBody,
   sameStringForms,
   axiosAddEntity,
+  axiosUpdateEntity,
   prepareMultiline,
   getShortID,
   getStudentName,
@@ -209,6 +210,7 @@ const Index = props => {
       `comment?ofSubmission=${getShortID(initialSubmission['@id'])}${getUser}`
     ).then(response => {
       let allComments = getResponseBody(response)
+      console.log('all', allComments)
       let messageColors = [...state.messageColors]
       allComments = allComments
         .sort((comment1, comment2) =>
@@ -250,6 +252,7 @@ const Index = props => {
       const codeComments = parentComments.filter(comment =>
         comment['@type'].endsWith('CodeComment')
       )
+      console.log(codeComments)
       const allCodeComments = allComments.filter(comment =>
         comment['@type'].endsWith('CodeComment')
       )
@@ -288,6 +291,34 @@ const Index = props => {
         setState({ ...state, codeCommentSaving: false })
         console.log(error)
       })
+  }
+
+  const updateCodeComment = comment => {
+    if (props.initialSubmission === null) {
+      return
+    }
+
+    setState({ ...state, codeCommentSaving: true })
+
+    const updatedComment = {
+      ...comment,
+      commentText: prepareMultiline(comment.commentText),
+      commentedText: prepareMultiline(comment.commentedText),
+      ofSubmission: props.initialSubmission['@id'],
+      _type: 'codeComment',
+    }
+
+    console.log('showme', updatedComment)
+
+    // axiosUpdateEntity(updatedComment, 'codeComment')
+    //   .then(response => {
+    //     setState({ ...state, codeCommentSaving: false })
+    //     fetchComments()
+    //   })
+    //   .catch(error => {
+    //     setState({ ...state, codeCommentSaving: false })
+    //     console.log(error)
+    //   })
   }
 
   const getCommentBy = comment => {
@@ -481,6 +512,7 @@ const Index = props => {
           addComment={newComment => {
             addCodeComment(newComment)
           }}
+          updateComment={updateCodeComment}
         />
         <div>
           <div className="row">
@@ -753,3 +785,4 @@ const Index = props => {
 export default connect(mapStateToProps, {
   setReviewProgress,
 })(Index)
+
