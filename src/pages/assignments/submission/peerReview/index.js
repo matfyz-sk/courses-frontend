@@ -519,7 +519,7 @@ class PeerReview extends Component {
     return (
       <div>
         <Alert style={{ marginTop: '20px' }} isOpen={this.state.saved}>
-          Submission was saved successfully.
+          Review was saved successfully.
         </Alert>
         {periodHappening(this.props.assignment.peerReviewPeriod) &&
           this.props.settings.peerReview && (
@@ -659,3 +659,4 @@ const mapStateToProps = ({ authReducer, assignStudentDataReducer }) => {
 }
 
 export default connect(mapStateToProps, {})(PeerReview)
+

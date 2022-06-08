@@ -39,8 +39,6 @@ export default class InstructorAssignmentView extends Component {
     let submissions = assignment.submissions.filter(
       submission => !submission.isImproved
     )
-    console.log('ASSI_:', assignment)
-    console.log('SUBMI_:', submissions)
 
     let howMany = assignment.reviewsPerSubmission
     if (submissions.length < 2) {
@@ -72,17 +70,14 @@ export default class InstructorAssignmentView extends Component {
     }
     this.setState({ assigningReviews: true })
     submissions = shuffleArray(submissions)
-    console.log('SHUFFLED:', submissions)
+
     let toReviews = []
     if (assignment.teamsDisabled) {
       submissions.forEach((submission, index) => {
         for (let count = 1; count <= howMany; count++) {
           let submissionToReview =
             submissions[(index + count) % submissions.length]
-          console.log('TO REVIEW_:', {
-            submission: submissionToReview['@id'],
-            student: submission.submittedByStudent[0]['@id'],
-          })
+
           toReviews.push({
             submission: submissionToReview['@id'],
             student: submission.submittedByStudent[0]['@id'],
@@ -373,3 +368,4 @@ export default class InstructorAssignmentView extends Component {
     )
   }
 }
+
