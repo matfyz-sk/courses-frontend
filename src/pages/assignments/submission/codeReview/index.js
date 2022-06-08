@@ -37,10 +37,6 @@ import {
 } from 'redux/actions'
 import JSZip from 'jszip'
 
-const mapStateToProps = () => {
-  return {}
-}
-
 const initialState = {
   messageColors: [],
 
@@ -342,7 +338,6 @@ const Index = props => {
             ...state.updatedComment,
             saving: false,
             success: false,
-            state: null,
           },
         })
         console.log(error)
@@ -544,6 +539,7 @@ const Index = props => {
           updatedComment={state.updatedComment}
           handleCommentEdit={handleCommentEdit}
           startCommentEditing={startCommentEditing}
+          userID={props.user.id}
         />
         <div>
           <div className="row">
@@ -814,6 +810,13 @@ const Index = props => {
       </div>
     </div>
   )
+}
+
+const mapStateToProps = ({ userReducer }) => {
+  const { user } = userReducer
+  return {
+    user,
+  }
 }
 
 export default connect(mapStateToProps, {

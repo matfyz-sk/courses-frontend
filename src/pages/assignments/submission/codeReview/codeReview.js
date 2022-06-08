@@ -12,7 +12,12 @@ import {
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { okaidia } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
-import { getFileType, getStudentName, timestampToString } from 'helperFunctions'
+import {
+  getFileType,
+  getShortID,
+  getStudentName,
+  timestampToString,
+} from 'helperFunctions'
 
 export default class CodeReview extends Component {
   constructor(props) {
@@ -438,29 +443,34 @@ export default class CodeReview extends Component {
                               : comment.commentedText
                           }
                         />
-                        <Label>
-                          Commented code by
+                        <Label className="flex row">
                           <span
                             style={{
                               fontWeight: 'bolder',
                               color: comment.color.hex,
-                              marginLeft: '0.5rem',
                             }}
                           >{`${this.getCommentBy(comment)}`}</span>
                           {(this.props.updatedComment.state === null ||
-                            !this.props.updatedComment.state.success) && (
-                            <Button
-                              color="link"
-                              onClick={() =>
-                                this.props.startCommentEditing(
-                                  comment.commentText,
-                                  comment['@id']
-                                )
-                              }
-                            >
-                              Edit
-                            </Button>
-                          )}
+                            !this.props.updatedComment.state.success) &&
+                            this.props.userID ===
+                              getShortID(comment.createdBy['@id']) && (
+                              <Button
+                                color="link"
+                                onClick={() =>
+                                  this.props.startCommentEditing(
+                                    comment.commentText,
+                                    comment['@id']
+                                  )
+                                }
+                              >
+                                {console.log('meno props', this.props.userID)}
+                                {console.log(
+                                  'meno koment',
+                                  getShortID(comment.createdBy['@id'])
+                                )}
+                                Edit
+                              </Button>
+                            )}
                         </Label>
 
                         <div className="text-muted ml-auto">
@@ -519,8 +529,9 @@ export default class CodeReview extends Component {
                         {comment.childComments.map(childComment => (
                           <div
                             key={childComment['@id']}
-                            style={{ padding: '5px 10px' }}
+                            style={{ padding: '5px 0px 5px 20px' }}
                           >
+                            {console.log(childComment)}
                             <Label className="flex row">
                               <span
                                 style={{
@@ -528,13 +539,74 @@ export default class CodeReview extends Component {
                                   color: childComment.color.hex,
                                 }}
                               >{`${this.getCommentBy(childComment)}`}</span>
-                              <div className="text-muted ml-auto">
-                                {timestampToString(childComment.createdAt)}
-                              </div>
+                              {(this.props.updatedComment.state === null ||
+                                !this.props.updatedComment.state.success) &&
+                                this.props.userID ===
+                                  getShortID(childComment.createdBy['@id']) && (
+                                  <Button
+                                    color="link"
+                                    onClick={() =>
+                                      this.props.startCommentEditing(
+                                        childComment.commentText,
+                                        childComment['@id']
+                                      )
+                                    }
+                                  >
+                                    Edit
+                                  </Button>
+                                )}
                             </Label>
-                            <p className="text-muted">
-                              {childComment.commentText}
-                            </p>
+                            <div className="text-muted ml-auto">
+                              {timestampToString(childComment.createdAt)}
+                            </div>
+                            {(this.props.updatedComment.state === null &&
+                              !this.props.updatedComment.saving) ||
+                            (this.props.updatedComment.state !== null &&
+                              !this.props.updatedComment.saving &&
+                              !this.props.updatedComment.success) ||
+                            (this.props.updatedComment.state !== null &&
+                              this.props.updatedComment.state.id !==
+                                childComment['@id']) ? (
+                              <>
+                                {this.props.updatedComment.success ||
+                                (this.props.updatedComment.state !== null &&
+                                  this.props.updatedComment.state.id !==
+                                    childComment['@id']) ? (
+                                  <div>
+                                    <p className="text-muted">
+                                      {childComment.commentText}
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <div style={{ color: 'red' }}>
+                                      Something went wrong and we couldn't
+                                      update your comment. :/
+                                    </div>
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <textarea
+                                  cols="30"
+                                  rows="4"
+                                  onChange={this.props.handleCommentEdit}
+                                  value={this.props.updatedComment.state.text}
+                                />
+
+                                <br />
+
+                                <Button
+                                  color="success"
+                                  onClick={() => this.handleCommentUpdate()}
+                                >
+                                  {this.props.updatedComment.saving
+                                    ? 'Saving...'
+                                    : 'Save'}
+                                </Button>
+                              </>
+                            )}
                             <hr />
                           </div>
                         ))}
