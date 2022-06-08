@@ -44,26 +44,20 @@ export default class Questionare extends Component {
                 />
               </FormGroup>
             )}
-
-            <ErrorMessage
-              show={question.answer.length > 0 && question.answer.length < 10}
-              message="Review answer be at least 10 characters!"
-            />
           </div>
         ))}
         <Button
           color="primary"
-          disabled={
-            this.props.saving ||
-            this.props.questionare.some(
-              questionAnswer => questionAnswer.answer.length < 10
-            )
-          }
+          disabled={this.props.saving}
           onClick={this.props.submit}
         >
           {this.props.saving ? 'Saving review' : 'Save review'}
         </Button>
+        <div className="text-muted" style={{ margin: '10px 0' }}>
+          Tip: You can save part of your review and then come back to finish it.
+        </div>
       </>
     )
   }
 }
+
