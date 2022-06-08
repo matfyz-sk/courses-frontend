@@ -53,6 +53,8 @@ const initialState = {
   newGeneralCommentParent: null,
   generalCommentSaving: false,
 
+  updatedComment: { state: null, saving: false, success: true },
+
   fileLoaded: false,
   file: null,
   files: [],
@@ -75,17 +77,8 @@ const initialState = {
   testFileError: false,
   testFileLoaded: false,
 }
-// 'function'
-const Index = props => {
-  // componentWillReceiveProps(props) {
-  //   if (
-  //     (!this.props.fileLoaded && props.fileLoaded) ||
-  //     !sameStringForms(this.props.file, props.file)
-  //   ) {
-  //     this.setCurrentLocation(props)
-  //   }
-  // }
 
+const Index = props => {
   const [state, setState] = useState(initialState)
   const commentCreatorsVisible =
     props.assignment.reviewsVisibility === 'open' || props.settings.isInstructor
@@ -210,7 +203,6 @@ const Index = props => {
       `comment?ofSubmission=${getShortID(initialSubmission['@id'])}${getUser}`
     ).then(response => {
       let allComments = getResponseBody(response)
-      console.log('all', allComments)
       let messageColors = [...state.messageColors]
       allComments = allComments
         .sort((comment1, comment2) =>
@@ -252,7 +244,6 @@ const Index = props => {
       const codeComments = parentComments.filter(comment =>
         comment['@type'].endsWith('CodeComment')
       )
-      console.log(codeComments)
       const allCodeComments = allComments.filter(comment =>
         comment['@type'].endsWith('CodeComment')
       )
@@ -293,32 +284,69 @@ const Index = props => {
       })
   }
 
-  const updateCodeComment = comment => {
+  const handleCommentEdit = e => {
+    setState({
+      ...state,
+      updatedComment: {
+        ...state.updatedComment,
+        state: { ...state.updatedComment.state, text: e.target.value },
+      },
+    })
+  }
+
+  const startCommentEditing = (text, id) => {
+    setState({
+      ...state,
+      updatedComment: {
+        ...initialState.updatedComment,
+        state: { text, id },
+      },
+    })
+  }
+
+  const updateCodeComment = () => {
     if (props.initialSubmission === null) {
       return
     }
 
-    setState({ ...state, codeCommentSaving: true })
+    const { updatedComment } = state
 
-    const updatedComment = {
-      ...comment,
-      commentText: prepareMultiline(comment.commentText),
-      commentedText: prepareMultiline(comment.commentedText),
-      ofSubmission: props.initialSubmission['@id'],
-      _type: 'codeComment',
-    }
+    setState({
+      ...state,
+      updatedComment: {
+        ...state.updatedComment,
+        saving: true,
+      },
+    })
 
-    console.log('showme', updatedComment)
-
-    // axiosUpdateEntity(updatedComment, 'codeComment')
-    //   .then(response => {
-    //     setState({ ...state, codeCommentSaving: false })
-    //     fetchComments()
-    //   })
-    //   .catch(error => {
-    //     setState({ ...state, codeCommentSaving: false })
-    //     console.log(error)
-    //   })
+    axiosUpdateEntity(
+      { commentText: updatedComment.state.text },
+      `codeComment/${getShortID(updatedComment.state.id)}`
+    )
+      .then(response => {
+        fetchComments()
+        setState({
+          ...state,
+          updatedComment: {
+            ...state.updatedComment,
+            saving: false,
+            success: true,
+            state: null,
+          },
+        })
+      })
+      .catch(error => {
+        setState({
+          ...state,
+          updatedComment: {
+            ...state.updatedComment,
+            saving: false,
+            success: false,
+            state: null,
+          },
+        })
+        console.log(error)
+      })
   }
 
   const getCommentBy = comment => {
@@ -513,6 +541,9 @@ const Index = props => {
             addCodeComment(newComment)
           }}
           updateComment={updateCodeComment}
+          updatedComment={state.updatedComment}
+          handleCommentEdit={handleCommentEdit}
+          startCommentEditing={startCommentEditing}
         />
         <div>
           <div className="row">
@@ -650,7 +681,10 @@ const Index = props => {
                     //   }
                     // }}
                   >
-                    <td>{`${comment.commentText.substring(0, 20)}...`}</td>
+                    <td>
+                      {comment.commentText &&
+                        `${comment.commentText.substring(0, 20)}...`}
+                    </td>
                     <td>
                       <span
                         style={{

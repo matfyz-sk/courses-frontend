@@ -28,6 +28,8 @@ export default class CodeReview extends Component {
       commentsLocation: null,
 
       showCommentMenu: null,
+
+      editingComment: null,
     }
     this.newID = 0
     this.getNewID.bind(this)
@@ -111,7 +113,7 @@ export default class CodeReview extends Component {
           background: '#efefef',
         },
       },
-      className: comments.length > 0 ? 'clickable' : 'commentable',
+      className: comments.length > 0 ? 'clickable' : '',
       onClick() {
         if (
           self.state.addComment !== null &&
@@ -123,6 +125,8 @@ export default class CodeReview extends Component {
             '.react-syntax-highlighter-line-number ',
             lineNumber
           )
+
+          if (element === undefined) return
 
           self.setState({
             addComment: null,
@@ -261,6 +265,10 @@ export default class CodeReview extends Component {
       return getStudentName(comment.createdBy)
     }
     return comment.color.name
+  }
+
+  handleCommentUpdate() {
+    this.props.updateComment(this.state.editingComment)
   }
 
   render() {
@@ -439,17 +447,75 @@ export default class CodeReview extends Component {
                               marginLeft: '0.5rem',
                             }}
                           >{`${this.getCommentBy(comment)}`}</span>
+                          {(this.props.updatedComment.state === null ||
+                            !this.props.updatedComment.state.success) && (
+                            <Button
+                              color="link"
+                              onClick={() =>
+                                this.props.startCommentEditing(
+                                  comment.commentText,
+                                  comment['@id']
+                                )
+                              }
+                            >
+                              Edit
+                            </Button>
+                          )}
                         </Label>
+
                         <div className="text-muted ml-auto">
                           {timestampToString(comment.createdAt)}
-                          <span
-                            style={{ color: 'blue' }}
-                            onClick={() => console.log('let me edit')}
-                          >
-                            edit
-                          </span>
                         </div>
-                        <p className="text-muted">{comment.commentText}</p>
+
+                        {(this.props.updatedComment.state === null &&
+                          !this.props.updatedComment.saving) ||
+                        (this.props.updatedComment.state !== null &&
+                          !this.props.updatedComment.saving &&
+                          !this.props.updatedComment.success) ||
+                        (this.props.updatedComment.state !== null &&
+                          this.props.updatedComment.state.id !==
+                            comment['@id']) ? (
+                          <>
+                            {this.props.updatedComment.success ||
+                            (this.props.updatedComment.state !== null &&
+                              this.props.updatedComment.state.id !==
+                                comment['@id']) ? (
+                              <div>
+                                <p className="text-muted">
+                                  {comment.commentText}
+                                </p>
+                              </div>
+                            ) : (
+                              <>
+                                <div style={{ color: 'red' }}>
+                                  Something went wrong and we couldn't update
+                                  your comment. :/
+                                </div>
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <textarea
+                              cols="30"
+                              rows="4"
+                              onChange={this.props.handleCommentEdit}
+                              value={this.props.updatedComment.state.text}
+                            />
+
+                            <br />
+
+                            <Button
+                              color="success"
+                              onClick={() => this.handleCommentUpdate()}
+                            >
+                              {this.props.updatedComment.saving
+                                ? 'Saving...'
+                                : 'Save'}
+                            </Button>
+                          </>
+                        )}
+
                         {comment.childComments.map(childComment => (
                           <div
                             key={childComment['@id']}
