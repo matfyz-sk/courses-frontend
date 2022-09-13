@@ -44,6 +44,12 @@ jobs:
       - name: Create path to the frontend
         if: ${{ inputs.PR_BRANCH != ''}}
         run: echo "FRONTEND_PATH=${{ inputs.FRONTEND_PATH }}${{ inputs.PR_BRANCH }}/htdocs/" >> $GITHUB_ENV
+      - name: Set GRAPH_IRI_PREFIX for non master branch
+        if: ${{ inputs.BRANCH != 'master'}}
+        run: echo "GRAPH_IRI_PREFIX=${{ inputs.BRANCH }}.dev" >> $GITHUB_ENV
+      - name: Set GRAPH_IRI_PREFIX for master branch
+        if: ${{ inputs.BRANCH == 'master'}}
+        run: echo "GRAPH_IRI_PREFIX=" >> $GITHUB_ENV  
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -55,10 +61,10 @@ jobs:
           node-version: '16'
       - name: Creating react env file
         env:
-          WEBSITE: ${{ secrets.WEBSITE }}
+          WEBSITE_PREFIX: ${{ env.GRAPH_IRI_PREFIX }}
           WEBSITE_PORT: ${{ env.WEBSITE_PORT }}
         run: |
-          echo "REACT_APP_BACKEND_URL=${WEBSITE}:${WEBSITE_PORT}/" > .env
+          echo "REACT_APP_BACKEND_URL=https://${WEBSITE_PREFIX}courses3.matfyz.sk:${WEBSITE_PORT}/" > .env
           echo "REACT_APP_BASE_PREFIX=https://courses3.matfyz.sk/" >> .env
       - name: Install dependencies
         run: yarn install
