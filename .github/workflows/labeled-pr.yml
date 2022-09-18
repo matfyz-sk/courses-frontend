@@ -21,3 +21,4 @@ jobs:
       SSH_USER: ${{ secrets.SSH_USER }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
       IMPERSONATION_PASSWORD: ${{ secrets.IMPERSONATION_PASSWORD }}
+      SPARQL_HOST: ${{ secrets.SPARQL_HOST }}
