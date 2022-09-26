@@ -20,6 +20,10 @@ export const timestampToString = (timestamp) => {
   return moment(timestamp).format('HH:mm DD.MM.YYYY');
 }
 
+export const timestampToString2 = (timestamp) => {
+  return moment(timestamp).format('DD/MM/YYYY HH:mm');
+}
+
 export const datesComparator = (date1, date2, isUnix = false, olderFirst = false ) => {
   const result1 = olderFirst ? 1 : -1;
   const result2 = olderFirst ? -1 : 1;
@@ -134,11 +138,27 @@ export const axiosUpdateEntity = ( data, entity ) => {
   )
 }
 
+export const axiosPartialEntityUpdate = ( data, entity ) => {
+  return axiosRequest(
+    'put',
+    `${REST_URL}${entity}`,
+    data
+  )
+}
+
+export const axiosDeleteAttributeValueOfEntity = (data, entity ) => {
+  return axiosRequest(
+    'delete',
+    `${REST_URL}${entity}`,
+    data
+  )
+}
+
 export const axiosDeleteEntity = ( entity ) => {
   return axiosRequest(
     'delete',
     `${REST_URL}${entity}`,
-    null
+    {}
   )
 }
 
@@ -205,4 +225,51 @@ export const getRandomRolor = () => {
         color += letters[Math.round(Math.random() * 10)];
     }
     return color;
+}
+
+export const decapitalizeFirstLetter = (string) => string[0].toLowerCase() + string.slice(1);
+
+export const getShortType = (fullType) => decapitalizeFirstLetter(fullType.split("#")[1])
+
+export const compareByDate = sortAscending => {
+  return function (a, b) {
+    return sortAscending
+      ? new Date(a.createdAt) - new Date(b.createdAt)
+      : new Date(b.createdAt) - new Date(a.createdAt)
+  }
+}
+
+export const compareByName = sortAscending => {
+  return function (a, b) {
+    return sortAscending
+      ? stringComparator(a.name, b.name)
+      : stringComparator(b.name, a.name)
+  }
+}
+
+function stringComparator(a, b) {
+  if (a === undefined && b === undefined)
+    return 0
+  else if (a === undefined)
+    return -1
+  else if (b === undefined)
+    return 1
+
+  a = a.toLowerCase()
+  b = b.toLowerCase()
+  return a < b ? -1 : a > b ? 1 : 0
+}
+
+export const fileToBase64 = file => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = error => reject(error);
+});
+
+export const base64dataToFile = async (base64Data, filename, mimeType) => {
+  const i = base64Data.indexOf('base64,')
+  const buffer = Buffer.from(base64Data.slice(i + 7), 'base64')
+  const blob = new Blob([buffer], { type: mimeType })
+  return new File([blob], filename, { type: mimeType })
 }

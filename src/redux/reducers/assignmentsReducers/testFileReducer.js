@@ -10,8 +10,6 @@ export default function assignmentsTestFileReducer(
   state = initialState,
   action
 ) {
-  console.log('QQ', action.file)
-  console.log('QQ2', action.bonusFile)
   switch (action.type) {
     case SET_ASIGNMENTS_TEST_FILE: {
       return {

@@ -72,7 +72,7 @@ class CourseMigration extends React.Component {
 
     const url = `${
       BASE_URL + EVENT_URL
-    }?courseInstance=${courseInstanceId}&_join=uses,recommends`
+    }?courseInstance=${courseInstanceId}&_join=uses,recommends,documentReference`
 
     axiosRequest('get', null, url).then(response => {
       const data = getData(response)

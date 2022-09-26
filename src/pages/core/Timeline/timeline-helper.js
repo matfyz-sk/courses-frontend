@@ -50,6 +50,7 @@ export const getEvents = data => {
           name: material.name,
         }
       }),
+      documentReference: eventData.documentReference,
       courseAbbr: eventData.courseInstance[0]
         ? eventData.courseInstance[0].abbreviation
         : '',

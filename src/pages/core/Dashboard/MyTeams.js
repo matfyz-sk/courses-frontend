@@ -19,7 +19,8 @@ const MyTeams = props => {
 
   function fetchTeamDetail(fetched_data, index = 0) {
     const detail = fetched_data[index]
-    if (detail.instanceOf && detail.instanceOf.length > 0) {
+    // ? the ?. seems to have fixed this typeerror here, not sure if this is the right way...
+    if (detail?.instanceOf && detail?.instanceOf.length > 0) {
       fetch(
         `${BACKEND_URL}data/team/${getShortID(
           detail.instanceOf[0]['@id']
