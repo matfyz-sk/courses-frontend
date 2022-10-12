@@ -5,10 +5,13 @@ import { Alert, Button, Col, Collapse, Container, Form, FormFeedback, FormGroup,
 import { emailValidator, textValidator, } from '../../../functions/validators'
 import { authHeader, getUserID, setUserProfile } from '../../../components/Auth';
 import { BACKEND_URL } from "../../../constants";
-
+import { userApi } from 'services/user'
+ 
 class Profile extends Component {
   constructor(props) {
     super(props)
+    const result1 = this.props.getUser(getUserID())
+    console.log(result1)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.validation = this.validation.bind(this)
     this.handleInputChange = this.handleInputChange.bind(this)
@@ -20,10 +23,9 @@ class Profile extends Component {
       be_error: null,
       success: false,
     }
-  }
+  } 
 
   componentDidMount() {
-    this.fetchCurrentData()
     document.addEventListener('keyup', event => {
       if(event.keyCode === 13) {
         event.preventDefault()
@@ -100,7 +102,11 @@ class Profile extends Component {
   }
 
   fetchCurrentData() {
-    fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, {
+   // const result = userApi.endpoints.getUser.select(getUserID())(this.props)
+   // const { data, status, error } = result
+   // console.log(status)
+    //console.log(result)
+  /*  fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, { 
       method: 'GET',
       headers: authHeader(),
       mode: 'cors',
@@ -115,11 +121,13 @@ class Profile extends Component {
           const user = data['@graph'][0]
           this.setState({user})
         }
-      })
+      })*/
   }
 
   render() {
     const {user, errors, be_error, success} = this.state
+    const result = userApi.endpoints.getUser.select(getUserID())(this.props)
+    console.log(result)
     return (
       <Container>
         <h1 className="mb-5">Profile settings</h1>
@@ -348,4 +356,9 @@ const mapStateToProps = state => {
   return state
 }
 
-export default withRouter(connect(mapStateToProps)(Profile))
+const mapDispatchToProps = {
+  getUser: userApi.endpoints.getUser.initiate,
+  updateUser: userApi.endpoints.updateUser.initiate
+};
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Profile))
