@@ -20,7 +20,7 @@ export const userApi = createApi({
     endpoints: (builder) => ({
         getUser: builder.query({
             query: (id) => ({ url: `user/${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response["@graph"][0],
         }),
         updateUser: builder.mutation({
             query: ({id, patch}) => ({ 
@@ -32,4 +32,4 @@ export const userApi = createApi({
     }),
 })
 
-export const { getUserById,  } = userApi
+export const { useGetUserQuery,  useUpdateUserMutation} = userApi
