@@ -10,18 +10,17 @@ import { userApi } from 'services/user'
 class Profile extends Component {
   constructor(props) {
     super(props)
-    const result1 = this.props.getUser(getUserID())
-    console.log(result1)
+    const { unsubscribe } = this.props.getUser(getUserID())
     this.handleSubmit = this.handleSubmit.bind(this)
     this.validation = this.validation.bind(this)
     this.handleInputChange = this.handleInputChange.bind(this)
-    this.fetchCurrentData = this.fetchCurrentData.bind(this)
     this.handleToggleNickException = this.handleToggleNickException.bind(this)
     this.state = {
       user: null,
       errors: {},
       be_error: null,
       success: false,
+      unsubscribe: unsubscribe,
     }
   } 
 
@@ -34,11 +33,15 @@ class Profile extends Component {
     })
   }
 
+  componentWillUnmount() {
+    this.unsubscribe?.();
+  }
+
   handleInputChange(event) {
     const {target} = event
     const value = target.type === 'checkbox' ? target.checked : target.value
     const {name} = target
-    const {user} = this.state
+    let user = {...this.state.user}
     user[name] = value
     this.setState({user})
   }
@@ -77,21 +80,11 @@ class Profile extends Component {
         body[updatedAttrs[i]] = user[updatedAttrs[i]]
       }
 
-      fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, {
-        method: 'PATCH',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify(body),
-      })
-        .then(response => {
-          if(!response.ok) throw new Error(response)
-          else return response.json()
-        })
-        .then(data => {
-          this.setState({success: true})
-          setUserProfile(body)
-        })
+      this.props.updateUser({
+        id: getUserID(),
+        patch: body
+      });
+      this.setState({success: true})
     }
   }
 
@@ -101,33 +94,11 @@ class Profile extends Component {
     this.setState({user})
   }
 
-  fetchCurrentData() {
-   // const result = userApi.endpoints.getUser.select(getUserID())(this.props)
-   // const { data, status, error } = result
-   // console.log(status)
-    //console.log(result)
-  /*  fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, { 
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if(!response.ok) throw new Error(response);
-        else return response.json();
-      })
-      .then(data => {
-        if(data && data['@graph']) {
-          const user = data['@graph'][0]
-          this.setState({user})
-        }
-      })*/
-  }
-
   render() {
     const {user, errors, be_error, success} = this.state
-    const result = userApi.endpoints.getUser.select(getUserID())(this.props)
-    console.log(result)
+    if(!user && this.props.user.isSuccess) {
+      this.setState({user: this.props.user.data[0]})
+    }
     return (
       <Container>
         <h1 className="mb-5">Profile settings</h1>
@@ -352,9 +323,9 @@ class Profile extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  return state
-}
+const mapStateToProps = state => ({
+  user: userApi.endpoints.getUser.select(getUserID())(state)
+});
 
 const mapDispatchToProps = {
   getUser: userApi.endpoints.getUser.initiate,

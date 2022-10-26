@@ -19,10 +19,12 @@ export const userApi = createApi({
     tagTypes: ['User'],
     endpoints: (builder) => ({
         getUser: builder.query({
+            providesTags: ['User'],
             query: (id) => ({ url: `user/${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
         }),
         updateUser: builder.mutation({
+            invalidatesTags: ['User'],
             query: ({id, patch}) => ({ 
                 url: `user/${id}`,
                 method: 'PATCH',
