@@ -19,6 +19,6 @@ const composeEnhancers =
       })
     : compose
 
-const enhancers = composeEnhancers(compose(applyMiddleware(ReduxThunk)))
+const enhancers = composeEnhancers(compose(applyMiddleware(ReduxThunk, userApi.middleware)))
 
 export default () => createStore(reducers, {}, enhancers)

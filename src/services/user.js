@@ -21,20 +21,15 @@ export const userApi = createApi({
         getUser: builder.query({
             query: (id) => ({ url: `user/${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: (result) => 
-                result 
-                    ?
-                        [...result.map(({ id }) => ({ type: 'User', id })), { type: 'User', id: 'LIST' },]
-                    : 
-                        [{ type: 'User', id: 'LIST' }],
+            providesTags: ['User'],
         }),
         updateUser: builder.mutation({
-            query: ({id, ...patch}) => ({ 
+            query: ({id, patch}) => ({ 
                 url: `user/${id}`,
                 method: 'PATCH',
                 body: patch,
             }),
-            invalidatesTags: [{ type: 'User', id: 'LIST' }],
+            invalidatesTags: ['User'],
         }),
     }),
 })

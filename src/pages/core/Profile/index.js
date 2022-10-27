@@ -3,19 +3,18 @@ import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Alert, Button, Col, Collapse, Container, Form, FormFeedback, FormGroup, Input, Label, Row, } from 'reactstrap'
 import { emailValidator, textValidator, } from '../../../functions/validators'
-import { authHeader, getUserID, setUserProfile } from '../../../components/Auth';
-import { BACKEND_URL } from "../../../constants";
+import { getUserID } from '../../../components/Auth';
 import { useGetUserQuery, useUpdateUserMutation } from 'services/user'
  
 function Profile(props) {
   const { data, isSuccess, isError, error } = useGetUserQuery(getUserID())
-  const { updateUser, result } = useUpdateUserMutation()
+  const [updateUser, result] = useUpdateUserMutation()
   const [user, setUser] = useState(null)
   const [errors, setErrors] = useState({})
   const [success, setSuccess] = useState(false)
 
   if(isSuccess && user === null) {
-    setUser(data)
+    setUser(data[0])
   } else if (isError) {
     throw new Error(error)
   }
@@ -61,7 +60,7 @@ function Profile(props) {
     )
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if(validation()) {
       const updatedAttrs = [
         'firstName', 'lastName', 'description', 'email',
@@ -72,25 +71,15 @@ function Profile(props) {
         body[updatedAttrs[i]] = user[updatedAttrs[i]]
       }
 
-      const json_body = JSON.stringify(body);
-      const id = getUserID()
-      updateUser({id, json_body}).unwrap()
-      //TODO
-     /* fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, {
-        method: 'PATCH',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify(body),
-      })
-        .then(response => {
-          if(!response.ok) throw new Error(response)
-          else return response.json()
-        })
-        .then(data => {
-          this.setState({success: true})
-          setUserProfile(body)
-        })*/
+      try {
+        await updateUser({
+            id: getUserID(), 
+            patch: body
+        }).unwrap()
+        setSuccess(true)
+      } catch {
+        throw new Error("Failed to execute PATCH request to update user information")
+      }
     }
   }
 
