@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { authHeader, getUser } from '../../../components/Auth'
+import React, { useState } from 'react'
+import { getUser } from '../../../components/Auth'
 import Page404 from '../../errors/Page404'
 import { isVisibleUser } from '../../../components/Auth/userFunction'
-import { BACKEND_URL } from "../../../constants";
+import { useGetUserStudentOfQuery, useGetUsersCoursesQuery } from 'services/user'
 
 const withPublic = Component => props => {
   const { user_id } = props.match.params
   const { privilegesReducer } = props
+  const { data, isSuccess, isError} = useGetUserStudentOfQuery(user_id)
+  const { data: coursesQueryData, isSuccess: coursesQueryIsSuccess} = useGetUsersCoursesQuery(user_id)
   const [user, setUser] = useState(null)
   const [status, setStatus] = useState(200)
   const [role, setRole] = useState({ color: 'light', name: 'User' })
@@ -14,72 +16,47 @@ const withPublic = Component => props => {
   const [instruct, setInstruct] = useState([])
   const isMyProfile = getUser() && getUser().id === user_id
 
-  function fetchCourses(userData) {
-    fetch(`${BACKEND_URL}data/courseInstance?hasInstructor=${user_id}`, {
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        return response.json()
-      })
-      .then(data => {
-        if (data['@graph'] && data['@graph'].length > 0) {
-          setRole({ color: 'primary', name: 'Instructor' })
-          if (
-            userData.publicProfile ||
-            userData.showCourses ||
-            isMyProfile ||
-            (getUser() && getUser().isSuperAdmin)
-          ) {
-            setInstruct(data['@graph'])
-          }
-        }
-      })
+  if(isSuccess && user === null) {
+    saveUser(data[0])
+  } else if (isError) {
+    setStatus(404)
   }
 
-  function fetchUser() {
-    fetch(`${BACKEND_URL}data/user/${user_id}?_join=studentOf`, {
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        return response.json()
-      })
-      .then(data => {
-        if (data['@graph'] && data['@graph'].length > 0) {
-          const userData = data['@graph'][0]
-          if (isVisibleUser(userData)) {
-            setUser(userData)
-            if (userData.isSuperAdmin) {
-              setRole({ color: 'warning', name: 'Administrator' })
-            } else if (userData.studentOf.length > 0) {
-              setRole({ color: 'secondary', name: 'Student' })
-              if (
-                userData.publicProfile ||
-                userData.showCourses ||
-                isMyProfile ||
-                (getUser() && getUser().isSuperAdmin)
-              ) {
-                setCourses(userData.studentOf)
-              }
-            }
-            fetchCourses(userData)
-          } else {
-            setStatus(404)
-          }
-        } else {
-          setStatus(404)
+  function saveUser(userData) {
+    if (isVisibleUser(userData)) {
+      setUser(userData)
+      if (userData.isSuperAdmin) {
+        setRole({ color: 'warning', name: 'Administrator' })
+      } else if (userData.studentOf.length > 0) {
+        setRole({ color: 'secondary', name: 'Student' })
+        if (
+          userData.publicProfile ||
+          userData.showCourses ||
+          isMyProfile ||
+          (getUser() && getUser().isSuperAdmin)
+        ) {
+          setCourses(userData.studentOf)
         }
-      })
+      }
+      saveCourses(userData)
+    } else {
+      setStatus(404)
+    }
   }
 
-  useEffect(() => {
-    fetchUser()
-  }, [])
+  function saveCourses(userData) {
+    if(coursesQueryIsSuccess && coursesQueryData.length > 0) {
+      setRole({ color: 'primary', name: 'Instructor' })
+      if (
+        userData.publicProfile ||
+        userData.showCourses ||
+        isMyProfile ||
+        (getUser() && getUser().isSuperAdmin)
+      ) {
+        setInstruct(coursesQueryData)
+      }
+    }
+  }
 
   if (status === 404) {
     return <Page404 />
