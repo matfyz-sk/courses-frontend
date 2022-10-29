@@ -3,6 +3,7 @@ import { getToken } from 'components/Auth'
 import { API_URL } from "../constants";
 
 export const courseApi = createApi({
+    reducerPath: 'courseApi',
     baseQuery: fetchBaseQuery({
         baseUrl: API_URL,
         prepareHeaders: (headers, {}) => {
