@@ -1,79 +1,59 @@
-import React, { Component } from 'react'
-import { Button, Form, FormGroup, Label } from 'reactstrap'
+import React from 'react'
+import { Form, Label } from 'reactstrap'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import Chip from '@material-ui/core/Chip'
 import TextField from '@material-ui/core/TextField'
-import { BASE_URL, USER_URL } from '../constants'
-import { axiosRequest, getData } from '../AxiosRequests'
 import './AddInstructor.css'
 import { connect } from 'react-redux'
+import { useGetUsersQuery, useGetInstructorsOfCourseQuery } from 'services/user'
 
-class AddInstructor extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      users: [],
-      instructors: [],
-    }
-  }
 
-  componentDidMount() {
-    const { courseInstanceId } = this.props
+function AddInstructor(props) {
+  const { courseInstanceId } = props
+  const { data: getUsersData, isSuccess: getUsersIsSuccess } = useGetUsersQuery()
+  const { data: getInstructorsData, isSuccess: getInstructorsIsSuccess } = useGetInstructorsOfCourseQuery(courseInstanceId)
+  const [users, setUsers] = useState([])
+  const [instructors, setInstructors] = useState([])
 
-    let url = BASE_URL + USER_URL
-    axiosRequest('get', null, url).then(response => {
-      const data = getData(response)
-      if (data != null) {
-        const users = data.map(user => {
-          return {
-            fullId: user['@id'],
-            name:
-              user.firstName !== '' && user.lastName !== ''
-                ? `${user.firstName} ${user.lastName}`
-                : 'Noname',
-          }
-        })
-        this.setState({
-          users,
-        })
-      }
-    })
-
-    if (courseInstanceId != null) {
-      url += `?instructorOf=${courseInstanceId}`
-      axiosRequest('get', null, url).then(response => {
-        const data = getData(response)
-        if (data != null) {
-          const instructors = data.map(user => {
-            return {
-              fullId: user['@id'],
-              name:
-                user.firstName !== '' && user.lastName !== ''
-                  ? `${user.firstName} ${user.lastName}`
-                  : 'Noname',
-            }
-          })
-          this.setState({
-            instructors,
-          })
+  // ComponentDidMount
+  useEffect(()=>{
+    if(getUsersIsSuccess && getUsersData) {
+      const currentUsers = getUsersData.map(user => {
+        return {
+          fullId: user['@id'],
+          name:
+            user.firstName !== '' && user.lastName !== ''
+              ? `${user.firstName} ${user.lastName}`
+              : 'Noname',
         }
       })
+      setUsers(currentUsers)
     }
-  }
 
-  handleSubmit = (event) => {
+    if(courseInstanceId != null && getInstructorsIsSuccess && getInstructorsData) {
+      const currentInstructors = getInstructorsData.map(user => {
+        return {
+          fullId: user['@id'],
+          name:
+            user.firstName !== '' && user.lastName !== ''
+              ? `${user.firstName} ${user.lastName}`
+              : 'Noname',
+        }
+      })
+      setInstructors(currentInstructors)
+    }
+
+  },[])
+
+  const handleSubmit = (event) => {
     console.log('submit')
   }
 
-  onInstructorChange = (event, values) => {
-    this.setState({ instructors: values })
+  const onInstructorChange = (event, values) => {
+    setInstructors(values)
   }
 
-  render() {
-    const { users, instructors } = this.state
-
-    return (
-      <Form className="add-instructors" onSubmit={this.handleSubmit}>
+  return (
+    <Form className="add-instructors" onSubmit={handleSubmit}>
         <Label id="instructors-label" for="instructors">
           Instructors
         </Label>
@@ -83,7 +63,7 @@ class AddInstructor extends Component {
           id="instructors"
           options={users}
           getOptionLabel={option => option.name}
-          onChange={this.onInstructorChange}
+          onChange={onInstructorChange}
           value={instructors}
           style={{ minWidth: 200, maxWidth: 500 }}
           renderInput={params => (
@@ -94,11 +74,12 @@ class AddInstructor extends Component {
             />
           )}
         />
-        <button type='submit' ref={ (button) => { this.activityFormButton = button } } >Submit</button>
+        <button type='submit' ref={ (button) => { activityFormButton = button } } >Submit</button>
       </Form>
-    )
-  }
+  )
 }
+
+// TODO ask what does activityFormButton do and why was it saved like: this.activityFormButton = button
 
 const mapStateToProps = ({ authReducer }) => {
   return {
