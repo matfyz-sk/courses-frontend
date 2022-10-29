@@ -3,11 +3,13 @@ import ReduxThunk from 'redux-thunk'
 
 import allReducers from './reducers'
 import { userApi } from 'services/user'
+import { courseApi } from 'services/course'
 
 
 const reducers = combineReducers({
   ...allReducers,
   [userApi.reducerPath]: userApi.reducer,
+  [courseApi.reducerPath]: courseApi.reducer
 })
 
 const composeEnhancers =
@@ -19,6 +21,6 @@ const composeEnhancers =
       })
     : compose
 
-const enhancers = composeEnhancers(compose(applyMiddleware(ReduxThunk, userApi.middleware)))
+const enhancers = composeEnhancers(compose(applyMiddleware(ReduxThunk, userApi.middleware, courseApi.middleware)))
 
 export default () => createStore(reducers, {}, enhancers)

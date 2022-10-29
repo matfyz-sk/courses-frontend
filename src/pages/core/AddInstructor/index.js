@@ -11,38 +11,32 @@ function AddInstructor(props) {
   const { courseInstanceId } = props
   const { data: getUsersData, isSuccess: getUsersIsSuccess } = useGetUsersQuery()
   const { data: getInstructorsData, isSuccess: getInstructorsIsSuccess } = useGetInstructorsOfCourseQuery(courseInstanceId)
-  const [users, setUsers] = useState([])
-  const [instructors, setInstructors] = useState([])
 
-  // ComponentDidMount
-  useEffect(()=>{
-    if(getUsersIsSuccess && getUsersData) {
-      const currentUsers = getUsersData.map(user => {
-        return {
-          fullId: user['@id'],
-          name:
-            user.firstName !== '' && user.lastName !== ''
-              ? `${user.firstName} ${user.lastName}`
-              : 'Noname',
-        }
-      })
-      setUsers(currentUsers)
-    }
+  let users = []
+  if(getUsersIsSuccess && getUsersData) {
+    users = getUsersData.map(user => {
+      return {
+        fullId: user['@id'],
+        name:
+          user.firstName !== '' && user.lastName !== ''
+            ? `${user.firstName} ${user.lastName}`
+            : 'Noname',
+      }
+    })
+  }
 
-    if(courseInstanceId != null && getInstructorsIsSuccess && getInstructorsData) {
-      const currentInstructors = getInstructorsData.map(user => {
-        return {
-          fullId: user['@id'],
-          name:
-            user.firstName !== '' && user.lastName !== ''
-              ? `${user.firstName} ${user.lastName}`
-              : 'Noname',
-        }
-      })
-      setInstructors(currentInstructors)
-    }
-
-  },[])
+  let instructors = []
+  if(courseInstanceId != null && getInstructorsIsSuccess && getInstructorsData) {
+    instructors = getInstructorsData.map(user => {
+      return {
+        fullId: user['@id'],
+        name:
+          user.firstName !== '' && user.lastName !== ''
+            ? `${user.firstName} ${user.lastName}`
+            : 'Noname',
+      }
+    })
+  }
 
   const handleSubmit = (event) => {
     console.log('submit')

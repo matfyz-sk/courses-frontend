@@ -16,7 +16,7 @@ export const userApi = createApi({
             return headers
         },
     }),
-    tagTypes: ['User', 'Courses'],
+    tagTypes: ['User'],
     endpoints: (builder) => ({
         getUser: builder.query({
             query: (id) => ({ url: `user/${id}` }),
@@ -37,11 +37,6 @@ export const userApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['User'],
         }),
-        getUsersCourses: builder.query({
-            query: (id) => ({ url: `courseInstance?hasInstructor=${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Courses'],
-        }),
         updateUser: builder.mutation({
             query: ({id, patch}) => ({ 
                 url: `user/${id}`,
@@ -58,6 +53,5 @@ export const {
     useGetUsersQuery, 
     useGetInstructorsOfCourseQuery,
     useGetUserStudentOfQuery, 
-    useGetUsersCoursesQuery, 
     useUpdateUserMutation
 } = userApi

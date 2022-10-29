@@ -2,13 +2,14 @@ import React, { useState } from 'react'
 import { getUser } from '../../../components/Auth'
 import Page404 from '../../errors/Page404'
 import { isVisibleUser } from '../../../components/Auth/userFunction'
-import { useGetUserStudentOfQuery, useGetUsersCoursesQuery } from 'services/user'
+import { useGetUserStudentOfQuery } from 'services/user'
+import { useGetCourseWithInstructorQuery } from 'services/course'
 
 const withPublic = Component => props => {
   const { user_id } = props.match.params
   const { privilegesReducer } = props
   const { data, isSuccess, isError} = useGetUserStudentOfQuery(user_id)
-  const { data: coursesQueryData, isSuccess: coursesQueryIsSuccess} = useGetUsersCoursesQuery(user_id)
+  const { data: coursesQueryData, isSuccess: coursesQueryIsSuccess} = useGetCourseWithInstructorQuery(user_id)
   const [user, setUser] = useState(null)
   const [status, setStatus] = useState(200)
   const [role, setRole] = useState({ color: 'light', name: 'User' })
