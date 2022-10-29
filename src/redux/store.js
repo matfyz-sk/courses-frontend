@@ -4,12 +4,14 @@ import ReduxThunk from 'redux-thunk'
 import allReducers from './reducers'
 import { userApi } from 'services/user'
 import { courseApi } from 'services/course'
+import { eventApi } from 'services/event'
 
 
 const reducers = combineReducers({
   ...allReducers,
   [userApi.reducerPath]: userApi.reducer,
-  [courseApi.reducerPath]: courseApi.reducer
+  [courseApi.reducerPath]: courseApi.reducer,
+  [eventApi.reducerPath]: eventApi.reducer,
 })
 
 const composeEnhancers =
@@ -21,6 +23,6 @@ const composeEnhancers =
       })
     : compose
 
-const enhancers = composeEnhancers(compose(applyMiddleware(ReduxThunk, userApi.middleware, courseApi.middleware)))
+const enhancers = composeEnhancers(compose(applyMiddleware(ReduxThunk, userApi.middleware, courseApi.middleware, eventApi.middleware)))
 
 export default () => createStore(reducers, {}, enhancers)
