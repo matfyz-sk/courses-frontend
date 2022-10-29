@@ -1,86 +1,57 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {Alert, Card, CardBody, CardHeader, CardSubtitle, Container, Table,} from 'reactstrap'
 import {connect} from 'react-redux'
 import {NavLink} from 'react-router-dom'
-import {BASE_URL, COURSE_URL, INITIAL_COURSE_STATE} from '../constants'
-import {axiosRequest, getData} from '../AxiosRequests'
+import {INITIAL_COURSE_STATE} from '../constants'
 import {redirect} from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import {NOT_FOUND} from '../../../constants/routes'
 import './course.css'
 import {Redirect} from 'react-router'
+import { useGetCourseQuery } from 'services/course'
 
-class Course extends React.Component {
-  constructor(props) {
-    super(props)
+function Course(props) {
+  const { match: { params }, user } = props
+  const { data, isSuccess, isLoading } = useGetCourseQuery(params.course_id)
+  const [redirectTo, setRedirectTo] = useState(null)
 
-    this.state = {
-      course: INITIAL_COURSE_STATE,
-      redirectTo: null,
-      loading: true,
+  if (redirectTo) {
+    return <Redirect to={redirectTo} />
+  }
+
+  if (isLoading) {
+    return (
+      <Alert color="secondary" className="empty-message">
+        Loading...
+      </Alert>
+    )
+  }
+  let course = INITIAL_COURSE_STATE
+  if(isSuccess && data) {
+    if(data !== []) {
+      course = data.map(courseData => {
+        return {
+          id: courseData['@id'].substring(courseData['@id'].length - 5),
+          name: courseData.name,
+          abbreviation: courseData.abbreviation,
+          description: courseData.description,
+          prerequisites: courseData.hasPrerequisite.map(prerequisite => {
+            return { fullId: prerequisite['@id'], name: prerequisite.name }
+          }),
+          admins: courseData.hasAdmin.map(admin => {
+            return {
+              fullId: admin['@id'],
+              name: `${admin.firstName} ${admin.lastName}`,
+            }
+          }),
+        }
+      })[0]
+    } else {
+      setRedirectTo(NOT_FOUND)
     }
   }
 
-  componentDidMount() {
-    const {
-      match: { params },
-    } = this.props
-
-    const url = `${BASE_URL + COURSE_URL}/${
-      params.course_id
-    }?_join=hasPrerequisite,hasAdmin`
-    axiosRequest('get', null, url).then(response => {
-      const data = getData(response)
-      this.setState({
-        loading: false,
-      })
-      if (data != null && data !== []) {
-        const course = data.map(courseData => {
-          return {
-            id: courseData['@id'].substring(courseData['@id'].length - 5),
-            name: courseData.name,
-            abbreviation: courseData.abbreviation,
-            description: courseData.description,
-            prerequisites: courseData.hasPrerequisite.map(prerequisite => {
-              return { fullId: prerequisite['@id'], name: prerequisite.name }
-            }),
-            admins: courseData.hasAdmin.map(admin => {
-              return {
-                fullId: admin['@id'],
-                name: `${admin.firstName} ${admin.lastName}`,
-              }
-            }),
-          }
-        })[0]
-
-        this.setState({
-          course,
-        })
-      } else {
-        this.setState({
-          redirectTo: NOT_FOUND,
-        })
-      }
-    })
-  }
-
-  render() {
-    const { course, redirectTo, loading } = this.state
-    const { user } = this.props
-
-    if (redirectTo) {
-      return <Redirect to={redirectTo} />
-    }
-
-    if (loading) {
-      return (
-        <Alert color="secondary" className="empty-message">
-          Loading...
-        </Alert>
-      )
-    }
-
-    const isAdmin = user
+  const isAdmin = user
       ? course.admins
           .map(admin => admin.fullId)
           .findIndex(admin => {
@@ -88,19 +59,18 @@ class Course extends React.Component {
           }) > -1
       : false
 
-    return (
-      <div>
-        <Container className="container-view">
-          {course && (
-            <CourseCard
-              course={course}
-              isAdmin={user ? user.isSuperAdmin || isAdmin : false}
-            />
-          )}
-        </Container>
-      </div>
-    )
-  }
+  return(
+    <div>
+      <Container className="container-view">
+        {course && (
+          <CourseCard
+            course={course}
+            isAdmin={user ? user.isSuperAdmin || isAdmin : false}
+          />
+        )}
+      </Container>
+    </div>
+  )
 }
 
 const CourseCard = ({ course, isAdmin }) => (
