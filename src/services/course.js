@@ -29,10 +29,28 @@ export const courseApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Course'],
         }),
+        deleteCourse: mutation.query({
+            query: (id) => ({ 
+                url: `course/${id}`,
+                method: 'DELETE',
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Course'],
+        }),
+        deleteCourseInstance: mutation.query({
+            query: (id) => ({ 
+                url: `courseInstance/${id}`,
+                method: 'DELETE', 
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Course'],
+        }),
     }),
 })
 
 export const { 
     useGetCourseWithInstructorQuery,
-    useGetCourseQuery
+    useGetCourseQuery,
+    useDeleteCourseMutation,
+    useDeleteCourseInstanceMutation,
 } = courseApi
