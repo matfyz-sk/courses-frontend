@@ -19,14 +19,20 @@ export const eventApi = createApi({
     }),
     tagTypes: ['Event'],
     endpoints: (builder) => ({
-        getEvent: builder.query({
+        getCourseInstanceEvent: builder.query({
             query: (id) => ({ url: `event?courseInstance=${id}&_join=uses,recommends,documentReference` }),
             transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Course'],
+            providesTags: ['Event'],
+        }),
+        getEvent: builder.query({
+            query: (id) => ({ url: `event/${id}?_join=hasInstructor,uses,recommends,documentReference` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Event'],
         }),
     }),
 })
 
 export const { 
+    useGetCourseInstanceEventQuery,
     useGetEventQuery,
 } = eventApi

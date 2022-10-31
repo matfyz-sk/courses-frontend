@@ -9,12 +9,12 @@ import {
   setCourseMigrationState,
   setCourseMigrationAllEvents,
 } from '../../../redux/actions'
-import { useGetEventQuery } from 'services/event'
+import { useGetCourseInstanceEventQuery } from 'services/event'
 
 function CourseMigration(props) {
   const { courseInstance } = props
   const courseInstanceId = getShortId(courseInstance['@id'])
-  const { data, isSuccess, isLoading } = useGetEventQuery(courseInstanceId)
+  const { data, isSuccess, isLoading } = useGetCourseInstanceEventQuery(courseInstanceId)
 
   if (!props.initialized && courseInstance) {
     const state = {
