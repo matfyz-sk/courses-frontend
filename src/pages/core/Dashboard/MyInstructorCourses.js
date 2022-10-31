@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import {
   ListGroup,
   ListGroupItem,
@@ -6,38 +6,17 @@ import {
   ListGroupItemText,
 } from 'reactstrap'
 import { Link } from 'react-router-dom'
-import { authHeader, getUserID } from '../../../components/Auth'
+import { getUserID } from '../../../components/Auth'
 import { formatDate } from '../../../functions/global'
 import { redirect } from '../../../constants/redirect'
 import { TIMELINE } from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
-import { BACKEND_URL } from "../../../constants";
+import { useGetCourseWithInstructorQuery } from "services/course"
 
 const MyInstructorCourses = props => {
-  const [data, setData] = useState(null)
-  function getData() {
-    fetch(`${BACKEND_URL}data/courseInstance?hasInstructor=${getUserID()}`, {
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if (!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(_data => {
-        if (_data['@graph'].length > 0) {
-          setData(_data['@graph'])
-        }
-      })
-  }
+  const {data, isSuccess } = useGetCourseWithInstructorQuery(getUserID()) 
 
-  useEffect(() => {
-    getData()
-  }, [])
-
-  if (!data || data.length === 0) {
+  if (!isSuccess || !data || data.length === 0) {
     return null
   }
 
