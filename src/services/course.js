@@ -29,7 +29,7 @@ export const courseApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Course'],
         }),
-        deleteCourse: mutation.query({
+        deleteCourse: builder.mutation({
             query: (id) => ({ 
                 url: `course/${id}`,
                 method: 'DELETE',
@@ -37,7 +37,7 @@ export const courseApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Course'],
         }),
-        deleteCourseInstance: mutation.query({
+        deleteCourseInstance: builder.mutation({
             query: (id) => ({ 
                 url: `courseInstance/${id}`,
                 method: 'DELETE', 

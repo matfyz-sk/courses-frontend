@@ -8,7 +8,7 @@ import {
   ModalFooter,
 } from 'reactstrap'
 import './DeleteCourseModal.css'
-import { DeleteForm } from "./DeleteForm"
+import DeleteForm from "./DeleteForm"
 
 function DeleteCourseModal(props) {
   const [modal, setModal] = useState(false)

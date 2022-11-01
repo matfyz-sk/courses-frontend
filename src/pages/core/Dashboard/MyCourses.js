@@ -21,7 +21,7 @@ const MyCourses = props => {
   }
 
   const renderList = []
-  data[0].studendOf.forEach(item => {
+  data[0].studentOf.forEach(item => {
     renderList.push(
       <ListGroupItem key={`myCourses${item['@id']}`}>
         <ListGroupItemHeading>{item.name}</ListGroupItemHeading>

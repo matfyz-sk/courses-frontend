@@ -16,7 +16,7 @@ function DeleteForm(props) {
     const [ error, setError ] = useState(null)
     const { course, courseInstance, type, callback } = props
    
-    onSubmit = async (event) => {      
+    const onSubmit = (event) => {      
       if (!agreeWithDelete) {
         setError('You must be sure to delete course.')
         event.preventDefault()
@@ -25,9 +25,9 @@ function DeleteForm(props) {
     
       try {
         if(type === 'course') {
-            await deleteCourse(course.id).unwrap()
+            deleteCourse(course.id).unwrap()
         } else {
-            await deleteCourseInstance(courseInstance.id).unwrap()
+            deleteCourseInstance(courseInstance.id).unwrap()
         }
         callback()
       } catch {
@@ -36,7 +36,7 @@ function DeleteForm(props) {
       event.preventDefault()
     }
     
-    onChange = event => {
+    const onChange = event => {
       setAgreeWithDelete(event.target.value)
     }
 
