@@ -1,81 +1,56 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Container, Card, CardHeader, CardBody } from 'reactstrap'
 import EventForm from '../EventForm'
-import { BASE_URL, COURSE_URL, INITIAL_EVENT_STATE } from '../constants'
-import { axiosRequest, getData } from '../AxiosRequests'
+import { INITIAL_EVENT_STATE } from '../constants'
 import { Redirect } from 'react-router-dom'
 import { NOT_FOUND } from '../../../constants/routes'
+import { useGetPlainCourseQuery } from 'services/course'
 
-class NewCourseInstance extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      courseId: '',
-      course: null,
-      redirect: null,
-    }
-  }
+function NewCourseInstance(props) {
+  const { match: { params } } = props
+  const [redirectTo, setRedirectTo] = useState(null)
+  const { data, isSuccess } = useGetPlainCourseQuery(params.course_id)
 
-  componentDidMount() {
-    const {
-      match: { params },
-    } = this.props
-
-    const url = `${BASE_URL + COURSE_URL}/${params.course_id}`
-
-    axiosRequest('get', null, url).then(response => {
-      const data = getData(response)
-      if (data != null) {
-        const course = data.map(courseData => {
-          return {
-            fullId: courseData['@id'],
-            name: courseData.name ? courseData.name : '',
-          }
-        })[0]
-        this.setState({
-          course,
-        })
-      } else {
-        this.setState({
-          redirect: NOT_FOUND,
-        })
+  let course = null
+  if (isSuccess && data) {
+    course = data.map(courseData => {
+      return {
+        fullId: courseData['@id'],
+        name: courseData.name ? courseData.name : '',
       }
-    })
+    })[0]
+  } else {
+    setRedirectTo(NOT_FOUND)
   }
 
-  setRedirect = id => {
-    this.setState({
-      redirect: `/courses/${id}/event/${id}`,
-    })
+  const setRedirect = id => {
+    setRedirectTo(`/courses/${id}/event/${id}`)
   }
 
-  render() {
-    const { course, redirect } = this.state
-
-    if (redirect) {
-      return <Redirect to={redirect} />
-    }
-
-    return (
-      <div>
-        <Container>
-          <Card className="event-card">
-            <CardHeader className="event-card-header">
-              New Course Instance for Course
-              {course && ` "${course.name}"`}
-            </CardHeader>
-            <CardBody>
-              <EventForm
-                typeOfForm="New Course Instance"
-                {...INITIAL_EVENT_STATE}
-                options={['CourseInstance']}
-                callBack={this.setRedirect}
-              />
-            </CardBody>
-          </Card>
-        </Container>
-      </div>
-    )
+  if (redirectTo) {
+    return <Redirect to={redirectTo} />
   }
+
+  return (
+    <div>
+      <Container>
+        <Card className="event-card">
+          <CardHeader className="event-card-header">
+            New Course Instance for Course
+            {course && ` "${course.name}"`}
+          </CardHeader>
+          <CardBody>
+            <EventForm
+              typeOfForm="New Course Instance"
+              {...INITIAL_EVENT_STATE}
+              options={['CourseInstance']}
+              callBack={setRedirect}
+            />
+          </CardBody>
+        </Card>
+      </Container>
+    </div>
+  )
 }
+
 export default NewCourseInstance
