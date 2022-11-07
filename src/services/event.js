@@ -29,10 +29,16 @@ export const eventApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Event'],
         }),
+        getEventCourseInstance: builder.query({
+            query: (id) => ({ url: `event/${id}?_join=courseInstance,uses,recommends,documentReference` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Event'],
+        }),
     }),
 })
 
 export const { 
     useGetCourseInstanceEventQuery,
     useGetEventQuery,
+    useGetEventCourseInstanceQuery,
 } = eventApi

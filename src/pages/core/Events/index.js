@@ -7,7 +7,7 @@ import {
   ListGroupItem,
   UncontrolledDropdown,
 } from 'reactstrap'
-import { EventCard } from '../Event'
+import { EventCard } from '../Event/EventCard'
 import './Events.css'
 import { NavLink } from 'react-router-dom'
 import Scroll from 'react-scroll'

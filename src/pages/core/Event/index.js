@@ -1,276 +1,113 @@
-import React from 'react'
-import {Alert, Card, CardBody, CardHeader, CardSubtitle, Container, Table,} from 'reactstrap'
+import React, {useState} from 'react'
+import {Alert, Container} from 'reactstrap'
 import {connect} from 'react-redux'
-import {NavLink, Redirect} from 'react-router-dom'
+import {Redirect} from 'react-router-dom'
 import './Event.css'
-import {SubEventList} from '../Events'
 import {
-  getDisplayDateTime,
-  getIcon,
   getInstructorRights,
   getShortId,
   mergeMaterials,
 } from '../Helper'
-import {BASE_URL, EVENT_URL, INITIAL_EVENT_STATE, SESSIONS, TASKS_EXAMS,} from '../constants'
-import {axiosRequest, getData} from '../AxiosRequests'
-import {redirect} from '../../../constants/redirect'
-import * as ROUTES from '../../../constants/routes'
-import DocumentReferencesList from '../../documents/common/DocumentReferencesList'
+import { INITIAL_EVENT_STATE } from '../constants'
+import { NOT_FOUND } from 'constants/routes'
 import DocumentViewer from '../../documents/DocumentViewer'
+import { EventCard } from './EventCard'
+import { useGetEventCourseInstanceQuery } from 'services/event'
 
-class Event extends React.Component {
-  constructor(props) {
-    super(props)
+function Event(props) {
+  const {
+    match: { params },
+    user,
+    courseInstance,
+  } = props
+  const [redirectTo, setRedirectTo] = useState(null)
+  const [viewingDocument, setViewingDocument] = useState(null)
+  const {data, isSuccess, isLoading} = useGetEventCourseInstanceQuery(params.event_id)
+  const hasAccess = courseInstance && user && getInstructorRights(user, courseInstance)
 
-    this.state = {
-      event: INITIAL_EVENT_STATE,
-      redirectTo: null,
-      hasAccess: false,
-      loading: true,
-      viewingDocument: null,
-    }
-    this.onViewingDocumentChange = this.onViewingDocumentChange.bind(this)
+  if (redirectTo) {
+    return <Redirect to={redirectTo} />
   }
 
-  onViewingDocumentChange(document) {
-    this.setState({
-      viewingDocument: document
-    })
-  }
-
-  componentDidMount() {
-    const {
-      match: { params },
-    } = this.props
-
-    const { user, courseInstance } = this.props
-
-    if (courseInstance && user && getInstructorRights(user, courseInstance)) {
-      this.setState({
-        hasAccess: true,
-      })
-    }
-
-    const url = `${BASE_URL + EVENT_URL}/${
-      params.event_id
-    }?_join=courseInstance,uses,recommends,documentReference`
-    axiosRequest('get', null, url).then(response => {
-      const data = getData(response)
-      this.setState({
-        loading: false,
-      })
-      if (data != null && data !== []) {
-        const event = data.map(eventData => {
-          return {
-            id: getShortId(eventData['@id']),
-            name: eventData.name,
-            description: eventData.description,
-            startDate: new Date(eventData.startDate),
-            endDate: new Date(eventData.endDate),
-            place: eventData.location,
-            type: eventData['@type'].split('#')[1],
-            uses: eventData.uses.map(material => {
-              return {
-                id: getShortId(material['@id']),
-                fullId: material['@id'],
-                name: material.name,
-              }
-            }),
-            recommends: eventData.recommends.map(material => {
-              return {
-                id: getShortId(material['@id']),
-                fullId: material['@id'],
-                name: material.name,
-              }
-            }),
-            documentReference: eventData.documentReference,
-            courseInstance: eventData.courseInstance[0]
-              ? eventData.courseInstance[0]['@id']
-              : eventData['@id'],
-            instructors: eventData.courseInstance[0]
-              ? eventData.courseInstance[0].hasInstructor
-              : eventData.hasInstructor,
-          }
-        })[0]
-
-        if (
-          event.courseInstance !== '' &&
-          params.course_id !== getShortId(event.courseInstance)
-        ) {
-          this.setState({
-            redirectTo: ROUTES.NOT_FOUND,
-          })
-        }
-
-        event.materials = mergeMaterials(event.uses, event.recommends)
-        this.setState({
-          event,
-        })
-      } else {
-        this.setState({
-          redirectTo: ROUTES.NOT_FOUND,
-        })
-      }
-    })
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { user, courseInstance } = this.props
-    if (
-      prevProps.user !== user ||
-      prevProps.courseInstance !== courseInstance
-    ) {
-      if (courseInstance && user && getInstructorRights(user, courseInstance)) {
-        this.setState({
-          hasAccess: true,
-        })
-      }
-    }
-  }
-
-  render() {
-    const { event, redirectTo, hasAccess, loading, viewingDocument } = this.state
-
-    if (redirectTo) {
-      return <Redirect to={redirectTo} />
-    }
-
-    if (loading) {
-      return (
-        <Alert color="secondary" className="empty-message">
-          Loading...
-        </Alert>
-      )
-    }
-
-    // const isAdmin = user ? user.isSuperAdmin : false
+  if (isLoading) {
     return (
-      <div>
-        {viewingDocument && (
-            <div style={{maxWidth: 1300, padding: 10, margin: "auto"}}>
-              <DocumentViewer
-                document={viewingDocument}
-                onViewingDocumentChange={this.onViewingDocumentChange}
-              />
-            </div>
-          )}
-        {!viewingDocument && <Container className="container-view">
-
-          {event && (
-            <EventCard
-              onViewableDocumentClick={this.onViewingDocumentChange}
-              event={event}
-              isAdmin={hasAccess}
-              detail
-            />
-          )}
-        </Container>}
-      </div>
+      <Alert color="secondary" className="empty-message">
+        Loading...
+      </Alert>
     )
   }
-}
 
-const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) =>  (
-  <Card id={`${event.id}`} name={`${event.id}`} className="event-card">
-    <CardHeader className="event-card-header-flex">
-      <NavLink
-        to={redirect(ROUTES.EVENT_ID, [
-          { key: 'course_id', value: getShortId(event.courseInstance) },
-          { key: 'event_id', value: event.id },
-        ])}
-        className="subevent-name"
-      >
-        <div className="event-card-name">
-          {event.name} ({event.type})
-        </div>
-      </NavLink>
-      {isAdmin &&
-        (SESSIONS.includes(event.type) ||
-          TASKS_EXAMS.includes(event.type) ||
-          event.type === 'Block') && (
-          <NavLink
-            to={redirect(ROUTES.EDIT_EVENT_ID, [
-              { key: 'course_id', value: getShortId(event.courseInstance) },
-              { key: 'event_id', value: event.id },
-            ])}
-            className="edit-delete-buttons"
-          >
-            Edit
-          </NavLink>
+  let event = INITIAL_EVENT_STATE
+  if(isSuccess && data && data !== []) {
+    event = data.map(eventData => {
+      return {
+        id: getShortId(eventData['@id']),
+        name: eventData.name,
+        description: eventData.description,
+        startDate: new Date(eventData.startDate),
+        endDate: new Date(eventData.endDate),
+        place: eventData.location,
+        type: eventData['@type'].split('#')[1],
+        uses: eventData.uses.map(material => {
+          return {
+            id: getShortId(material['@id']),
+            fullId: material['@id'],
+            name: material.name,
+          }
+        }),
+        recommends: eventData.recommends.map(material => {
+          return {
+            id: getShortId(material['@id']),
+            fullId: material['@id'],
+            name: material.name,
+          }
+        }),
+        documentReference: eventData.documentReference,
+        courseInstance: eventData.courseInstance[0]
+          ? eventData.courseInstance[0]['@id']
+          : eventData['@id'],
+        instructors: eventData.courseInstance[0]
+          ? eventData.courseInstance[0].hasInstructor
+          : eventData.hasInstructor,
+      }
+    })[0]
+    
+    if (
+      event.courseInstance !== '' &&
+      params.course_id !== getShortId(event.courseInstance)
+    ) {
+      setRedirectTo(NOT_FOUND)
+    }
+
+    event.materials = mergeMaterials(event.uses, event.recommends)
+  } else {
+    setRedirectTo(NOT_FOUND)
+  }
+
+  return (
+    <div>
+      {viewingDocument && (
+          <div style={{maxWidth: 1300, padding: 10, margin: "auto"}}>
+            <DocumentViewer
+              document={viewingDocument}
+              onViewingDocumentChange={document => setViewingDocument(document)}
+            />
+          </div>
         )}
-    </CardHeader>
-    <CardBody>
-      <div className="event-dates-container">
-        <div className="event-dates-col">
-          <CardSubtitle className="event-card-subtitle-double">
-            <div className="event-subtitle-double">From</div>
-            {getDisplayDateTime(event.startDate, true)}
-          </CardSubtitle>
-        </div>
-        <div className="event-dates-col">
-          <CardSubtitle className="event-card-subtitle-double">
-            <div className="event-subtitle-double">To</div>
-            {getDisplayDateTime(event.endDate, true)}
-          </CardSubtitle>
-        </div>
-      </div>
-      {/*<CardText className="event-card-text">{event.description}</CardText>*/}
-      <CardSubtitle className="event-card-subtitle">Description</CardSubtitle>
-      <div className="fake-table">{event.description}</div>
-      {event.place && (
-        <>
-          <CardSubtitle className="event-card-subtitle-one-line">
-            <div className="event-subtitle">Location</div>
-            <div className="event-one-line-text">{event.place}</div>
-          </CardSubtitle>
-        </>
-      )}
+      {!viewingDocument && <Container className="container-view">
 
-      {event.type === 'Block' && !detail && (
-        <div className="timeline-sessions-tasks-container">
-          <div className="subevents-col-left">
-            <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
-            <SubEventList events={event.sessions} />
-          </div>
-          <div className="subevents-col-right">
-            <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
-            <SubEventList events={event.tasks} />
-          </div>
-        </div>
-      )}
-      {event.documentReference && event.documentReference.length > 0 && (
-        <>
-          <CardSubtitle  className="event-card-table-subtitle">
-            <div style={{width: "100%"}} className="event-subtitle">Documents</div>
-          </CardSubtitle>
-          <DocumentReferencesList
-            onViewableDocumentClick={onViewableDocumentClick}
-            documentReference={event.documentReference}
+        {event && (
+          <EventCard
+            onViewableDocumentClick={document => setViewingDocument(document)}
+            event={event}
+            isAdmin={hasAccess}
+            detail
           />
-        </>
-      )}
-      {/*{event.materials && event.materials.length > 0 && (*/}
-      {/*  <>*/}
-      {/*    <CardSubtitle className="event-card-table-subtitle">*/}
-      {/*      Materials*/}
-      {/*    </CardSubtitle>*/}
-      {/*    <Table key={event.id} className="materials-table">*/}
-      {/*      <tbody>*/}
-      {/*        {event.materials.map(material => (*/}
-      {/*          <tr key={material.id} className="event-list-group-item">*/}
-      {/*            <td className="materials-td">*/}
-      {/*              {getIcon('Material')}*/}
-      {/*              <div className="material-name">{material.name}</div>*/}
-      {/*            </td>*/}
-      {/*          </tr>*/}
-      {/*        ))}*/}
-      {/*      </tbody>*/}
-      {/*    </Table>*/}
-      {/*  </>*/}
-      {/*)}*/}
-    </CardBody>
-  </Card>
-)
+        )}
+      </Container>}
+    </div>
+  )
+}
 
 const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
   return {
@@ -281,4 +118,4 @@ const mapStateToProps = ({ authReducer, courseInstanceReducer }) => {
 
 export default connect(mapStateToProps)(Event)
 
-export { EventCard }
+
