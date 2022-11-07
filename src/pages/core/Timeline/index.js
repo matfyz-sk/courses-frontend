@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 import { Container, Row, Col, Alert } from 'reactstrap'
 import Scroll from 'react-scroll'
-import EventsList, { BlockMenu, BlockMenuToggle } from '../Events'
+import EventsList, { BlockMenu } from '../Events'
 import { getInstructorRights, getShortId } from '../Helper'
 import {
   getEvents,
@@ -15,8 +15,6 @@ import {
 // import NextCalendar from '../NextCalendar'
 import * as ROUTES from '../../../constants/routes'
 import './Timeline.css'
-import { BASE_URL, EVENT_URL } from '../constants'
-import { axiosRequest, getData } from '../AxiosRequests'
 import { redirect } from '../../../constants/redirect'
 // import TeacherNavigation from '../../../components/Navigation/TeacherNavigation'
 import DocumentViewer from '../../documents/DocumentViewer'
