@@ -34,8 +34,18 @@ export const courseApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Course'],
         }),
+        getCourses: builder.query({
+            query: () => ({ url: `course` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Course'],
+        }),
         getCourseInstance: builder.query({
             query: (id) => ({ url: `courseInstance/${id}?_join=instanceOf,covers,hasInstructor` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Course'],
+        }),
+        getCourseInstances: builder.query({
+            query: () => ({ url: `courseInstance?_join=instanceOf` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Course'],
         }),
@@ -61,8 +71,10 @@ export const courseApi = createApi({
 export const { 
     useGetCourseWithInstructorQuery,
     useGetCourseQuery,
+    useGetCoursesQuery,
     useGetPlainCourseQuery,
     useGetCourseInstanceQuery,
+    useGetCourseInstancesQuery,
     useDeleteCourseMutation,
     useDeleteCourseInstanceMutation,
 } = courseApi
