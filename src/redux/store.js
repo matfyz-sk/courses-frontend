@@ -2,9 +2,12 @@ import { applyMiddleware, combineReducers, compose, createStore } from 'redux'
 import ReduxThunk from 'redux-thunk'
 
 import allReducers from './reducers'
+import { userApi } from 'services/user'
+
 
 const reducers = combineReducers({
   ...allReducers,
+  [userApi.reducerPath]: userApi.reducer,
 })
 
 const composeEnhancers =
@@ -16,6 +19,6 @@ const composeEnhancers =
       })
     : compose
 
-const enhancers = composeEnhancers(compose(applyMiddleware(ReduxThunk)))
+const enhancers = composeEnhancers(compose(applyMiddleware(ReduxThunk, userApi.middleware)))
 
 export default () => createStore(reducers, {}, enhancers)

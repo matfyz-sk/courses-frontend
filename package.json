@@ -46,6 +46,7 @@
     "recompose": "^0.30.0",
     "redux": "^4.0.4",
     "redux-thunk": "^2.3.0",
+    "@reduxjs/toolkit": "^1.8.6",
     "remark-gfm": "^3.0.1"
   },
   "scripts": {
