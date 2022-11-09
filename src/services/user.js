@@ -39,6 +39,16 @@ export const userApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['User'],
         }),
+        getUserByEmailForCourse: builder.query({
+            query: ({id, email}) => ({ url: `user?email=${ email }&studentOf=${ id }` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['User'],
+        }),
+        getUserByNicknameForCourse: builder.query({
+            query: ({id, nickname}) => ({ url: `user?nickname=${ nickname }&studentOf=${ id }` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['User'],
+        }),
         getInstructorsOfCourse: builder.query({
             query: (id) => ({ url: `user?instructorOf=${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
@@ -63,6 +73,8 @@ export const {
     useGetUserQuery, 
     useGetUserRequestQuery,
     useGetUserEnrolledQuery,
+    useGetUserByEmailForCourseQuery,
+    useGetUserByNicknameForCourseQuery,
     useGetUsersQuery, 
     useGetInstructorsOfCourseQuery,
     useGetUserStudentOfQuery, 

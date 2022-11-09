@@ -19,8 +19,18 @@ export const teamApi = createApi({
     }),
     tagTypes: ['Team'],
     endpoints: (builder) => ({
-        getUsersTeam: builder.query({
-            query: (id) => ({ url: `teamInstance?hasUser=${id}` }),
+        getTeamForCourseOrderedByName: builder.query({
+            query: (id) => ({ url: `team?courseInstance=${id}&_orderBy=name` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Team'],
+        }),
+        getTeam: builder.query({
+            query: (id) => ({ url: `team/${id}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Team'],
+        }),
+        getTeamInstanceWithUsers: builder.query({
+            query: (id) => ({ url: `teamInstance?instanceOf=${id}&_join=hasUser` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Team'],
         }),
@@ -28,10 +38,56 @@ export const teamApi = createApi({
             query: (id) => ({ url: `teamInstance?hasUser=${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Team'],
+        }),
+        newTeamInstance: builder.mutation({
+            query: (post) => ({ 
+                url: `teamInstance`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Team'],
+        }),
+        newTeam: builder.mutation({
+            query: (post) => ({ 
+                url: `team`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Team'],
+        }),
+        updateTeamInstance: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `teamInstance/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: ['Team'],
+        }),
+        removeTeam: builder.mutation({
+            query: (id) => ({ 
+                url: `team/${id}`,
+                method: 'PATCH',
+            }),
+            invalidatesTags: ['Team'],
+        }),
+        removeTeamInstance: builder.mutation({
+            query: (id) => ({ 
+                url: `teamInstance/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Team'],
         }),
     }),
 })
 
 export const { 
-    useGetUsersTeamQuery
+    useGetTeamForCourseOrderedByNameQuery,
+    useGetTeamQuery,
+    useGetTeamInstanceWithUsersQuery,
+    useGetUsersTeamQuery,
+    useNewTeamInstanceMutation,
+    useNewTeamMutation,
+    useUpdateTeamInstanceMutation,
+    useRemoveTeamInstanceMutation,
+    useRemoveTeamMutation,
 } = teamApi
