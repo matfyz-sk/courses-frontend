@@ -8,6 +8,7 @@ import { redirect } from '../../../constants/redirect'
 import withTeamHandler from './TeamDetailHOC'
 import { getShortID } from '../../../helperFunctions'
 import { isVisibleUser, showUserName } from '../../../components/Auth/userFunction';
+import { CreateTeamForm } from './CreateTeamForm'
 import { useGetUserByEmailForCourseQuery, useGetUserByNicknameForCourseQuery } from "services/user"
 import { 
   useNewTeamInstanceMutation, 
@@ -50,6 +51,7 @@ function TeamsDetail(props) {
       data: userByEmailData, 
       isSuccess: userByEmailIsSuccess
     } = useGetUserByEmailForCourseQuery({course_id, search})
+
     if (userByEmailIsSuccess && userByEmailData && userByEmailData.length > 0) { 
       appendUserToTeam(team['@id'], userByEmailData['@id'])
     } else {
@@ -57,6 +59,7 @@ function TeamsDetail(props) {
         data: userByNicknameData, 
         isSuccess: userByNicknameIsSuccess
       } = useGetUserByNicknameForCourseQuery({course_id, search})
+
       if (userByNicknameIsSuccess && userByNicknameData && userByNicknameData.length > 0) {
         appendUserToTeam(team['@id'], userByNicknameData['@id'])
       } else {
@@ -65,7 +68,7 @@ function TeamsDetail(props) {
     }
   }
 
-  const appendUserToTeam = async (iri, user, approved = false, fillRequest = true) => {
+  const appendUserToTeam = (iri, user, approved = false, fillRequest = true) => {
     const post = {
       approved,
       instanceOf: iri,
@@ -73,34 +76,36 @@ function TeamsDetail(props) {
       requestFrom: fillRequest ? getUser().fullURI : null,
     }
     const [newTeamInstance, result] = useNewTeamInstanceMutation()
-    try {
-      await newTeamInstance(post).unwrap()
-      history.push(
-        redirect(ROUTES.COURSE_TEAM_DETAIL, [
-          {key: 'course_id', value: course_id},
-          {key: 'team_id', value: getShortID(iri)},
-        ])
-      )
-    } catch {
+    newTeamInstance(post).unwrap().then(response => {
+      if(!response.status) {
+        setError('Error has occured during saving process. Please, try again.')
+      } else {
+        history.push(
+          redirect(ROUTES.COURSE_TEAM_DETAIL, [
+            {key: 'course_id', value: course_id},
+            {key: 'team_id', value: getShortID(iri)},
+          ])
+        )
+      }
+    }).catch(error => {
       setError('Error has occured during saving process. Please, try again.')
-    }
+    })
   }
 
-  const approveMember = async (user) => {
+  const approveMember = (user) => {
     const [updateTeamInstance, result] = useUpdateTeamInstanceMutation()
     const id = getShortID(user['@id'])
     const patch = {approved: true}
-    try {
-      await updateTeamInstance({id, patch})
+    updateTeamInstance({id, patch}).unwrap().then(response => {
       history.push(
         redirect(ROUTES.COURSE_TEAM_DETAIL, [
           {key: 'course_id', value: course_id},
           {key: 'team_id', value: getShortID(team['@id'])},
         ])
       )
-    } catch {
-      throw new Error(result)
-    }
+    }).catch(error => {
+      throw new Error("Failed to approve user" + error)
+    })
   }
 
   const removeMember = (user) => {
@@ -111,27 +116,25 @@ function TeamsDetail(props) {
     }
   }
 
-  const removeTeam = async () => {
+  const removeTeam = () => {
     const [removeTeam, result] = useRemoveTeamMutation()
     for(let i = 0; i < users.length; i++) {
       removeUserFromTeam(users[i], false)
     }
-    try {
-      await removeTeam(getShortID(team['@id'])).unwrap()
+    removeTeam(getShortID(team['@id'])).unwrap().then(response => {
       history.push(
         redirect(ROUTES.COURSE_TEAMS, [
           {key: 'course_id', value: course_id},
         ])
       )
-    } catch {
-      throw new Error(result)
-    }
+    }).catch(error => {
+      throw new Error("Failed to remove the team" + error)
+    })
   }
 
-  const removeUserFromTeam = async (user, rerender = true) => {
+  const removeUserFromTeam = (user, rerender = true) => {
     const [removeTeamInstance, result] = useRemoveTeamInstanceMutation()
-    try {
-      await removeTeamInstance(getShortID(user['@id'])).unwrap()
+    removeTeamInstance(getShortID(user['@id'])).unwrap().then(response => {
       if(rerender) {
         history.push(
           redirect(ROUTES.COURSE_TEAM_DETAIL, [
@@ -140,9 +143,9 @@ function TeamsDetail(props) {
           ])
         )
       }
-    } catch {
-      throw new Error(result)
-    }
+    }).catch(error => {
+      throw new Error("Failed to remove the user from team" + error)
+    })
   }
 
   const render_members = []

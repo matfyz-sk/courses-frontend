@@ -31,13 +31,12 @@ function CreateTeamForm(props) {
                 name: teamName,
                 courseInstance: course['@id'],
             }
-            try {
-                await newTeam(post).unwrap()
-                const {iri} = result.resource
+            newTeam(post).unwrap().then(response => {
+                const {iri} = response.resource
                 appendUserToTeam(iri, getUser().fullURI, true)
-            } catch {
+            }).catch(error => {
                 setError('Error has occured during saving process. Please, try again.')
-            }
+            })
         }
     }
 
