@@ -23,15 +23,18 @@ function DeleteForm(props) {
         return
       }
     
-      try {
-        if(type === 'course') {
-            deleteCourse(course.id).unwrap()
-        } else {
-            deleteCourseInstance(courseInstance.id).unwrap()
-        }
-        callback()
-      } catch {
-        setError('There was a problem with server. Try again later.')
+      if(type === 'course') {
+        deleteCourse(course.id).unwrap().then(response => {
+          callback()
+        }).catch(error => {
+          setError('There was a problem with server. Try again later.')
+        })
+      } else {
+        deleteCourseInstance(courseInstance.id).unwrap().then(response => {
+          callback()
+        }).catch(error => {
+          setError('There was a problem with server. Try again later.')
+        })
       }
       event.preventDefault()
     }
