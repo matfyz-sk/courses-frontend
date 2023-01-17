@@ -39,6 +39,11 @@ export const teamApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Team'],
         }),
+        getTeamDetails: builder.query({
+            query: (id) => ({ url: `team/${id}?_join=courseInstance` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Team'],
+        }),
         newTeamInstance: builder.mutation({
             query: (post) => ({ 
                 url: `teamInstance`,
@@ -85,6 +90,7 @@ export const {
     useGetTeamQuery,
     useGetTeamInstanceWithUsersQuery,
     useGetUsersTeamQuery,
+    useGetTeamDetailsQuery,
     useNewTeamInstanceMutation,
     useNewTeamMutation,
     useUpdateTeamInstanceMutation,

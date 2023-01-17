@@ -55,7 +55,7 @@ export const courseApi = createApi({
                 method: 'DELETE',
             }),
             transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Course'],
+            invalidatesTags: ['Course'],
         }),
         deleteCourseInstance: builder.mutation({
             query: (id) => ({ 
@@ -63,7 +63,52 @@ export const courseApi = createApi({
                 method: 'DELETE', 
             }),
             transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Course'],
+            invalidatesTags: ['Course'],
+        }),
+        updateCourseInstance: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `courseInstance/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Course'],
+        }),
+        updateCourse: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `course/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Course'],
+        }),
+        newCourseInstance: builder.mutation({
+            query: (body) => ({ 
+                url: `courseInstance`,
+                method: 'POST',
+                body: body,
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Course'],
+        }),
+        newCoursePersonalSettings: builder.mutation({
+            query: (body) => ({ 
+                url: `coursePersonalSettings`,
+                method: 'POST',
+                body: body,
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Course'],
+        }),
+        newCourse: builder.mutation({
+            query: (body) => ({ 
+                url: `course`,
+                method: 'POST',
+                body: body,
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Course'],
         }),
     }),
 })
@@ -77,4 +122,9 @@ export const {
     useGetCourseInstancesQuery,
     useDeleteCourseMutation,
     useDeleteCourseInstanceMutation,
+    useUpdateCourseInstanceMutation,
+    useUpdateCourseMutation,
+    useNewCourseInstanceMutation,
+    useNewCoursePersonalSettingsMutation,
+    useNewCourseMutation,
 } = courseApi

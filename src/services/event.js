@@ -24,6 +24,11 @@ export const eventApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Event'],
         }),
+        getCourseInstanceEventDocRef: builder.query({
+            query: (id) => ({ url: `event?courseInstance=${id}&_join=documentReference` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Event'],
+        }),
         getTimelineEvent: builder.query({
             query: (id) => ({ url: `event?courseInstance=${id}&_join=courseInstance,documentReference` }),
             transformResponse: (response, meta, arg) => response["@graph"],
@@ -39,12 +44,52 @@ export const eventApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Event'],
         }),
+        newEvent: builder.mutation({
+            query: (body) => ({ 
+                url: `event`,
+                method: 'POST',
+                body: body,
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Event'],
+        }),
+        newTimelineBlock: builder.mutation({
+            query: (body) => ({ 
+                url: `block`,
+                method: 'POST',
+                body: body,
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Event'],
+        }),
+        updateEventByType: builder.mutation({
+            query: ({id, type, patch}) => ({ 
+                url: `${type}/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Event'],
+        }),
+        deleteEventByType: builder.mutation({
+            query: ({id, type}) => ({ 
+                url: `${type}/${id}`,
+                method: 'DELETE',
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Event'],
+        }),
     }),
 })
 
 export const { 
     useGetCourseInstanceEventQuery,
+    useGetCourseInstanceEventDocRefQuery,
     useGetTimelineEventQuery,
     useGetEventQuery,
     useGetEventCourseInstanceQuery,
+    useNewEventMutation,
+    useNewTimelineBlockMutation,
+    useUpdateEventByTypeMutation,
+    useDeleteEventByTypeMutation,
 } = eventApi
