@@ -128,11 +128,9 @@ function UserManagement(props) {
       requests: user.requests,
     }
 
-    try {
-      updateUser({userId, body}).unwrap()
-    } catch {
-      console.log(result)
-    }
+    updateUser({userId, body}).unwrap().catch(error => {
+      throw new Error(error)
+    })
   }
 
   return (
