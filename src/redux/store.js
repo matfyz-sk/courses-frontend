@@ -7,6 +7,7 @@ import { courseApi } from 'services/course'
 import { eventApi } from 'services/event'
 import { resultApi } from 'services/result'
 import { teamApi } from 'services/team'
+import { documentsApi } from 'services/documents'
 
 
 const reducers = combineReducers({
@@ -16,6 +17,7 @@ const reducers = combineReducers({
   [eventApi.reducerPath]: eventApi.reducer,
   [resultApi.reducerPath]: resultApi.reducer,
   [teamApi.reducerPath]: teamApi.reducer,
+  [documentsApi.reducerPath]: documentsApi.reducer,
 })
 
 const composeEnhancers =
@@ -35,6 +37,7 @@ const enhancers = composeEnhancers(compose(
     eventApi.middleware, 
     resultApi.middleware,
     teamApi.middleware,
+    documentsApi.middleware,
   )
 ))
 
