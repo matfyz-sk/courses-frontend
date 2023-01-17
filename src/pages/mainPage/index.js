@@ -1,50 +1,31 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import ReactPaginate from 'react-paginate'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Container, Row } from 'reactstrap';
-import { BACKEND_URL } from "../../constants";
-import { authHeader } from '../../components/Auth'
 import UserCard from './UserCard'
 import { isVisibleUser } from "../../components/Auth/userFunction";
+import { useGetUsersOrderedByCreationDateQuery } from "services/user"
 
 const PER_PAGE = 18
 
 const MainPage = props => {
-  const [ users, setUsers ] = useState([])
   const [ page, setPage ] = useState(0)
-
-  function fetchUsers() {
-    fetch(`${ BACKEND_URL }data/user?_orderBy=createdAt`, {
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
+  const {data, isSuccess} = useGetUsersOrderedByCreationDateQuery()
+  
+  const users = []
+  if(isSuccess && data && data.length > 0) {
+    let tmpData = [...data] 
+    tmpData.reverse().forEach(item => {
+      if(isVisibleUser(item)) {
+        users.push(item)
+      }
     })
-      .then(response => {
-        if(!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
-        if(data['@graph'].length > 0) {
-          const userData = []
-          data['@graph'].reverse().map(item => {
-            if(isVisibleUser(item)) {
-              userData.push(item)
-            }
-          })
-          setUsers(userData)
-        }
-      })
   }
 
   function handlePageClick(e) {
     setPage(e.selected)
   }
-
-  useEffect(() => {
-    fetchUsers()
-  }, [])
 
   const renderUsers = []
   for(let i = page * PER_PAGE; i < ((page + 1) * PER_PAGE < users.length ? (page + 1) * PER_PAGE : users.length); i++) {

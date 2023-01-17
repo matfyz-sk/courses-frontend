@@ -24,6 +24,11 @@ export const userApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['User'],
         }),
+        getUsersOrderedByCreationDate: builder.query({
+            query: () => ({ url: `user?_orderBy=createdAt` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['User'],
+        }),
         getUserRequest: builder.query({
             query: (id) => ({ url: `user?requests=${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
@@ -71,6 +76,7 @@ export const userApi = createApi({
 
 export const { 
     useGetUserQuery, 
+    useGetUsersOrderedByCreationDateQuery,
     useGetUserRequestQuery,
     useGetUserEnrolledQuery,
     useGetUserByEmailForCourseQuery,
