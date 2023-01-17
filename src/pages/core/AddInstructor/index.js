@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { Form, Label } from 'reactstrap'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
@@ -6,36 +6,19 @@ import './AddInstructor.css'
 import { connect } from 'react-redux'
 import { useGetUsersQuery, useGetInstructorsOfCourseQuery } from 'services/user'
 
-
 function AddInstructor(props) {
   const { courseInstanceId } = props
+  const [instructors, setInstructors] = useState([])
   const { data: getUsersData, isSuccess: getUsersIsSuccess } = useGetUsersQuery()
   const { data: getInstructorsData, isSuccess: getInstructorsIsSuccess } = useGetInstructorsOfCourseQuery(courseInstanceId)
 
   let users = []
   if(getUsersIsSuccess && getUsersData) {
-    users = getUsersData.map(user => {
-      return {
-        fullId: user['@id'],
-        name:
-          user.firstName !== '' && user.lastName !== ''
-            ? `${user.firstName} ${user.lastName}`
-            : 'Noname',
-      }
-    })
+    users = processPersonData(getUsersData)
   }
 
-  let instructors = []
-  if(courseInstanceId != null && getInstructorsIsSuccess && getInstructorsData) {
-    instructors = getInstructorsData.map(user => {
-      return {
-        fullId: user['@id'],
-        name:
-          user.firstName !== '' && user.lastName !== ''
-            ? `${user.firstName} ${user.lastName}`
-            : 'Noname',
-      }
-    })
+  if(courseInstanceId != null && instructors === [] && getInstructorsIsSuccess && getInstructorsData) {
+    setInstructors(processPersonData(getInstructorsData))
   }
 
   const handleSubmit = (event) => {
@@ -73,7 +56,17 @@ function AddInstructor(props) {
   )
 }
 
-// TODO ask what does activityFormButton do and why was it saved like: this.activityFormButton = button
+const processPersonData = (data) => {
+  return data.map(user => {
+    return {
+      fullId: user['@id'],
+      name:
+        user.firstName !== '' && user.lastName !== ''
+          ? `${user.firstName} ${user.lastName}`
+          : 'Noname',
+    }
+  })
+}
 
 const mapStateToProps = ({ authReducer }) => {
   return {
