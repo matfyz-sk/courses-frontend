@@ -1,85 +1,55 @@
-import React, {Component} from 'react'
+import React, {useState} from 'react'
 import {Button, Form, FormGroup, Input, Label} from 'reactstrap'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import './CourseForm.css'
-import {axiosRequest, getData} from '../AxiosRequests'
-import {BASE_URL, COURSE_URL, INITIAL_COURSE_STATE, USER_URL,} from '../constants'
 import {getShortId} from '../Helper'
 import {Redirect} from 'react-router-dom'
 import {connect} from 'react-redux'
+import {useGetCoursesQuery, useUpdateCourseMutation, useNewCourseMutation} from 'services/course'
+import {useGetUsersQuery} from 'services/user'
 
-class CourseForm extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      ...INITIAL_COURSE_STATE,
-      courses: [],
-      users: [],
-      redirect: null,
-      errors: [],
-    }
-  }
+function CourseForm(props) {
+  const { typeOfForm, user, id } = props
+  const [name, setName] = useState(props.name)
+  const [description, setDescription] = useState(props.description)
+  const [abbreviation, setAbbreviation] = useState(props.abbreviation)
+  const [prerequisites, setPrerequisites] = useState(props.prerequisites)
+  const [admins, setAdmins] = useState(props.admins)
+  const [errors, setErrors] = useState([])
+  const [redirectTo, setRedirectTo] = useState(null)
+  const {data: coursesData, isSuccess: coursesIsSuccess} = useGetCoursesQuery()
+  const {data: usersData, isSuccess: usersIsSuccess} = useGetUsersQuery()
+  const [updateCurse, updateCurseResult] = useUpdateCourseMutation()
+  const [newCourse, newCourseResult] = useNewCourseMutation()
 
-  componentDidMount() {
-    this.setState({...this.props})
-
-    let url = BASE_URL + COURSE_URL
-    axiosRequest('get', null, url).then(response => {
-      const data = getData(response)
-      if (data != null) {
-        const courses = data.map(course => {
-          return {
-            fullId: course['@id'],
-            name: course.name ? course.name : '',
-          }
-        })
-        this.setState({
-          courses,
-        })
-      }
-    })
-
-    url = BASE_URL + USER_URL
-    axiosRequest('get', null, url).then(response => {
-      const data = getData(response)
-      if (data != null) {
-        const users = data.map(user => {
-          return {
-            fullId: user['@id'],
-            name:
-              user.firstName !== '' && user.lastName !== ''
-                ? `${user.firstName} ${user.lastName}`
-                : 'Noname',
-          }
-        })
-        this.setState({
-          users,
-        })
+  let courses = []
+  if(coursesIsSuccess && coursesData) {
+    courses = coursesData.map(course => {
+      return {
+        fullId: course['@id'],
+        name: course.name ? course.name : '',
       }
     })
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.name !== this.props.name) {
-      this.setState({...this.props})
-    }
+  let users = []
+  if(usersIsSuccess && usersData) {
+    users = usersData.map(user => {
+      return {
+        fullId: user['@id'],
+        name:
+          user.firstName !== '' && user.lastName !== ''
+            ? `${user.firstName} ${user.lastName}`
+            : 'Noname',
+      }
+    })
   }
 
-  onSubmit = event => {
-    const {
-      id,
-      name,
-      description,
-      abbreviation,
-      prerequisites,
-      admins,
-    } = this.state
-    const {typeOfForm} = this.props
-
-    const errors = this.validate(name, description, abbreviation)
-    if (errors.length > 0) {
-      this.setState({errors})
+  const onSubmit = (event) => {
+    const newErrors = validate(name, description, abbreviation)
+    if (newErrors.length > 0) {
+      setErrors(newErrors)
       event.preventDefault()
       return
     }
@@ -92,52 +62,42 @@ class CourseForm extends Component {
       return admin.fullId
     })
 
-    let url = BASE_URL + COURSE_URL
-    let method = 'post'
-
-    if (typeOfForm === 'Edit') {
-      url += `/${id}`
-      method = 'patch'
+    const body = {
+      name: name.split('"').join("'"),
+      description: description.split('"').join("'").split('\n').join(''),
+      abbreviation: abbreviation.split('"').join("'"),
+      hasPrerequisite,
+      hasAdmin,
     }
 
-    axiosRequest(
-      method,
-      {
-        name: name.split('"').join("'"),
-        description: description.split('"').join("'").split('\n').join(''),
-        abbreviation: abbreviation.split('"').join("'"),
-        hasPrerequisite,
-        hasAdmin,
-      },
-      url
-    ).then(response => {
-      if (response && response.status === 200) {
-        let newUrl
-        if (typeOfForm === 'Create') {
-          const newCourseId = getShortId(response.data.resource.iri)
+    try {
+      let newUrl
+      if (typeOfForm === 'Edit') {
+        updateCurse({id, body}).unwrap()
+        newUrl = `/course/${id}`
+      } else {
+        newCourse(body).unwrap().then(response => {
+          const newCourseId = getShortId(response.resource.iri)
+          console.log(response)
           newUrl = {
             pathname: `/newcourseinstance/${newCourseId}`,
             state: {courseName: name},
           }
-        } else {
-          newUrl = `/course/${id}`
-        }
-        this.setState({
-          redirect: newUrl,
-        })
-      } else {
-        errors.push(
-          'There was a problem with server while sending your form. Try again later.'
-        )
-        this.setState({
-          errors,
+          console.log(newUrl)
+          setRedirectTo(newUrl)
         })
       }
-    })
+      
+    } catch {
+      newErrors.push(
+        'There was a problem with server while sending your form. Try again later.'
+      )
+      setErrors(newErrors)
+    }
     event.preventDefault()
   }
 
-  validate = (name, description, abbreviation) => {
+  const validate = (name, description, abbreviation) => {
     const errors = []
     if (name.length === 0) {
       errors.push("Name can't be empty.")
@@ -151,142 +111,123 @@ class CourseForm extends Component {
     return errors
   }
 
-  onChange = event => {
-    this.setState({[event.target.name]: event.target.value})
+  const onPrerequisitesChange = (event, values) => {
+    setPrerequisites(values)
   }
 
-  onPrerequisitesChange = (event, values) => {
-    this.setState({prerequisites: values})
+  const onAdminsChange = (event, values) => {
+    setAdmins(values)
   }
 
-  onAdminsChange = (event, values) => {
-    this.setState({admins: values})
+  if (redirectTo) {
+    return <Redirect to={redirectTo}/>
   }
 
-  render() {
-    const {
-      name,
-      description,
-      abbreviation,
-      prerequisites,
-      admins,
-      courses,
-      users,
-      redirect,
-      errors,
-    } = this.state
-    const {typeOfForm, user} = this.props
-
-    if (redirect) {
-      return <Redirect to={redirect}/>
-    }
-
-    const isInvalid = name === '' || description === '' || abbreviation === ''
-    return (
-      <>
-        {errors.map(error => (
-          <p key={error}>Error: {error}</p>
-        ))}
-        <Form className="new-course-form" onSubmit={this.onSubmit}>
-          <FormGroup>
-            <Label for="name" className="form-label-subtitle">
-              Name *
-            </Label>
-            <Input
-              name="name"
-              id="name"
-              value={name}
-              onChange={this.onChange}
-              type="text"
-              className="form-input"
-            />
-            <Label for="abbreviation" className="form-label-subtitle">
-              Abbreviation *
-            </Label>
-            <Input
-              name="abbreviation"
-              id="abbreviation"
-              value={abbreviation}
-              onChange={this.onChange}
-              type="text"
-              className="form-input"
-            />
-            <Label for="description" className="form-label-subtitle">
-              Description *
-            </Label>
-            <Input
-              name="description"
-              id="description"
-              value={description}
-              onChange={this.onChange}
-              type="textarea"
-              className="form-input"
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="prerequisites" className="form-label-subtitle">
-              Prerequisites
-            </Label>
-            <Autocomplete
-              multiple
-              name="prerequisites"
-              id="prerequisites"
-              options={courses}
-              getOptionLabel={option => option.name}
-              value={prerequisites}
-              onChange={this.onPrerequisitesChange}
-              style={{maxWidth: 700}}
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  placeholder=""
-                  InputProps={{...params.InputProps, disableUnderline: true}}
-                />
-              )}
-              className="form-input"
-            />
-            {user && user.isSuperAdmin && (
-              <>
-                <Label for="admins" className="form-label-subtitle">
-                  Admins
-                </Label>
-                <Autocomplete
-                  multiple
-                  name="admins"
-                  id="admins"
-                  className="form-input"
-                  options={users}
-                  getOptionLabel={option => option.name}
-                  onChange={this.onAdminsChange}
-                  value={admins}
-                  style={{maxWidth: 700}}
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      placeholder=""
-                      InputProps={{
-                        ...params.InputProps,
-                        disableUnderline: true,
-                      }}
-                    />
-                  )}
-                />
-              </>
+  const isInvalid = name === '' || description === '' || abbreviation === ''
+  return (
+    <>
+      {errors.map(error => (
+        <p key={error}>Error: {error}</p>
+      ))}
+      <Form className="new-course-form" onSubmit={onSubmit}>
+        <FormGroup>
+          <Label for="name" className="form-label-subtitle">
+            Name *
+          </Label>
+          <Input
+            name="name"
+            id="name"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            type="text"
+            className="form-input"
+          />
+          <Label for="abbreviation" className="form-label-subtitle">
+            Abbreviation *
+          </Label>
+          <Input
+            name="abbreviation"
+            id="abbreviation"
+            value={abbreviation}
+            onChange={e => setAbbreviation(e.target.value)}
+            type="text"
+            className="form-input"
+          />
+          <Label for="description" className="form-label-subtitle">
+            Description *
+          </Label>
+          <Input
+            name="description"
+            id="description"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            type="textarea"
+            className="form-input"
+          />
+        </FormGroup>
+        <FormGroup>
+          <Label for="prerequisites" className="form-label-subtitle">
+            Prerequisites
+          </Label>
+          <Autocomplete
+            multiple
+            name="prerequisites"
+            id="prerequisites"
+            options={courses}
+            getOptionLabel={option => option.name}
+            value={prerequisites}
+            onChange={onPrerequisitesChange}
+            style={{maxWidth: 700}}
+            renderInput={params => (
+              <TextField
+                {...params}
+                placeholder=""
+                InputProps={{...params.InputProps, disableUnderline: true}}
+              />
             )}
-          </FormGroup>
-          <div className="button-container">
-            <Button
-              disabled={isInvalid}
-              type="submit"
-              className="create-button"
-            >
-              {typeOfForm}
-            </Button>
-          </div>
-        </Form>
-      </>
-    )
-  }
+            className="form-input"
+          />
+          {user && user.isSuperAdmin && (
+            <>
+              <Label for="admins" className="form-label-subtitle">
+                Admins
+              </Label>
+              <Autocomplete
+                multiple
+                name="admins"
+                id="admins"
+                className="form-input"
+                options={users}
+                getOptionLabel={option => option.name}
+                onChange={onAdminsChange}
+                value={admins}
+                style={{maxWidth: 700}}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    placeholder=""
+                    InputProps={{
+                      ...params.InputProps,
+                      disableUnderline: true,
+                    }}
+                  />
+                )}
+              />
+            </>
+          )}
+        </FormGroup>
+        <div className="button-container">
+          <Button
+            disabled={isInvalid}
+            type="submit"
+            className="create-button"
+          >
+            {typeOfForm}
+          </Button>
+        </div>
+      </Form>
+    </>
+  )
 }
 
 const mapStateToProps = ({authReducer}) => {
