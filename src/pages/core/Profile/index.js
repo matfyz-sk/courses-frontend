@@ -13,7 +13,7 @@ function Profile(props) {
   const [errors, setErrors] = useState({})
   const [success, setSuccess] = useState(false)
 
-  if(isSuccess && user === null) {
+  if(isSuccess && user === null && data) {
     setUser(data[0])
   } else if (isError) {
     throw new Error(error)
@@ -38,30 +38,10 @@ function Profile(props) {
     setUser(tmp_user)
   }
 
-  const validation = () => {
-    if(user === null) {
-      return false
-    }
-    let new_errors = {...errors}
-    new_errors.firstName = textValidator(user.firstName, 3, 20)
-    new_errors.lastName = textValidator(user.lastName, 3, 20)
-    new_errors.email = emailValidator(user.email)
-    if(user.useNickName) {
-      new_errors.nickname = textValidator(user.nickname, 5, 20)
-    } else {
-      new_errors.nickname = null
-    }
-    setErrors(new_errors)
-    return (
-      new_errors.firstName.result &&
-      new_errors.lastName.result &&
-      new_errors.email.result &&
-      (new_errors.nickname === null || new_errors.nickname.result === true)
-    )
-  }
-
-  const handleSubmit = async () => {
-    if(validation()) {
+  const handleSubmit = () => {
+    const new_errors = validation(user)
+    if(new_errors) {
+      setErrors(new_errors)
       const updatedAttrs = [
         'firstName', 'lastName', 'description', 'email',
         'nickname', 'useNickName', 'nickNameTeamException', 'allowContact', 'publicProfile', 'showBadges', 'showCourses'
@@ -71,15 +51,14 @@ function Profile(props) {
         body[updatedAttrs[i]] = user[updatedAttrs[i]]
       }
 
-      try {
-        await updateUser({
-            id: getUserID(), 
-            patch: body
-        }).unwrap()
+      updateUser({
+          id: getUserID(), 
+          patch: body
+      }).unwrap().then(response => {
         setSuccess(true)
-      } catch {
+      }).catch(error => {
         throw new Error("Failed to execute PATCH request to update user information")
-      }
+      })
     }
   }
 
@@ -311,84 +290,29 @@ function Profile(props) {
   )
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-class Profile extends Component {
-  constructor(props) {
-    super(props)
-    const result1 = this.props.getUser(getUserID())
-    console.log(result1)
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.validation = this.validation.bind(this)
-    this.handleInputChange = this.handleInputChange.bind(this)
-    this.fetchCurrentData = this.fetchCurrentData.bind(this)
-    this.handleToggleNickException = this.handleToggleNickException.bind(this)
-    this.state = {
-      user: null,
-      errors: {},
-      be_error: null,
-      success: false,
-    }
-  } 
-
-  componentDidMount() {
-    this.fetchCurrentData()
-    document.addEventListener('keyup', event => {
-      if(event.keyCode === 13) {
-        event.preventDefault()
-        this.handleSubmit()
-      }
-    })
+const validation = (user) => {
+  if(user === null) {
+    return false
   }
-
-  fetchCurrentData() {
-   // const result = userApi.endpoints.getUser.select(getUserID())(this.props)
-   // const { data, status, error } = result
-   // console.log(status)
-    //console.log(result)
-  /*  fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, { 
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if(!response.ok) throw new Error(response);
-        else return response.json();
-      })
-      .then(data => {
-        if(data && data['@graph']) {
-          const user = data['@graph'][0]
-          this.setState({user})
-        }
-      })*/
- // }
-//}
+  let new_errors = {}
+  new_errors.firstName = textValidator(user.firstName, 3, 20)
+  new_errors.lastName = textValidator(user.lastName, 3, 20)
+  new_errors.email = emailValidator(user.email)
+  if(user.useNickName) {
+    new_errors.nickname = textValidator(user.nickname, 5, 20)
+  } else {
+    new_errors.nickname = null
+  }
+  return (
+    new_errors.firstName.result &&
+    new_errors.lastName.result &&
+    new_errors.email.result &&
+    (new_errors.nickname === null || new_errors.nickname.result === true)
+  )
+}
 
 const mapStateToProps = state => {
   return state
 }
-/*
-const mapDispatchToProps = {
-  getUser: userApi.endpoints.getUser.initiate,
-  updateUser: userApi.endpoints.updateUser.initiate
-};*/
 
 export default withRouter(connect(mapStateToProps)(Profile))
