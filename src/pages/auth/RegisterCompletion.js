@@ -5,69 +5,71 @@ import { Alert, Button, Col, Collapse, Container, Form, FormFeedback, FormGroup,
 import { emailValidator, textValidator } from '../../functions/validators'
 import { authHeader, getUser, getUserID, logout, setUserProfile, } from '../../components/Auth'
 import { BACKEND_URL } from "../../constants";
+import { useDeleteUserMutation, useGetUserByEmailQuery, useUpdateUserMutation } from "services/user"
 
-class RegisterCompletion extends Component {
-  constructor(props) {
-    super(props)
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.validation = this.validation.bind(this)
-    this.handleInputChange = this.handleInputChange.bind(this)
-    this.handleToggleNickException = this.handleToggleNickException.bind(this)
-    this.checkEmailExisting = this.checkEmailExisting.bind(this)
-    this.removeAccount = this.removeAccount.bind(this)
-    this.state = {
-      user: {...getUser(), description: ''},
-      errors: {},
-      be_error: null,
-      success: false,
-    }
-  }
+function RegisterCompletion(props) {
+  const user = getUser()
+  //user
+  const [firstName, setFirstName] = useState(user ? user.firstName : '')
+  const [lastName, setLastName] = useState(user ? user.lastName : '')
+  const [email, setEmail] = useState(user ? user.email : '')
+  const [description, setDescription] = useState(user ? user.description : '')
+  //Privacy
+  const [nickname, setNickname] = useState(user ? user.nickname : '')
+  const [useNickName, setUseNickName] = useState(user ? user.useNickName : false)
+  const [publicProfile, setPublicProfile] = useState(user ? user.publicProfile : true)
+  const [showCourses, setShowCourses] = useState(user ? user.showCourses : false)
+  const [showBadges, setShowBadges] = useState(user ? user.showBadges : false)
+  const [allowContact, setAllowContact] = useState(user ? user.allowContact : false)
+  const [nickNameTeamException, setNickNameTeamException] = useState(user ? user.nickNameTeamException : false)
+  //Errors
+  const [firstNameError, setFirstNameError] = useState(null)
+  const [lastNameError, setLastNameError] = useState(null)
+  const [emailError, setEmailError] = useState(null)
+  const [nicknameError, setNicknameError] = useState(null)
 
-  componentDidMount() {
+  const [be_error, setBeError] = useState(null)
+  const [success, setSuccess] = useState(false)
+  const [updateUser, updateUserResult] = useUpdateUserMutation()
+  const [deleteUser, deleteUserResult] = useDeleteUserMutation()
+
+  // This does the same thing as componentDidMount
+  useEffect(() => {
     document.getElementsByClassName('main-nav')[0].style.opacity = 0
     document.addEventListener('keyup', event => {
       if(event.keyCode === 13) {
         event.preventDefault()
-        this.checkEmailExisting()
+        checkEmailExisting()
       }
     })
-  }
+  }, [])
 
-  handleInputChange(event) {
-    const {target} = event
-    const value = target.type === 'checkbox' ? target.checked : target.value
-    const {name} = target
-    const {user} = this.state
-    user[name] = value
-    this.setState({user})
-  }
-
-  validation() {
-    const {errors, user} = this.state
+  const validation = () => {
     if(user === null) {
       return false
     }
-    errors.firstName = textValidator(user.firstName, 3, 20)
-    errors.lastName = textValidator(user.lastName, 3, 20)
-    if(user.useNickName) {
-      errors.nickname = textValidator(user.nickname, 5, 20)
-    } else {
-      errors.nickname = null
+    const newFirstNameError = textValidator(firstName, 3, 20)
+    const newLastNameError = textValidator(lastName, 3, 20)
+    let newNickNameError = null
+    if(useNickName) {
+      newNickNameError = textValidator(nickname, 5, 20)
     }
-    this.setState({errors})
+
+    setFirstNameError(newFirstNameError)
+    setLastNameError(newLastNameError)
+    setNicknameError(newNickNameError)
     const result = (
-      errors.firstName.result &&
-      errors.lastName.result &&
-      errors.email.result &&
-      (errors.nickname === null || errors.nickname.result === true)
+      newFirstNameError.result &&
+      newLastNameError.result &&
+      emailError.result &&
+      (newNickNameError === null || newNickNameError.result === true)
     )
     if(result) {
-      this.handleSubmit()
+      handleSubmit()
     }
   }
 
-  handleSubmit() {
-    const {user} = this.state
+  const handleSubmit = () => {
     const updatedAttrs = [
       'firstName', 'lastName', 'description', 'email',
       'nickname', 'useNickName', 'nickNameTeamException', 'allowContact', 'publicProfile', 'showBadges', 'showCourses'
@@ -77,314 +79,275 @@ class RegisterCompletion extends Component {
       body[updatedAttrs[i]] = user[updatedAttrs[i]]
     }
 
-    fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, {
-      method: 'PATCH',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-      body: JSON.stringify(body),
+    updateUser({
+      id: getUserID(), 
+      patch: body
+    }).unwrap().then(response => {
+      setUserProfile(body)
+      document.getElementsByClassName('main-nav')[0].style.opacity = 1
+      props.history.push('/dashboard')
+    }).catch(error => {
+      throw new Error("Failed to execute PATCH request to update user information")
     })
-      .then(response => {
-        if(!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
-        setUserProfile(body)
-        document.getElementsByClassName('main-nav')[0].style.opacity = 1
-        this.props.history.push('/dashboard')
-      })
-
   }
 
-  checkEmailExisting() {
-    const {user, errors} = this.state
-    errors.email = emailValidator(user.email)
-    if(errors.email && errors.email.result) {
-      fetch(`${ BACKEND_URL }data/user?email=${ user.email }`, {
-        method: 'GET',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-      })
-        .then(response => {
-          if(!response.ok) throw new Error(response)
-          else return response.json()
-        })
-        .then(data => {
-          if(data['@graph'] && data['@graph'].length > 0) {
-            errors.email = {result: false, msg: 'Sorry, but email is already taken!'}
-            this.setState({errors})
-            return false
-          }
-          return this.validation()
-        })
+  const checkEmailExisting = () => {
+    const newEmailError = emailValidator(email)
+    if(newEmailError && newEmailError.result) {
+      const {data, isSuccess} = useGetUserByEmailQuery(email)
+      if(isSuccess && data && data.length > 0) {
+        setEmailError({result: false, msg: 'Sorry, but email is already taken!'})
+        return false
+      }
+      return validation()
     }
-    this.setState({errors})
+    setEmailError(newEmailError)
     return false
   }
 
-  handleToggleNickException() {
-    const {user} = this.state
-    user.nickNameTeamException = !user.nickNameTeamException
-    this.setState({user})
-  }
-
-  removeAccount() {
-    fetch(`${ BACKEND_URL }data/user/${ getUserID() }`, {
-      method: 'DELETE',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
+  const removeAccount = () => {
+    deleteUser(getUserID()).unwrap().then(response => {
+      logout()
+      document.getElementsByClassName('main-nav')[0].style.opacity = 1
+      props.history.push('/')
     })
-      .then(response => {
-        if(!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
-        logout()
-        document.getElementsByClassName('main-nav')[0].style.opacity = 1
-        this.props.history.push('/')
-      })
   }
 
-  render() {
-    const {user, errors, be_error, success} = this.state
-    return (
-      <Container className="mb-5">
-        <Row>
-          <Col xs={ 12 }>
-            <h1>This account is new!</h1>
-            <h2 className="mb-5">Fill your profile and set your privacy.</h2>
-          </Col>
-        </Row>
-        <Alert color="warning" className="mb-3">
-          If your <b>already have account in this system</b> and you <b>dont want to create new one</b>, remove this
-          settings and go back to login!
-          <br/>
-          <div className="text-sm-right text-center">
-            <Button color="danger" className="mt-3" onClick={ () => this.removeAccount() }>Remove settings and go
-              back</Button>
-          </div>
-        </Alert>
-        { be_error ? <Alert color="danger">Error!{ be_error }</Alert> : null }
-        { success ? <Alert color="success">Profile has been updated!</Alert> : null }
-        <Row>
-          <Col sm={ 6 } xs={ 12 } key="col1">
-            <h3>Basic information</h3>
-            <p>Complete all required information to register your profile.</p>
-            <Form>
-              <Row form>
-                <Col md={ 6 } key="bi-1">
-                  <FormGroup>
-                    <Label for="firstName">Name *</Label>
-                    <Input
-                      type="text"
-                      name="firstName"
-                      id="firstName"
-                      placeholder="My first name"
-                      value={ user ? user.firstName : '' }
-                      onChange={ this.handleInputChange }
-                      autoComplete="firstName"
-                      valid={
-                        textValidator(user ? user.firstName : '', 3, 20).result
-                      }
-                      invalid={
-                        errors && errors.firstName
-                          ? errors.firstName.result !== true
-                          : false
-                      }
-                    />
-                    <FormFeedback tooltip>
-                      { errors && errors.firstName ? errors.firstName.msg : '' }
-                    </FormFeedback>
-                  </FormGroup>
-                </Col>
-                <Col md={ 6 } key="bi-2">
-                  <FormGroup>
-                    <Label for="lastName">Surname *</Label>
-                    <Input
-                      type="text"
-                      name="lastName"
-                      id="lastName"
-                      placeholder="My last name"
-                      value={ user ? user.lastName : '' }
-                      onChange={ this.handleInputChange }
-                      autoComplete="lastName"
-                      valid={
-                        textValidator(user ? user.lastName : '', 3, 20).result
-                      }
-                      invalid={
-                        errors && errors.lastName
-                          ? errors.lastName.result !== true
-                          : false
-                      }
-                    />
-                    <FormFeedback tooltip>
-                      { errors && errors.lastName ? errors.lastName.msg : '' }
-                    </FormFeedback>
-                  </FormGroup>
-                </Col>
-              </Row>
-              <Row form>
-                <Col md={ 6 }>
-                  <FormGroup>
-                    <Label for="email">Email *</Label>
-                    <Input
-                      type="email"
-                      name="email"
-                      id="email"
-                      placeholder="name@domain.com"
-                      value={ user ? user.email : '' }
-                      onChange={ this.handleInputChange }
-                      autoComplete="email"
-                      valid={ emailValidator(user ? user.email : '').result }
-                      invalid={
-                        errors && errors.email
-                          ? errors.email.result !== true
-                          : false
-                      }
-                    />
-                    <FormFeedback tooltip>
-                      { errors && errors.email ? errors.email.msg : '' }
-                    </FormFeedback>
-                  </FormGroup>
-                </Col>
-              </Row>
-              <FormGroup>
-                <Label for="description">About me</Label>
-                <Input
-                  type="textarea"
-                  name="description"
-                  id="description"
-                  placeholder="I am ..."
-                  rows={ 3 }
-                  value={ user ? user.description : '' }
-                  onChange={ this.handleInputChange }
-                  valid={
-                    textValidator(user ? user.description : '', 0, 254).result
-                  }
-                />
-              </FormGroup>
-              <Button onClick={ this.checkEmailExisting } className="mt-3" color="success">
-                Create profile
-              </Button>
-            </Form>
-          </Col>
-          <Col sm={ 6 } xs={ 12 } key="col2">
-            <h3>Privacy settings</h3>
-            <p>This settings can be filled or changed later.</p>
-            <Form>
-              <FormGroup check>
-                <Input
-                  type="checkbox"
-                  name="useNickName"
-                  id="useNickName"
-                  onChange={ this.handleInputChange }
-                  checked={ user ? user.useNickName : false }
-                />
-                <Label for="useNickName" check>
-                  I want to hide my name and use nickname
-                </Label>
-              </FormGroup>
-              <Collapse isOpen={ user ? user.useNickName : false }>
+  return (
+    <Container className="mb-5">
+      <Row>
+        <Col xs={ 12 }>
+          <h1>This account is new!</h1>
+          <h2 className="mb-5">Fill your profile and set your privacy.</h2>
+        </Col>
+      </Row>
+      <Alert color="warning" className="mb-3">
+        If your <b>already have account in this system</b> and you <b>dont want to create new one</b>, remove this
+        settings and go back to login!
+        <br/>
+        <div className="text-sm-right text-center">
+          <Button color="danger" className="mt-3" onClick={ removeAccount }>Remove settings and go
+            back</Button>
+        </div>
+      </Alert>
+      { be_error ? <Alert color="danger">Error!{ be_error }</Alert> : null }
+      { success ? <Alert color="success">Profile has been updated!</Alert> : null }
+      <Row>
+        <Col sm={ 6 } xs={ 12 } key="col1">
+          <h3>Basic information</h3>
+          <p>Complete all required information to register your profile.</p>
+          <Form>
+            <Row form>
+              <Col md={ 6 } key="bi-1">
                 <FormGroup>
-                  <Label for="nickname">My nickname will be</Label>
+                  <Label for="firstName">Name *</Label>
                   <Input
                     type="text"
-                    name="nickname"
-                    id="nickname"
-                    placeholder="TheBestStudentEver"
-                    onChange={ this.handleInputChange }
-                    value={ user ? user.nickname : '' }
+                    name="firstName"
+                    id="firstName"
+                    placeholder="My first name"
+                    value={ firstName }
+                    onChange={ e => setFirstName(e.target.value) }
+                    autoComplete="firstName"
                     valid={
-                      textValidator(user ? user.nickname : '', 5, 20).result
+                      textValidator(firstName, 3, 20).result
                     }
                     invalid={
-                      errors && errors.nickname
-                        ? errors.nickname.result !== true
+                      firstNameError
+                        ? firstNameError.result !== true
                         : false
                     }
                   />
                   <FormFeedback tooltip>
-                    { errors && errors.nickname ? errors.nickname.msg : '' }
+                    { firstNameError ? firstNameError.msg : '' }
                   </FormFeedback>
                 </FormGroup>
-                <FormGroup check>
+              </Col>
+              <Col md={ 6 } key="bi-2">
+                <FormGroup>
+                  <Label for="lastName">Surname *</Label>
                   <Input
-                    type="checkbox"
-                    name="nickNameTeamException"
-                    id="nickNameTeamException-teacher"
-                    onChange={ () => this.handleToggleNickException() }
-                    checked={ user ? !user.nickNameTeamException : false }
+                    type="text"
+                    name="lastName"
+                    id="lastName"
+                    placeholder="My last name"
+                    value={ lastName }
+                    onChange={ e => setLastName(e.target.value) }
+                    autoComplete="lastName"
+                    valid={
+                      textValidator(lastName, 3, 20).result
+                    }
+                    invalid={
+                      lastNameError
+                        ? lastNameError.result !== true
+                        : false
+                    }
                   />
-                  <Label for="nickNameTeamException-teacher" check>
-                    Only teacher can see my real name
-                  </Label>
+                  <FormFeedback tooltip>
+                    { lastNameError ? lastNameError.msg : '' }
+                  </FormFeedback>
                 </FormGroup>
-                <FormGroup check>
+              </Col>
+            </Row>
+            <Row form>
+              <Col md={ 6 }>
+                <FormGroup>
+                  <Label for="email">Email *</Label>
                   <Input
-                    type="checkbox"
-                    name="nickNameTeamException"
-                    id="nickNameTeamException"
-                    onChange={ () => this.handleToggleNickException() }
-                    checked={ user ? user.nickNameTeamException : false }
+                    type="email"
+                    name="email"
+                    id="email"
+                    placeholder="name@domain.com"
+                    value={ email }
+                    onChange={ e => setEmail(e.target.value) }
+                    autoComplete="email"
+                    valid={ emailValidator(email).result }
+                    invalid={
+                      emailError
+                        ? emailError.result !== true
+                        : false
+                    }
                   />
-                  <Label for="nickNameTeamException" check>
-                    Only teacher <b>and my team members</b> can see my real name
-                  </Label>
+                  <FormFeedback tooltip>
+                    { emailError ? emailError.msg : '' }
+                  </FormFeedback>
                 </FormGroup>
-              </Collapse>
-
+              </Col>
+            </Row>
+            <FormGroup>
+              <Label for="description">About me</Label>
+              <Input
+                type="textarea"
+                name="description"
+                id="description"
+                placeholder="I am ..."
+                rows={ 3 }
+                value={ description }
+                onChange={ e => setDescription(e.target.value) }
+                valid={
+                  textValidator(description, 0, 254).result
+                }
+              />
+            </FormGroup>
+            <Button onClick={ checkEmailExisting } className="mt-3" color="success">
+              Create profile
+            </Button>
+          </Form>
+        </Col>
+        <Col sm={ 6 } xs={ 12 } key="col2">
+          <h3>Privacy settings</h3>
+          <p>This settings can be filled or changed later.</p>
+          <Form>
+            <FormGroup check>
+              <Input
+                type="checkbox"
+                name="useNickName"
+                id="useNickName"
+                onChange={ e => setUseNickName(e.target.checked) }
+                checked={ useNickName }
+              />
+              <Label for="useNickName" check>
+                I want to hide my name and use nickname
+              </Label>
+            </FormGroup>
+            <Collapse isOpen={ useNickName }>
+              <FormGroup>
+                <Label for="nickname">My nickname will be</Label>
+                <Input
+                  type="text"
+                  name="nickname"
+                  id="nickname"
+                  placeholder="TheBestStudentEver"
+                  onChange={ e => setNickname(e.target.value) }
+                  value={ nickname }
+                  valid={
+                    textValidator(nickname, 5, 20).result
+                  }
+                  invalid={
+                    nicknameError
+                      ? nicknameError.result !== true
+                      : false
+                  }
+                />
+                <FormFeedback tooltip>
+                  { nicknameError ? nicknameError.msg : '' }
+                </FormFeedback>
+              </FormGroup>
               <FormGroup check>
                 <Input
                   type="checkbox"
-                  name="publicProfile"
-                  id="publicProfile"
-                  onChange={ this.handleInputChange }
-                  checked={ user ? user.publicProfile : false }
+                  name="nickNameTeamException"
+                  id="nickNameTeamException-teacher"
+                  onChange={ e => setNickNameTeamException(e.target.checked) }
+                  checked={ !nickNameTeamException }
                 />
-                <Label for="publicProfile" check>
-                  My profile is public
+                <Label for="nickNameTeamException-teacher" check>
+                  Only teacher can see my real name
                 </Label>
               </FormGroup>
-              <Collapse isOpen={ user && !user.publicProfile }>
-                <FormGroup check>
-                  <Input
-                    type="checkbox"
-                    name="showCourses"
-                    id="showCourses"
-                    onChange={ this.handleInputChange }
-                    checked={ user ? user.showCourses : false }
-                  />
-                  <Label for="showCourses">Show my courses</Label>
-                </FormGroup>
-                <FormGroup check>
-                  <Input
-                    type="checkbox"
-                    name="showBadges"
-                    id="showBadges"
-                    onChange={ this.handleInputChange }
-                    checked={ user ? user.showBadges : false }
-                  />
-                  <Label for="showBadges">Show my badges</Label>
-                </FormGroup>
-                <FormGroup check>
-                  <Input
-                    type="checkbox"
-                    name="allowContact"
-                    id="allowContact"
-                    onChange={ this.handleInputChange }
-                    checked={ user ? user.allowContact : false }
-                  />
-                  <Label for="allowContact">Allow contact me</Label>
-                </FormGroup>
-              </Collapse>
-            </Form>
-          </Col>
-        </Row>
-      </Container>
-    )
-  }
+              <FormGroup check>
+                <Input
+                  type="checkbox"
+                  name="nickNameTeamException"
+                  id="nickNameTeamException"
+                  onChange={ e => setNickNameTeamException(e.target.checked) }
+                  checked={ nickNameTeamException }
+                />
+                <Label for="nickNameTeamException" check>
+                  Only teacher <b>and my team members</b> can see my real name
+                </Label>
+              </FormGroup>
+            </Collapse>
+
+            <FormGroup check>
+              <Input
+                type="checkbox"
+                name="publicProfile"
+                id="publicProfile"
+                onChange={ e => setPublicProfile(e.target.checked) }
+                checked={ publicProfile }
+              />
+              <Label for="publicProfile" check>
+                My profile is public
+              </Label>
+            </FormGroup>
+            <Collapse isOpen={ user && !user.publicProfile }>
+              <FormGroup check>
+                <Input
+                  type="checkbox"
+                  name="showCourses"
+                  id="showCourses"
+                  onChange={ e => setShowCourses(e.target.checked) }
+                  checked={ showCourses }
+                />
+                <Label for="showCourses">Show my courses</Label>
+              </FormGroup>
+              <FormGroup check>
+                <Input
+                  type="checkbox"
+                  name="showBadges"
+                  id="showBadges"
+                  onChange={ e => setShowBadges(e.target.checked) }
+                  checked={ showBadges }
+                />
+                <Label for="showBadges">Show my badges</Label>
+              </FormGroup>
+              <FormGroup check>
+                <Input
+                  type="checkbox"
+                  name="allowContact"
+                  id="allowContact"
+                  onChange={ e => setAllowContact(e.target.checked) }
+                  checked={ allowContact }
+                />
+                <Label for="allowContact">Allow contact me</Label>
+              </FormGroup>
+            </Collapse>
+          </Form>
+        </Col>
+      </Row>
+    </Container>
+  )
 }
 
 const mapStateToProps = state => {

@@ -24,6 +24,11 @@ export const userApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['User'],
         }),
+        getUserByEmail: builder.query({
+            query: (email) => ({ url: `user?email=${ email }` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['User'],
+        }),
         getUsersOrderedByCreationDate: builder.query({
             query: () => ({ url: `user?_orderBy=createdAt` }),
             transformResponse: (response, meta, arg) => response["@graph"],
@@ -71,11 +76,20 @@ export const userApi = createApi({
             }),
             invalidatesTags: ['User'],
         }),
+        deleteUser: builder.mutation({
+            query: (id) => ({ 
+                url: `user/${id}`,
+                method: 'DELETE',
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['User'],
+        }),
     }),
 })
 
 export const { 
-    useGetUserQuery, 
+    useGetUserQuery,
+    useGetUserByEmailQuery, 
     useGetUsersOrderedByCreationDateQuery,
     useGetUserRequestQuery,
     useGetUserEnrolledQuery,
@@ -84,5 +98,6 @@ export const {
     useGetUsersQuery, 
     useGetInstructorsOfCourseQuery,
     useGetUserStudentOfQuery, 
-    useUpdateUserMutation
+    useUpdateUserMutation,
+    useDeleteUserMutation,
 } = userApi
