@@ -22,9 +22,18 @@ export const authApi = createApi({
             }),
             transformResponse: (response, meta, arg) => response,
         }),
+        register: builder.mutation({
+            query: (body) => ({ 
+                url: `auth/register`,
+                method: 'POST',
+                body: body,
+            }),
+            transformResponse: (response, meta, arg) => response,
+        }),
     }),
 })
 
 export const { 
     useLoginMutation,
+    useRegisterMutation,
 } = authApi
