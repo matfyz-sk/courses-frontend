@@ -39,6 +39,22 @@ export const assignmentApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Assignment'],
         }),
+        deleteAssignment: builder.mutation({
+            query: (id) => ({ 
+                url: `assignment/${id}`,
+                method: 'DELETE', 
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Assignment'],
+        }),
+        deleteAssignmentPeriod: builder.mutation({
+            query: (id) => ({ 
+                url: `assignmentPeriod/${id}`,
+                method: 'DELETE', 
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Assignment'],
+        }),
     }),
 })
 
@@ -47,4 +63,6 @@ export const {
     useGetAssignmentByCourseInstanceQuery,
     useGetAssignmentPeriodQuery,
     useGetSubmissionForAssignmentQuery,
+    useDeleteAssignmentMutation,
+    useDeleteAssignmentPeriodMutation,
 } = assignmentApi
