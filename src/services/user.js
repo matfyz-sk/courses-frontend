@@ -68,6 +68,11 @@ export const userApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['User'],
         }),
+        getUserOfCourse: builder.query({
+            query: ({user_id, course_id}) => ({ url: `user/${user_id}?studentOf=${course_id}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['User'],
+        }),
         updateUser: builder.mutation({
             query: ({id, patch}) => ({ 
                 url: `user/${id}`,
@@ -97,7 +102,8 @@ export const {
     useGetUserByNicknameForCourseQuery,
     useGetUsersQuery, 
     useGetInstructorsOfCourseQuery,
-    useGetUserStudentOfQuery, 
+    useGetUserStudentOfQuery,
+    useGetUserOfCourseQuery,
     useUpdateUserMutation,
     useDeleteUserMutation,
 } = userApi

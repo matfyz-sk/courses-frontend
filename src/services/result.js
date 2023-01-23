@@ -24,8 +24,18 @@ export const resultApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Result'],
         }),
+        getAllUserResults: builder.query({
+            query: (id) => ({ url: `result?hasUser=${id}&_join=awardedBy,type` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Result'],
+        }),
         getResultForCourseInstance: builder.query({
             query: (id) => ({ url: `result?courseInstance=${id}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Result'],
+        }),
+        getResultTypeDetail: builder.query({
+            query: (id) => ({ url: `resultType/${id}?_join=correctionFor` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Result'],
         }),
@@ -34,5 +44,7 @@ export const resultApi = createApi({
 
 export const { 
     useGetResultForUserQuery,
+    useGetAllUserResultsQuery,
     useGetResultForCourseInstanceQuery,
+    useGetResultTypeDetailQuery,
 } = resultApi
