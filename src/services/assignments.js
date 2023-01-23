@@ -39,6 +39,37 @@ export const assignmentApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Assignment'],
         }),
+        getSubmissionSubmitedByStudent: builder.query({
+            query: ({id, studentId}) => ({ url: `submission?ofAssignment=${id}&submittedByStudent=${studentId}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getSubmissionSubmitedByTeam: builder.query({
+            query: ({id, teamId}) => ({ url: `submission?ofAssignment=${id}&submittedByTeam=${teamId}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getToReviewForStudent: builder.query({
+            query: (id) => ({ url: `toReview?student=${id}&_join=submission` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getToReviewForTeam: builder.query({
+            query: (id) => ({ url: `toReview?team=${id}&_join=submission` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getPeerReview: builder.query({
+            query: (id) => ({ url: `peerReview` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getPeerReviewForTeam: builder.query({
+            query: ({teamId, id}) => ({ url: `peerReview?reviewedByTeam=${teamId}&ofSubmission=${id}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        
         deleteAssignment: builder.mutation({
             query: (id) => ({ 
                 url: `assignment/${id}`,
@@ -79,6 +110,12 @@ export const {
     useGetAssignmentByCourseInstanceQuery,
     useGetAssignmentPeriodQuery,
     useGetSubmissionForAssignmentQuery,
+    useGetSubmissionSubmitedByStudentQuery,
+    useGetSubmissionSubmitedByTeamQuery,
+    useGetToReviewForStudentQuery,
+    useGetToReviewForTeamQuery,
+    useGetPeerReviewQuery,
+    useGetPeerReviewForTeamQuery,
     useDeleteAssignmentMutation,
     useDeleteAssignmentPeriodMutation,
     useAddSubmissionToReviewMutation,
