@@ -55,6 +55,22 @@ export const assignmentApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             invalidatesTags: ['Assignment'],
         }),
+        addSubmissionToReview: builder.mutation({
+            query: (post) => ({ 
+                url: `toReview`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
+        updateAssignment: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `assignment/${id})`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
     }),
 })
 
@@ -65,4 +81,6 @@ export const {
     useGetSubmissionForAssignmentQuery,
     useDeleteAssignmentMutation,
     useDeleteAssignmentPeriodMutation,
+    useAddSubmissionToReviewMutation,
+    useUpdateAssignmentMutation,
 } = assignmentApi
