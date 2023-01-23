@@ -24,9 +24,15 @@ export const resultApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Result'],
         }),
+        getResultForCourseInstance: builder.query({
+            query: (id) => ({ url: `result?courseInstance=${id}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Result'],
+        }),
     }),
 })
 
 export const { 
-    useGetResultForUserQuery
+    useGetResultForUserQuery,
+    useGetResultForCourseInstanceQuery,
 } = resultApi
