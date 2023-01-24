@@ -29,6 +29,11 @@ export const resultApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Result'],
         }),
+        getResultThatHasUser: builder.query({
+            query: (id) => ({ url: `result/${id}?_join=hasUser,awardedBy,type` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Result'],
+        }),
         getResultForCourseInstance: builder.query({
             query: (id) => ({ url: `result?courseInstance=${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
@@ -39,12 +44,31 @@ export const resultApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Result'],
         }),
+        updateUserResult: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `result/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: ['Result'],
+        }),
+        deleteUserResult: builder.mutation({
+            query: (id) => ({ 
+                url: `result/${id}`,
+                method: 'DELETE',
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Result'],
+        }),
     }),
 })
 
 export const { 
     useGetResultForUserQuery,
     useGetAllUserResultsQuery,
+    useGetResultThatHasUserQuery,
     useGetResultForCourseInstanceQuery,
     useGetResultTypeDetailQuery,
+    useUpdateUserResultMutation,
+    useDeleteUserResultMutation,
 } = resultApi
