@@ -44,6 +44,11 @@ export const resultApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Result'],
         }),
+        getCourseGrading: builder.query({
+            query: (id) => ({ url: `courseGrading/${id}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Result'],
+        }),
         updateUserResult: builder.mutation({
             query: ({id, patch}) => ({ 
                 url: `result/${id}`,
@@ -60,6 +65,22 @@ export const resultApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             invalidatesTags: ['Result'],
         }),
+        newCourseGrading: builder.mutation({
+            query: (body) => ({ 
+                url: `courseGrading`,
+                method: 'POST',
+                body: body,
+            }),
+            invalidatesTags: ['Result'],
+        }),
+        deleteCourseGrading: builder.mutation({
+            query: (id) => ({ 
+                url: `courseGrading/${id}`,
+                method: 'DELETE', 
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Result'],
+        }),
     }),
 })
 
@@ -69,6 +90,9 @@ export const {
     useGetResultThatHasUserQuery,
     useGetResultForCourseInstanceQuery,
     useGetResultTypeDetailQuery,
+    useGetCourseGradingQuery,
     useUpdateUserResultMutation,
     useDeleteUserResultMutation,
+    useNewCourseGradingMutation,
+    useDeleteCourseGradingMutation,
 } = resultApi

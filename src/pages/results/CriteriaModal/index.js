@@ -13,7 +13,6 @@ import {
 } from 'reactstrap'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { authHeader } from '../../../components/Auth'
 import { getShortID } from '../../../helperFunctions'
 import { store } from '../../../index'
 import {
@@ -21,9 +20,14 @@ import {
   removeCourseInstanceGrading,
   updateCourseInstanceGrading,
 } from '../../../redux/actions'
-import { BACKEND_URL } from "../../../constants";
+import { useUpdateCourseInstanceMutation } from "services/course"
+import { 
+  useGetCourseGradingQuery,
+  useNewCourseGradingMutation,
+  useDeleteCourseGradingMutation,
+} from "services/result"
 
-const CriteriaModal = props => {
+function CriteriaModal(props) {
   const { grading, courseInstance } = props
   const [modal, setModal] = useState(false)
   const [form, setForm] = useState({
@@ -32,9 +36,12 @@ const CriteriaModal = props => {
   })
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [updateCourseInstance, updateCourseInstanceResult] = useUpdateCourseInstanceMutation()
+  const [newCourseGrading, newCourseGradingResult] = useNewCourseGradingMutation()
+  const [deleteCourseGrading, deleteCourseGradingResult] = useDeleteCourseGradingMutation()
   const toggle = () => setModal(!modal)
 
-  function validate() {
+  const validate = () => {
     if (form.grade.length === 0) {
       setError('Name of grade is required!')
       setLoading(false)
@@ -50,63 +57,58 @@ const CriteriaModal = props => {
     return true
   }
 
-  function getDetail(id, action = null) {
-    fetch(`${BACKEND_URL}data/courseGrading/${id}`, {
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if (!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
-        setLoading(false)
-        setError(null)
-        if (data['@graph'] && data['@graph'].length > 0) {
-          const result = data['@graph'][0]
-          switch (action) {
-            case 'add':
-              store.dispatch(addCourseInstanceGrading(result))
-              setError(null)
-              setModal(false)
-              break
-            default:
-              break
-          }
-        } else {
-          setError(
-            'Error has occured during saving process. Please, try again.'
-          )
+  const getDetail = (id, action = null) => {
+    const {data, isSuccess} = useGetCourseGradingQuery(id)
+    if (isSuccess) {
+      setLoading(false)
+      setError(null)
+      if (data && data.length > 0) {
+        const result = data[0]
+        switch (action) {
+          case 'add':
+            store.dispatch(addCourseInstanceGrading(result))
+            setError(null)
+            setModal(false)
+            break
+          default:
+            break
         }
-      })
+      } else {
+        setError(
+          'Error has occured during saving process. Please, try again.'
+        )
+      }
+    }
   }
 
-  function addGradingToCourse(iri) {
+  const addGradingToCourse = (iri) => {
     const gradings = []
     for (let i = 0; i < courseInstance.hasGrading.length; i++) {
       gradings.push(courseInstance.hasGrading[i]['@id'])
     }
     gradings.push(iri)
 
-    fetch(
-      `${BACKEND_URL}data/courseInstance/${getShortID(courseInstance['@id'])}`,
-      {
-        method: 'PATCH',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify({ hasGrading: gradings }),
+    updateCourseInstance({
+      id: getShortID(courseInstance['@id']),
+      patch: { hasGrading: gradings }
+    }).unwrap().then(response => {
+      if (response.status) {
+        getDetail(getShortID(iri), 'add')
+      } else {
+        setLoading(false)
+        setError(
+          'Error has occured during saving process. Please, try again.'
+        )
       }
-    )
-      .then(response => {
-        if (!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
-        if (data.status) {
-          getDetail(getShortID(iri), 'add')
+    })
+  }
+
+  const submitCreate = () => {
+    setLoading(true)
+    if (validate()) {
+      newCourseGrading(form).unwrap().then(response => {
+        if (response.status) {
+          addGradingToCourse(response.resource.iri)
         } else {
           setLoading(false)
           setError(
@@ -114,92 +116,48 @@ const CriteriaModal = props => {
           )
         }
       })
-  }
-
-  function submitCreate() {
-    setLoading(true)
-    if (validate()) {
-      fetch(`${BACKEND_URL}data/courseGrading`, {
-        method: 'POST',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify(form),
-      })
-        .then(response => {
-          if (!response.ok) throw new Error(response)
-          else return response.json()
-        })
-        .then(data => {
-          if (data.status) {
-            addGradingToCourse(data.resource.iri)
-          } else {
-            setLoading(false)
-            setError(
-              'Error has occured during saving process. Please, try again.'
-            )
-          }
-        })
     }
   }
 
-  function submitUpdate() {
+  const submitUpdate = () => {
     setLoading(true)
     if (validate()) {
-      fetch(`${BACKEND_URL}data/courseGrading/${getShortID(grading['@id'])}`, {
-        method: 'PATCH',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify(form),
-      })
-        .then(response => {
-          if (!response.ok) throw new Error(response)
-          else return response.json()
-        })
-        .then(data => {
-          setLoading(false)
-          if (data.status) {
-            const newGrading = {
-              ...grading,
-              ...form,
-            }
-            store.dispatch(updateCourseInstanceGrading(newGrading))
-            setError(null)
-            setModal(false)
-          } else {
-            setError(
-              'Error has occured during saving process. Please, try again.'
-            )
-          }
-        })
-    }
-  }
-
-  function submitDelete() {
-    setLoading(true)
-    fetch(`${BACKEND_URL}data/courseGrading/${getShortID(grading['@id'])}`, {
-      method: 'DELETE',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if (!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
+      updateCourseInstance({
+        id: getShortID(grading['@id']),
+        patch: form
+      }).unwrap().then(response => {
         setLoading(false)
-        if (data.status) {
-          store.dispatch(removeCourseInstanceGrading(grading))
+        if (response.status) {
+          const newGrading = {
+            ...grading,
+            ...form,
+          }
+          store.dispatch(updateCourseInstanceGrading(newGrading))
           setError(null)
           setModal(false)
         } else {
           setError(
-            'Error has occured during removing process. Please, try again.'
+            'Error has occured during saving process. Please, try again.'
           )
         }
       })
+    }
+  }
+
+  const submitDelete = () => {
+    setLoading(true)
+    deleteCourseGrading(getShortID(grading['@id'])).unwrap().then(response => {
+      setLoading(false)
+      if (response.status) {
+        store.dispatch(removeCourseInstanceGrading(grading))
+        setError(null)
+        setModal(false)
+      } else {
+        setError(
+          'Error has occured during removing process. Please, try again.'
+        )
+      }
+    })
   }
 
   return (
