@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Page404 from '../../errors/Page404'
 // eslint-disable-next-line import/no-cycle
-import { authHeader } from '../../../components/Auth'
-import { BACKEND_URL } from "../../../constants";
+import { useGetResultTypeDetailCreatedByWithCorrectionQuery } from "services/result"
 
 const withResultDetail = Component => props => {
   const { privileges, courseInstance } = props
@@ -11,29 +10,17 @@ const withResultDetail = Component => props => {
   const [resp, setResp] = useState(200)
 
   function fetchResultType(id) {
-    fetch(
-      `${BACKEND_URL}data/resultType/${id}?_join=createdBy,correctionFor`,
-      {
-        method: 'GET',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
+    const {data, isSuccess} = useGetResultTypeDetailCreatedByWithCorrectionQuery(id)
+    if (isSuccess) {
+      if (data && data.length > 0) {
+        setResultType(data[0])
+      } else {
+        setResp(404)
       }
-    )
-      .then(response => {
-        if (!response.ok) {
-          setResp(404)
-        }
-        return response.json()
-      })
-      .then(data => {
-        if (data['@graph'] && data['@graph'].length > 0) {
-          setResultType(data['@graph'][0])
-        } else {
-          setResp(404)
-        }
-      })
+
+    }
   }
+
   useEffect(() => {
     fetchResultType(result_type_id)
   }, [])

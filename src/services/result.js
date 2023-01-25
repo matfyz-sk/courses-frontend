@@ -39,6 +39,11 @@ export const resultApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Result'],
         }),
+        getResultByType: builder.query({
+            query: (id) => ({ url: `result?type=${id}&_join=hasUser,awardedBy` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Result'],
+        }),
         getResultForCourseInstance: builder.query({
             query: (id) => ({ url: `result?courseInstance=${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
@@ -51,6 +56,11 @@ export const resultApi = createApi({
         }),
         getResultTypeDetailWithCorrection: builder.query({
             query: (id) => ({ url: `resultType/${id}?_join=correctionFor` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Result'],
+        }),
+        getResultTypeDetailCreatedByWithCorrection: builder.query({
+            query: (id) => ({ url: `resultType/${id}?_join=createdBy,correctionFor` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Result'],
         }),
@@ -131,9 +141,11 @@ export const {
     useGetAllUserResultsQuery,
     useGetUserResultsByTypeQuery,
     useGetResultThatHasUserQuery,
+    useGetResultByTypeQuery,
     useGetResultForCourseInstanceQuery,
     useGetResultTypeDetailQuery,
     useGetResultTypeDetailWithCorrectionQuery,
+    useGetResultTypeDetailCreatedByWithCorrectionQuery,
     useGetCourseGradingQuery,
     useNewUserResultMutation,
     useNewResultTypeMutation,
