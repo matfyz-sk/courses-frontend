@@ -45,11 +45,11 @@ function PointsModal(props) {
         setForm({
           ...form,
           type: type_id,
-          points: data['@graph'][0].points,
-          description: data['@graph'][0].description,
-          reference: data['@graph'][0].reference,
-          update: data['@graph'][0],
-          before: data['@graph'][0].points,
+          points: data[0].points,
+          description: data[0].description,
+          reference: data[0].reference,
+          update: data[0],
+          before: data[0].points,
         })
       } else {
         setForm({ ...form, type: type_id, update: null, before: 0 })
