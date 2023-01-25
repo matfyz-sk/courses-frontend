@@ -9,7 +9,7 @@ import { RESULT_DETAIL, RESULT_TYPE } from '../../../constants/routes'
 import { getUserID } from '../../../components/Auth'
 import { showUserName } from '../../../components/Auth/userFunction'
 import { useGetUserOfCourseQuery } from 'services/user'
-import { useGetAllUserResultsQuery, useGetResultTypeDetailQuery } from 'services/result'
+import { useGetAllUserResultsQuery, useGetResultTypeDetailWithCorrectionQuery } from 'services/result'
 
 function StudentOverview(props) {
   const { courseInstance, privileges, match } = props
@@ -27,7 +27,7 @@ function StudentOverview(props) {
         const resultArr = allUserResultsData
         for (let i = 0; i < resultArr.length; i++) {
           if (resultArr[i].correctionFor) {
-            const { data, isSuccess } = useGetResultTypeDetailQuery(getShortID(resultArr.correctionFor))
+            const { data, isSuccess } = useGetResultTypeDetailWithCorrectionQuery(getShortID(resultArr.correctionFor))
             if (isSuccess && data && data.length > 0) {
               resultArr[i] = {
                 ...resultArr[i],

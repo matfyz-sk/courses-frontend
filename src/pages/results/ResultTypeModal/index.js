@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Alert, Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, } from 'reactstrap'
-import { authHeader } from '../../../components/Auth'
 import { getShortID } from '../../../helperFunctions'
 import { store } from '../../../index'
 import {
@@ -10,9 +9,15 @@ import {
   removeCourseInstanceResultType,
   updateCourseInstanceResultType,
 } from '../../../redux/actions'
-import { BACKEND_URL } from "../../../constants";
+import { 
+  useGetResultTypeDetailQuery, 
+  useNewResultTypeMutation,
+  useUpdateResultTypeMutation,
+  useDeleteResultTypeMutation,
+} from "services/result"
+import { useUpdateCourseInstanceMutation } from "services/course"
 
-const ResultTypeModal = props => {
+function ResultTypeModal(props) {
   const {resultType, courseInstance} = props
   const [ modal, setModal ] = useState(false)
   const [ form, setForm ] = useState({
@@ -23,9 +28,13 @@ const ResultTypeModal = props => {
   })
   const [ error, setError ] = useState(null)
   const [ loading, setLoading ] = useState(false)
+  const [updateCourseInstance, updateCourseInstanceResult] = useUpdateCourseInstanceMutation()
+  const [newResultType, newResultTypeResult] = useNewResultTypeMutation()
+  const [updateResultType, updateResultTypeResult] = useUpdateResultTypeMutation()
+  const [deleteResultType, deleteResultTypeResult] = useDeleteResultTypeMutation()
   const toggle = () => setModal(!modal)
 
-  function validate() {
+  const validate = () => {
     if(form.name.length === 0) {
       setError('Name is required!')
       setLoading(false)
@@ -41,63 +50,60 @@ const ResultTypeModal = props => {
     return true
   }
 
-  function getDetail(id, action = null) {
-    fetch(`${ BACKEND_URL }data/resultType/${ id }`, {
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if(!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
-        setLoading(false)
-        setError(null)
-        if(data['@graph'] && data['@graph'].length > 0) {
-          const result = data['@graph'][0]
-          switch(action) {
-            case 'add':
-              store.dispatch(addCourseInstanceResultType(result))
-              setError(null)
-              setModal(false)
-              break
-            default:
-              break
-          }
-        } else {
-          setError(
-            'Error has occured during saving process. Please, try again.'
-          )
+  const getDetail = (id, action = null) => {
+    const {data, isSuccess} = useGetResultTypeDetailQuery(id)
+    if (isSuccess) { 
+      setLoading(false)
+      setError(null)
+      if(data && data.length > 0) {
+        const result = data[0]
+        switch(action) {
+          case 'add':
+            store.dispatch(addCourseInstanceResultType(result))
+            setError(null)
+            setModal(false)
+            break
+          default:
+            break
         }
-      })
+      } else {
+        setError(
+          'Error has occured during saving process. Please, try again.'
+        )
+      }
+    }
   }
 
-  function addResultTypeToCourse(iri) {
+  const addResultTypeToCourse = (iri) => {
     const resultTypes = []
     for(let i = 0; i < courseInstance.hasResultType.length; i++) {
       resultTypes.push(courseInstance.hasResultType[i]['@id'])
     }
     resultTypes.push(iri)
-
-    fetch(
-      `${ BACKEND_URL }data/courseInstance/${ getShortID(courseInstance['@id']) }`,
-      {
-        method: 'PATCH',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify({hasResultType: resultTypes}),
+    updateCourseInstance({
+      id: getShortID(courseInstance['@id']),
+      patch: {hasResultType: resultTypes}
+    }).unwrap().then(response => {
+      if(response.status) {
+        getDetail(getShortID(iri), 'add')
+      } else {
+        setLoading(false)
+        setError(
+          'Error has occured during saving process. Please, try again.'
+        )
       }
-    )
-      .then(response => {
-        if(!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
-        if(data.status) {
-          getDetail(getShortID(iri), 'add')
+    })
+  }
+
+  const submitCreate = () => {
+    setLoading(true)
+    if(validate()) {
+      if(form.correctionFor === '') {
+        delete form.correctionFor
+      }
+      newResultType(form).unwrap().then(response => {
+        if(response.status) {
+          addResultTypeToCourse(response.resource.iri)
         } else {
           setLoading(false)
           setError(
@@ -105,86 +111,39 @@ const ResultTypeModal = props => {
           )
         }
       })
-  }
-
-  function submitCreate() {
-    setLoading(true)
-    if(validate()) {
-      if(form.correctionFor === '') {
-        delete form.correctionFor
-      }
-      fetch(`${ BACKEND_URL }data/resultType`, {
-        method: 'POST',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify(form),
-      })
-        .then(response => {
-          if(!response.ok) throw new Error(response)
-          else return response.json()
-        })
-        .then(data => {
-          if(data.status) {
-            addResultTypeToCourse(data.resource.iri)
-          } else {
-            setLoading(false)
-            setError(
-              'Error has occured during saving process. Please, try again.'
-            )
-          }
-        })
     }
   }
 
-  function submitUpdate() {
+  const submitUpdate = () => {
     setLoading(true)
     if(validate()) {
-      fetch(`${ BACKEND_URL }data/resultType/${ getShortID(resultType['@id']) }`, {
-        method: 'PATCH',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify(form),
-      })
-        .then(response => {
-          if(!response.ok) throw new Error(response)
-          else return response.json()
-        })
-        .then(data => {
-          setLoading(false)
-          if(data.status) {
-            const newResultType = {
-              ...resultType,
-              ...form,
-            }
-            store.dispatch(updateCourseInstanceResultType(newResultType))
-            setError(null)
-            setModal(false)
-          } else {
-            setError(
-              'Error has occured during saving process. Please, try again.'
-            )
-          }
-        })
-    }
-  }
-
-  function submitDelete() {
-    setLoading(true)
-    fetch(`${ BACKEND_URL }data/resultType/${ getShortID(resultType['@id']) }`, {
-      method: 'DELETE',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if(!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
+      updateResultType({
+        id: getShortID(resultType['@id']),
+        patch: form
+      }).unwrap().then(response => {
         setLoading(false)
-        if(data.status) {
+        if(response.status) {
+          const newResultType = {
+            ...resultType,
+            ...form,
+          }
+          store.dispatch(updateCourseInstanceResultType(newResultType))
+          setError(null)
+          setModal(false)
+        } else {
+          setError(
+            'Error has occured during saving process. Please, try again.'
+          )
+        }
+      })
+    }
+  }
+
+  const submitDelete = () => {
+    setLoading(true)
+    deleteResultType(getShortID(resultType['@id'])).unwrap().then(response => {
+      setLoading(false)
+        if(response.status) {
           store.dispatch(removeCourseInstanceResultType(resultType))
           setError(null)
           setModal(false)
@@ -193,7 +152,7 @@ const ResultTypeModal = props => {
             'Error has occured during removing process. Please, try again.'
           )
         }
-      })
+    })
   }
 
   const options = []

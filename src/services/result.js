@@ -45,6 +45,11 @@ export const resultApi = createApi({
             providesTags: ['Result'],
         }),
         getResultTypeDetail: builder.query({
+            query: (id) => ({ url: `resultType/${id}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Result'],
+        }),
+        getResultTypeDetailWithCorrection: builder.query({
             query: (id) => ({ url: `resultType/${id}?_join=correctionFor` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Result'],
@@ -62,9 +67,25 @@ export const resultApi = createApi({
             }),
             invalidatesTags: ['Result'],
         }),
+        newResultType: builder.mutation({
+            query: (post) => ({ 
+                url: `resultType`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Result'],
+        }),
         updateUserResult: builder.mutation({
             query: ({id, patch}) => ({ 
                 url: `result/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: ['Result'],
+        }),
+        updateResultType: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `resultType/${id}`,
                 method: 'PATCH',
                 body: patch,
             }),
@@ -94,6 +115,14 @@ export const resultApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             invalidatesTags: ['Result'],
         }),
+        deleteResultType: builder.mutation({
+            query: (id) => ({ 
+                url: `resultType/${id}`,
+                method: 'DELETE', 
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Result'],
+        }),
     }),
 })
 
@@ -104,10 +133,14 @@ export const {
     useGetResultThatHasUserQuery,
     useGetResultForCourseInstanceQuery,
     useGetResultTypeDetailQuery,
+    useGetResultTypeDetailWithCorrectionQuery,
     useGetCourseGradingQuery,
     useNewUserResultMutation,
+    useNewResultTypeMutation,
     useUpdateUserResultMutation,
+    useUpdateResultTypeMutation,
     useDeleteUserResultMutation,
     useNewCourseGradingMutation,
     useDeleteCourseGradingMutation,
+    useDeleteResultTypeMutation,
 } = resultApi
