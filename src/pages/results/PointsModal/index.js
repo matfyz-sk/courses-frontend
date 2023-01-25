@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import {
   Modal,
@@ -16,10 +16,10 @@ import {
   InputGroupText,
 } from 'reactstrap'
 import { getShortID } from '../../../helperFunctions'
-import { createUserResult, getUserByTypeResult, updateUserResult } from '../functions'
 import { getUser } from '../../../components/Auth'
+import { useGetUserResultsByTypeQuery, useUpdateUserResultMutation, useNewUserResultMutation } from 'services/result'
 
-const PointsModal = props => {
+function PointsModal(props) {
   const { user, courseInstance, userIndex, resultModifier } = props
   const [modal, setModal] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -31,30 +31,34 @@ const PointsModal = props => {
     update: null,
     before: 0,
   })
+  const [updateResult, updateResultResult] = useUpdateUserResultMutation()
+  const [newUserResult, newUserResultResult] = useNewUserResultMutation()
 
-  function getTypeDetail(type_id) {
+  const getTypeDetail = (type_id) => {
     setLoading(true)
-    getUserByTypeResult(getShortID(user['@id']), getShortID(type_id)).then(
-      data => {
-        if (data['@graph'] && data['@graph'].length > 0) {
-          setForm({
-            ...form,
-            type: type_id,
-            points: data['@graph'][0].points,
-            description: data['@graph'][0].description,
-            reference: data['@graph'][0].reference,
-            update: data['@graph'][0],
-            before: data['@graph'][0].points,
-          })
-        } else {
-          setForm({ ...form, type: type_id, update: null, before: 0 })
-        }
-        setLoading(false)
+    const {data, isSuccess} = useGetUserResultsByTypeQuery({
+      id: getShortID(user['@id']),
+      typeId: getShortID(type_id)
+    })
+    if (isSuccess) {
+      if (data && data.length > 0) {
+        setForm({
+          ...form,
+          type: type_id,
+          points: data['@graph'][0].points,
+          description: data['@graph'][0].description,
+          reference: data['@graph'][0].reference,
+          update: data['@graph'][0],
+          before: data['@graph'][0].points,
+        })
+      } else {
+        setForm({ ...form, type: type_id, update: null, before: 0 })
       }
-    )
+    }
+    setLoading(false)
   }
 
-  function changeType(e) {
+  const changeType = (e) => {
     const typeID = e.target.value !== '' ? e.target.value : null
     if (typeID && typeID !== '') {
       getTypeDetail(typeID)
@@ -65,37 +69,39 @@ const PointsModal = props => {
 
   const toggle = () => setModal(!modal)
 
-  function modifyResultsIfNecessary() {
+  const modifyResultsIfNecessary = () => {
     if (userIndex !== undefined && resultModifier !== undefined) {
       resultModifier(userIndex, form.before, form.points)
     }
   }
 
-  function saveChanges() {
+  const saveChanges = () => {
     if (form.update) {
-      updateUserResult({
-        ...form.update,
+      const patch = {
         points: form.points,
         description: form.description,
         reference: form.reference,
-      }).then(data => {
-        if (data.status) {
-          setLoading(false)
-          modifyResultsIfNecessary()
-          toggle()
-        }
+      }
+      updateResult({
+        id: getShortID(form.update['@id']),
+        patch
+      }).unwrap().then(response => {
+        setLoading(false)
+        modifyResultsIfNecessary()
+        toggle()
       })
     } else {
       setLoading(true)
-      createUserResult(
-        courseInstance['@id'],
-        user['@id'],
-        getUser().fullURI,
-        form.type === '' ? null : form.type,
-        form.points,
-        form.description,
-        form.reference
-      ).then(data => {
+      const post = {
+        courseInstance: courseInstance['@id'],
+        hasUser: user['@id'],
+        awardedBy: getUser().fullURI,
+        type: form.type === '' ? null : form.type,
+        points: form.points,
+        description: form.description,
+        reference: form.reference,
+      }
+      newUserResult(post).unwrap().then(response => {
         setLoading(false)
         modifyResultsIfNecessary()
         toggle()

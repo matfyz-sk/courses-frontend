@@ -29,6 +29,11 @@ export const resultApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Result'],
         }),
+        getUserResultsByType: builder.query({
+            query: ({id, typeId}) => ({ url: `result?hasUser=${id}&type=${typeId}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Result'],
+        }),
         getResultThatHasUser: builder.query({
             query: (id) => ({ url: `result/${id}?_join=hasUser,awardedBy,type` }),
             transformResponse: (response, meta, arg) => response["@graph"],
@@ -48,6 +53,14 @@ export const resultApi = createApi({
             query: (id) => ({ url: `courseGrading/${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Result'],
+        }),
+        newUserResult: builder.mutation({
+            query: (post) => ({ 
+                url: `result`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Result'],
         }),
         updateUserResult: builder.mutation({
             query: ({id, patch}) => ({ 
@@ -87,10 +100,12 @@ export const resultApi = createApi({
 export const { 
     useGetResultForUserQuery,
     useGetAllUserResultsQuery,
+    useGetUserResultsByTypeQuery,
     useGetResultThatHasUserQuery,
     useGetResultForCourseInstanceQuery,
     useGetResultTypeDetailQuery,
     useGetCourseGradingQuery,
+    useNewUserResultMutation,
     useUpdateUserResultMutation,
     useDeleteUserResultMutation,
     useNewCourseGradingMutation,
