@@ -94,9 +94,41 @@ export const assignmentApi = createApi({
             }),
             invalidatesTags: ['Assignment'],
         }),
+        addSubmittedField: builder.mutation({
+            query: (post) => ({ 
+                url: `submittedField`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
+        addSubmission: builder.mutation({
+            query: (post) => ({ 
+                url: `submission`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
         updateAssignment: builder.mutation({
             query: ({id, patch}) => ({ 
                 url: `assignment/${id})`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
+        updateSubmittedField: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `submittedField/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
+        updateSubmission: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `submission/${id}`,
                 method: 'PATCH',
                 body: patch,
             }),
@@ -119,5 +151,9 @@ export const {
     useDeleteAssignmentMutation,
     useDeleteAssignmentPeriodMutation,
     useAddSubmissionToReviewMutation,
+    useAddSubmittedFieldMutation,
+    useAddSubmissionMutation,
     useUpdateAssignmentMutation,
+    useUpdateSubmittedFieldMutation,
+    useUpdateSubmissionMutation,
 } = assignmentApi

@@ -20,7 +20,12 @@ export const documentsApi = createApi({
     tagTypes: ['Documents'],
     endpoints: (builder) => ({
         getMaterials: builder.query({
-            query: (id) => ({ url: `material` }),
+            query: () => ({ url: `material` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Documents'],
+        }),
+        getMaterial: builder.query({
+            query: (id) => ({ url: `material/${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Documents'],
         }),
@@ -38,5 +43,6 @@ export const documentsApi = createApi({
 
 export const { 
     useGetMaterialsQuery,
+    useGetMaterialQuery,
     useNewFolderMutation,
 } = documentsApi
