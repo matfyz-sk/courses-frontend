@@ -69,7 +69,21 @@ export const assignmentApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Assignment'],
         }),
-        
+        getTeamReviewOfUserAndSubmission: builder.query({
+            query: ({id, subId}) => ({ url: `teamReview?reviewedStudent=${id}&ofSubmission=${subId}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getTeamReviewOfSubmissionCreatedBy: builder.query({
+            query: ({id, subId}) => ({ url: `teamReview?ofSubmission=${subId}&createdBy=${id}&&_join=reviewedStudent` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getTeamReviewOfSubmission: builder.query({
+            query: (subId) => ({ url: `teamReview?ofSubmission=${subId}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
         deleteAssignment: builder.mutation({
             query: (id) => ({ 
                 url: `assignment/${id}`,
@@ -110,6 +124,14 @@ export const assignmentApi = createApi({
             }),
             invalidatesTags: ['Assignment'],
         }),
+        addTeamReview: builder.mutation({
+            query: (post) => ({ 
+                url: `teamReview`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
         updateAssignment: builder.mutation({
             query: ({id, patch}) => ({ 
                 url: `assignment/${id})`,
@@ -134,6 +156,14 @@ export const assignmentApi = createApi({
             }),
             invalidatesTags: ['Assignment'],
         }),
+        updateTeamReview: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `teamReview/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
     }),
 })
 
@@ -148,12 +178,17 @@ export const {
     useGetToReviewForTeamQuery,
     useGetPeerReviewQuery,
     useGetPeerReviewForTeamQuery,
+    useGetTeamReviewOfUserAndSubmissionQuery,
+    useGetTeamReviewOfSubmissionCreatedByQuery,
+    useGetTeamReviewOfSubmissionQuery,
     useDeleteAssignmentMutation,
     useDeleteAssignmentPeriodMutation,
     useAddSubmissionToReviewMutation,
     useAddSubmittedFieldMutation,
     useAddSubmissionMutation,
+    useAddTeamReviewMutation,
     useUpdateAssignmentMutation,
     useUpdateSubmittedFieldMutation,
     useUpdateSubmissionMutation,
+    useUpdateTeamReviewMutation,
 } = assignmentApi

@@ -7,166 +7,54 @@ import { axiosGetEntities, axiosAddEntity, axiosUpdateEntity, getResponseBody, g
 import OneReview from './oneReview';
 import InstructorTeamReviewDetails from './instructorDetailView';
 import TeamReviewDetails from './teamDetailView';
+import { useGetTeamInstanceWithApprovedUsersQuery } from 'services/team'
+import { 
+  useGetTeamReviewOfUserAndSubmissionQuery,
+  useGetTeamReviewOfSubmissionCreatedByQuery,
+  useGetTeamReviewOfSubmissionQuery,
+  useAddTeamReviewMutation,
+  useUpdateTeamReviewMutation,
+} from 'services/assignments'
 
-class TeamReview extends Component {
-  constructor(props){
-    super(props);
-    this.state= {
-      teammates: [],
-      teammatesLoaded: false,
-      //review data about me
-      reviewsOfMe: [],
-      reviewsOfMeLoaded: false,
-      //raw review data by me
-      myReviews: [],
-      myReviewsLoaded: false,
-      //review input data
-      reviews: [],
-      reviewsLoaded: false,
-      //raw review data
-      allReviews: [],
-      allReviewsLoaded: false,
-      //reviews assigned to all members
-      memberReviews: [],
-      memberReviewsLoaded: false,
+function TeamReview(props) {
+  const [teammates, setTeammates] = useState([])
+  const [teammatesLoaded, setTeammatesLoaded] = useState(false)
+  //review data about me
+  const [reviewsOfMe, setReviewsOfMe] = useState([])
+  const [reviewsOfMeLoaded, setReviewsOfMeLoaded] = useState(false)
+  //raw review data by me
+  const [myReviews, setMyReviews] = useState([])
+  const [myReviewsLoaded, setMyReviewsLoaded] = useState(false)
+  //review input data
+  const [reviews, setReviews] = useState([])
+  const [reviewsLoaded, setReviewsLoaded] = useState(false)
+  //raw review data
+  const [allReviews, setAllReviews] = useState([])
+  const [allReviewsLoaded, setAllReviewsLoaded] = useState(false)
+  //reviews assigned to all members
+  const [memberReviews, setMemberReviews] = useState([])
+  const [memberReviewsLoaded, setMemberReviewsLoaded] = useState(false)
 
-      saving: false,
+  const [saving, setSaving] = useState(false)
+  const submissionID = getSubmissionID(props)
+  const [addTeamReview, addTeamReviewResult] = useAddTeamReviewMutation()
+  const [updateTeamReview, updateTeamReviewResult] = useUpdateTeamReviewMutation()
+
+  useEffect(() => {
+    if (props.settings.isInstructor) {
+      prepareAllReviews();
+    } else if (periodHappening(props.assignment.teamReviewPeriod)) {
+      prepareReviews();
     }
-    this.submissionID = null;
-    if( this.props.initialSubmission !== null ){
-      this.submissionID = this.props.initialSubmission['@id'];
-    }else if( this.props.improvedSubmission !== null ){
-      this.submissionID = this.props.improvedSubmission['@id'];
-    }
+  }, [teammates, teammatesLoaded])
 
-    this.fetchTeammates.bind(this);
-    this.fetchReviewsOfMe.bind(this);
-    this.fetchMyReviews.bind(this);
-    this.fetchAllReviews.bind(this);
-    this.prepareReviews.bind(this);
-    this.fetchAllReviews.bind(this);
-    this.prepareAllReviews.bind(this);
-  }
+  useEffect(() => {
+    prepareReviews()
+  }, [reviewsOfMe, reviewsOfMeLoaded])
 
-  fetchTeammates(){
-    axiosGetEntities(`teamInstance?instanceOf=${ this.props.settings.isInstructor ? this.props.match.params.targetID : this.props.match.params.teamID}&approved=true&_join=hasUser`).then((response)=>{
-      let teammates = getResponseBody(response).filter((member) => member.hasUser[0]['@id'] !== this.props.user.fullURI );
-      teammates = teammates.map( (teammate) => teammate.hasUser[0] );
-      let afterTeammatesUpdate = () => {};
-      if(this.props.settings.isInstructor){
-        afterTeammatesUpdate = this.prepareAllReviews;
-      }else if(periodHappening(this.props.assignment.teamReviewPeriod)){
-        afterTeammatesUpdate = this.prepareReviews;
-      }
-      this.setState( { teammates, teammatesLoaded: true }, afterTeammatesUpdate );
-    })
-  }
-
-  fetchReviewsOfMe(){
-    if( this.submissionID === null ){
-      return;
-    }
-    axiosGetEntities(`teamReview?reviewedStudent=${this.props.user.id}&ofSubmission=${getShortID(this.submissionID)}`).then((response)=>{
-      let reviewsOfMe = getResponseBody(response);
-      this.setState( { reviewsOfMe, reviewsOfMeLoaded: true });
-    })
-  }
-
-  fetchMyReviews(){
-    if( this.submissionID === null ){
-      return;
-    }
-    axiosGetEntities(`teamReview?ofSubmission=${getShortID(this.submissionID)}&createdBy=${this.props.user.id}&&_join=reviewedStudent`).then((response) => {
-      let myReviews = getResponseBody(response);
-      this.setState( { myReviews, myReviewsLoaded: true }, this.prepareReviews );
-    })
-  }
-
-  prepareReviews(){
-    if( !this.state.teammatesLoaded || !this.state.myReviewsLoaded || !periodHappening(this.props.assignment.teamReviewPeriod) ){
-      return;
-    }
-    let reviews = [];
-    //empty reviews
-    this.state.teammates.forEach((teammate) => {
-      reviews.push({
-        percentage: 100,
-        studentComment: '',
-        privateComment: '',
-        id: teammate['@id'],
-        student: teammate,
-        exists: false,
-      })
-    })
-    //load previous
-    this.state.myReviews.forEach((existingReview) =>{
-      let index = reviews.findIndex( (review) => review.id === existingReview.reviewedStudent[0]['@id'] );
-      if( index !== -1 ){
-        reviews[index] = {
-          percentage: existingReview.percentage,
-          studentComment: existingReview.studentComment,
-          privateComment: existingReview.privateComment,
-          id: reviews[index].id,
-          student: reviews[index].student,
-          exists: true,
-          reviewID: existingReview['@id'],
-        }
-      }
-    })
-    this.setState({ reviews, reviewsLoaded:true });
-  }
-
-  fetchAllReviews(){
-    if( this.submissionID === null ){
-      return;
-    }
-    axiosGetEntities(`teamReview?ofSubmission=${getShortID(this.submissionID)}`).then((response)=>{
-      let allReviews = getResponseBody(response);
-      this.setState( { allReviews, allReviewsLoaded: true },this.prepareAllReviews );
-    })
-  }
-
-  prepareAllReviews(){
-    if( !this.state.teammatesLoaded || !this.state.allReviewsLoaded || !periodHasEnded(this.props.assignment.teamReviewPeriod) ){
-      return;
-    }
-    let reviews = this.state.allReviews.map( (review) => ({
-      ...review,
-      createdBy: this.state.teammates.find( (member) => review.createdBy['@id'] === member['@id'] )
-    }))
-    const memberReviews = this.state.teammates.map( (member) => ({
-      ...member,
-      reviews: reviews.filter((review) => review.reviewedStudent.length > 0 && review.reviewedStudent[0]['@id'] === member['@id'] )
-    }));
-    this.setState({ memberReviews, memberReviewsLoaded: true  })
-  }
-
-  submitTeamReview(){
-    if( this.submissionID === null ){
-      return;
-    }
-    this.setState({ saving: true })
-    let existingReviews = this.state.reviews.filter( (review) => review.exists );
-    let newReviews = this.state.reviews.filter( (review) => !review.exists );
-    let axiosReviews = [
-      ...existingReviews.map( (review) => axiosUpdateEntity( {
-        percentage: review.percentage.toString(),
-        studentComment: prepareMultiline(review.studentComment),
-        privateComment: prepareMultiline(review.privateComment),
-      } , `teamReview/${getShortID(review.reviewID)}` ) ),
-      ...newReviews.map( (review) => axiosAddEntity( {
-        percentage: review.percentage.toString(),
-        reviewedStudent: review.student['@id'],
-        studentComment: prepareMultiline(review.studentComment),
-        privateComment: prepareMultiline(review.privateComment),
-        ofSubmission: this.submissionID
-      } , 'teamReview' ) ),
-    ];
-    Promise.all(axiosReviews).then(()=>{
-      this.setState({ saving: false })
-      this.fetchMyReviews();
-    })
-  }
+  useEffect(() => {
+    prepareAllReviews()
+  }, [allReviews, allReviewsLoaded])
 
   /*
   nacitat clenov teamu
@@ -180,97 +68,237 @@ class TeamReview extends Component {
 
   ak je initial tak ulozit k nemu, ak nie je initial tak extended ak ziadne nie je napisat ze team sa neda hodnotit
   */
-  componentWillMount(){
-    this.fetchTeammates();
-    if( !this.props.settings.isInstructor ){
-      if( periodHasEnded(this.props.assignment.teamReviewPeriod) ){
-        this.fetchMyReviews();
-        this.fetchReviewsOfMe();
+  useEffect(() => {
+    fetchTeammates();
+    if (!props.settings.isInstructor) {
+      if (periodHasEnded(props.assignment.teamReviewPeriod)) {
+        fetchMyReviews();
+        fetchReviewsOfMe();
       }
-      if( periodHappening(this.props.assignment.teamReviewPeriod) ){
-        this.fetchMyReviews();
+      if (periodHappening(props.assignment.teamReviewPeriod)) {
+        fetchMyReviews();
       }
-    }else if( periodHasEnded(this.props.assignment.teamReviewPeriod) ){
-      this.fetchAllReviews();
+    } else if (periodHasEnded(props.assignment.teamReviewPeriod)) {
+      fetchAllReviews();
+    }
+  }, [])
+
+  const fetchTeammates = () => {
+    const id = props.settings.isInstructor ? props.match.params.targetID : props.match.params.teamID
+    const {data, isSuccess} = useGetTeamInstanceWithApprovedUsersQuery(id)
+    if (isSuccess && data) { 
+      let teammates = data.filter((member) => member.hasUser[0]['@id'] !== props.user.fullURI );
+      teammates = teammates.map( (teammate) => teammate.hasUser[0] );
+      setTeammates(teammates)
+      setTeammatesLoaded(true)
     }
   }
 
-  render(){
-    if( !periodStarted(this.props.assignment.teamReviewPeriod) ){
-      return (
-        <Alert color="danger" className="mt-3">
-          Team review hasn't started yet!
-        </Alert>
-      )
+  const fetchReviewsOfMe = () => {
+    if (submissionID === null) {
+      return;
     }
-    if( !periodHasEnded(this.props.assignment.teamReviewPeriod) && this.props.settings.isInstructor ){
-      return (
-        <Alert color="danger" className="mt-3">
-          Team review hasn't ended yet!
-        </Alert>
-      )
+    const {data, isSuccess} = useGetTeamReviewOfUserAndSubmissionQuery({
+      id: props.user.id,
+      subId: getShortID(submissionID)
+    })
+    if (isSuccess && data) { 
+      setReviewsOfMe(data)
+      setReviewsOfMeLoaded(true)
     }
+  }
 
-    if( this.submissionID === null && !this.props.settings.isInstructor ){
-      return (
-        <Alert color="danger" className="mt-3">
-          You can't review your team if you haven't submitted anything!
-        </Alert>
-      )
+  const fetchMyReviews = () => {
+    if (submissionID === null) {
+      return;
     }
-    if( this.submissionID === null && this.props.settings.isInstructor ){
-      return (
-        <Alert color="danger" className="mt-3">
-          This team didn't submit submission so there are no reviews to view!
-        </Alert>
-      )
+    const {data, isSuccess} = useGetTeamReviewOfSubmissionCreatedByQuery({
+      id: props.user.id,
+      subId: getShortID(submissionID)
+    })
+    if(isSuccess && data) { 
+      setMyReviews(data)
+      setMyReviewsLoaded(true)
     }
-    const loading = !this.state.teammatesLoaded ||
-    ( periodHappening(this.props.assignment.teamReviewPeriod) && !this.state.reviewsLoaded ) || //ak sa deje perioda musia byt nacitnae reviews
-    ( !this.props.settings.isInstructor && periodHasEnded(this.props.assignment.teamReviewPeriod) && ( !this.state.myReviewsLoaded || !this.state.reviewsOfMeLoaded) ) || //ak sa nedeje perioda musia byt nacitane hodnotenia mnou a ostatnymi
-    ( this.props.settings.isInstructor && periodHasEnded(this.props.assignment.teamReviewPeriod) && !this.state.allReviewsLoaded ) //ak som instruktor, musia byt nacitane timy a vsetky ich hodnotenia
+  }
 
-    if( loading ){
-      return (
-        <Alert color="primary" className="mt-3">
-          Loading team reviews...
-        </Alert>
-      )
+  const prepareReviews = () =>{
+    if (!teammatesLoaded || !myReviewsLoaded || !periodHappening(props.assignment.teamReviewPeriod)) {
+      return;
     }
-    return(
-      <div>
-        { periodHappening(this.props.assignment.teamReviewPeriod) && this.state.reviews.map((review) =>
-          <OneReview
-            key={ review.id }
-            student={ review.student }
-            percentage={ review.percentage }
-            studentComment={ review.studentComment }
-            privateComment={ review.privateComment }
-            onChange={ (newReview) => {
-              let newReviews = [...this.state.reviews];
-              const index = newReviews.findIndex( (oldReview) => oldReview.id === review.id );
-              newReviews[index] = {
-                ...newReviews[index],
-                ...newReview
-              }
-              this.setState({ reviews: newReviews })
-            }}
-            />
-        )}
-        { periodHappening(this.props.assignment.teamReviewPeriod) &&
-          <Button color="primary" disabled={this.state.saving} onClick={this.submitTeamReview.bind(this)}>{ this.state.saving ? 'Saving team review' : 'Save team review' }</Button>
+    let reviews = [];
+    //empty reviews
+    teammates.forEach((teammate) => {
+      reviews.push({
+        percentage: 100,
+        studentComment: '',
+        privateComment: '',
+        id: teammate['@id'],
+        student: teammate,
+        exists: false,
+      })
+    })
+    //load previous
+    myReviews.forEach((existingReview) =>{
+      let index = reviews.findIndex((review) => review.id === existingReview.reviewedStudent[0]['@id']);
+      if( index !== -1 ){
+        reviews[index] = {
+          percentage: existingReview.percentage,
+          studentComment: existingReview.studentComment,
+          privateComment: existingReview.privateComment,
+          id: reviews[index].id,
+          student: reviews[index].student,
+          exists: true,
+          reviewID: existingReview['@id'],
         }
-        {
-          this.props.settings.isInstructor && periodHasEnded(this.props.assignment.teamReviewPeriod) &&
-          <InstructorTeamReviewDetails reviews={this.state.allReviews} students={this.state.teammates} />
+      }
+    })
+    setReviews(reviews)
+    setReviewsLoaded(true)
+  }
+
+  const fetchAllReviews = () => {
+    if (submissionID === null) {
+      return;
+    }
+    const {data, isSuccess} = useGetTeamReviewOfSubmissionQuery(getShortID(submissionID))
+    if (isSuccess && data) { 
+      setAllReviews(data)
+      setAllReviewsLoaded(true)
+    }
+  }
+
+  const prepareAllReviews = () => {
+    if (!teammatesLoaded || !allReviewsLoaded || !periodHasEnded(props.assignment.teamReviewPeriod)) {
+      return;
+    }
+    let reviews = allReviews.map((review) => ({
+      ...review,
+      createdBy: teammates.find((member) => review.createdBy['@id'] === member['@id'])
+    }))
+    const memberReviews = teammates.map((member) => ({
+      ...member,
+      reviews: reviews.filter((review) => review.reviewedStudent.length > 0 && review.reviewedStudent[0]['@id'] === member['@id'])
+    }));
+    setMemberReviews(memberReviews)
+    setMemberReviewsLoaded(true)
+  }
+
+  const submitTeamReview = () => {
+    if (submissionID === null) {
+      return;
+    }
+    setSaving(true)
+    let existingReviews = reviews.filter((review) => review.exists);
+    let newReviews = reviews.filter((review) => !review.exists);
+    existingReviews.forEach(review => {
+      updateTeamReview({
+        id: getShortID(review.reviewID),
+        patch: {
+          percentage: review.percentage.toString(),
+          studentComment: prepareMultiline(review.studentComment),
+          privateComment: prepareMultiline(review.privateComment),
         }
-        {
-          !this.props.settings.isInstructor && periodHasEnded(this.props.assignment.teamReviewPeriod) &&
-          <TeamReviewDetails reviews={this.state.reviewsOfMe} myReviews={this.state.myReviews} students={this.state.teammates} />
-        }
-      </div>
+      }).unwrap()
+    })
+    newReviews.forEach(review => {
+      addTeamReview({
+          percentage: review.percentage.toString(),
+          studentComment: prepareMultiline(review.studentComment),
+          privateComment: prepareMultiline(review.privateComment),
+      }).unwrap()
+    })
+    setSaving(false)
+    fetchMyReviews();
+  }
+
+  if (!periodStarted(props.assignment.teamReviewPeriod)) {
+    return (
+      <Alert color="danger" className="mt-3">
+        Team review hasn't started yet!
+      </Alert>
     )
   }
+
+  if (!periodHasEnded(props.assignment.teamReviewPeriod) && props.settings.isInstructor) {
+    return (
+      <Alert color="danger" className="mt-3">
+        Team review hasn't ended yet!
+      </Alert>
+    )
+  }
+
+  if (submissionID === null && !props.settings.isInstructor) {
+    return (
+      <Alert color="danger" className="mt-3">
+        You can't review your team if you haven't submitted anything!
+      </Alert>
+    )
+  }
+
+  if(submissionID === null && props.settings.isInstructor) {
+    return (
+      <Alert color="danger" className="mt-3">
+        This team didn't submit submission so there are no reviews to view!
+      </Alert>
+    )
+  }
+
+  const loading = !state.teammatesLoaded 
+    || (periodHappening(props.assignment.teamReviewPeriod) && !reviewsLoaded) //ak sa deje perioda musia byt nacitnae reviews
+    || (!props.settings.isInstructor && periodHasEnded(props.assignment.teamReviewPeriod) && (!myReviewsLoaded || !reviewsOfMeLoaded)) //ak sa nedeje perioda musia byt nacitane hodnotenia mnou a ostatnymi
+    || (props.settings.isInstructor && periodHasEnded(props.assignment.teamReviewPeriod) && !allReviewsLoaded) //ak som instruktor, musia byt nacitane timy a vsetky ich hodnotenia
+
+  if (loading){
+    return (
+      <Alert color="primary" className="mt-3">
+        Loading team reviews...
+      </Alert>
+    )
+  }
+
+  return(
+    <div>
+      {periodHappening(props.assignment.teamReviewPeriod) && reviews.map((review) =>
+        <OneReview
+          key={ review.id }
+          student={ review.student }
+          percentage={ review.percentage }
+          studentComment={ review.studentComment }
+          privateComment={ review.privateComment }
+          onChange={ (newReview) => {
+            let newReviews = [...reviews];
+            const index = newReviews.findIndex( (oldReview) => oldReview.id === review.id );
+            newReviews[index] = {
+              ...newReviews[index],
+              ...newReview
+            }
+            setReviews(newReviews)
+          }}
+          />
+      )}
+      { periodHappening(props.assignment.teamReviewPeriod) &&
+        <Button color="primary" disabled={saving} onClick={submitTeamReview}>{ saving ? 'Saving team review' : 'Save team review' }</Button>
+      }
+      {
+        props.settings.isInstructor && periodHasEnded(props.assignment.teamReviewPeriod) &&
+        <InstructorTeamReviewDetails reviews={allReviews} students={teammates} />
+      }
+      {
+        !props.settings.isInstructor && periodHasEnded(props.assignment.teamReviewPeriod) &&
+        <TeamReviewDetails reviews={reviewsOfMe} myReviews={myReviews} students={teammates} />
+      }
+    </div>
+  )
+} 
+
+const getSubmissionID = (props) => {
+  if (props.initialSubmission !== null) {
+    return props.initialSubmission['@id'];
+  } else if (props.improvedSubmission !== null) {
+    return props.improvedSubmission['@id'];
+  }
+  return null
 }
 
 const mapStateToProps = ({ authReducer, assignStudentDataReducer }) => {
