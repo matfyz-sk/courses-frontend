@@ -1,19 +1,13 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Label, Alert, Button, FormGroup, Input } from 'reactstrap'
 import { connect } from 'react-redux'
 import Questionare from './questionare'
 import Answers from './answers'
-
 import {
-  axiosGetEntities,
-  axiosAddEntity,
-  axiosUpdateEntity,
   getShortID,
-  getResponseBody,
   periodHappening,
   periodHasEnded,
   periodStarted,
-  getIRIFromAddResponse,
   timestampToString,
   htmlFixNewLines,
   prepareMultiline,
@@ -21,78 +15,105 @@ import {
   getRandomRolor,
   datesComparator,
 } from 'helperFunctions'
-import question from 'pages/quiz/question/question/question'
+import {
+  useGetCommentOfSubmissionCreatedByQuery,
+  useGetCommentOfSubmissionQuery,
+  useGetPeerReviewQuestionQuery,
+  useGetPeerReviewForTeamHasAnswerQuery,
+  useGetPeerReviewOfUserHasAnswerQuery,
+  useGetPeerReviewAnswersOfSubmissionQuery,
+  useAddCommentMutation,
+  useAddPeerReviewQuestionAnswerMutation,
+  useUpdatePeerReviewQuestionAnswerMutation,
+  useAddPeerReviewMutation,
+  useUpdatePeerReviewMutation,
+} from 'services/assignments'
+import { useGetTeamQuery } from 'services/team'
+import { useGetUserQuery } from 'services/user'
 
-class PeerReview extends Component {
-  constructor(props) {
-    super(props)
-    this.commentCreatorsVisible =
-      this.props.assignment.reviewsVisibility === 'open' ||
-      this.props.settings.isInstructor
-    this.state = {
-      questions: [],
-      questionsLoaded: false,
 
-      answers: [],
-      answersLoaded: [],
+function PeerReview(props) {
+  const commentCreatorsVisible = getCommentCreatorsVisible(props)
+  const submissionID = getSubmissionID(props)
+  const [questions, setQuestions] = useState([])
+  const [questionsLoaded, setQuestionsLoaded] = useState(false)
 
-      myReview: null,
-      myReviewLoaded: false,
+  const [answers, setAnswers] = useState([])
+  const [answersLoaded, setAnswersLoaded] = useState(false)
 
-      questionare: [1, 2],
-      questionareLoaded: false,
+  const [myReview, setMyReview] = useState(null)
+  const [myReviewLoaded, setMyReviewLoaded] = useState(false)
 
-      commentsLoaded: false,
-      generalComments: [],
-      messageColors: [],
-      newGeneralComment: '',
-      newGeneralCommentParent: null,
-      generalCommentSaving: false,
+  const [questionare, setQuestionare] = useState([1, 2])
+  const [questionareLoaded, setQuestionareLoaded] = useState(false)
 
-      saving: false,
-      saved: false,
+  const [commentsLoaded, setCommentsLoaded] = useState(false)
+  const [generalComments, setGeneralComments] = useState([])
+  const [messageColors, setMessageColors] = useState([])
+  const [newGeneralComment, setNewGeneralComment] = useState('')
+  const [newGeneralCommentParent, setNewGeneralCommentParent] = useState(null)
+  const [generalCommentSaving, setGeneralCommentSaving] = useState(false)
+
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [addComment, addCommentResult] = useAddCommentMutation()
+  const [addPeerReview, addPeerReviewResult] = useAddPeerReviewMutation()
+  const [updatePeerReview, updatePeerReviewResult] = useUpdatePeerReviewMutation()
+  const [addPeerReviewQuestionAnswer, addPeerReviewQuestionAnswerResult] = useAddPeerReviewQuestionAnswerMutation()
+  const [updatePeerReviewQuestionAnswer, updatePeerReviewQuestionAnswerResult] = useUpdatePeerReviewQuestionAnswerMutation()
+
+  useEffect(() => {
+    fetchComments()
+    if (periodHappening(props.assignment.peerReviewPeriod) 
+        && props.settings.peerReview) {
+      //student hodnoti niekoho
+      fetchQuestions()
+      fetchMyReview()
+    } else if ((props.settings.myAssignment || props.settings.isInstructor) 
+        && periodHasEnded(props.assignment.peerReviewPeriod)) {
+      //instruktor alebo niekto pozera vysledky
+      fetchQuestions()
+      fetchAnswers()
     }
-    this.submissionID = null
-    if (this.props.initialSubmission !== null) {
-      this.submissionID = this.props.initialSubmission['@id']
-    }
-    this.fetchQuestions.bind(this)
-    this.fetchAnswers.bind(this)
-    this.processReviews.bind(this)
-    this.getQuestionAnswers.bind(this)
-    this.loadForm.bind(this)
-  }
+  }, [])
 
-  fetchComments() {
-    const initialSubmission = this.props.initialSubmission
+  useEffect(() => {
+    if (!props.settings.isInstructor 
+        && !props.settings.myAssignment) {
+      loadForm()
+    }
+  }, [questions, questionsLoaded])
+
+  useEffect(() => {
+    loadForm()
+  }, [myReview, myReviewLoaded])
+
+  const fetchComments = () => {
+    const initialSubmission = props.initialSubmission
     if (initialSubmission === null) {
       return
     }
-    let getUser = this.commentCreatorsVisible ? '&_join=createdBy' : ''
-    axiosGetEntities(
-      `comment?ofSubmission=${getShortID(initialSubmission['@id'])}${getUser}`
-    ).then(response => {
-      let allComments = getResponseBody(response).filter(
-        comment => !comment['@type'].endsWith('CodeComment')
-      )
-      let messageColors = [...this.state.messageColors]
+    const {data, isSuccess} = getFetchCommentsRequest(commentCreatorsVisible, initialSubmission['@id'])
+    if (isSuccess && data) {
+      let allComments = data.filter(comment => !comment['@type'].endsWith('CodeComment'))
+      let newMessageColors = [...messageColors]
       allComments = allComments
         .sort((comment1, comment2) =>
           datesComparator(comment1.createdAt, comment2.createdAt)
         )
         .map(comment => {
           if (
-            !messageColors.some(color => color.id === comment.createdBy['@id'])
+            !newMessageColors.some(color => color.id === comment.createdBy['@id'])
           ) {
-            messageColors.push({
+            newMessageColors.push({
               id: comment.createdBy['@id'],
               hex: getRandomRolor(),
-              name: `Anonymous ${messageColors.length + 1}`,
+              name: `Anonymous ${newMessageColors.length + 1}`,
             })
           }
           return {
             ...comment,
-            color: messageColors.find(
+            color: newMessageColors.find(
               color => color.id === comment.createdBy['@id']
             ),
           }
@@ -110,82 +131,43 @@ class PeerReview extends Component {
             )
             .reverse(),
         }))
-      this.setState({
-        generalComments: parentComments,
-        commentsLoaded: true,
-        messageColors,
-      })
-    })
-  }
-
-  getCommentBy(comment) {
-    if (this.commentCreatorsVisible) {
-      return getStudentName(comment.createdBy)
+      setGeneralComments(parentComments)
+      setCommentsLoaded(true)
+      setMessageColors(newMessageColors)
     }
-    return comment.color.name
   }
 
-  fetchQuestions() {
-    let axiosPeerReviewQuestions = this.props.assignment.reviewsQuestion.map(
-      question =>
-        axiosGetEntities(`peerReviewQuestion/${getShortID(question['@id'])}`)
-    )
-    Promise.all(axiosPeerReviewQuestions).then(responses => {
-      let questions = responses.map(response => getResponseBody(response)[0])
-      let afterUpdate = () => {}
-      if (
-        !this.props.settings.isInstructor &&
-        !this.props.settings.myAssignment
-      ) {
-        afterUpdate = this.loadForm.bind(this)
+  const fetchQuestions = () => {
+    const peerReviewQuestions = []
+    props.assignment.reviewsQuestion.forEach(question => {
+      const {data, isSuccess} = useGetPeerReviewQuestionQuery(getShortID(question['@id']))
+      if (isSuccess && data) {
+        peerReviewQuestions.push(data[0])
       }
-      this.setState({ questions, questionsLoaded: true }, afterUpdate)
     })
+    setQuestions(peerReviewQuestions)
+    setQuestionsLoaded(true)
   }
-
-  fetchMyReview() {
-    if (
-      this.submissionID === null ||
-      this.props.toReview === null ||
-      (this.props.assignment.reviewedByTeam &&
-        !this.props.teams.some(
-          team => team['@id'] === this.props.toReview.team[0]['@id']
-        ))
-    ) {
+  
+  const fetchMyReview = () => {
+    if (submissionID === null 
+      || props.toReview === null 
+      || (props.assignment.reviewedByTeam 
+          && !props.teams.some(team => team['@id'] === props.toReview.team[0]['@id']))) {
       return
     }
-    let peerReviewCondition = ''
-    if (this.props.assignment.reviewedByTeam) {
-      peerReviewCondition = `reviewedByTeam=${getShortID(
-        this.props.toReview.team[0]['@id']
-      )}`
-    } else {
-      peerReviewCondition = `reviewedByStudent=${getShortID(
-        this.props.toReview.student[0]['@id']
-      )}`
+    const {data, isSuccess} = getFetchMyReviewRequest(props, submissionID)
+    if (isSuccess && data) {
+      setMyReview(data.length === 0 ? null : data[0])
+      setMyReviewLoaded(true)
     }
-    axiosGetEntities(
-      `peerReview?ofSubmission=${getShortID(
-        this.submissionID
-      )}&${peerReviewCondition}&_join=hasQuestionAnswer`
-    ).then(response => {
-      let review = getResponseBody(response)
-
-      this.setState(
-        {
-          myReview: review.length === 0 ? null : review[0],
-          myReviewLoaded: true,
-        },
-        this.loadForm.bind(this)
-      )
-    })
   }
 
-  loadForm() {
-    if (!this.state.questionsLoaded || !this.state.myReviewLoaded) {
+  const loadForm = () => {
+    if (!questionsLoaded || !myReviewLoaded) {
       return
     }
-    let questionare = this.state.questions.map(question => ({
+    let questionare = questions.map(question => ({
       //load default values
       question,
       id: question['@id'],
@@ -195,8 +177,8 @@ class PeerReview extends Component {
       answer: '',
     }))
 
-    if (this.state.myReview !== null) {
-      this.state.myReview.hasQuestionAnswer.forEach(answer => {
+    if (myReview !== null) {
+      myReview.hasQuestionAnswer.forEach(answer => {
         let index = questionare.findIndex(
           question => answer.question === question.id
         )
@@ -211,74 +193,55 @@ class PeerReview extends Component {
         }
       })
     }
-    this.setState({ questionare, questionareLoaded: true })
+    setQuestionare(questionare)
+    setQuestionareLoaded(true)
   }
-
-  fetchAnswers() {
-    if (this.submissionID === null) {
+  
+  const fetchAnswers = () => {
+    if (submissionID === null) {
       return
     }
-    axiosGetEntities(
-      `peerReview?ofSubmission=${getShortID(
-        this.submissionID
-      )}&_join=hasQuestionAnswer,createdBy`
-    ).then(response => {
-      let reviews = getResponseBody(response)
-
-      if (
-        this.props.assignment.reviewsVisibility === 'open' ||
-        this.props.settings.isInstructor
-      ) {
-        if (this.props.assignment.reviewedByTeam) {
+    const {data, isSuccess} = useGetPeerReviewAnswersOfSubmissionQuery(getShortID(submissionID))
+    if (isSuccess && data) {
+      let reviews = data
+      if (props.settings.isInstructor 
+          || props.assignment.reviewsVisibility === 'open') {
+        if (props.assignment.reviewedByTeam) {
           //get team
-          let axiosTeams = reviews.map(review =>
-            axiosGetEntities(
-              `team/${getShortID(review.reviewedByTeam[0]['@id'])}`
-            )
-          )
-          Promise.all(axiosTeams).then(responses => {
-            let teams = responses.map(response => getResponseBody(response)[0])
-            reviews = this.assignTeamToReview(reviews, teams)
-            this.processReviews(reviews)
+          const teams = []
+          reviews.forEach(review => {
+            const {
+              data: getTeamData, 
+              isSuccess: getTeamIsSuccess
+            } = useGetTeamQuery(getShortID(review.reviewedByTeam[0]['@id']))
+            if (getTeamIsSuccess && getTeamData) {
+              teams.push(getTeamData[0])
+            }
           })
+          reviews = assignTeamToReview(reviews, teams)
+          processReviews(reviews)
         } else {
           //get user
-          let axiosStudents = reviews.map(review =>
-            axiosGetEntities(
-              `user/${getShortID(review.reviewedByStudent[0]['@id'])}`
-            )
-          )
-          Promise.all(axiosStudents).then(responses => {
-            let students = responses.map(
-              response => getResponseBody(response)[0]
-            )
-            reviews = this.assignStudentToReview(reviews, students)
-            this.processReviews(reviews)
+          const users = []
+          reviews.forEach(review => {
+            const {
+              data: getUserData, 
+              isSuccess: getUserIsSuccess
+            } = useGetUserQuery(getShortID(review.reviewedByStudent[0]['@id']))
+            if (getUserIsSuccess && getUserData) {
+              users.push(getUserData[0])
+            }
           })
+          reviews = assignStudentToReview(reviews, students)
+          processReviews(reviews)
         }
       } else {
-        this.processReviews(reviews)
+        processReviews(reviews)
       }
-    })
+    }
   }
 
-  assignTeamToReview(reviews, teams) {
-    return reviews.map(review => ({
-      ...review,
-      team: teams.find(team => team['@id'] === review.reviewedByTeam[0]['@id']),
-    }))
-  }
-
-  assignStudentToReview(reviews, students) {
-    return reviews.map(review => ({
-      ...review,
-      student: students.find(
-        student => student['@id'] === review.reviewedByStudent[0]['@id']
-      ),
-    }))
-  }
-
-  processReviews(reviews) {
+  const processReviews = (reviews) => {
     const answers = reviews
       .map(review => {
         return review.hasQuestionAnswer.map(answer => ({
@@ -289,14 +252,15 @@ class PeerReview extends Component {
       .reduce((acc, value) => {
         return acc.concat(value)
       }, [])
-    this.setState({ answers, answersLoaded: true })
+    setAnswers(answers)
+    setAnswersLoaded(true)
   }
 
-  getQuestionAnswers() {
-    const qAndA = this.state.questions.map(question => {
+  const getQuestionAnswers = () => {
+    const qAndA = questions.map(question => {
       return {
         ...question,
-        answers: this.state.answers
+        answers: answers
           .filter(answer => answer.question === question['@id'])
           .sort((answer1, answer2) =>
             answer1.createdAt > answer2.createdAt ? -1 : 1
@@ -304,145 +268,108 @@ class PeerReview extends Component {
       }
     })
     return qAndA
-
-    if (this.submissionID === null) {
-      return []
-    }
-    return this.state.questions.map(question => ({
-      ...question,
-      answers: this.state.answers
-        .filter(answer => answer.question[0]['@id'] === question['@id'])
-        .sort((answer1, answer2) =>
-          answer1.createdAt > answer2.createdAt ? -1 : 1
-        ),
-    }))
   }
 
   // "http://www.courses.matfyz.sk/data/peerReviewQuestion/vctpc"
   // 'http://www.courses.matfyz.sk/data/peerReviewQuestion/vctpc' answer[0].question
 
-  addGeneralComment() {
-    if (this.props.initialSubmission === null) {
+  const addGeneralComment = () => {
+    if (props.initialSubmission === null) {
       return
     }
-    this.setState({ generalCommentSaving: true })
+    setGeneralCommentSaving(true)
     const newComment = {
-      commentText: prepareMultiline(this.state.newGeneralComment),
-      ofSubmission: this.props.initialSubmission['@id'],
+      commentText: prepareMultiline(newGeneralComment),
+      ofSubmission: props.initialSubmission['@id'],
       _type: 'comment',
     }
-    if (this.state.newGeneralCommentParent !== null) {
-      newComment.ofComment = this.state.newGeneralCommentParent['@id']
+    if (newGeneralCommentParent !== null) {
+      newComment.ofComment = newGeneralCommentParent['@id']
     }
-    axiosAddEntity(newComment, 'comment')
-      .then(response => {
-        this.setState({
-          generalCommentSaving: false,
-          newGeneralComment: '',
-          newGeneralCommentParent: null,
-        })
-        this.fetchComments()
-      })
-      .catch(error => {
-        this.setState({ generalCommentSaving: false })
-        console.log(error)
-      })
+    addComment(newComment).unwrap().then(response => {
+      setGeneralCommentSaving(false)
+      setNewGeneralComment('')
+      setNewGeneralCommentParent(null)
+      fetchComments()
+    }).catch(error => {
+      setGeneralCommentSaving(false)
+      console.log(error)
+    })
   }
 
-  componentWillMount() {
-    this.fetchComments()
-    if (
-      periodHappening(this.props.assignment.peerReviewPeriod) &&
-      this.props.settings.peerReview
-    ) {
-      //student hodnoti niekoho
-      this.fetchQuestions()
-      this.fetchMyReview()
-    } else if (
-      (this.props.settings.myAssignment || this.props.settings.isInstructor) &&
-      periodHasEnded(this.props.assignment.peerReviewPeriod)
-    ) {
-      //instruktor alebo niekto pozera vysledky
-      this.fetchQuestions()
-      this.fetchAnswers()
-    }
-  }
-
-  submit() {
-    if (this.submissionID === null) {
+  const submit = () => {
+    if (submissionID === null) {
       return
     }
+    setSaving(true)
+    let existingReviews = questionare.filter(review => review.exists)
+    let newReviews = questionare.filter(review => !review.exists)
 
-    this.setState({ saving: true })
-    let existingReviews = this.state.questionare.filter(review => review.exists)
-    let newReviews = this.state.questionare.filter(review => !review.exists)
-    let axiosUpdateReviews = existingReviews.map(review =>
-      axiosUpdateEntity(
-        {
+    existingReviews.forEach(review =>
+      updatePeerReviewQuestionAnswer({
+        id: getShortID(review.answerID),
+        patch: {
           score: review.score,
           answer: review.answer,
-        },
-        `peerReviewQuestionAnswer/${getShortID(review.answerID)}`
-      )
+        }
+      }).unwrap()
     )
-    let axiosNewReviews = newReviews.map(review =>
-      axiosAddEntity(
-        {
-          score: review.score,
-          answer: review.answer,
-          question: review.question['@id'],
-        },
-        'peerReviewQuestionAnswer'
-      )
+    const newIDs = []
+    newReviews.forEach(review =>
+      addPeerReviewQuestionAnswer({
+        score: review.score,
+        answer: review.answer,
+        question: review.question['@id'],
+      }).unwrap().then(response => {
+        newIDs.push(response.data.resource.iri)
+      })
     )
-    Promise.all([
-      Promise.all(axiosUpdateReviews),
-      Promise.all(axiosNewReviews),
-    ]).then(([updateResponses, newResponses]) => {
-      let newIDs = newResponses.map(response => getIRIFromAddResponse(response))
-      if (this.state.myReview !== null) {
-        if (newIDs.length === 0) {
-          this.setState({ saving: false, saved: true })
-          setTimeout(() => {
-            this.setState({ saved: false })
-          }, 3000)
-        }
-
-        axiosUpdateEntity(
-          {
-            hasQuestionAnswer: [
-              ...existingReviews.map(review => review.answerID),
-              ...newIDs,
-            ],
-          },
-          `peerReview/${getShortID(this.state.myReview['@id'])}`
-        ).then(response => {
-          this.setState({ saving: false, saved: true })
-          setTimeout(() => {
-            this.setState({ saved: false })
-          }, 3000)
-          this.fetchMyReview()
-        })
-      } else {
-        let newPeerReview = {
-          hasQuestionAnswer: newIDs,
-          ofSubmission: this.submissionID,
-        }
-        if (this.props.assignment.reviewedByTeam) {
-          newPeerReview.reviewedByTeam = this.props.toReview.team[0]['@id']
-        } else {
-          newPeerReview.reviewedByStudent =
-            this.props.toReview.student[0]['@id']
-        }
-        axiosAddEntity(newPeerReview, 'peerReview').then(response => {
-          this.setState({ saving: false, saved: true })
-          setTimeout(() => {
-            this.setState({ saved: false })
-          }, 3000)
-          this.fetchMyReview()
-        })
+    
+    if (myReview !== null) {
+      if (newIDs.length === 0) {
+        setSaving(false)
+        setSaved(true)
+        setTimeout(() => {
+          setSaved(false)
+        }, 3000)
       }
-    })
+
+      updatePeerReview({
+        id: getShortID(myReview['@id']),
+        patch: {
+          hasQuestionAnswer: [
+            ...existingReviews.map(review => review.answerID),
+            ...newIDs,
+          ],
+        }
+      }).unwrap().then(response => {
+        setSaving(false)
+        setSaved(true)
+        setTimeout(() => {
+          setSaved(false)
+        }, 3000)
+        fetchMyReview()
+      })
+    } else {
+      let newPeerReview = {
+        hasQuestionAnswer: newIDs,
+        ofSubmission: submissionID,
+      }
+      if (props.assignment.reviewedByTeam) {
+        newPeerReview.reviewedByTeam = props.toReview.team[0]['@id']
+      } else {
+        newPeerReview.reviewedByStudent =
+          props.toReview.student[0]['@id']
+      }
+      addPeerReview(newPeerReview).unwrap().then(response => {
+        setSaving(false)
+        setSaved(true)
+        setTimeout(() => {
+          setSaved(false)
+        }, 3000)
+        fetchMyReview()
+      })
+    }
   }
 
   /*
@@ -456,199 +383,252 @@ class PeerReview extends Component {
 
   open - napis info o teame alebo osobe, ALEBO INSTRUKTOR inak nepis nic
   */
-
-  render() {
-    if (!periodStarted(this.props.assignment.teamReviewPeriod)) {
-      return (
-        <Alert color="danger" className="mt-3">
-          Peer review hasn't started yet!
-        </Alert>
-      )
-    }
-    if (
-      !periodHasEnded(this.props.assignment.peerReviewPeriod) &&
-      this.props.settings.isInstructor
-    ) {
-      return (
-        <Alert color="danger" className="mt-3">
-          Peer review hasn't ended yet!
-        </Alert>
-      )
-    }
-    if (this.submissionID === null && this.props.settings.peerReview) {
-      return (
-        <Alert color="danger" className="mt-3">
-          You can't review this submission, there's none
-        </Alert>
-      )
-    }
-
-    if (
-      this.submissionID === null &&
-      !this.props.settings.isInstructor &&
-      this.props.settings.myAssignment
-    ) {
-      return (
-        <Alert color="danger" className="mt-3">
-          You can't get review if you haven't submitted anything!
-        </Alert>
-      )
-    }
-    if (this.submissionID === null && this.props.settings.isInstructor) {
-      return (
-        <Alert color="danger" className="mt-3">
-          There is no submission, so there are no reviews to view!
-        </Alert>
-      )
-    }
-    const loading =
-      (this.props.settings.peerReview &&
-        periodHappening(this.props.assignment.peerReviewPeriod) &&
-        !this.state.questionareLoaded) ||
-      ((this.props.settings.myAssignment || this.props.settings.isInstructor) &&
-        periodHasEnded(this.props.assignment.peerReviewPeriod) &&
-        (!this.state.questionsLoaded || !this.state.answersLoaded))
-    if (loading) {
-      return (
-        <Alert color="primary" className="mt-3">
-          Loading peer reviews...
-        </Alert>
-      )
-    }
-
+  if (!periodStarted(props.assignment.teamReviewPeriod)) {
     return (
-      <div>
-        <Alert style={{ marginTop: '20px' }} isOpen={this.state.saved}>
-          Submission was saved successfully.
-        </Alert>
-        {periodHappening(this.props.assignment.peerReviewPeriod) &&
-          this.props.settings.peerReview && (
-            <Questionare
-              questionare={this.state.questionare}
-              onChange={questionare => this.setState({ questionare })}
-              saving={this.state.saving}
-              submit={this.submit.bind(this)}
-            />
-          )}
-        {}
-        {(this.props.settings.myAssignment ||
-          this.props.settings.isInstructor) &&
-          periodHasEnded(this.props.assignment.peerReviewPeriod) && (
-            <Answers
-              questionsWithAnswers={this.getQuestionAnswers()}
-              nameVisible={
-                this.props.assignment.reviewsVisibility === 'open' ||
-                this.props.settings.isInstructor
-              }
-            />
-          )}
-
-        <h3>
-          <Label className="bold">General comments</Label>
-        </h3>
-        {this.state.generalComments.length === 0 && (
-          <div style={{ fontStyle: 'italic' }}>
-            There are currently no comments!
-          </div>
-        )}
-        {this.state.generalComments.map(genComment => (
-          <div key={genComment['@id']}>
-            <Label className="flex row">
-              Commented by
-              <span
-                style={{
-                  fontWeight: 'bolder',
-                  color: genComment.color.hex,
-                  marginLeft: '0.5rem',
-                }}
-              >{`${this.getCommentBy(genComment)}`}</span>
-              <div className="text-muted ml-auto">
-                {timestampToString(genComment.createdAt)}
-              </div>
-            </Label>
-            <div className="text-muted">
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: htmlFixNewLines(genComment.commentText),
-                }}
-              />
-            </div>
-            <div style={{ padding: '5px 10px' }}>
-              {genComment.childComments.map(childComment => (
-                <div key={childComment['@id']}>
-                  <hr style={{ margin: 0 }} />
-                  <Label className="flex row">
-                    Commented by
-                    <span
-                      style={{
-                        fontWeight: 'bolder',
-                        color: childComment.color.hex,
-                        marginLeft: '0.5rem',
-                      }}
-                    >{`${this.getCommentBy(childComment)}`}</span>
-                    <div className="text-muted ml-auto">
-                      {timestampToString(childComment.createdAt)}
-                    </div>
-                  </Label>
-                  <div className="text-muted">
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: htmlFixNewLines(childComment.commentText),
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <Button
-              color="link"
-              onClick={() =>
-                this.setState({ newGeneralCommentParent: genComment })
-              }
-            >
-              <i className="fa fa-reply" /> Reply
-            </Button>
-            <hr />
-          </div>
-        ))}
-        <FormGroup>
-          <Label htmlFor="addCodeComment" style={{ fontWeight: 'bold' }}>
-            New comment
-          </Label>
-          <Input
-            id="addCodeComment"
-            type="textarea"
-            value={this.state.newGeneralComment}
-            onChange={e => this.setState({ newGeneralComment: e.target.value })}
-          />
-        </FormGroup>
-        {this.state.newGeneralCommentParent && (
-          <span>
-            Commenting on{' '}
-            {this.state.newGeneralCommentParent.commentText.substring(0, 10)}...
-            <Button
-              color="link"
-              className="ml-auto"
-              onClick={() => this.setState({ newGeneralCommentParent: null })}
-            >
-              <i className="fa fa-times" />
-            </Button>
-          </span>
-        )}
-        <Button
-          color="primary"
-          disabled={
-            this.state.generalCommentSaving ||
-            this.state.newGeneralComment.length === 0
-          }
-          onClick={this.addGeneralComment.bind(this)}
-        >
-          Add comment
-        </Button>
-      </div>
+      <Alert color="danger" className="mt-3">
+        Peer review hasn't started yet!
+      </Alert>
     )
   }
+
+  if (!periodHasEnded(props.assignment.peerReviewPeriod) 
+    && props.settings.isInstructor) {
+    return (
+      <Alert color="danger" className="mt-3">
+        Peer review hasn't ended yet!
+      </Alert>
+    )
+  }
+
+  if (submissionID === null && props.settings.peerReview) {
+    return (
+      <Alert color="danger" className="mt-3">
+        You can't review this submission, there's none
+      </Alert>
+    )
+  }
+
+  if (submissionID === null 
+    && !props.settings.isInstructor 
+    && props.settings.myAssignment) {
+    return (
+      <Alert color="danger" className="mt-3">
+        You can't get review if you haven't submitted anything!
+      </Alert>
+    )
+  }
+
+  if (submissionID === null && props.settings.isInstructor) {
+    return (
+      <Alert color="danger" className="mt-3">
+        There is no submission, so there are no reviews to view!
+      </Alert>
+    )
+  }
+
+  const loading =
+    (props.settings.peerReview &&
+      periodHappening(props.assignment.peerReviewPeriod) &&
+      !questionareLoaded) ||
+    ((props.settings.myAssignment || props.settings.isInstructor) &&
+      periodHasEnded(props.assignment.peerReviewPeriod) &&
+      (!questionsLoaded || !answersLoaded))
+  if (loading) {
+    return (
+      <Alert color="primary" className="mt-3">
+        Loading peer reviews...
+      </Alert>
+    )
+  }
+
+  return (
+    <div>
+      <Alert style={{ marginTop: '20px' }} isOpen={saved}>
+        Submission was saved successfully.
+      </Alert>
+      {periodHappening(props.assignment.peerReviewPeriod) &&
+        props.settings.peerReview && (
+          <Questionare
+            questionare={questionare}
+            onChange={e => setQuestionare(e)}
+            saving={saving}
+            submit={submit}
+          />
+        )}
+      {}
+      {(props.settings.myAssignment ||
+        props.settings.isInstructor) &&
+        periodHasEnded(props.assignment.peerReviewPeriod) && (
+          <Answers
+            questionsWithAnswers={getQuestionAnswers()}
+            nameVisible={
+              props.assignment.reviewsVisibility === 'open' ||
+              props.settings.isInstructor
+            }
+          />
+        )}
+
+      <h3>
+        <Label className="bold">General comments</Label>
+      </h3>
+      {generalComments.length === 0 && (
+        <div style={{ fontStyle: 'italic' }}>
+          There are currently no comments!
+        </div>
+      )}
+      {generalComments.map(genComment => (
+        <div key={genComment['@id']}>
+          <Label className="flex row">
+            Commented by
+            <span
+              style={{
+                fontWeight: 'bolder',
+                color: genComment.color.hex,
+                marginLeft: '0.5rem',
+              }}
+            >{`${getCommentBy(genComment, commentCreatorsVisible)}`}</span>
+            <div className="text-muted ml-auto">
+              {timestampToString(genComment.createdAt)}
+            </div>
+          </Label>
+          <div className="text-muted">
+            <div
+              dangerouslySetInnerHTML={{
+                __html: htmlFixNewLines(genComment.commentText),
+              }}
+            />
+          </div>
+          <div style={{ padding: '5px 10px' }}>
+            {genComment.childComments.map(childComment => (
+              <div key={childComment['@id']}>
+                <hr style={{ margin: 0 }} />
+                <Label className="flex row">
+                  Commented by
+                  <span
+                    style={{
+                      fontWeight: 'bolder',
+                      color: childComment.color.hex,
+                      marginLeft: '0.5rem',
+                    }}
+                  >{`${getCommentBy(childComment, commentCreatorsVisible)}`}</span>
+                  <div className="text-muted ml-auto">
+                    {timestampToString(childComment.createdAt)}
+                  </div>
+                </Label>
+                <div className="text-muted">
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: htmlFixNewLines(childComment.commentText),
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <Button
+            color="link"
+            onClick={() =>
+              setNewGeneralCommentParent(genComment)
+            }
+          >
+            <i className="fa fa-reply" /> Reply
+          </Button>
+          <hr />
+        </div>
+      ))}
+      <FormGroup>
+        <Label htmlFor="addCodeComment" style={{ fontWeight: 'bold' }}>
+          New comment
+        </Label>
+        <Input
+          id="addCodeComment"
+          type="textarea"
+          value={newGeneralComment}
+          onChange={e => setNewGeneralComment(e.target.value)}
+        />
+      </FormGroup>
+      {newGeneralCommentParent && (
+        <span>
+          Commenting on{' '}
+          {newGeneralCommentParent.commentText.substring(0, 10)}...
+          <Button
+            color="link"
+            className="ml-auto"
+            onClick={() => setNewGeneralComment(null)}
+          >
+            <i className="fa fa-times" />
+          </Button>
+        </span>
+      )}
+      <Button
+        color="primary"
+        disabled={
+          generalCommentSaving ||
+          newGeneralComment.length === 0
+        }
+        onClick={addGeneralComment}
+      >
+        Add comment
+      </Button>
+    </div>
+  )
 }
+
+const getCommentCreatorsVisible = (props) => {
+  return props.assignment.reviewsVisibility === 'open' 
+    || props.settings.isInstructor
+}
+
+const getSubmissionID = (props) => {
+  if (props.initialSubmission !== null) {
+    return props.initialSubmission['@id']
+  }
+  return null
+}
+
+const getFetchCommentsRequest = (commentCreatorsVisible, id) => {
+  if (commentCreatorsVisible) {
+    return useGetCommentOfSubmissionCreatedByQuery(getShortID(id))
+  }
+  return useGetCommentOfSubmissionQuery(getShortID(id))
+}
+
+const getFetchMyReviewRequest = (props, submissionID) => {
+  if (this.props.assignment.reviewedByTeam) {
+    return useGetPeerReviewForTeamHasAnswerQuery({
+      teamId: getShortID(props.toReview.team[0]['@id']),
+      id: getShortID(submissionID)
+    })
+  }
+  return useGetPeerReviewOfUserHasAnswerQuery({
+    id: getShortID(props.toReview.student[0]['@id']),
+    subId: getShortID(submissionID)
+  })
+}
+
+const getCommentBy = (comment, commentCreatorsVisible) => {
+  if (commentCreatorsVisible) {
+    return getStudentName(comment.createdBy)
+  }
+  return comment.color.name
+}
+
+const assignTeamToReview = (reviews, teams) => {
+  return reviews.map(review => ({
+    ...review,
+    team: teams.find(team => team['@id'] === review.reviewedByTeam[0]['@id']),
+  }))
+}
+
+const assignStudentToReview = (reviews, students) => {
+  return reviews.map(review => ({
+    ...review,
+    student: students.find(
+      student => student['@id'] === review.reviewedByStudent[0]['@id']
+    ),
+  }))
+}
+
 const mapStateToProps = ({ authReducer, assignStudentDataReducer }) => {
   const { user } = authReducer
   const { teams } = assignStudentDataReducer

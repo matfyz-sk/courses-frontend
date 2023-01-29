@@ -69,8 +69,23 @@ export const assignmentApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Assignment'],
         }),
+        getPeerReviewAnswersOfSubmission: builder.query({
+            query: (id) => ({ url: `peerReview?ofSubmission=${id}&_join=hasQuestionAnswer,createdBy` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
         getTeamReviewOfUserAndSubmission: builder.query({
             query: ({id, subId}) => ({ url: `teamReview?reviewedStudent=${id}&ofSubmission=${subId}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getPeerReviewForTeamHasAnswer: builder.query({
+            query: ({teamId, id}) => ({ url: `peerReview?reviewedByTeam=${teamId}&ofSubmission=${id}&_join=hasQuestionAnswer` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getPeerReviewOfUserHasAnswer: builder.query({
+            query: ({id, subId}) => ({ url: `peerReview?reviewedByStudent=${id}&ofSubmission=${subId}&_join=hasQuestionAnswer` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Assignment'],
         }),
@@ -81,6 +96,21 @@ export const assignmentApi = createApi({
         }),
         getTeamReviewOfSubmission: builder.query({
             query: (subId) => ({ url: `teamReview?ofSubmission=${subId}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getCommentOfSubmissionCreatedBy: builder.query({
+            query: (subId) => ({ url: `comment?ofSubmission=${subId}&_join=createdBy` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getCommentOfSubmission: builder.query({
+            query: (subId) => ({ url: `comment?ofSubmission=${subId}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getPeerReviewQuestion: builder.query({
+            query: (id) => ({ url: `peerReviewQuestion/${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Assignment'],
         }),
@@ -132,6 +162,30 @@ export const assignmentApi = createApi({
             }),
             invalidatesTags: ['Assignment'],
         }),
+        addComment: builder.mutation({
+            query: (post) => ({ 
+                url: `comment`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
+        addPeerReview: builder.mutation({
+            query: (post) => ({ 
+                url: `peerReview`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
+        addPeerReviewQuestionAnswer: builder.mutation({
+            query: (post) => ({ 
+                url: `peerReviewQuestionAnswer`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
         updateAssignment: builder.mutation({
             query: ({id, patch}) => ({ 
                 url: `assignment/${id})`,
@@ -164,6 +218,22 @@ export const assignmentApi = createApi({
             }),
             invalidatesTags: ['Assignment'],
         }),
+        updatePeerReview: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `peerReview/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
+        updatePeerReviewQuestionAnswer: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `peerReviewQuestionAnswer/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
     }),
 })
 
@@ -178,17 +248,28 @@ export const {
     useGetToReviewForTeamQuery,
     useGetPeerReviewQuery,
     useGetPeerReviewForTeamQuery,
+    useGetPeerReviewAnswersOfSubmissionQuery,
     useGetTeamReviewOfUserAndSubmissionQuery,
     useGetTeamReviewOfSubmissionCreatedByQuery,
     useGetTeamReviewOfSubmissionQuery,
+    useGetCommentOfSubmissionCreatedByQuery,
+    useGetCommentOfSubmissionQuery,
+    useGetPeerReviewQuestionQuery,
+    useGetPeerReviewForTeamHasAnswerQuery,
+    useGetPeerReviewOfUserHasAnswerQuery,
     useDeleteAssignmentMutation,
     useDeleteAssignmentPeriodMutation,
     useAddSubmissionToReviewMutation,
     useAddSubmittedFieldMutation,
     useAddSubmissionMutation,
     useAddTeamReviewMutation,
+    useAddCommentMutation,
+    useAddPeerReviewMutation,
+    useAddPeerReviewQuestionAnswerMutation,
     useUpdateAssignmentMutation,
     useUpdateSubmittedFieldMutation,
     useUpdateSubmissionMutation,
     useUpdateTeamReviewMutation,
+    useUpdatePeerReviewMutation,
+    useUpdatePeerReviewQuestionAnswerMutation,
 } = assignmentApi
