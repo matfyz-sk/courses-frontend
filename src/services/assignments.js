@@ -186,6 +186,14 @@ export const assignmentApi = createApi({
             }),
             invalidatesTags: ['Assignment'],
         }),
+        addCodeComment: builder.mutation({
+            query: (post) => ({ 
+                url: `codeComment`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
         addPeerReview: builder.mutation({
             query: (post) => ({ 
                 url: `peerReview`,
@@ -283,6 +291,7 @@ export const {
     useAddSubmissionMutation,
     useAddTeamReviewMutation,
     useAddCommentMutation,
+    useAddCodeCommentMutation,
     useAddPeerReviewMutation,
     useAddPeerReviewQuestionAnswerMutation,
     useUpdateAssignmentMutation,
