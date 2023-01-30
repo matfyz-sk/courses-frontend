@@ -42,6 +42,7 @@ function StudentAssignmentView(props) {
       const {data, isSuccess} = useGetSubmissionSubmitedByStudentQuery({
         id: getShortID(assignment['@id']),
         studentId: getShortID(props.user.fullURI),
+        attr: '',
       })
       if(isSuccess && data) {
         submissions.push(data)
@@ -51,7 +52,8 @@ function StudentAssignmentView(props) {
       props.teams.forEach(team => {
         const {data, isSuccess} = useGetSubmissionSubmitedByTeamQuery({
           id: getShortID(assignment['@id']),
-          studentId: getShortID(team['@id']),
+          teamId: getShortID(team['@id']),
+          attr: '',
         })
 
         if(isSuccess && data) {

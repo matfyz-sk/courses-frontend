@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { getToken } from 'components/Auth'
+import { FiAlertTriangle } from 'react-icons/fi';
 import { API_URL } from "../constants";
 
 export const assignmentApi = createApi({
@@ -29,6 +30,11 @@ export const assignmentApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Assignment'],
         }),
+        getAssignmentHasField: builder.query({
+            query: (id) => ({ url: `assignment/${id}?_join=hasField` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
         getAssignmentPeriod: builder.query({
             query: (id) => ({ url: `assignmentPeriod/${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
@@ -40,12 +46,22 @@ export const assignmentApi = createApi({
             providesTags: ['Assignment'],
         }),
         getSubmissionSubmitedByStudent: builder.query({
-            query: ({id, studentId}) => ({ url: `submission?ofAssignment=${id}&submittedByStudent=${studentId}` }),
+            query: ({id, studentId, attr}) => ({ url: `submission?ofAssignment=${id}&submittedByStudent=${studentId}${attr}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Assignment'],
         }),
         getSubmissionSubmitedByTeam: builder.query({
-            query: ({id, teamId}) => ({ url: `submission?ofAssignment=${id}&submittedByTeam=${teamId}` }),
+            query: ({id, teamId, attr}) => ({ url: `submission?ofAssignment=${id}&submittedByTeam=${teamId}${attr}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getSubmittedField: builder.query({
+            query: (id) => ({ url: `submittedField/${id}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getToReview: builder.query({
+            query: (id) => ({ url: `toReview/${id}?_join=submission` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Assignment'],
         }),
@@ -240,10 +256,13 @@ export const assignmentApi = createApi({
 export const { 
     useGetAssignmentQuery,
     useGetAssignmentByCourseInstanceQuery,
+    useGetAssignmentHasFieldQuery,
     useGetAssignmentPeriodQuery,
     useGetSubmissionForAssignmentQuery,
     useGetSubmissionSubmitedByStudentQuery,
     useGetSubmissionSubmitedByTeamQuery,
+    useGetSubmittedFieldQuery,
+    useGetToReviewQuery,
     useGetToReviewForStudentQuery,
     useGetToReviewForTeamQuery,
     useGetPeerReviewQuery,

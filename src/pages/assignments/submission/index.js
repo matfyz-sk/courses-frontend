@@ -35,301 +35,146 @@ import Submission from './submission'
 import CodeReview from './codeReview'
 import Reviews from './peerReview'
 import TeamReview from './teamReview'
+import { 
+  useGetAssignmentHasFieldQuery, 
+  useGetAssignmentPeriodQuery,
+  useGetToReviewQuery,
+  useGetSubmittedFieldQuery,
+  useGetSubmissionSubmitedByStudentQuery,
+  useGetSubmissionSubmitedByTeamQuery,
+} from 'services/assignments'
 
-class SubmissionContainer extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      assignment: null,
-      assignmentLoaded: false,
+function SubmissionContainer(props) {
+  getCourseInstance(props)
+  const [assignment, setAssignment] = useState(null)
+  const [assignmentLoaded, setAssignmentLoaded] = useState(false)
 
-      initialSubmission: null,
-      improvedSubmission: null,
-      submissionsLoaded: false,
-      toReview: null,
+  const [initialSubmission, setInitialSubmission] = useState(null)
+  const [improvedSubmission, setImprovedSubmission] = useState(null)
+  const [submissionsLoaded, setSubmissionsLoaded] = useState(false)
+  const [toReview, setToReview] = useState(null)
 
-      settings: null,
-      error: '',
-      errorShow: false,
-      tabID: this.props.match.params.tabID
-        ? this.props.match.params.tabID
-        : 'submission',
+  const [settings, setSettings] = useState(null)
+  const [error, setError] = useState('')
+  const [errorShow, setErrorShow] = useState(false)
+  const [tabID, setTabID] = useState(getTabId(props))
+
+  useEffect(() => {
+    refreshAssignment()
+  }, [])
+
+  useEffect(() => {
+    if (props.user !== null && !submissionsLoaded 
+        && assignmentLoaded) {
+      refreshSubmissions(settings, assignment, props)
     }
-    this.props.assignmentsEmptyStudentTeams()
-    this.getCourseInstance()
-  }
-
-  componentWillReceiveProps(props) {
-    if (
-      this.props.user === null &&
-      props.user !== null &&
-      !this.state.submissionsLoaded &&
-      this.state.assignmentLoaded
-    ) {
-      this.refreshSubmissions(this.state.settings, this.state.assignment, props)
-    }
-    if (
-      !props.teamsLoaded &&
-      props.user !== null &&
-      props.courseInstanceLoaded &&
-      this.state.assignmentLoaded &&
-      !props.isInstructor &&
-      this.state.settings.teamAssignment
-    ) {
+    if (!props.teamsLoaded && props.user !== null 
+      && props.courseInstanceLoaded && assignmentLoaded 
+      && !props.isInstructor && settings.teamAssignment) {
       props.assignmentsGetStudentTeams(
         props.user.fullURI,
         props.courseInstance['@id']
       )
     }
-  }
+  }, [
+    props.user, 
+    submissionsLoaded, 
+    assignmentLoaded, 
+    props.teamsLoaded, 
+    props.courseInstanceLoaded, 
+    props.isInstructor, settings
+  ])
 
-  refreshAssignment() {
+  const refreshAssignment = () => {
     //always get assignment
-    axiosGetEntities(
-      `assignment/${this.props.match.params.assignmentID}?_join=hasField`
-    ).then(response => {
-      if (response.failed) {
-        this.setState({ error: 'Assignment not found', errorShow: true })
-        return
-      }
-      let assignment = getResponseBody(response)[0]
-
+    const {
+      data: assignmentData, 
+      isSuccess: assignmentIsSuccess
+    } = useGetAssignmentHasFieldQuery(props.match.params.assignmentID)
+    if (assignmentIsSuccess && assignmentData) { 
+      let assignment = assignmentData[0]
       let periodsIDs = getAssignmentPeriods(assignment)
-
-      Promise.all(
-        periodsIDs.map(period =>
-          axiosGetEntities(`assignmentPeriod/${getShortID(period)}`)
-        )
-      ).then(periodResponses => {
-        let periods = periodResponses.map(
-          response => getResponseBody(response)[0]
-        )
-
-        assignment = assignPeriods(assignment, periods)
-        const settings = this.getAssignmentSettings(assignment)
-        if (
-          !this.props.isInstructor &&
-          settings.teamAssignment &&
-          this.props.courseInstanceLoaded &&
-          this.props.user !== null
-        ) {
-          this.props.assignmentsGetStudentTeams(
-            this.props.user.fullURI,
-            this.props.courseInstance['@id']
-          )
+      let periods = []
+      periodsIDs.forEach(period => {
+        const {data, isSuccess} = useGetAssignmentPeriodQuery(getShortID(period))
+        if (isSuccess && data) {
+          periods.push(data[0])
         }
-        this.refreshSubmissions(settings, assignment, this.props)
-        this.setState({ assignment, settings, assignmentLoaded: true })
       })
-    })
-  }
 
-  getAssignmentSettings(assignment) {
-    const teamAssignment = !assignment.teamsDisabled
-    const teamReviewEnabled = teamAssignment && !assignment.teamReviewsDisabled
-    const peerReviewEnabled = !assignment.reviewsDisabled
-    const myAssignment =
-      !this.props.match.params.targetID && !this.props.match.params.toReviewID
-    const isInstructor = this.props.isInstructor
-    const peerReview =
-      peerReviewEnabled && this.props.match.params.toReviewID !== undefined
-    return {
-      teamAssignment,
-      teamReviewEnabled,
-      peerReviewEnabled,
-      myAssignment,
-      isInstructor,
-      peerReview,
+      assignment = assignPeriods(assignment, periods)
+      const settings = getAssignmentSettings(assignment, props)
+      if (!props.isInstructor 
+          && settings.teamAssignment 
+          && props.courseInstanceLoaded 
+          && props.user !== null) {
+        props.assignmentsGetStudentTeams(
+          props.user.fullURI,
+          props.courseInstance['@id']
+        )
+      }
+      refreshSubmissions(settings, assignment, props)
+      setAssignment(assignment)
+      setSettings(settings)
+      setAssignmentLoaded(true)
+    } else {
+      setError('Assignment not found')
+      setErrorShow(true)
     }
   }
 
-  getID(settings, props) {
-    let ID = null
-    if (
-      settings.myAssignment &&
-      settings.teamAssignment &&
-      props.match.params.teamID
-    ) {
-      ID = props.match.params.teamID
-    } else if (settings.myAssignment && !settings.teamAssignment) {
-      ID = props.user.id
-    } else if (settings.isInstructor && props.match.params.targetID) {
-      ID = props.match.params.targetID
-    }
-    return ID
-  }
-
-  refreshSubmissions(settings, assignment, props) {
+  const refreshSubmissions = (settings, assignment, props) => {
     if (props.user === null) {
       return
     }
     if (settings.peerReview && props.match.params.toReviewID) {
-      axiosGetEntities(
-        `toReview/${props.match.params.toReviewID}?_join=submission`
-      ).then(response => {
-        const toReview = getResponseBody(response)[0]
+      const {data, isSuccess} = useGetToReviewQuery(props.match.params.toReviewID)
+      if (isSuccess && data) {
+        const toReview = data[0]
         const initialSubmission =
           toReview.submission.length > 0 ? toReview.submission[0] : null
         const improvedSubmission = null
-
-        axiosGetEntities(
-          `submittedField/${getShortID(initialSubmission.submittedField)}`
-        ).then(response => {
-          const submittedField = getResponseBody(response)[0]
-
-          this.setState({
-            toReview: toReview,
-            submissionsLoaded: true,
-            initialSubmission:
-              initialSubmission !== undefined
-                ? { ...initialSubmission, submittedField: [submittedField] }
-                : null,
-            improvedSubmission:
-              improvedSubmission !== undefined ? improvedSubmission : null,
-          })
-        })
-      })
-
+        const {
+          data: submittedFieldData, 
+          isSuccess: submittedFieldIsSuccess
+        } = useGetSubmittedFieldQuery(getShortID(initialSubmission.submittedField))
+        if (submittedFieldIsSuccess && submittedFieldData) {
+          const submittedField = submittedFieldData[0]
+          setToReview(toReview)
+          setSubmissionsLoaded(true)
+          setInitialSubmission(initialSubmission !== undefined
+            ? { ...initialSubmission, submittedField: [submittedField] }
+            : null)
+          setImprovedSubmission(improvedSubmission !== undefined ? improvedSubmission : null)
+        }
+      }
       return
     }
-    const ID = this.getID(settings, props)
+    const ID = getID(settings, props)
     if (ID === null) {
-      this.setState({ error: 'Please select your team.', errorShow: true })
+      setError('Please select your team.')
+      setErrorShow(true)
       return
     }
-    axiosGetEntities(
-      `submission?${
-        settings.teamAssignment ? 'submittedByTeam' : 'submittedByStudent'
-      }=${ID}&ofAssignment=${getShortID(
-        assignment['@id']
-      )}&_join=submittedField`
-    ).then(response => {
-      const submissions = getResponseBody(response)
-      const initialSubmission = submissions.find(
+
+    const {data, isSuccess} = getSubmissionSubmittedBy(settings, ID, assignment)
+    if (isSuccess && data) {
+      const initialSubmission = data.find(
         submission => !submission.isImproved
       )
 
-      const improvedSubmission = submissions.find(
+      const improvedSubmission = data.find(
         submission => submission.isImproved
       )
-      this.setState({
-        submissionsLoaded: true,
-        initialSubmission:
-          initialSubmission !== undefined ? initialSubmission : null,
-        improvedSubmission:
-          improvedSubmission !== undefined ? improvedSubmission : null,
-      })
-    })
-  }
-
-  getCourseInstance() {
-    if (
-      this.props.courseInstanceLoaded &&
-      !this.props.courseInstanceLoading &&
-      getShortID(this.props.courseInstance['@id']) ===
-        this.props.match.params.courseInstanceID
-    ) {
-      return
+      setSubmissionsLoaded(true)
+      setInitialSubmission(initialSubmission !== undefined ? initialSubmission : null)
+      setImprovedSubmission(improvedSubmission !== undefined ? improvedSubmission : null)
     }
-    this.props.assignmentsGetCourseInstance(
-      this.props.match.params.courseInstanceID
-    )
   }
 
-  getAssignmentName() {
-    let name = this.state.assignment.name
-    let fieldType = this.state.assignment.hasField.find(
-      field => field.fieldType === 'title'
-    )
-    if (
-      fieldType !== undefined &&
-      (this.state.initialSubmission !== null ||
-        this.state.improvedSubmission !== null)
-    ) {
-      if (this.state.initialSubmission) {
-        name = this.state.initialSubmission.submittedField.find(
-          submittedField => submittedField.field[0]['@id'] === fieldType['@id']
-        ).value
-      }
-      if (this.state.improvedSubmission) {
-        name = this.state.improvedSubmission.submittedField.find(
-          submittedField => submittedField.field[0]['@id'] === fieldType['@id']
-        ).value
-      }
-    }
-    return name
-  }
-
-  componentWillMount() {
-    this.refreshAssignment()
-  }
-
-  render() {
-    const settings = this.state.settings
-    const assignment = this.state.assignment
-    let loading =
-      !this.state.assignmentLoaded ||
-      !this.state.submissionsLoaded ||
-      this.props.courseInstanceLoading ||
-      (!settings.isInstructor &&
-        settings.teamAssignment &&
-        !this.props.teamsLoaded)
-    if (loading) {
-      return (
-        <div className="assignmentContainer center-ver mt-3">
-          <Card className="assignmentsContainer center-ver">
-            <CardHeader className="row">
-              <Button
-                size="sm"
-                color=""
-                onClick={() => this.props.history.goBack()}
-              >
-                <i className="fa fa-arrow-left clickable" />
-              </Button>
-              <h4 className="center-hor ml-5 mr-auto">{'Loading...'}</h4>
-              {this.props.teamsLoaded &&
-                settings !== null &&
-                settings.myAssignment &&
-                this.props.match.params.teamID === undefined && (
-                  <Select
-                    styles={teamSelectStyle}
-                    value={toSelectInput(this.props.teams, 'name', '@id').find(
-                      team =>
-                        getShortID(team.value) ===
-                        this.props.match.params.teamID
-                    )}
-                    options={toSelectInput(this.props.teams, 'name', '@id')}
-                    onChange={newTeam => {
-                      if (
-                        this.props.match.params.teamID !== undefined &&
-                        !window.confirm(
-                          'Changing team will not save your current progress!'
-                        )
-                      ) {
-                        return
-                      }
-                      this.props.history.push(
-                        `../team/${getShortID(newTeam['@id'])}/submission/${
-                          this.state.tabID
-                        }`
-                      )
-                    }}
-                  />
-                )}
-            </CardHeader>
-            <CardBody>
-              <Alert color="danger" isOpen={this.state.errorShow}>
-                {this.state.error}
-              </Alert>
-              <Alert color="primary" isOpen={loading && !this.state.errorShow}>
-                Data is loading!
-              </Alert>
-            </CardBody>
-          </Card>
-        </div>
-      )
-    }
-
+  let loading = !assignmentLoaded || !submissionsLoaded || props.courseInstanceLoading 
+    || (!settings.isInstructor && settings.teamAssignment && !props.teamsLoaded)
+  if (loading) {
     return (
       <div className="assignmentContainer center-ver mt-3">
         <Card className="assignmentsContainer center-ver">
@@ -337,215 +182,352 @@ class SubmissionContainer extends Component {
             <Button
               size="sm"
               color=""
-              onClick={() => this.props.history.goBack()}
+              onClick={() => props.history.goBack()}
             >
               <i className="fa fa-arrow-left clickable" />
             </Button>
-            <h4 className="center-hor ml-5 mr-auto">
-              {this.getAssignmentName()}
-            </h4>
-            {settings.myAssignment && settings.teamAssignment && (
-              <Select
-                styles={teamSelectStyle}
-                value={toSelectInput(this.props.teams, 'name', '@id').find(
-                  team =>
-                    getShortID(team.value) === this.props.match.params.teamID
-                )}
-                options={toSelectInput(this.props.teams, 'name', '@id')}
-                onChange={newTeam => {
-                  if (
-                    this.props.match.params.teamID !== undefined &&
-                    !window.confirm(
-                      'Changing team will not save your current progress!'
+            <h4 className="center-hor ml-5 mr-auto">{'Loading...'}</h4>
+            {props.teamsLoaded &&
+              settings !== null &&
+              settings.myAssignment &&
+              props.match.params.teamID === undefined && (
+                <Select
+                  styles={teamSelectStyle}
+                  value={toSelectInput(props.teams, 'name', '@id').find(
+                    team =>
+                      getShortID(team.value) ===
+                      props.match.params.teamID
+                  )}
+                  options={toSelectInput(props.teams, 'name', '@id')}
+                  onChange={newTeam => {
+                    if (
+                      props.match.params.teamID !== undefined &&
+                      !window.confirm(
+                        'Changing team will not save your current progress!'
+                      )
+                    ) {
+                      return
+                    }
+                    props.history.push(
+                      `../team/${getShortID(newTeam['@id'])}/submission/${
+                        tabID
+                      }`
                     )
-                  ) {
-                    return
-                  }
-                  this.props.history.push(
-                    `../../${getShortID(newTeam['@id'])}/submission/${
-                      this.state.tabID
-                    }`
-                  )
-                }}
-              />
-            )}
+                  }}
+                />
+              )}
           </CardHeader>
           <CardBody>
-            <Nav tabs>
-              <NavItem>
-                <NavLink
-                  className={classnames({
-                    active: this.state.tabID === 'submission',
-                    clickable: true,
-                  })}
-                  onClick={() => this.setState({ tabID: 'submission' })}
-                >
-                  Submissions
-                </NavLink>
-              </NavItem>
-              {settings.peerReviewEnabled &&
-                (((settings.myAssignment || settings.isInstructor) &&
-                  periodHasEnded(assignment.peerReviewPeriod)) ||
-                  (settings.peerReview &&
-                    periodStarted(assignment.peerReviewPeriod))) && (
-                  <NavItem>
-                    <NavLink
-                      className={classnames({
-                        active: this.state.tabID === 'reviews',
-                        clickable: true,
-                      })}
-                      onClick={() => this.setState({ tabID: 'reviews' })}
-                    >
-                      Reviews
-                    </NavLink>
-                  </NavItem>
-                )}
-
-              {settings.isInstructor &&
-                periodHasEnded(assignment.improvedSubmissionPeriod) && (
-                  <NavItem>
-                    <NavLink
-                      className={classnames({
-                        active: this.state.tabID === 'codeReviewInitial',
-                        clickable: true,
-                      })}
-                      onClick={() =>
-                        this.setState({ tabID: 'codeReviewInitial' })
-                      }
-                    >
-                      Code review (initial)
-                    </NavLink>
-                  </NavItem>
-                )}
-              {settings.peerReviewEnabled &&
-                (((settings.myAssignment || settings.isInstructor) &&
-                  periodHasEnded(assignment.peerReviewPeriod)) ||
-                  (settings.peerReview &&
-                    periodStarted(assignment.peerReviewPeriod))) && (
-                  <NavItem>
-                    <NavLink
-                      className={classnames({
-                        active: this.state.tabID === 'codeReview',
-                        clickable: true,
-                      })}
-                      onClick={() => this.setState({ tabID: 'codeReview' })}
-                    >
-                      Code review
-                    </NavLink>
-                  </NavItem>
-                )}
-              {settings.teamReviewEnabled &&
-                ((settings.myAssignment &&
-                  periodStarted(assignment.teamReviewPeriod)) ||
-                  (settings.isInstructor &&
-                    periodHasEnded(assignment.teamReviewPeriod))) && (
-                  <NavItem>
-                    <NavLink
-                      className={classnames({
-                        active: this.state.tabID === 'teamReview',
-                        clickable: true,
-                      })}
-                      onClick={() => this.setState({ tabID: 'teamReview' })}
-                    >
-                      Team review
-                    </NavLink>
-                  </NavItem>
-                )}
-            </Nav>
-
-            <TabContent activeTab={this.state.tabID}>
-              <TabPane tabId={'submission'}>
-                <Submission
-                  assignment={this.state.assignment}
-                  settings={this.state.settings}
-                  initialSubmission={this.state.initialSubmission}
-                  improvedSubmission={this.state.improvedSubmission}
-                  refreshAssignment={this.refreshAssignment.bind(this)}
-                  history={this.props.history}
-                  match={this.props.match}
-                />
-              </TabPane>
-              {settings.peerReviewEnabled &&
-                (((settings.myAssignment || settings.isInstructor) &&
-                  periodHasEnded(assignment.peerReviewPeriod)) ||
-                  (settings.peerReview &&
-                    periodStarted(assignment.peerReviewPeriod))) && (
-                  <TabPane tabId={'reviews'}>
-                    <Reviews
-                      history={this.props.history}
-                      match={this.props.match}
-                      assignment={this.state.assignment}
-                      settings={this.state.settings}
-                      toReview={this.state.toReview}
-                      initialSubmission={this.state.initialSubmission}
-                    />
-                  </TabPane>
-                )}
-              {settings.isInstructor &&
-                periodHasEnded(assignment.improvedSubmissionPeriod) && (
-                  // TWO CODE REVIEWS
-                  <TabPane tabId={'codeReviewInitial'}>
-                    <CodeReview
-                      history={this.props.history}
-                      match={this.props.match}
-                      tabID={this.state.tabID}
-                      assignment={this.state.assignment}
-                      settings={this.state.settings}
-                      initialSubmission={this.state.initialSubmission}
-                      improvedSubmission={null}
-                    />
-                  </TabPane>
-                )}
-              {settings.peerReviewEnabled &&
-                (((settings.myAssignment || settings.isInstructor) &&
-                  periodHasEnded(assignment.peerReviewPeriod)) ||
-                  (settings.peerReview &&
-                    periodStarted(assignment.peerReviewPeriod))) && (
-                  <TabPane tabId={'codeReview'}>
-                    <CodeReview
-                      history={this.props.history}
-                      match={this.props.match}
-                      tabID={this.state.tabID}
-                      assignment={this.state.assignment}
-                      settings={this.state.settings}
-                      initialSubmission={this.state.initialSubmission}
-                      improvedSubmission={this.state.improvedSubmission}
-                    />
-                  </TabPane>
-                )}
-              {/* <TabPane tabId={'codeReview'}>
-                <CodeReview
-                  history={this.props.history}
-                  match={this.props.match}
-                  tabID={this.state.tabID}
-                  assignment={this.state.assignment}
-                  settings={this.state.settings}
-                  initialSubmission={this.state.initialSubmission}
-                  improvedSubmission={this.state.improvedSubmission}
-                />
-              </TabPane> */}
-              {settings.teamReviewEnabled &&
-                ((settings.myAssignment &&
-                  periodStarted(assignment.teamReviewPeriod)) ||
-                  (settings.isInstructor &&
-                    periodHasEnded(assignment.teamReviewPeriod))) && (
-                  <TabPane tabId={'teamReview'}>
-                    <TeamReview
-                      history={this.props.history}
-                      match={this.props.match}
-                      assignment={this.state.assignment}
-                      settings={this.state.settings}
-                      initialSubmission={this.state.initialSubmission}
-                      improvedSubmission={this.state.improvedSubmission}
-                    />
-                  </TabPane>
-                )}
-            </TabContent>
+            <Alert color="danger" isOpen={errorShow}>
+              {error}
+            </Alert>
+            <Alert color="primary" isOpen={loading && !errorShow}>
+              Data is loading!
+            </Alert>
           </CardBody>
         </Card>
       </div>
     )
   }
+
+  return (
+    <div className="assignmentContainer center-ver mt-3">
+      <Card className="assignmentsContainer center-ver">
+        <CardHeader className="row">
+          <Button
+            size="sm"
+            color=""
+            onClick={() => props.history.goBack()}
+          >
+            <i className="fa fa-arrow-left clickable" />
+          </Button>
+          <h4 className="center-hor ml-5 mr-auto">
+            {getAssignmentName(assignment, initialSubmission, improvedSubmission)}
+          </h4>
+          {settings.myAssignment && settings.teamAssignment && (
+            <Select
+              styles={teamSelectStyle}
+              value={toSelectInput(props.teams, 'name', '@id').find(
+                team =>
+                  getShortID(team.value) === props.match.params.teamID
+              )}
+              options={toSelectInput(props.teams, 'name', '@id')}
+              onChange={newTeam => {
+                if (
+                  props.match.params.teamID !== undefined &&
+                  !window.confirm(
+                    'Changing team will not save your current progress!'
+                  )
+                ) {
+                  return
+                }
+                props.history.push(
+                  `../../${getShortID(newTeam['@id'])}/submission/${
+                    tabID
+                  }`
+                )
+              }}
+            />
+          )}
+        </CardHeader>
+        <CardBody>
+          <Nav tabs>
+            <NavItem>
+              <NavLink
+                className={classnames({
+                  active: tabID === 'submission',
+                  clickable: true,
+                })}
+                onClick={() => setTabID('submission')}
+              >
+                Submissions
+              </NavLink>
+            </NavItem>
+            {settings.peerReviewEnabled &&
+              (((settings.myAssignment || settings.isInstructor) &&
+                periodHasEnded(assignment.peerReviewPeriod)) ||
+                (settings.peerReview &&
+                  periodStarted(assignment.peerReviewPeriod))) && (
+                <NavItem>
+                  <NavLink
+                    className={classnames({
+                      active: tabID === 'reviews',
+                      clickable: true,
+                    })}
+                    onClick={() => setTabID('reviews')}
+                  >
+                    Reviews
+                  </NavLink>
+                </NavItem>
+              )}
+
+            {settings.isInstructor &&
+              periodHasEnded(assignment.improvedSubmissionPeriod) && (
+                <NavItem>
+                  <NavLink
+                    className={classnames({
+                      active: tabID === 'codeReviewInitial',
+                      clickable: true,
+                    })}
+                    onClick={() => setTabID('codeReviewInitial')}
+                  >
+                    Code review (initial)
+                  </NavLink>
+                </NavItem>
+              )}
+            {settings.peerReviewEnabled &&
+              (((settings.myAssignment || settings.isInstructor) &&
+                periodHasEnded(assignment.peerReviewPeriod)) ||
+                (settings.peerReview &&
+                  periodStarted(assignment.peerReviewPeriod))) && (
+                <NavItem>
+                  <NavLink
+                    className={classnames({
+                      active: tabID === 'codeReview',
+                      clickable: true,
+                    })}
+                    onClick={() => setTabID('codeReview')}
+                  >
+                    Code review
+                  </NavLink>
+                </NavItem>
+              )}
+            {settings.teamReviewEnabled &&
+              ((settings.myAssignment &&
+                periodStarted(assignment.teamReviewPeriod)) ||
+                (settings.isInstructor &&
+                  periodHasEnded(assignment.teamReviewPeriod))) && (
+                <NavItem>
+                  <NavLink
+                    className={classnames({
+                      active: tabID === 'teamReview',
+                      clickable: true,
+                    })}
+                    onClick={() => setTabID('teamReview')}
+                  >
+                    Team review
+                  </NavLink>
+                </NavItem>
+              )}
+          </Nav>
+
+          <TabContent activeTab={tabID}>
+            <TabPane tabId={'submission'}>
+              <Submission
+                assignment={assignment}
+                settings={settings}
+                initialSubmission={initialSubmission}
+                improvedSubmission={improvedSubmission}
+                refreshAssignment={refreshAssignment}
+                history={props.history}
+                match={props.match}
+              />
+            </TabPane>
+            {settings.peerReviewEnabled &&
+              (((settings.myAssignment || settings.isInstructor) &&
+                periodHasEnded(assignment.peerReviewPeriod)) ||
+                (settings.peerReview &&
+                  periodStarted(assignment.peerReviewPeriod))) && (
+                <TabPane tabId={'reviews'}>
+                  <Reviews
+                    history={props.history}
+                    match={props.match}
+                    assignment={assignment}
+                    settings={settings}
+                    toReview={toReview}
+                    initialSubmission={initialSubmission}
+                  />
+                </TabPane>
+              )}
+            {settings.isInstructor &&
+              periodHasEnded(assignment.improvedSubmissionPeriod) && (
+                // TWO CODE REVIEWS
+                <TabPane tabId={'codeReviewInitial'}>
+                  <CodeReview
+                    history={props.history}
+                    match={props.match}
+                    tabID={tabID}
+                    assignment={assignment}
+                    settings={settings}
+                    initialSubmission={initialSubmission}
+                    improvedSubmission={null}
+                  />
+                </TabPane>
+              )}
+            {settings.peerReviewEnabled &&
+              (((settings.myAssignment || settings.isInstructor) &&
+                periodHasEnded(assignment.peerReviewPeriod)) ||
+                (settings.peerReview &&
+                  periodStarted(assignment.peerReviewPeriod))) && (
+                <TabPane tabId={'codeReview'}>
+                  <CodeReview
+                    history={props.history}
+                    match={props.match}
+                    tabID={tabID}
+                    assignment={assignment}
+                    settings={settings}
+                    initialSubmission={initialSubmission}
+                    improvedSubmission={improvedSubmission}
+                  />
+                </TabPane>
+              )}
+            {/* <TabPane tabId={'codeReview'}>
+              <CodeReview
+                history={this.props.history}
+                match={this.props.match}
+                tabID={this.state.tabID}
+                assignment={this.state.assignment}
+                settings={this.state.settings}
+                initialSubmission={this.state.initialSubmission}
+                improvedSubmission={this.state.improvedSubmission}
+              />
+            </TabPane> */}
+            {settings.teamReviewEnabled &&
+              ((settings.myAssignment &&
+                periodStarted(assignment.teamReviewPeriod)) ||
+                (settings.isInstructor &&
+                  periodHasEnded(assignment.teamReviewPeriod))) && (
+                <TabPane tabId={'teamReview'}>
+                  <TeamReview
+                    history={props.history}
+                    match={props.match}
+                    assignment={assignment}
+                    settings={settings}
+                    initialSubmission={initialSubmission}
+                    improvedSubmission={improvedSubmission}
+                  />
+                </TabPane>
+              )}
+          </TabContent>
+        </CardBody>
+      </Card>
+    </div>
+  )
+}
+
+const getTabId = (props) => {
+   return props.match.params.tabID
+        ? props.match.params.tabID
+        : 'submission'
+}
+
+const getAssignmentSettings = (assignment, props) => {
+  const teamAssignment = !assignment.teamsDisabled
+  const teamReviewEnabled = teamAssignment && !assignment.teamReviewsDisabled
+  const peerReviewEnabled = !assignment.reviewsDisabled
+  const myAssignment =
+    !props.match.params.targetID && !props.match.params.toReviewID
+  const isInstructor = props.isInstructor
+  const peerReview =
+    peerReviewEnabled && props.match.params.toReviewID !== undefined
+  return {
+    teamAssignment,
+    teamReviewEnabled,
+    peerReviewEnabled,
+    myAssignment,
+    isInstructor,
+    peerReview,
+  }
+}
+
+const getID = (settings, props) => {
+  let ID = null
+  if (settings.myAssignment 
+      && settings.teamAssignment 
+      && props.match.params.teamID) {
+    ID = props.match.params.teamID
+  } else if (settings.myAssignment && !settings.teamAssignment) {
+    ID = props.user.id
+  } else if (settings.isInstructor && props.match.params.targetID) {
+    ID = props.match.params.targetID
+  }
+  return ID
+}
+
+const getCourseInstance = (props) => {
+  if (props.courseInstanceLoaded 
+      && !props.courseInstanceLoading 
+      && getShortID(props.courseInstance['@id']) === props.match.params.courseInstanceID) {
+    return
+  }
+  props.assignmentsGetCourseInstance(props.match.params.courseInstanceID)
+}
+
+const getAssignmentName = (assignment, initialSubmission, improvedSubmission) => {
+  let name = assignment.name
+  let fieldType = assignment.hasField.find(
+    field => field.fieldType === 'title'
+  )
+  if (fieldType !== undefined 
+      && (initialSubmission !== null 
+          || improvedSubmission !== null)) {
+    if (initialSubmission) {
+      name = initialSubmission.submittedField.find(
+        submittedField => submittedField.field[0]['@id'] === fieldType['@id']
+      ).value
+    }
+    if (improvedSubmission) {
+      name = improvedSubmission.submittedField.find(
+        submittedField => submittedField.field[0]['@id'] === fieldType['@id']
+      ).value
+    }
+  }
+  return name
+}
+
+const getSubmissionSubmittedBy = (settings, id, assignment) => {
+  if (settings.teamAssignment) {
+    return useGetSubmissionSubmitedByTeamQuery({
+      id: getShortID(assignment['@id']),
+      teamId: id,
+      attr: '&_join=submittedField',
+    })
+  }
+  return useGetSubmissionSubmitedByStudentQuery({
+    id: getShortID(assignment['@id']),
+    studentId: id,
+    attr: '&_join=submittedField',
+  })
 }
 
 const mapStateToProps = ({
