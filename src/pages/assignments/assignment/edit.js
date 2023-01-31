@@ -98,8 +98,9 @@ function ModalAddAssignment(props) {
   }
 
   const deleteMaterial = (material) => {
-    info.hasMaterial = info.hasMaterial.filter((material2) => material2['@id'] !== material['@id'])
-    setInfo(info)
+    let newInfo = { ...info }
+    newInfo.hasMaterial = info.hasMaterial.filter((material2) => material2['@id'] !== material['@id'])
+    setInfo(newInfo)
   }
 
   const addMaterial = (materialData) => {
@@ -117,8 +118,9 @@ function ModalAddAssignment(props) {
   }
 
   const deleteQuestion = (question) => {
-    reviews.questions = reviews.questions.filter((question2) => question2['@id'] !== question['@id'] )
-    setReviews(reviews)
+    let newReviews = { ...reviews };
+    newReviews.questions = reviews.questions.filter((question2) => question2['@id'] !== question['@id'] )
+    setReviews(newReviews)
   }
 
   const addQuestion = (questionData) => {
