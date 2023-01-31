@@ -29,6 +29,15 @@ export const documentsApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Documents'],
         }),
+        addMaterial: builder.mutation({
+            query: (body) => ({ 
+                url: `material`,
+                method: 'POST',
+                body: body,
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Documents'],
+        }),
         newFolder: builder.mutation({
             query: (body) => ({ 
                 url: `folder`,
@@ -44,5 +53,6 @@ export const documentsApi = createApi({
 export const { 
     useGetMaterialsQuery,
     useGetMaterialQuery,
+    useAddMaterialMutation,
     useNewFolderMutation,
 } = documentsApi

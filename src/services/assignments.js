@@ -130,6 +130,16 @@ export const assignmentApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Assignment'],
         }),
+        getPeerReviewQuestions: builder.query({
+            query: (id) => ({ url: `PeerReviewQuestion` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
+        getField: builder.query({
+            query: (id) => ({ url: `field/${id}` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Assignment'],
+        }),
         deleteAssignment: builder.mutation({
             query: (id) => ({ 
                 url: `assignment/${id}`,
@@ -141,6 +151,22 @@ export const assignmentApi = createApi({
         deleteAssignmentPeriod: builder.mutation({
             query: (id) => ({ 
                 url: `assignmentPeriod/${id}`,
+                method: 'DELETE', 
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Assignment'],
+        }),
+        deleteAssignmentPeerReviewPeriod: builder.mutation({
+            query: (id) => ({ 
+                url: `assignment/${id}/peerReviewPeriod`,
+                method: 'DELETE', 
+            }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            invalidatesTags: ['Assignment'],
+        }),
+        deleteField: builder.mutation({
+            query: (id) => ({ 
+                url: `field/${id}`,
                 method: 'DELETE', 
             }),
             transformResponse: (response, meta, arg) => response["@graph"],
@@ -202,9 +228,41 @@ export const assignmentApi = createApi({
             }),
             invalidatesTags: ['Assignment'],
         }),
+        addPeerReviewQuestion: builder.mutation({
+            query: (post) => ({ 
+                url: `PeerReviewQuestion`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
         addPeerReviewQuestionAnswer: builder.mutation({
             query: (post) => ({ 
                 url: `peerReviewQuestionAnswer`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
+        addAssignmentPeriod: builder.mutation({
+            query: (post) => ({ 
+                url: `assignmentPeriod`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
+        addField: builder.mutation({
+            query: (post) => ({ 
+                url: `field`,
+                method: 'POST',
+                body: post,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
+        addAssignment: builder.mutation({
+            query: (post) => ({ 
+                url: `assignment`,
                 method: 'POST',
                 body: post,
             }),
@@ -258,6 +316,22 @@ export const assignmentApi = createApi({
             }),
             invalidatesTags: ['Assignment'],
         }),
+        updateAssignmentPeriod: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `assignmentPeriod/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
+        updateField: builder.mutation({
+            query: ({id, patch}) => ({ 
+                url: `field/${id}`,
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: ['Assignment'],
+        }),
     }),
 })
 
@@ -282,10 +356,14 @@ export const {
     useGetCommentOfSubmissionCreatedByQuery,
     useGetCommentOfSubmissionQuery,
     useGetPeerReviewQuestionQuery,
+    useGetPeerReviewQuestionsQuery,
     useGetPeerReviewForTeamHasAnswerQuery,
     useGetPeerReviewOfUserHasAnswerQuery,
+    useGetFieldQuery,
     useDeleteAssignmentMutation,
     useDeleteAssignmentPeriodMutation,
+    useDeleteAssignmentPeerReviewPeriodMutation,
+    useDeleteFieldMutation,
     useAddSubmissionToReviewMutation,
     useAddSubmittedFieldMutation,
     useAddSubmissionMutation,
@@ -293,11 +371,17 @@ export const {
     useAddCommentMutation,
     useAddCodeCommentMutation,
     useAddPeerReviewMutation,
+    useAddPeerReviewQuestionMutation,
     useAddPeerReviewQuestionAnswerMutation,
+    useAddAssignmentPeriodMutation,
+    useAddFieldMutation,
+    useAddAssignmentMutation,
     useUpdateAssignmentMutation,
     useUpdateSubmittedFieldMutation,
     useUpdateSubmissionMutation,
     useUpdateTeamReviewMutation,
     useUpdatePeerReviewMutation,
     useUpdatePeerReviewQuestionAnswerMutation,
+    useUpdateAssignmentPeriodMutation,
+    useUpdateFieldMutation,
 } = assignmentApi
