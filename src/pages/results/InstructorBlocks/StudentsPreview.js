@@ -8,7 +8,8 @@ import { RESULT_USER } from '../../../constants/routes'
 // eslint-disable-next-line import/no-cycle
 import { getShortID } from '../../../helperFunctions'
 import { showUserName } from '../../../components/Auth/userFunction'
-import { useGetUserEnrolledQuery, useGetResultForCourseInstanceQuery } from 'services/user'
+import { useGetUserEnrolledQuery } from 'services/user'
+import { useGetResultForCourseInstanceQuery } from 'services/result'
 
 const StudentsPreview = props => {
   const { match, courseInstanceReducer, privilegesReducer } = props

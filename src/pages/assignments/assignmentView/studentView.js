@@ -435,7 +435,7 @@ const getToReviewButtonColor = (toReview, peerReviewPeriod) => {
   return 'primary'
 }
 
-getWasReviewed = (reviews, initialSubmissions) => {
+const getWasReviewed = (reviews, initialSubmissions) => {
   if (initialSubmissions.length > 0) {
     const wasReviewed = reviews.find(
       review => review.ofSubmission[0]['@id'] === initialSubmissions[0]['@id']

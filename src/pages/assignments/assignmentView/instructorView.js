@@ -321,7 +321,7 @@ const getTimeCellClassNames = (time) => {
   })
 }
 
-const afterNow = (date, extraMinutes) => {
+const getAfterNow = (date, extraMinutes) => {
   return afterNow(addMinutesToUnix(date, extraMinutes))
 }
 
@@ -355,7 +355,7 @@ const groupSubmissions = (submissions, individualGrouping) => {
 }
 
 const getCanAssignReviews = (assignment) => {
-  return !afterNow(assignment.initialSubmissionPeriod.deadline,
+  return !getAfterNow(assignment.initialSubmissionPeriod.deadline,
             assignment.initialSubmissionPeriod.extraTime) 
         && !assignment.reviewsDisabled 
         && !assignment.hasAssignedReviews 
@@ -363,10 +363,10 @@ const getCanAssignReviews = (assignment) => {
 }
 
 const getCanBeRated = (assignment) => {
-  return !afterNow(assignment.initialSubmissionPeriod.deadline,
+  return !getAfterNow(assignment.initialSubmissionPeriod.deadline,
                   assignment.initialSubmissionPeriod.extraTime) 
         && (!assignment.submissionImprovedSubmission 
-            || !afterNow(assignment.improvedSubmissionPeriod.deadline,
+            || !getAfterNow(assignment.improvedSubmissionPeriod.deadline,
                         assignment.improvedSubmissionPeriod.extraTime)
           )
 }

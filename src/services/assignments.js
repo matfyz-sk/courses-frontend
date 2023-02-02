@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { getToken } from 'components/Auth'
-import { FiAlertTriangle } from 'react-icons/fi';
 import { API_URL } from "../constants";
 
 export const assignmentApi = createApi({
