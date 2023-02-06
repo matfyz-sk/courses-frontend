@@ -55,6 +55,7 @@ export const teamApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Team'],
         }),
         newTeam: builder.mutation({
@@ -63,6 +64,7 @@ export const teamApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Team'],
         }),
         updateTeamInstance: builder.mutation({
@@ -71,6 +73,7 @@ export const teamApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Team'],
         }),
         removeTeam: builder.mutation({
@@ -78,6 +81,7 @@ export const teamApi = createApi({
                 url: `team/${id}`,
                 method: 'PATCH',
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Team'],
         }),
         removeTeamInstance: builder.mutation({
@@ -85,6 +89,7 @@ export const teamApi = createApi({
                 url: `teamInstance/${id}`,
                 method: 'DELETE',
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Team'],
         }),
     }),

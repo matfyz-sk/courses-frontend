@@ -14,10 +14,42 @@ import { COURSE_TEAM_DETAIL, TIMELINE}  from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
 import { useGetTeamInstanceWithUsersQuery, useGetTeamDetailsQuery } from 'services/team'
 
-const MyTeams = props => {
+function MyTeams(props) {
   const [data, setData] = useState(null)
 
-  function fetchTeamDetail(fetched_data, index = 0) {
+  const {
+    data: teamInstanceData, 
+    isSuccess: teamInstanceIsSuccess
+  } = useGetTeamInstanceWithUsersQuery(getUserID())
+  if(data !== null && teamInstanceIsSuccess && teamInstanceData) {
+    if(teamInstanceData.length > 0) {
+      const newData = []
+      for (const detail of teamInstanceData) {
+        if (detail?.instanceOf && detail?.instanceOf.length > 0) {
+          const {
+            data: teamData, 
+            isSuccess: teamIsSucces
+          } = useGetTeamDetailsQuery(getShortID(
+            detail.instanceOf[0]['@id']
+          ))
+    
+          if(teamIsSucces && teamData) {
+            if(teamData.length > 0 && teamData[0].courseInstance.length > 0) {
+              newData.push({
+                teamInstance: detail,
+                team: teamData[0],
+              })
+            }
+          }
+        }
+      }
+      setData(newData)
+    } else {
+      setData(teamInstanceData)
+    }
+  }
+/*
+  const fetchTeamDetail = (fetched_data, index = 0) => {
     const detail = fetched_data[index]
     // ? the ?. seems to have fixed this typeerror here, not sure if this is the right way...
     if (detail?.instanceOf && detail?.instanceOf.length > 0) {
@@ -41,20 +73,9 @@ const MyTeams = props => {
     }
   }
 
-  function getData() {
-    const {data, isSuccess} = useGetTeamInstanceWithUsersQuery(getUserID())
-    if(isSuccess && data) {
-      if(data.length > 0) {
-        fetchTeamDetail(data)
-      } else {
-        setData(data)
-      }
-    }
-  }
-
   useEffect(() => {
-    getData()
-  }, [])
+    
+  }, [])*/
 
   if (data === null) {
     return null

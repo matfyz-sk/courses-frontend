@@ -54,7 +54,7 @@ export const courseApi = createApi({
                 url: `course/${id}`,
                 method: 'DELETE',
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Course'],
         }),
         deleteCourseInstance: builder.mutation({
@@ -62,7 +62,7 @@ export const courseApi = createApi({
                 url: `courseInstance/${id}`,
                 method: 'DELETE', 
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Course'],
         }),
         updateCourseInstance: builder.mutation({
@@ -71,7 +71,7 @@ export const courseApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Course'],
         }),
         updateCourse: builder.mutation({
@@ -80,7 +80,7 @@ export const courseApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Course'],
         }),
         newCourseInstance: builder.mutation({
@@ -89,7 +89,7 @@ export const courseApi = createApi({
                 method: 'POST',
                 body: body,
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Course'],
         }),
         newCoursePersonalSettings: builder.mutation({
@@ -98,7 +98,7 @@ export const courseApi = createApi({
                 method: 'POST',
                 body: body,
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Course'],
         }),
         newCourse: builder.mutation({
@@ -107,7 +107,7 @@ export const courseApi = createApi({
                 method: 'POST',
                 body: body,
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Course'],
         }),
     }),

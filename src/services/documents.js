@@ -35,7 +35,7 @@ export const documentsApi = createApi({
                 method: 'POST',
                 body: body,
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Documents'],
         }),
         newFolder: builder.mutation({
@@ -44,7 +44,7 @@ export const documentsApi = createApi({
                 method: 'POST',
                 body: body,
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Documents'],
         }),
     }),

@@ -79,6 +79,7 @@ export const userApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['User'],
         }),
         deleteUser: builder.mutation({
@@ -86,7 +87,7 @@ export const userApi = createApi({
                 url: `user/${id}`,
                 method: 'DELETE',
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['User'],
         }),
     }),

@@ -50,7 +50,7 @@ export const eventApi = createApi({
                 method: 'POST',
                 body: body,
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Event'],
         }),
         newTimelineBlock: builder.mutation({
@@ -59,7 +59,7 @@ export const eventApi = createApi({
                 method: 'POST',
                 body: body,
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Event'],
         }),
         updateEventByType: builder.mutation({
@@ -68,7 +68,7 @@ export const eventApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Event'],
         }),
         deleteEventByType: builder.mutation({
@@ -76,7 +76,7 @@ export const eventApi = createApi({
                 url: `${type}/${id}`,
                 method: 'DELETE',
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Event'],
         }),
     }),

@@ -78,7 +78,6 @@ function CourseForm(props) {
       } else {
         newCourse(body).unwrap().then(response => {
           const newCourseId = getShortId(response.resource.iri)
-          console.log(response)
           newUrl = {
             pathname: `/newcourseinstance/${newCourseId}`,
             state: {courseName: name},

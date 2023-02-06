@@ -144,7 +144,7 @@ export const assignmentApi = createApi({
                 url: `assignment/${id}`,
                 method: 'DELETE', 
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         deleteAssignmentPeriod: builder.mutation({
@@ -152,7 +152,7 @@ export const assignmentApi = createApi({
                 url: `assignmentPeriod/${id}`,
                 method: 'DELETE', 
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         deleteAssignmentPeerReviewPeriod: builder.mutation({
@@ -160,7 +160,7 @@ export const assignmentApi = createApi({
                 url: `assignment/${id}/peerReviewPeriod`,
                 method: 'DELETE', 
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         deleteField: builder.mutation({
@@ -168,7 +168,7 @@ export const assignmentApi = createApi({
                 url: `field/${id}`,
                 method: 'DELETE', 
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addSubmissionToReview: builder.mutation({
@@ -177,6 +177,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addSubmittedField: builder.mutation({
@@ -185,6 +186,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addSubmission: builder.mutation({
@@ -193,6 +195,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addTeamReview: builder.mutation({
@@ -201,6 +204,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addComment: builder.mutation({
@@ -209,6 +213,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addCodeComment: builder.mutation({
@@ -217,6 +222,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addPeerReview: builder.mutation({
@@ -225,6 +231,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addPeerReviewQuestion: builder.mutation({
@@ -233,6 +240,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addPeerReviewQuestionAnswer: builder.mutation({
@@ -241,6 +249,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addAssignmentPeriod: builder.mutation({
@@ -249,6 +258,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addField: builder.mutation({
@@ -257,6 +267,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         addAssignment: builder.mutation({
@@ -265,6 +276,7 @@ export const assignmentApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         updateAssignment: builder.mutation({
@@ -273,6 +285,7 @@ export const assignmentApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         updateSubmittedField: builder.mutation({
@@ -281,6 +294,7 @@ export const assignmentApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         updateSubmission: builder.mutation({
@@ -289,6 +303,7 @@ export const assignmentApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         updateTeamReview: builder.mutation({
@@ -297,6 +312,7 @@ export const assignmentApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         updatePeerReview: builder.mutation({
@@ -305,6 +321,7 @@ export const assignmentApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         updatePeerReviewQuestionAnswer: builder.mutation({
@@ -313,6 +330,7 @@ export const assignmentApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         updateAssignmentPeriod: builder.mutation({
@@ -321,6 +339,7 @@ export const assignmentApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
         updateField: builder.mutation({
@@ -329,6 +348,7 @@ export const assignmentApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
     }),

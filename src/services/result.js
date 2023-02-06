@@ -75,6 +75,7 @@ export const resultApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Result'],
         }),
         newResultType: builder.mutation({
@@ -83,6 +84,7 @@ export const resultApi = createApi({
                 method: 'POST',
                 body: post,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Result'],
         }),
         updateUserResult: builder.mutation({
@@ -91,6 +93,7 @@ export const resultApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Result'],
         }),
         updateResultType: builder.mutation({
@@ -99,6 +102,7 @@ export const resultApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Result'],
         }),
         deleteUserResult: builder.mutation({
@@ -106,7 +110,7 @@ export const resultApi = createApi({
                 url: `result/${id}`,
                 method: 'DELETE',
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Result'],
         }),
         newCourseGrading: builder.mutation({
@@ -115,6 +119,7 @@ export const resultApi = createApi({
                 method: 'POST',
                 body: body,
             }),
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Result'],
         }),
         deleteCourseGrading: builder.mutation({
@@ -122,7 +127,7 @@ export const resultApi = createApi({
                 url: `courseGrading/${id}`,
                 method: 'DELETE', 
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Result'],
         }),
         deleteResultType: builder.mutation({
@@ -130,7 +135,7 @@ export const resultApi = createApi({
                 url: `resultType/${id}`,
                 method: 'DELETE', 
             }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Result'],
         }),
     }),
