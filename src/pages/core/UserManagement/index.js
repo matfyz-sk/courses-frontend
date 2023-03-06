@@ -1,116 +1,82 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { compose } from 'recompose'
 import { Alert, Button, Table } from 'reactstrap'
 // import { withAuthorization } from '../../../components/Session';
 import { connect } from 'react-redux'
 
 import './UserManagement.css'
-import { BASE_URL, USER_URL } from '../constants'
-import { axiosRequest, getData } from '../AxiosRequests'
 import { getShortId } from '../Helper'
+import { useGetUserRequestQuery, useGetUserEnrolledQuery, useUpdateUserMutation } from 'services/user'
 
-class UserManagement extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      courseFullId: '',
-      requestedUsers: [],
-      enrolledUsers: [],
-      loading: true,
-    }
+function UserManagement(props) {
+  const { course } = props
+  const courseId = getShortId(course['@id'])
+  const {
+    data: userRequestData, 
+    isSuccess: userRequestIsSuccess,
+    isLoading: userRequestIsLoading,
+    error: userRequestError
+  } = useGetUserRequestQuery(courseId)
+  const {
+    data: userEnrolledData, 
+    isSuccess: userEnrolledIsSuccess,
+    isLoading: userEnrolledIsLoading,
+    error: userEnrolledError
+  } = useGetUserEnrolledQuery(courseId)
+  const [updateUser, result] = useUpdateUserMutation()
+  
+  if (userRequestIsLoading || userEnrolledIsLoading) {
+    return (
+      <Alert color="secondary" className="empty-message">
+        Loading...
+      </Alert>
+    )
   }
 
-  componentDidMount() {
-    this.setUsers()
-    if (this.props.course != null) {
-      this.setState({
-        courseFullId: this.props.course['@id'],
-        loading: false,
-
-      })
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.course !== this.props.course) {
-      this.setUsers()
-      if (this.props.course != null) {
-        this.setState({
-          courseFullId: this.props.course['@id'],
-          loading: false,
-        })
+  let requestedUsers = []
+  if (userRequestIsSuccess && userRequestData) {
+    requestedUsers = userRequestData.map(user => {
+      return {
+        id: getShortId(user['@id']),
+        fullId: user['@id'],
+        nickname: user.nickname,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        studentOf: user.studentOf.map(courseElement => {
+          return courseElement['@id']
+        }),
+        requests: user.requests.map(courseElement => {
+          return courseElement['@id']
+        }),
       }
-    }
+    })
+  } else {
+    console.log(userRequestError)
+  }
+  
+  let enrolledUsers = []
+  if (userEnrolledIsSuccess && userEnrolledData) {
+    enrolledUsers = userEnrolledData.map(user => {
+      return {
+        id: getShortId(user['@id']),
+        fullId: user['@id'],
+        nickname: user.nickname,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        studentOf: user.studentOf.map(courseElement => {
+          return courseElement['@id']
+        }),
+        requests: user.requests.map(courseElement => {
+          return courseElement['@id']
+        }),
+      }
+    })
+  } else {
+    console.log(userEnrolledError)
   }
 
-  setUsers = () => {
-    const { course } = this.props
-
-    if (course != null) {
-      const courseId = getShortId(course['@id'])
-
-      const urlRequests = `${BASE_URL + USER_URL}?requests=${courseId}`
-      const urlEnrolled = `${BASE_URL + USER_URL}?studentOf=${courseId}`
-
-      axiosRequest('get', null, urlRequests)
-        .then(response => {
-          const data = getData(response)
-          if (data != null) {
-            const users = data.map(user => {
-              return {
-                id: getShortId(user['@id']),
-                fullId: user['@id'],
-                nickname: user.nickname,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                studentOf: user.studentOf.map(courseElement => {
-                  return courseElement['@id']
-                }),
-                requests: user.requests.map(courseElement => {
-                  return courseElement['@id']
-                }),
-              }
-            })
-            this.setState({
-              requestedUsers: users,
-            })
-          }
-        })
-        .catch(error => console.log(error))
-
-      axiosRequest('get', null, urlEnrolled)
-        .then(response => {
-          const data = getData(response)
-          if (data != null) {
-            const users = data.map(user => {
-              return {
-                id: getShortId(user['@id']),
-                fullId: user['@id'],
-                nickname: user.nickname,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                studentOf: user.studentOf.map(courseElement => {
-                  return courseElement['@id']
-                }),
-                requests: user.requests.map(courseElement => {
-                  return courseElement['@id']
-                }),
-              }
-            })
-            this.setState({
-              enrolledUsers: users,
-            })
-          }
-        })
-        .catch(error => console.log(error))
-    }
-  }
-
-  changeStatusOfStudent = (userId, action) => {
-    const { courseFullId } = this.state
-    const url = `${BASE_URL + USER_URL}/${userId}`
-    const { requestedUsers, enrolledUsers } = this.state
+  const changeStatusOfStudent = (userId, action) => {
+    const { courseFullId } = course['@id']
 
     let index
     let user
@@ -156,75 +122,52 @@ class UserManagement extends Component {
       default:
         break
     }
-    axiosRequest(
-      'patch',
-      {
-        studentOf: user.studentOf,
-        requests: user.requests,
-      },
-      url
-    )
-      .then(response => {
-        if (response.status === 200) {
-          this.setState({
-            requestedUsers,
-            enrolledUsers,
-          })
-        } else {
-          // TODO alert?
-          console.log('Ooops!')
-        }
-      })
-      .catch(error => console.log(error))
-  }
 
-  render() {
-    const { enrolledUsers, requestedUsers, loading } = this.state
-
-    if (loading) {
-      return (
-        <Alert color="secondary" className="empty-message">
-          Loading...
-        </Alert>
-      )
+    const body = {
+      studentOf: user.studentOf,
+      requests: user.requests,
     }
 
-    return (
-      <div>
-        <main className="main-user-management-container">
-          {
-            requestedUsers.length > 0 && (
-              <div className="requests-container">
-                <h2>Requests (Confirmation required)</h2>
-                <RequestedUserList
-                  users={requestedUsers}
-                  confirmRequest={this.changeStatusOfStudent}
-                  declineRequest={this.changeStatusOfStudent}
-                />
-              </div>
-            )
-            // :
-            // <Alert color='secondary' className='empty-message'>
-            //     There are no pending requests for this course.
-            // </Alert>
-          }
-          <div className="enrolled-container">
-            <h2>Enrolled users</h2>
-            {enrolledUsers.length > 0 ? (
-              <EnrolledUserList
-                users={enrolledUsers}
-                deleteUser={this.changeStatusOfStudent}
-              />
-            ) : (
-              <Alert color="secondary" className="empty-message">
-                There are not any enrolled users in this course.
-              </Alert>
-            )}
-          </div>
-        </main>
-      </div>
-    )
+    updateUser({userId, body}).unwrap().catch(error => {
+      throw new Error(error)
+    })
   }
+
+  return (
+    <div>
+      <main className="main-user-management-container">
+        {
+          requestedUsers.length > 0 && (
+            <div className="requests-container">
+              <h2>Requests (Confirmation required)</h2>
+              <RequestedUserList
+                users={requestedUsers}
+                confirmRequest={changeStatusOfStudent}
+                declineRequest={changeStatusOfStudent}
+              />
+            </div>
+          )
+          // :
+          // <Alert color='secondary' className='empty-message'>
+          //     There are no pending requests for this course.
+          // </Alert>
+        }
+        <div className="enrolled-container">
+          <h2>Enrolled users</h2>
+          {enrolledUsers.length > 0 ? (
+            <EnrolledUserList
+              users={enrolledUsers}
+              deleteUser={changeStatusOfStudent}
+            />
+          ) : (
+            <Alert color="secondary" className="empty-message">
+              There are not any enrolled users in this course.
+            </Alert>
+          )}
+        </div>
+      </main>
+    </div>
+  )
 }
 
 const RequestedUserList = ({ users, confirmRequest, declineRequest }) => (

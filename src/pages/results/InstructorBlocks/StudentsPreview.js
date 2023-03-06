@@ -7,8 +7,9 @@ import { redirect } from '../../../constants/redirect'
 import { RESULT_USER } from '../../../constants/routes'
 // eslint-disable-next-line import/no-cycle
 import { getShortID } from '../../../helperFunctions'
-import { getAllResultsInCourse, getUsersInCourse } from '../functions'
 import { showUserName } from '../../../components/Auth/userFunction'
+import { useGetUserEnrolledQuery } from 'services/user'
+import { useGetResultForCourseInstanceQuery } from 'services/result'
 
 const StudentsPreview = props => {
   const { match, courseInstanceReducer, privilegesReducer } = props
@@ -16,33 +17,31 @@ const StudentsPreview = props => {
   const privileges = privilegesReducer
   const { course_id } = match.params
   const [users, setUsers] = useState([])
+  const { data, isSuccess } = useGetUserEnrolledQuery(getShortID(course_id))
 
-  function getUsers() {
-    getUsersInCourse(getShortID(course_id)).then(data => {
-      if (data['@graph']) {
-        getAllResultsInCourse(course_id).then(results => {
-          if (results['@graph']) {
-            const userList = []
-            for (let i = 0; i < data['@graph'].length; i++) {
-              const user = {
-                user: data['@graph'][i],
-                result: 0,
-              }
-              for (let r = 0; r < results['@graph'].length; r++) {
-                if (user.user['@id'] === results['@graph'][r].hasUser[0]['@id']) {
-                  user.result = user.result + results['@graph'][r].points
-                }
-              }
-              userList.push(user)
-            }
-            setUsers(userList)
+  const getUsers = () => {
+    if (isSuccess && data) {
+      const { data: resultsData, isSuccess: resultsIsSuccess } = useGetResultForCourseInstanceQuery(course_id) // why not getShortID(course_id)
+      if (resultsIsSuccess && resultsData) {
+        const userList = []
+        for (let i = 0; i < data.length; i++) {
+          const user = {
+            user: data[i],
+            result: 0,
           }
-        })
+          for (let r = 0; r < resultsData.length; r++) {
+            if (user.user['@id'] === resultsData[r].hasUser[0]['@id']) {
+              user.result = user.result + resultsData[r].points
+            }
+          }
+          userList.push(user)
+        }
+        setUsers(userList)
       }
-    })
+    }
   }
 
-  function resultModifier(user_index, oldVal, newVal) {
+  const resultModifier = (user_index, oldVal, newVal) => {
     const newUser = [...users]
     newUser[user_index].result =
       newUser[user_index].result - parseFloat(oldVal) + parseFloat(newVal)

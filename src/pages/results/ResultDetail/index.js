@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import {getUserResult, removeUserResult, updateUserResult} from '../functions';
 import {Alert, Button, Col, Container, FormGroup, Input, Row, Table} from "reactstrap";
 import {redirect} from "../../../constants/redirect";
 import {RESULT_TYPE, RESULT_USER} from "../../../constants/routes";
@@ -8,8 +7,13 @@ import {Link, withRouter} from "react-router-dom";
 import {connect} from "react-redux"
 import {showUserName} from "../../../components/Auth/userFunction";
 import {formatDate} from "../../../functions/global";
+import { 
+  useGetResultThatHasUserQuery, 
+  useUpdateUserResultMutation,
+  useDeleteUserResultMutation 
+} from "services/result"
 
-const ResultDetail = props => {
+function ResultDetail(props) {
   const { match, privileges, history, courseInstance } = props
   const { course_id, result_id } = match.params
   const [result, setResult] = useState(null)
@@ -18,27 +22,31 @@ const ResultDetail = props => {
   const canEdit =
     privileges.inGlobal === 'admin' ||
     privileges.inCourseInstance === 'instructor'
+  const [updateUserResult, updateUserResultResult] = useUpdateUserResultMutation()
+  const [deleteUserResult, deleteUserResultResult] = useDeleteUserResultMutation()
+  const {data, isSuccess} = useGetResultThatHasUserQuery(result_id)
 
-  function getDetail() {
-    getUserResult(result_id, true).then(data => {
-      if (data['@graph'] && data['@graph'].length > 0) {
-        setResult(data['@graph'][0])
-      }
-    })
+  const getDetail = () => {
+    if (isSuccess && data && data.length > 0) {
+      setResult(data[0])
+    }
   }
 
-  function saveChanges() {
+  const saveChanges = () => {
     if (result.points && result.points !== '') {
-      updateUserResult(result).then(data => {
+      updateUserResult({
+        id: getShortID(result['@id']),
+        patch: result
+      }).unwrap().then(response => {
         setLoading(false)
         setMsg('Result has been saved!')
       })
     }
   }
 
-  function removeResult() {
+  const removeResult = () => {
     const user_id = getShortID(result.hasUser[0]['@id'])
-    removeUserResult(result_id).then(data => {
+    deleteUserResult(user_id).unwrap().then(response => {
       history.push(
         redirect(RESULT_USER, [
           { key: 'course_id', value: course_id },

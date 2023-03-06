@@ -1,4 +1,19 @@
 import { inputToTimestamp, getIRIFromAddResponse, axiosAddEntity, axiosUpdateEntity, axiosDeleteEntity, getShortID, htmlRemoveNewLines } from 'helperFunctions';
+import { 
+  useUpdateAssignmentPeriodMutation, 
+  useAddAssignmentPeriodMutation, 
+  useDeleteAssignmentPeriodMutation,
+  useDeleteAssignmentPeerReviewPeriodMutation,
+  useAddFieldMutation,
+  useUpdateFieldMutation,
+  useDeleteFieldMutation,
+  useUpdateAssignmentMutation,
+  useAddAssignmentMutation,
+} from 'services/assignments';
+import { 
+  useAddPeerReviewQuestionMutation,
+} from 'services/peerReview'
+import { useAddMaterialMutation } from 'services/documents';
 
 export const getAssignmentPeriods = (assignment) => {
   let periods = [...assignment.initialSubmissionPeriod];
@@ -74,6 +89,11 @@ export const preparePeriod = (source, improved = false) => {
 }
 
 export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) => {
+  const [addAssignmentPeriod, addAssignmentPeriodResult] = useAddAssignmentPeriodMutation()
+  const [addPeerReviewQuestion, addPeerReviewQuestionResult] = useAddPeerReviewQuestionMutation()
+  const [addMaterial, addMaterialResult] = useAddMaterialMutation()
+  const [addField, addFieldResult] = useAddFieldMutation()
+  const [addAssignment, addAssignmentResult] = useAddAssignmentMutation()
   let assignmentData = prepareAssignmentData( newAssignment );
   assignmentData.courseInstance = courseInstanceID;
 
@@ -101,23 +121,17 @@ export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) =
 
   let periodsAxios=[];
 
-  periodsAxios.push(axiosAddEntity( {//initial sub
-    ...preparePeriod(newAssignment.submission),
-    courseInstance: courseInstanceID,
-  }, 'assignmentPeriod' ));
+  //initial sub
+  periodsAxios.push(addAssignmentPeriod({...preparePeriod(newAssignment.submission),courseInstance: courseInstanceID}).unwrap());
 
+  //imp sub
   if(assignmentData.submissionImprovedSubmission){
-    periodsAxios.push(axiosAddEntity( {//imp sub
-      ...preparePeriod(newAssignment.submission,true),
-      courseInstance: courseInstanceID,
-    }, 'assignmentPeriod' ));
+    periodsAxios.push(addAssignmentPeriod({...preparePeriod(newAssignment.submission,true), courseInstance: courseInstanceID}).unwrap());
   }
 
+  //peer review
   if(!assignmentData.reviewsDisabled){
-    periodsAxios.push(axiosAddEntity( {//peer review
-      ...preparePeriod(newAssignment.reviews),
-      courseInstance: courseInstanceID,
-    }, 'assignmentPeriod' ));
+    periodsAxios.push(addAssignmentPeriod({...preparePeriod(newAssignment.reviews), courseInstance: courseInstanceID}).unwrap());
     assignmentData = {
       ...assignmentData,
       reviewsPerSubmission: parseInt(newAssignment.reviews.reviewsPerSubmission),
@@ -126,21 +140,19 @@ export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) =
     }
   }
 
+  //team review
   if(!assignmentData.teamReviewsDisabled && !assignmentData.teamsDisabled){
-    periodsAxios.push(axiosAddEntity( {//team review
-      ...preparePeriod(newAssignment.teamReviews),
-      courseInstance: courseInstanceID,
-    }, 'assignmentPeriod' ));
+    periodsAxios.push(addAssignmentPeriod({...preparePeriod(newAssignment.teamReviews), courseInstance: courseInstanceID}).unwrap());
   }
 
   let questionsAxios = [];
   if(!assignmentData.reviewsDisabled){
-    questionsAxios = newQuestions.map((question) => axiosAddEntity( question, 'PeerReviewQuestion' ) )
+    questionsAxios = newQuestions.map((question) => addPeerReviewQuestion(question).unwrap())
   }
 
-  let materialsAxios = newMaterials.map((material) => axiosAddEntity( material, 'material' ) )
+  let materialsAxios = newMaterials.map((material) => addMaterial(material).unwrap())
 
-  let fieldsAxios =  newFields.map((field) => axiosAddEntity( field, 'Field' ) )
+  let fieldsAxios =  newFields.map((field) => addField(field).unwrap())
 
   Promise.all([
     Promise.all( periodsAxios ),
@@ -171,13 +183,23 @@ export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) =
 
     assignmentData.hasMaterial = existingMaterialsIDs.concat(materials.map((material)=>getIRIFromAddResponse(material)));
     assignmentData.hasField = fields.map((field)=>getIRIFromAddResponse(field));
-    return axiosAddEntity( assignmentData, 'assignment' ).then(afterFunction);
+    return addAssignment(assignmentData).unwrap().then(afterFunction);
   })
 }
 
 export const editAssignment = (newAssignment, assignment, afterFunction ) => {
   const assignmentID = assignment['@id'];
   const courseInstance = assignment.courseInstance['@id'];
+  const [updateAssignmentPeriod, updateAssignmentPeriodResult] = useUpdateAssignmentPeriodMutation()
+  const [addAssignmentPeriod, addAssignmentPeriodResult] = useAddAssignmentPeriodMutation()
+  const [deleteAssignmentPeriod, deleteAssignmentPeriodResult] = useDeleteAssignmentPeriodMutation()
+  const [deleteAssignmentPeerReviewPeriod, deleteAssignmentPeerReviewPeriodResult] = useDeleteAssignmentPeerReviewPeriodMutation()
+  const [addPeerReviewQuestion, addPeerReviewQuestionResult] = useAddPeerReviewQuestionMutation()
+  const [addMaterial, addMaterialResult] = useAddMaterialMutation()
+  const [addField, addFieldResult] = useAddFieldMutation()
+  const [updateField, updateFieldResult] = useUpdateFieldMutation()
+  const [deleteField, deleteFieldResult] = useDeleteFieldMutation()
+  const [updateAssignment, updateAssignmentResult] = useUpdateAssignmentMutation()
 
   let assignmentData = prepareAssignmentData(newAssignment);
   let newQuestions = newAssignment.reviews.questions.filter((question) => question.new).map((question) => ({
@@ -222,53 +244,67 @@ export const editAssignment = (newAssignment, assignment, afterFunction ) => {
   let axiosPeriods = [];
   let axiosDeletePeriods = [];
   //initial sub - always update
-  axiosPeriods.push(axiosUpdateEntity( preparePeriod(newAssignment.submission), `assignmentPeriod/${getShortID(assignment.initialSubmissionPeriod['@id'])}` ));
-
+  axiosPeriods.push(updateAssignmentPeriod({
+    id: getShortID(assignment.initialSubmissionPeriod['@id']),
+    patch: newAssignment.submission
+  }).unwrap())
   if(assignmentData.submissionImprovedSubmission && assignment.submissionImprovedSubmission){ //update existing
-    axiosPeriods.push(axiosUpdateEntity( preparePeriod(newAssignment.submission, true), `assignmentPeriod/${getShortID(assignment.improvedSubmissionPeriod['@id'])}` ));
+    axiosPeriods.push(updateAssignmentPeriod({
+      id: getShortID(assignment.improvedSubmissionPeriod['@id']),
+      patch: preparePeriod(newAssignment.submission, true)
+    }).unwrap())
   }else if( assignmentData.submissionImprovedSubmission && !assignment.submissionImprovedSubmission ){ //add new
-    axiosPeriods.push(axiosAddEntity( {...preparePeriod(newAssignment.submission, true), courseInstance }, `assignmentPeriod` ));
+    axiosPeriods.push(addAssignmentPeriod({...preparePeriod(newAssignment.submission, true), courseInstance }).unwrap())
   }else if ( !assignmentData.submissionImprovedSubmission && assignment.submissionImprovedSubmission ){ //delete existing
-    axiosDeletePeriods.push(axiosDeleteEntity( `assignmentPeriod/${getShortID(assignment.improvedSubmissionPeriod['@id'])}` ));
-    axiosDeletePeriods.push(axiosDeleteEntity( `assignment/${getShortID(assignmentID)}/improvedSubmissionPeriod` ));
+    axiosDeletePeriods.push(deleteAssignmentPeriod(getShortID(assignment.improvedSubmissionPeriod['@id'])).unwrap());
+    axiosDeletePeriods.push(deleteAssignmentPeerReviewPeriod(getShortID(assignmentID)).unwrap());
   }
 
   if(!assignmentData.reviewsDisabled && !assignment.reviewsDisabled){ //update existing
-    axiosPeriods.push(axiosUpdateEntity( preparePeriod(newAssignment.reviews), `assignmentPeriod/${getShortID(assignment.peerReviewPeriod['@id'])}` ));
+    axiosPeriods.push(updateAssignmentPeriod({
+      id: getShortID(assignment.peerReviewPeriod['@id']),
+      patch: preparePeriod(newAssignment.reviews)
+    }).unwrap())
   }else if( !assignmentData.reviewsDisabled && assignment.reviewsDisabled ){ //add new
-    axiosPeriods.push(axiosAddEntity( {...preparePeriod(newAssignment.reviews), courseInstance }, `assignmentPeriod` ));
+    axiosPeriods.push(addAssignmentPeriod({...preparePeriod(newAssignment.reviews), courseInstance }).unwrap())
   }else if ( assignmentData.reviewsDisabled && !assignment.reviewsDisabled ){ //delete existing
-    axiosDeletePeriods.push(axiosDeleteEntity( `assignmentPeriod/${getShortID(assignment.peerReviewPeriod['@id'])}` ));
-    axiosDeletePeriods.push(axiosDeleteEntity( `assignment/${getShortID(assignmentID)}/peerReviewPeriod` ));
+    axiosDeletePeriods.push(deleteAssignmentPeriod(getShortID(assignment.peerReviewPeriod['@id'])).unwrap());
+    axiosDeletePeriods.push(deleteAssignmentPeerReviewPeriod(getShortID(assignmentID)).unwrap());
   }
 
   if(!assignmentData.teamReviewsDisabled && !assignment.teamReviewsDisabled ){ //update existing
-    axiosPeriods.push(axiosUpdateEntity( preparePeriod(newAssignment.teamReviews), `assignmentPeriod/${getShortID(assignment.teamReviewPeriod['@id'])}` ));
+    axiosPeriods.push(updateAssignmentPeriod({
+      id: getShortID(assignment.teamReviewPeriod['@id']),
+      patch: preparePeriod(newAssignment.teamReviews)
+    }).unwrap())
   }else if( !assignmentData.teamReviewsDisabled && assignment.teamReviewsDisabled ){ //add new
-    axiosPeriods.push(axiosAddEntity( {...preparePeriod(newAssignment.teamReviews), courseInstance }, `assignmentPeriod` ));
+    axiosPeriods.push(addAssignmentPeriod({...preparePeriod(newAssignment.teamReviews), courseInstance }).unwrap())
   }else if ( assignmentData.teamReviewsDisabled && !assignment.teamReviewsDisabled ){ //delete existing
-    axiosDeletePeriods.push(axiosDeleteEntity( `assignmentPeriod/${getShortID(assignment.teamReviewPeriod['@id'])}` ));
-    axiosDeletePeriods.push(axiosDeleteEntity( `assignment/${getShortID(assignmentID)}/teamReviewPeriod` ));
+    axiosDeletePeriods.push(deleteAssignmentPeriod(getShortID(assignment.teamReviewPeriod['@id'])).unwrap());
+    axiosDeletePeriods.push(deleteAssignmentPeerReviewPeriod(getShortID(assignmentID)).unwrap());
   }
 
   let axiosQuestions = [];
   if(!assignmentData.reviewsDisabled){
-    axiosQuestions = newQuestions.map((question) => axiosAddEntity( question, 'PeerReviewQuestion' ) )
+    axiosQuestions = newQuestions.map((question) => addPeerReviewQuestion(question).unwrap())
   }
-  let axiosMaterials = newMaterials.map((material) => axiosAddEntity( material, 'material' ) )
+  let axiosMaterials = newMaterials.map((material) => addMaterial(material).unwrap())
 
-  let axiosFields =  newFields.map((field) => axiosAddEntity( field, 'field' ) ).concat(
-    existingFields.map((field) => axiosUpdateEntity({
-      name: field.name,
-      description: field.description,
-      label: field.label,
-      fieldType: field.fieldType,
-    },`field/${getShortID(field.id)}`) )
+  let axiosFields =  newFields.map((field) => addField(field).unwrap()).concat(
+    existingFields.map((field) => updateField({
+      id: getShortID(field.id),
+      patch: {
+        name: field.name,
+        description: field.description,
+        label: field.label,
+        fieldType: field.fieldType,
+      }
+    }).unwrap())
   )
 
   let axiosDeleteFields = assignment.hasField.map( (field) => field['@id'] )
     .filter( (filedID) => !existingFields.some((field) => field.id === filedID ))
-    .map((fieldID)=> axiosDeleteEntity(`field/${getShortID(fieldID)}`))
+    .map((fieldID)=> deleteField(getShortID(fieldID)).unwrap())
   Promise.all([
     Promise.all( axiosPeriods ),
     Promise.all( axiosDeletePeriods ),
@@ -303,7 +339,10 @@ export const editAssignment = (newAssignment, assignment, afterFunction ) => {
     //end of periods
     assignmentData.hasMaterial = existingMaterialsIDs.concat(materialsIDs);
     assignmentData.hasField = fieldsIDs;
-    return axiosUpdateEntity( assignmentData, `assignment/${getShortID(assignmentID)}` ).then(afterFunction);
+    return updateAssignment({
+      id: getShortID(assignmentID),
+      patch: assignmentData
+    }).unwrap().then(afterFunction);
   })
 
 }

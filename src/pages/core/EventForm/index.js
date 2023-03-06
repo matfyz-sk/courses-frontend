@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import { Button, CardSubtitle, Col, Container, Form, FormGroup, Input, Label, Row, } from 'reactstrap'
@@ -9,173 +9,133 @@ import TextField from '@material-ui/core/TextField'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { DATA_PREFIX } from 'constants/ontology'
 import {
-  BASE_URL,
   COURSE_INSTANCE_URL,
   COURSE_URL,
-  EVENT_URL,
-  INITIAL_EVENT_STATE,
-  MATERIAL_URL,
   SESSIONS,
   TASKS_DEADLINES,
   TASKS_EXAMS,
-  USER_URL,
 } from '../constants'
-import { axiosRequest, getData } from '../AxiosRequests'
 import { getDisplayDateTime, getShortId } from '../Helper'
 import ModalCreateEvent from '../ModalCreateEvent'
 import { SubEventList } from '../Events'
 import { getEvents, greater, greaterEqual, sortEventsFunction, } from '../Timeline/timeline-helper'
 import { connect } from 'react-redux'
-import { axiosAddEntity, axiosUpdateEntity, getIRIFromAddResponse } from 'helperFunctions'
+import { getIRIFromAddResponse } from 'helperFunctions'
 import DocumentReferencer from 'pages/documents/common/DocumentsReferencer'
-class EventForm extends Component {
-  constructor(props) {
-    super(props)
+import { 
+  useGetCourseInstanceEventDocRefQuery, 
+  useNewEventMutation, 
+  useUpdateEventByTypeMutation, 
+  useDeleteEventByTypeMutation, 
+} from 'services/event'
+import { useNewCourseInstanceMutation, useUpdateCourseInstanceMutation } from 'services/course'
+import { useNewFolderMutation, useGetMaterialsQuery } from 'services/documents'
+import { useGetUsersQuery } from 'services/user'
+import { skipToken } from '@reduxjs/toolkit/dist/query'
 
-    this.state = {
-      ...INITIAL_EVENT_STATE,
-      courseId: '',
-      errors: [],
-      users: [],
-      docs: [],
-      tasks: [],
-      sessions: [],
-    }
-  }
+function EventForm(props) {
+  const {
+    typeOfForm, 
+    callBack,
+    options, 
+    from, 
+    to, 
+    user,
+    match: {params},
+  } = props
+  const courseId = params.course_id
+  //Event state
+  const [id, setId] = useState('')
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [startDate, setStartDate] = useState(new Date())
+  const [endDate, setEndDate] = useState(new Date())
+  const [place, setPlace] = useState('')
+  const [type, setType] = useState(options[0])
+  const [instructors, setInstructors] = useState([])
+  const [uses, setUses] = useState([])
+  const [recommends, setRecommends] = useState([])
+  const [documentReference, setDocumentReference] = useState([])
 
-  componentDidMount() {
-    const {
-      match: {params},
-    } = this.props
+  const [errors, setErrors] = useState([])
+  const [tasks, setTasks] = useState([])
+  const [sessions, setSessions] = useState([])
+  const {
+    data: subEventsData, 
+    isSuccess: subEventsIsSuccess
+  } = useGetCourseInstanceEventDocRefQuery(courseId !== '' ? courseId : skipToken)
+  const {data: usersData, isSuccess: usersIsSuccess} = useGetUsersQuery()
+  const {data: materialsData, isSuccess: materialsIsSuccess} = useGetMaterialsQuery()
+  const [newEvent, newEventResult] = useNewEventMutation()
+  const [newNewCourseInstance, newNewCourseInstanceResult] = useNewCourseInstanceMutation()
+  const [newFolder, newFolderResult] = useNewFolderMutation()
+  const [updateCourseInstance, updateCourseInstanceResult] = useUpdateCourseInstanceMutation()
+  const [updateEventByType, updateEventByTypeResult] = useUpdateEventByTypeMutation()
+  const [deleteEventByType, deleteEventByTypeResult] = useDeleteEventByTypeMutation()
 
-    const {options} = this.props
-    this.setState({type: options[0]})
-
-    this.setState({...this.props, courseId: params.course_id})
-
-    this.getSubEvents()
-
-    let url = BASE_URL + USER_URL
-    axiosRequest('get', null, url).then(response => {
-      const data = getData(response)
-      if(data != null) {
-        const users = data.map(user => {
-          return {
-            fullId: user['@id'],
-            name:
-              user.firstName !== '' && user.lastName !== ''
-                ? `${ user.firstName } ${ user.lastName }`
-                : 'Noname',
-          }
-        })
-        this.setState({
-          users,
-        })
+  let users = []
+  if(usersIsSuccess && usersData) {
+    users = usersData.map(user => {
+      return {
+        fullId: user['@id'],
+        name:
+          user.firstName !== '' && user.lastName !== ''
+            ? `${ user.firstName } ${ user.lastName }`
+            : 'Noname',
       }
     })
+  }
 
-    url = BASE_URL + MATERIAL_URL
-    axiosRequest('get', null, url).then(response => {
-      const data = getData(response)
-      if(data != null) {
-        const docs = data.map(doc => {
-          return {
-            fullId: doc['@id'],
-            name: doc.name,
-          }
-        })
-        this.setState({
-          docs,
-        })
+  let docs = []
+  if(materialsIsSuccess && materialsData) {
+    docs = materialsData.map(doc => {
+      return {
+        fullId: doc['@id'],
+        name: doc.name,
       }
     })
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if(prevProps.name !== this.props.name) {
-      this.setState({...this.props})
-    }
-    if(
-      prevState.startDate !== this.state.startDate ||
-      prevState.endDate !== this.state.endDate
-    ) {
-      this.getSubEvents()
-    }
-  }
 
-  getSubEvents = () => {
-    const {startDate, endDate, courseId} = this.state
+  // This does the same thing as componentDidMount
+  useEffect(() => {
+    getSubEvents()
+  }, [])
 
+  const getSubEvents = () => {
     if (courseId !== '') {
-      const url = `${BASE_URL + EVENT_URL}?courseInstance=${courseId}&_join=documentReference`
+      if(subEventsIsSuccess && subEventsData && subEventsData !== []) {
+        const events = getEvents(subEventsData).sort(sortEventsFunction)
+        const newTasks = []
+        const newSessions = []
 
-      axiosRequest('get', null, url).then(response => {
-        const data = getData(response)
-        if(data != null && data !== []) {
-          const events = getEvents(data).sort(sortEventsFunction)
-          const tasks = []
-          const sessions = []
-
-          for(const event of events) {
-            if(
-              SESSIONS.includes(event.type) &&
-              ((greaterEqual(event.startDate, startDate) &&
-                  !greaterEqual(event.startDate, startDate)) ||
-                (greater(event.endDate, startDate) &&
-                  !greater(event.endDate, endDate)))
-            ) {
-              event.displayDateTime = getDisplayDateTime(event.startDate, false)
-              sessions.push(event)
-            } else if(
-              (TASKS_EXAMS.includes(event.type) &&
-                greaterEqual(event.startDate, startDate) &&
-                !greaterEqual(event.startDate, endDate)) ||
-              (TASKS_DEADLINES.includes(event.type) &&
-                greater(event.endDate, startDate) &&
-                !greater(event.endDate, endDate))
-            ) {
-              if(TASKS_EXAMS.includes(event.type)) {
-                event.displayDateTime = getDisplayDateTime(
-                  event.startDate,
-                  false
-                )
-              } else {
-                event.displayDateTime = getDisplayDateTime(event.endDate, false)
-              }
-              tasks.push(event)
+        for (const event of events) {
+          if (isEventInSession(event, startDate, endDate)) {
+            event.displayDateTime = getDisplayDateTime(event.startDate, false)
+            newSessions.push(event)
+          } else if (isEventInTask(event, startDate, endDate)) {
+            if(TASKS_EXAMS.includes(event.type)) {
+              event.displayDateTime = getDisplayDateTime(
+                event.startDate,
+                false
+              )
+            } else {
+              event.displayDateTime = getDisplayDateTime(event.endDate, false)
             }
+            newTasks.push(event)
           }
-
-          this.setState({
-            tasks,
-            sessions,
-          })
         }
-      })
+        setTasks(newTasks)
+        setSessions(newSessions)
+      }
     }
   }
 
-  onSubmit = event => {
-    const {
-      id,
-      name,
-      description,
-      startDate,
-      endDate,
-      place,
-      type,
-      courseId,
-      instructors,
-      uses,
-      recommends,
-      documentReference,
-    } = this.state
-    const {typeOfForm, callBack} = this.props
-
-    const errors = this.validate(name, description, startDate, endDate)
-    if(errors.length > 0) {
-      this.setState({errors})
-      event.preventDefault()
+  const onSubmit = event => {
+    event.preventDefault()
+    const newErrors = validate(name, description, startDate, endDate)
+    if(newErrors.length > 0) {
+      setErrors(newErrors)
       return
     }
 
@@ -200,10 +160,7 @@ class EventForm extends Component {
       return doc.fullId
     })
 
-    const typeLowerCase = this.lowerFirstLetter(type)
-    let url = `${ BASE_URL }/${ typeLowerCase }/${ id }`
-
-    let method = 'patch'
+    const typeLowerCase = lowerFirstLetter(type)
     const data = {
       name: name.split('"').join("'"),
       description: description.split('"').join("'").split('\n').join(''),
@@ -219,396 +176,334 @@ class EventForm extends Component {
       data.hasInstructor = hasInstructor
     }
     if(typeOfForm === 'Create') {
-      url = BASE_URL + EVENT_URL
-      method = 'post'
       // eslint-disable-next-line no-underscore-dangle
       data._type = type
       data.courseInstance = courseInstanceFullId
+      
+      newEvent(data).unwrap().then(response => {
+        console.log(response)
+        const newEventId = getShortId(response.resource.iri)
+        callBack(newEventId)
+      }).catch(error => {
+        newErrors.push('There was a problem with server while sending your form. Try again later.')
+        setErrors(newErrors)
+      })
     } else if(typeOfForm === 'New Course Instance') {
-      url = BASE_URL + COURSE_INSTANCE_URL
-      method = 'post'
       data.instanceOf = courseFullId
       data.hasInstructor = hasInstructor
-    }
-    axiosRequest(method, data, url)
-      .then(async response => {
-        if (response && response.status === 200) {
-          console.log(typeOfForm)
-          if (typeOfForm === 'Edit') {
-            callBack(id)
-          } else {
-            const newEventId = getShortId(response.data.resource.iri)
-
-            if (typeOfForm === 'New Course Instance') {
-              const folderData = {
-                name: 'Home',
-                courseInstance: response.data.resource.iri,
-              }
-              const fileExplorerRoot = await axiosAddEntity(
-                folderData,
-                'folder'
-              ).then(response => {
-                if (response.failed) return null
-                return getIRIFromAddResponse(response)
-              })
-              axiosUpdateEntity(
-                { fileExplorerRoot },
-                `courseInstance/${newEventId}`
-              )
-            }
-
-            callBack(newEventId)
-          }
-        } else {
-          errors.push(
-            'There was a problem with server while sending your form. Try again later.'
-          )
-          this.setState({
-            errors,
-          })
+      console.log(data)
+      newNewCourseInstance(data).unwrap().then(response => {
+        const newEventId = getShortId(response.resource.iri)
+        const folderData = {
+          name: 'Home',
+          courseInstance: response.resource.iri,
         }
-      })
-      .catch()
-    event.preventDefault()
-  }
-
-  lowerFirstLetter = s => {
-    return s.charAt(0).toLowerCase() + s.slice(1)
-  }
-
-  validate = (name, description, startDate, endDate) => {
-    const errors = []
-    if(name.length === 0) {
-      errors.push("Name can't be empty.")
-    }
-    if(description.length === 0) {
-      errors.push("Description can't be empty.")
-    }
-    if(new Date(startDate) > new Date(endDate)) {
-      errors.push('The End date must be greater than the Start date.')
-    }
-    return errors
-  }
-
-  deleteEvent = () => {
-    const {type, id} = this.state
-    const {callBack} = this.props
-
-    const typeLowerCase = this.lowerFirstLetter(type)
-    const url = `${ BASE_URL }/${ typeLowerCase }/${ id }`
-
-    axiosRequest('delete', {}, url).then(response => {
-      if (response && response.status === 200) {
-        callBack(null)
-      } else {
-        const errors = []
-        errors.push('There was a problem with server. Try again later.')
-        this.setState({
-          errors,
+        
+        newFolder(folderData).unwrap().then(folderResponse => {
+          const fileExplorerRoot = folderResponse.resource.iri
+          updateCourseInstance({id: newEventId, patch: {fileExplorerRoot}}).unwrap()
         })
-      }
+        callBack(newEventId)
+      }).catch(error => {
+        newErrors.push('There was a problem with server while sending your form. Try again later.')
+        setErrors(newErrors)
+      })
+    } else {
+      updateEventByType({
+        id,
+        type: typeLowerCase,
+        patch: data
+      }).unwrap().then(response => {
+        if (typeOfForm === 'Edit') {
+          callBack(id)
+        } else {
+          const newEventId = getShortId(response.resource.iri)
+          callBack(newEventId)
+        }
+      }).catch(error => {
+        newErrors.push('There was a problem with server while sending your form. Try again later.')
+        setErrors(newErrors)
+      })
+    }
+  }
+
+  const deleteEvent = () => {
+    const typeLowerCase = lowerFirstLetter(type)
+    deleteEventByType({id: id, type: typeLowerCase}).unwrap().then(response => {
+      callBack(null)
+    }).catch(error => {
+      const newErrors = []
+      newErrors.push('There was a problem with server while sending your form. Try again later.')
+      setErrors(newErrors)
     })
   }
 
-  onInstructorChange = (event, values) => {
-    this.setState({instructors: values})
+  const onInstructorChange = (event, values) => {
+    setInstructors(values)
   }
 
-  onUsesChange = (event, values) => {
-    this.setState({uses: values})
+  const onDocumentReferencesChange = documentReference => {
+    setDocumentReference(documentReference)
   }
 
-  onRecommendsChange = (event, values) => {
-    this.setState({recommends: values})
+  const handleChangeFrom = date => {
+    setStartDate(date)
   }
 
-  onChange = event => {
-    this.setState({[event.target.name]: event.target.value})
+  const handleChangeTo = date => {
+    setEndDate(date)
   }
 
-  handleChangeFrom = date => {
-    this.setState({startDate: date})
-  }
-
-  handleChangeTo = date => {
-    this.setState({endDate: date})
-  }
-
-  onDocumentReferencesChange = documentReference => {
-    this.setState({ documentReference })
-  }
-
-  render() {
-    const {
-      name,
-      description,
-      startDate,
-      endDate,
-      place,
-      type,
-      errors,
-      users,
-      instructors,
-      tasks,
-      sessions,
-      docs,
-      uses,
-      recommends,
-      documentReference
-    } = this.state
-    const {typeOfForm, options, from, to, user} = this.props
-
-    const isInvalid =
+  const isInvalid =
       name === '' ||
       description === '' ||
       startDate === null ||
       endDate === null
 
-    return (
-      <>
-        { errors.map(error => (
-          <p key={ error } className="form-error">
-            Error: { error }
-          </p>
-        )) }
-        <Form onSubmit={ this.onSubmit }>
-          <FormGroup className="new-event-formGroup">
-            <Label for="name" className="new-event-label">
-              Name *
-            </Label>
-            <Input
-              name="name"
-              id="name"
-              value={ name }
-              onChange={ this.onChange }
-              type="text"
-            />
-          </FormGroup>
-          <FormGroup className="new-event-formGroup">
-            <Label for="type" className="new-event-label">
-              Type
-            </Label>
-            <Input
-              id="type"
-              type="select"
-              name="type"
-              value={ type }
-              onChange={ this.onChange }
-            >
-              { options.map(option => (
-                <option value={ option } key={ option }>
-                  { option }
-                </option>
-              )) }
-            </Input>
-          </FormGroup>
+  return (
+    <>
+      { errors.map(error => (
+        <p key={ error } className="form-error">
+          Error: { error }
+        </p>
+      )) }
+      <Form onSubmit={ onSubmit }>
+        <FormGroup className="new-event-formGroup">
+          <Label for="name" className="new-event-label">
+            Name *
+          </Label>
+          <Input
+            name="name"
+            id="name"
+            value={ name }
+            onChange={ e => setName(e.target.value) }
+            type="text"
+          />
+        </FormGroup>
+        <FormGroup className="new-event-formGroup">
+          <Label for="type" className="new-event-label">
+            Type
+          </Label>
+          <Input
+            id="type"
+            type="select"
+            name="type"
+            value={ type }
+            onChange={ e => setType(e.target.value) }
+          >
+            { options.map(option => (
+              <option value={ option } key={ option }>
+                { option }
+              </option>
+            )) }
+          </Input>
+        </FormGroup>
 
-          <FormGroup>
-            <Container className="event-form-dateTime-container">
-              <Row>
-                <Col className="event-form-dateTime-col">
-                  <Label
-                    id="from-label"
-                    for="from"
-                    className="label-dateTime new-event-label"
-                  >
-                    From
-                  </Label>
-                  <DatePicker
-                    name="from"
-                    id="from"
-                    selected={ startDate }
-                    onChange={ this.handleChangeFrom }
-                    minDate={ from || '' }
-                    maxDate={ to || endDate }
-                    showTimeSelect
-                    timeFormat="HH:mm"
-                    timeIntervals={ 15 }
-                    dateFormat="dd/MM/yyyy HH:mm"
-                    timeCaption="time"
-                  />
-                </Col>
-                <Col className="event-form-dateTime-col">
-                  <Label for="to" className="label-dateTime new-event-label">
-                    To
-                  </Label>
-                  <DatePicker
-                    name="to"
-                    id="to"
-                    selected={ endDate }
-                    onChange={ this.handleChangeTo }
-                    minDate={ from || startDate }
-                    maxDate={ to || '' }
-                    showTimeSelect
-                    timeFormat="HH:mm"
-                    timeIntervals={ 15 }
-                    dateFormat="dd/MM/yyyy HH:mm"
-                    timeCaption="time"
-                  />
-                </Col>
-              </Row>
-            </Container>
-          </FormGroup>
-          <FormGroup className="new-event-formGroup">
-            <Label for="description" className="new-event-label">
-              Description *
-            </Label>
-            <Input
-              name="description"
-              id="description"
-              value={ description }
-              onChange={ this.onChange }
-              type="textarea"
-            />
-          </FormGroup>
-          <FormGroup className="new-event-formGroup">
-            <Label for="place" className="new-event-label">
-              Location
-            </Label>
-            <Input
-              name="place"
-              id="place"
-              value={ place }
-              onChange={ this.onChange }
-              type="text"
-            />
-          </FormGroup>
+        <FormGroup>
+          <Container className="event-form-dateTime-container">
+            <Row>
+              <Col className="event-form-dateTime-col">
+                <Label
+                  id="from-label"
+                  for="from"
+                  className="label-dateTime new-event-label"
+                >
+                  From
+                </Label>
+                <DatePicker
+                  name="from"
+                  id="from"
+                  selected={ startDate }
+                  onChange={ handleChangeFrom }
+                  minDate={ from || '' }
+                  maxDate={ to || endDate }
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={ 15 }
+                  dateFormat="dd/MM/yyyy HH:mm"
+                  timeCaption="time"
+                />
+              </Col>
+              <Col className="event-form-dateTime-col">
+                <Label for="to" className="label-dateTime new-event-label">
+                  To
+                </Label>
+                <DatePicker
+                  name="to"
+                  id="to"
+                  selected={ endDate }
+                  onChange={ handleChangeTo }
+                  minDate={ from || startDate }
+                  maxDate={ to || '' }
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={ 15 }
+                  dateFormat="dd/MM/yyyy HH:mm"
+                  timeCaption="time"
+                />
+              </Col>
+            </Row>
+          </Container>
+        </FormGroup>
+        <FormGroup className="new-event-formGroup">
+          <Label for="description" className="new-event-label">
+            Description *
+          </Label>
+          <Input
+            name="description"
+            id="description"
+            value={ description }
+            onChange={ e => setDescription(e.target.value) }
+            type="textarea"
+          />
+        </FormGroup>
+        <FormGroup className="new-event-formGroup">
+          <Label for="place" className="new-event-label">
+            Location
+          </Label>
+          <Input
+            name="place"
+            id="place"
+            value={ place }
+            onChange={ e => setPlace(e.target.value) }
+            type="text"
+          />
+        </FormGroup>
 
-          {['Create', 'Edit'].includes(typeOfForm) && (
-            <FormGroup
-                style={{ maxWidth: 700 }} className="new-event-formGroup">
-              <DocumentReferencer
-                label="Uses documents"
-                documentReferences={documentReference}
-                onDocumentReferencesChange={this.onDocumentReferencesChange}
+        {['Create', 'Edit'].includes(typeOfForm) && (
+          <FormGroup
+              style={{ maxWidth: 700 }} className="new-event-formGroup">
+            <DocumentReferencer
+              label="Uses documents"
+              documentReferences={documentReference}
+              onDocumentReferencesChange={onDocumentReferencesChange}
+            />
+          </FormGroup>
+        )}
+
+        {/*<FormGroup className="new-event-formGroup">*/}
+        {/*  <Label*/}
+        {/*    id="usesMaterials"*/}
+        {/*    for="usesMaterials"*/}
+        {/*    className="new-event-label"*/}
+        {/*  >*/}
+        {/*    Used Materials*/}
+        {/*  </Label>*/}
+        {/*  <Autocomplete*/}
+        {/*    multiple*/}
+        {/*    name="usesMaterials"*/}
+        {/*    id="usesMaterials"*/}
+        {/*    options={docs}*/}
+        {/*    getOptionLabel={option => option.name}*/}
+        {/*    onChange={this.onUsesChange}*/}
+        {/*    value={uses}*/}
+        {/*    style={{ minWidth: 200, maxWidth: 700 }}*/}
+        {/*    renderInput={params => (*/}
+        {/*      <TextField*/}
+        {/*        {...params}*/}
+        {/*        placeholder=""*/}
+        {/*        InputProps={{*/}
+        {/*          ...params.InputProps,*/}
+        {/*          disableUnderline: true,*/}
+        {/*        }}*/}
+        {/*      />*/}
+        {/*    )}*/}
+        {/*  />*/}
+        {/*</FormGroup>*/}
+
+        {/*<FormGroup className="new-event-formGroup">*/}
+        {/*  <Label*/}
+        {/*    id="recommendsMaterials"*/}
+        {/*    for="recommendsMaterials"*/}
+        {/*    className="new-event-label"*/}
+        {/*  >*/}
+        {/*    Recommended Materials*/}
+        {/*  </Label>*/}
+        {/*  <Autocomplete*/}
+        {/*    multiple*/}
+        {/*    name="recommendsMaterials"*/}
+        {/*    id="recommendsMaterials"*/}
+        {/*    options={docs}*/}
+        {/*    getOptionLabel={option => option.name}*/}
+        {/*    onChange={this.onRecommendsChange}*/}
+        {/*    value={recommends}*/}
+        {/*    style={{ minWidth: 200, maxWidth: 700 }}*/}
+        {/*    renderInput={params => (*/}
+        {/*      <TextField*/}
+        {/*        {...params}*/}
+        {/*        placeholder=""*/}
+        {/*        InputProps={{*/}
+        {/*          ...params.InputProps,*/}
+        {/*          disableUnderline: true,*/}
+        {/*        }}*/}
+        {/*      />*/}
+        {/*    )}*/}
+        {/*  />*/}
+        {/*</FormGroup>*/}
+
+        { type === 'Block' && (
+          <SubEvents
+            sessions={ sessions }
+            tasks={ tasks }
+            from={ startDate }
+            to={ endDate }
+            typeOfForm={ typeOfForm }
+            callBack={ getSubEvents }
+          />
+        ) }
+
+        { type === 'CourseInstance' &&
+          user != null &&
+          (instructors.findIndex(i => i.fullId === user.fullURI) === -1 ||
+            user.isSuperAdmin) && (
+            <FormGroup className="new-event-formGroup">
+              <Label id="instructors-label" for="instructors">
+                Instructors
+              </Label>
+              <Autocomplete
+                multiple
+                name="instructors"
+                id="instructors"
+                options={ users }
+                getOptionLabel={ option => option.name }
+                onChange={ onInstructorChange }
+                value={ instructors }
+                style={ {minWidth: 200, maxWidth: 700} }
+                renderInput={ params => (
+                  <TextField
+                    { ...params }
+                    placeholder=""
+                    InputProps={ {
+                      ...params.InputProps,
+                      disableUnderline: true,
+                    } }
+                  />
+                ) }
               />
             </FormGroup>
-          )}
-
-          {/*<FormGroup className="new-event-formGroup">*/}
-          {/*  <Label*/}
-          {/*    id="usesMaterials"*/}
-          {/*    for="usesMaterials"*/}
-          {/*    className="new-event-label"*/}
-          {/*  >*/}
-          {/*    Used Materials*/}
-          {/*  </Label>*/}
-          {/*  <Autocomplete*/}
-          {/*    multiple*/}
-          {/*    name="usesMaterials"*/}
-          {/*    id="usesMaterials"*/}
-          {/*    options={docs}*/}
-          {/*    getOptionLabel={option => option.name}*/}
-          {/*    onChange={this.onUsesChange}*/}
-          {/*    value={uses}*/}
-          {/*    style={{ minWidth: 200, maxWidth: 700 }}*/}
-          {/*    renderInput={params => (*/}
-          {/*      <TextField*/}
-          {/*        {...params}*/}
-          {/*        placeholder=""*/}
-          {/*        InputProps={{*/}
-          {/*          ...params.InputProps,*/}
-          {/*          disableUnderline: true,*/}
-          {/*        }}*/}
-          {/*      />*/}
-          {/*    )}*/}
-          {/*  />*/}
-          {/*</FormGroup>*/}
-
-          {/*<FormGroup className="new-event-formGroup">*/}
-          {/*  <Label*/}
-          {/*    id="recommendsMaterials"*/}
-          {/*    for="recommendsMaterials"*/}
-          {/*    className="new-event-label"*/}
-          {/*  >*/}
-          {/*    Recommended Materials*/}
-          {/*  </Label>*/}
-          {/*  <Autocomplete*/}
-          {/*    multiple*/}
-          {/*    name="recommendsMaterials"*/}
-          {/*    id="recommendsMaterials"*/}
-          {/*    options={docs}*/}
-          {/*    getOptionLabel={option => option.name}*/}
-          {/*    onChange={this.onRecommendsChange}*/}
-          {/*    value={recommends}*/}
-          {/*    style={{ minWidth: 200, maxWidth: 700 }}*/}
-          {/*    renderInput={params => (*/}
-          {/*      <TextField*/}
-          {/*        {...params}*/}
-          {/*        placeholder=""*/}
-          {/*        InputProps={{*/}
-          {/*          ...params.InputProps,*/}
-          {/*          disableUnderline: true,*/}
-          {/*        }}*/}
-          {/*      />*/}
-          {/*    )}*/}
-          {/*  />*/}
-          {/*</FormGroup>*/}
-
-          { type === 'Block' && (
-            <SubEvents
-              sessions={ sessions }
-              tasks={ tasks }
-              from={ startDate }
-              to={ endDate }
-              typeOfForm={ typeOfForm }
-              callBack={ this.getSubEvents }
-            />
           ) }
 
-          { type === 'CourseInstance' &&
-            user != null &&
-            (instructors.findIndex(i => i.fullId === user.fullURI) === -1 ||
-              user.isSuperAdmin) && (
-              <FormGroup className="new-event-formGroup">
-                <Label id="instructors-label" for="instructors">
-                  Instructors
-                </Label>
-                <Autocomplete
-                  multiple
-                  name="instructors"
-                  id="instructors"
-                  options={ users }
-                  getOptionLabel={ option => option.name }
-                  onChange={ this.onInstructorChange }
-                  value={ instructors }
-                  style={ {minWidth: 200, maxWidth: 700} }
-                  renderInput={ params => (
-                    <TextField
-                      { ...params }
-                      placeholder=""
-                      InputProps={ {
-                        ...params.InputProps,
-                        disableUnderline: true,
-                      } }
-                    />
-                  ) }
-                />
-              </FormGroup>
-            ) }
-
-          <div className="button-container">
+        <div className="button-container">
+          <Button
+            className="new-event-button"
+            disabled={ isInvalid }
+            type="submit"
+          >
+            { typeOfForm }
+          </Button>
+          { typeOfForm === 'Edit' && type !== 'CourseInstance' && (
             <Button
               className="new-event-button"
-              disabled={ isInvalid }
-              type="submit"
+              onClick={ e => deleteEvent() }
             >
-              { typeOfForm }
+              Delete
             </Button>
-            { typeOfForm === 'Edit' && type !== 'CourseInstance' && (
-              <Button
-                className="new-event-button"
-                onClick={ e => this.deleteEvent() }
-              >
-                Delete
-              </Button>
-            ) }
-          </div>
-        </Form>
-      </>
-    )
-  }
-}
+          ) }
+        </div>
+      </Form>
+    </>
+  )
+} 
 
 const SubEvents = ({sessions, tasks, from, to, typeOfForm, callBack}) => (
   <div className="sessions-tasks-container">
@@ -633,6 +528,42 @@ const SubEvents = ({sessions, tasks, from, to, typeOfForm, callBack}) => (
     </div>
   </div>
 )
+
+const validate = (name, description, startDate, endDate) => {
+  const errors = []
+  if(name.length === 0) {
+    errors.push("Name can't be empty.")
+  }
+  if(description.length === 0) {
+    errors.push("Description can't be empty.")
+  }
+  if(new Date(startDate) > new Date(endDate)) {
+    errors.push('The End date must be greater than the Start date.')
+  }
+  return errors
+}
+
+const lowerFirstLetter = s => {
+  return s.charAt(0).toLowerCase() + s.slice(1)
+}
+
+const isEventInSession = (event, startDate, endDate) => {
+  return SESSIONS.includes(event.type) 
+          && ((greaterEqual(event.startDate, startDate) 
+                  && !greaterEqual(event.startDate, startDate)) 
+              || (greater(event.endDate, startDate) 
+                  && !greater(event.endDate, endDate))
+              )
+}
+
+const isEventInTask = (event, startDate, endDate) => {
+  return (TASKS_EXAMS.includes(event.type) 
+            && greaterEqual(event.startDate, startDate) 
+            && !greaterEqual(event.startDate, endDate)) 
+      || (TASKS_DEADLINES.includes(event.type) 
+            && greater(event.endDate, startDate) 
+            && !greater(event.endDate, endDate))
+}
 
 const mapStateToProps = ({authReducer}) => {
   return {

@@ -1,24 +1,37 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { Collapse, CardBody, Card, Button } from 'reactstrap';
 import { connect } from "react-redux";
 import classnames from 'classnames';
-import { afterNow, axiosDeleteEntity, getShortID } from 'helperFunctions';
+import { afterNow, getShortID } from 'helperFunctions';
 
 import InstructorAssignmentView from './instructorView';
 import StudentAssignmentView from './studentView';
 import EditAssignment from '../assignment/edit';
+import { useDeleteAssignmentMutation, useDeleteAssignmentPeriodMutation } from 'services/assignments';
 
-class AssignmentView extends Component{
-  constructor(props){
-    super(props);
-    this.state={
-      opened: this.getDefaultOpenState(),
-      deleting: false,
-    }
-    this.getDefaultOpenState.bind(this);
+function AssignmentView(props) {
+  const [opened, setOpened] = useState(getDefaultOpenState())
+  const [deleting, setDeleting] = useState(false)
+  const [deleteAssignmentRequest, deleteAssignmentRequestResult] = useDeleteAssignmentMutation()
+  const [deleteAssignmentPeriodRequest, deleteAssignmentPeriodRequestResult] = useDeleteAssignmentPeriodMutation()
+
+  const getDefaultOpenState = () => {
+    return afterNow(props.assignment.initialSubmissionPeriod.deadline) 
+    || (props.assignment.submissionImprovedSubmission && afterNow(props.assignment.improvedSubmissionPeriod.deadline)) 
+    || (!props.assignment.reviewsDisabled && afterNow(props.assignment.peerReviewPeriod.deadline)) 
+    || (!props.assignment.teamReviewsDisabled && !props.assignment.teamsDisabled && afterNow(props.assignment.teamReviewPeriod.deadline))
+    || (instructorWillRate()) //bud prebiehaju alebo ich treba ohodnotit
   }
 
-  groupSubmissions(submissions, individualGrouping){
+  const instructorWillRate = () => {
+    if(!props.isInstructor){
+      return false
+    }
+    let groupedSubmissions = groupSubmissions(props.assignment.submissions, props.assignment.teamsDisabled )
+    return groupedSubmissions.some((group) => !group.submissions.some((submission) => submission.teacherRating !== undefined ))
+  }
+
+  const groupSubmissions = (submissions, individualGrouping) => {
     let groupedSubmissions = [];
     submissions.forEach((submission)=>{
       const id = individualGrouping ? submission.submittedByStudent[0]['@id'] : submission.submittedByTeam[0]['@id'];
@@ -35,26 +48,10 @@ class AssignmentView extends Component{
     return groupedSubmissions;
   }
 
-  instructorWillRate(){
-    if(!this.props.isInstructor){
-      return false;
-    }
-    let groupedSubmissions = this.groupSubmissions(this.props.assignment.submissions, this.props.assignment.teamsDisabled );
-    return  groupedSubmissions.some((group) => !group.submissions.some( (submission) => submission.teacherRating !== undefined ) )
-  }
-
-  getDefaultOpenState(){
-    return afterNow(this.props.assignment.initialSubmissionPeriod.deadline) ||
-    ( this.props.assignment.submissionImprovedSubmission && afterNow(this.props.assignment.improvedSubmissionPeriod.deadline)) ||
-    ( !this.props.assignment.reviewsDisabled && afterNow(this.props.assignment.peerReviewPeriod.deadline)) ||
-    ( !this.props.assignment.teamReviewsDisabled && !this.props.assignment.teamsDisabled && afterNow(this.props.assignment.teamReviewPeriod.deadline))||
-    ( this.instructorWillRate() ) //bud prebiehaju alebo ich treba ohodnotit
-  }
-
-  deleteAssignment(){
-    const assignment = this.props.assignment;
+  const deleteAssignment = () => {
+    const assignment = props.assignment;
     if(window.confirm(`Are you sure you want to delete assignment "${assignment.name}"?`)){
-      this.setState({ deleting: true });
+      setDeleting(true)
       let periodsToDelete = [assignment.initialSubmissionPeriod];
       if(assignment.submissionImprovedSubmission){
         periodsToDelete.push(assignment.improvedSubmissionPeriod);
@@ -65,60 +62,54 @@ class AssignmentView extends Component{
       if(!assignment.teamReviewsDisabled && !assignment.teamsDisabled){
         periodsToDelete.push(assignment.teamReviewPeriod);
       }
-      let axiosPeriods = periodsToDelete.map((period)=>axiosDeleteEntity(`assignmentPeriod/${getShortID(period['@id'])}`));
-      Promise.all([
-        Promise.all(axiosPeriods),
-        axiosDeleteEntity(`assignment/${getShortID(assignment['@id'])}`)
-      ]).then(([periodResponses,assignmentResponse])=>{
-        this.setState({ deleting: false });
-        if(!assignmentResponse.failed){
-          this.props.removeAssignment();
-        }
+      periodsToDelete.forEach(period => {
+        deleteAssignmentPeriodRequest(getShortID(period['@id'])).unwrap()
+      })
+      deleteAssignmentRequest(getShortID(assignment['@id'])).unwrap().then(response => {
+        setDeleting(false)
+        props.removeAssignment();
       })
     }
   }
 
-  render(){
-    const assignment = this.props.assignment;
-    return(
-      <div className="assignmentViewContainer center-ver">
-        <div className="row">
-          <h3 className={classnames({'greyed-out': !this.getDefaultOpenState()})}>{assignment.name}</h3>
-          { this.props.isInstructor &&
-            <EditAssignment updateAssignment={this.props.updateAssignment} assignment={assignment} />
-          }
-          { this.props.isInstructor &&
-          <Button
-            outline
-            color="danger"
-            className="ml-1 center-hor p-1"
-            style={{width:34}}
-            onClick={this.deleteAssignment.bind(this)}
-            >
-            <i className="fa fa-trash" />
-          </Button>
-          }
-          <Button color="link"
-            className={classnames({ 'ml-auto': !this.props.isInstructor })}
-            onClick={()=>this.setState({opened:!this.state.opened})}
-            style={ this.state.opened? {marginLeft:'0.35em'} : {} }
-            >
-            {this.state.opened?'Hide':'Show'}
-          </Button>
-        </div>
-        <Collapse isOpen={this.state.opened}>
-          <Card>
-            <CardBody>
-              <div dangerouslySetInnerHTML ={{__html: assignment.shortDescription }} />
-              <h5>{assignment.teamsDisabled ? 'Individual' : 'Team based'}</h5>
-              { this.props.isInstructor && <InstructorAssignmentView history={this.props.history} updateAssignment={this.props.updateAssignment} assignment={assignment} /> }
-              { !this.props.isInstructor && <StudentAssignmentView history={this.props.history} assignment={assignment} /> }
-            </CardBody>
-          </Card>
-        </Collapse>
+  return(
+    <div className="assignmentViewContainer center-ver">
+      <div className="row">
+        <h3 className={classnames({'greyed-out': !getDefaultOpenState()})}>{props.assignment.name}</h3>
+        { props.isInstructor &&
+          <EditAssignment updateAssignment={props.updateAssignment} assignment={props.assignment} />
+        }
+        { props.isInstructor &&
+        <Button
+          outline
+          color="danger"
+          className="ml-1 center-hor p-1"
+          style={{width:34}}
+          onClick={deleteAssignment}
+          >
+          <i className="fa fa-trash" />
+        </Button>
+        }
+        <Button color="link"
+          className={classnames({ 'ml-auto': !props.isInstructor })}
+          onClick={() => setOpened(!opened)}
+          style={ opened ? {marginLeft:'0.35em'} : {} }
+          >
+          {opened ? 'Hide' : 'Show'}
+        </Button>
       </div>
-    )
-  }
+      <Collapse isOpen={opened}>
+        <Card>
+          <CardBody>
+            <div dangerouslySetInnerHTML ={{__html: props.assignment.shortDescription }} />
+            <h5>{props.assignment.teamsDisabled ? 'Individual' : 'Team based'}</h5>
+            { props.isInstructor && <InstructorAssignmentView history={props.history} updateAssignment={props.updateAssignment} assignment={props.assignment} /> }
+            { !props.isInstructor && <StudentAssignmentView history={props.history} assignment={props.assignment} /> }
+          </CardBody>
+        </Card>
+      </Collapse>
+    </div>
+  )
 }
 
 const mapStateToProps = ({assignCourseInstanceReducer, authReducer}) => {

@@ -2,7 +2,7 @@ import React from 'react'
 import { Breadcrumbs, Typography } from '@material-ui/core'
 import { Link } from 'react-router-dom'
 import { getShortID } from '../../../helperFunctions'
-import { makeStyles } from '@material-ui/core/node_modules/@material-ui/styles'
+import { makeStyles } from '@material-ui/styles' 
 
 const useStyles = makeStyles({
   root: {

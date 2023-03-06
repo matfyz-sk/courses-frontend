@@ -8,76 +8,46 @@ import {
   ListGroupItemText,
 } from 'reactstrap'
 import { Link } from 'react-router-dom'
-import { authHeader, getUserID } from '../../../components/Auth'
+import { getUserID } from '../../../components/Auth'
 import { redirect } from '../../../constants/redirect'
 import { COURSE_TEAM_DETAIL, TIMELINE}  from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
-import { BACKEND_URL } from "../../../constants";
+import { useGetTeamInstanceWithUsersQuery, useGetTeamDetailsQuery } from 'services/team'
 
-const MyTeams = props => {
+function MyTeams(props) {
   const [data, setData] = useState(null)
 
-  function fetchTeamDetail(fetched_data, index = 0) {
-    const detail = fetched_data[index]
-    // ? the ?. seems to have fixed this typeerror here, not sure if this is the right way...
-    if (detail?.instanceOf && detail?.instanceOf.length > 0) {
-      fetch(
-        `${BACKEND_URL}data/team/${getShortID(
-          detail.instanceOf[0]['@id']
-        )}?_join=courseInstance`,
-        {
-          method: 'GET',
-          headers: authHeader(),
-          mode: 'cors',
-          credentials: 'omit',
+  const {
+    data: teamInstanceData, 
+    isSuccess: teamInstanceIsSuccess
+  } = useGetTeamInstanceWithUsersQuery(getUserID())
+  if(data !== null && teamInstanceIsSuccess && teamInstanceData) {
+    if(teamInstanceData.length > 0) {
+      const newData = []
+      for (const detail of teamInstanceData) {
+        if (detail?.instanceOf && detail?.instanceOf.length > 0) {
+          const {
+            data: teamData, 
+            isSuccess: teamIsSucces
+          } = useGetTeamDetailsQuery(getShortID(
+            detail.instanceOf[0]['@id']
+          ))
+    
+          if(teamIsSucces && teamData) {
+            if(teamData.length > 0 && teamData[0].courseInstance.length > 0) {
+              newData.push({
+                teamInstance: detail,
+                team: teamData[0],
+              })
+            }
+          }
         }
-      )
-        .then(response => {
-          if (!response.ok) throw new Error(response)
-          else return response.json()
-        })
-        .then(_data => {
-          if (
-            _data['@graph'].length > 0 &&
-            _data['@graph'][0].courseInstance.length > 0
-          ) {
-            const newData = []
-            newData.push({
-              teamInstance: detail,
-              team: _data['@graph'][0],
-            })
-            setData(newData)
-          }
-          if (fetched_data.length > index) {
-            fetchTeamDetail(fetched_data, index + 1)
-          }
-        })
+      }
+      setData(newData)
+    } else {
+      setData(teamInstanceData)
     }
   }
-
-  function getData() {
-    fetch(`${BACKEND_URL}data/teamInstance?hasUser=${getUserID()}`, {
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if (!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(_data => {
-        if (_data['@graph'].length > 0) {
-          fetchTeamDetail(_data['@graph'])
-        } else {
-          setData(_data['@graph'])
-        }
-      })
-  }
-
-  useEffect(() => {
-    getData()
-  }, [])
 
   if (data === null) {
     return null

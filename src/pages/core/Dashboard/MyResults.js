@@ -1,49 +1,26 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Alert, Badge, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, } from 'reactstrap'
 import { Link } from 'react-router-dom'
-import { authHeader, getUserID } from '../../../components/Auth'
+import { getUserID } from '../../../components/Auth'
 import { redirect } from '../../../constants/redirect'
 import { RESULT_DETAIL, RESULT_TYPE, TIMELINE } from '../../../constants/routes';
 import { getShortID } from '../../../helperFunctions'
 import { formatDate } from "../../../functions/global";
-import { BACKEND_URL } from "../../../constants";
+import { useGetResultForUserQuery } from  "services/result"
 
 const MyResults = props => {
-  const [ data, setData ] = useState(null)
-
-  function fetchResults() {
-    fetch(
-      `${ BACKEND_URL }data/result?hasUser=${ getUserID() }&_join=courseInstance,awardedBy,type`,
-      {
-        method: 'GET',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-      }
-    )
-      .then(response => {
-        if(!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(_data => {
-        const orderedData = _data['@graph'].sort(function(a, b) {
-          return new Date(b.createdAt) - new Date(a.createdAt)
-        })
-        setData(orderedData)
-      })
-  }
-
-  useEffect(() => {
-    fetchResults()
-  }, [])
-
-  if(data === null) {
+  const { data, isSuccess } = useGetResultForUserQuery(getUserID())
+  
+  if(!isSuccess || !data || data.length === 0) {
     return null
   }
+  
+  const orderedData = data.sort(function(a, b) {
+    return new Date(b.createdAt) - new Date(a.createdAt)
+  })
 
   const renderList = []
-  for(let i = 0; i < data.length; i++) {
-    const item = data[i]
+  orderedData.forEach(item => {
     const course_link = (
       <Link
         to={ redirect(TIMELINE, [
@@ -122,7 +99,7 @@ const MyResults = props => {
         </ListGroupItemText>
       </ListGroupItem>
     )
-  }
+  })
 
   return (
     <>

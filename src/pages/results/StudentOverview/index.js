@@ -2,60 +2,52 @@ import React, { useState, useEffect } from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Col, Container, Row, Table, Alert } from 'reactstrap'
-import {
-  getAllUserResults,
-  getUserInCourse,
-  getResultTypeDetail,
-} from '../functions'
 import { getShortID } from '../../../helperFunctions'
 import { formatDate } from '../../../functions/global'
 import { redirect } from '../../../constants/redirect'
 import { RESULT_DETAIL, RESULT_TYPE } from '../../../constants/routes'
 import { getUserID } from '../../../components/Auth'
 import { showUserName } from '../../../components/Auth/userFunction'
+import { useGetUserOfCourseQuery } from 'services/user'
+import { useGetAllUserResultsQuery, useGetResultTypeDetailWithCorrectionQuery } from 'services/result'
 
-const StudentOverview = props => {
+function StudentOverview(props) {
   const { courseInstance, privileges, match } = props
   const { course_id, user_id } = match.params
   const userId = user_id ? user_id : getUserID()
   const [user, setUser] = useState(null)
   const [results, setResults] = useState(null)
+  const { 
+    data: userInCourseData, 
+    isSuccess: userInCourseIsSuccess 
+  } = useGetUserOfCourseQuery({userId, course_id})
+  const { 
+    data: allUserResultsData, 
+    isSuccess: allUserResultsIsSuccess 
+  } = useGetAllUserResultsQuery(userId)
 
-  function fetchStudent() {
-    getUserInCourse(course_id, userId).then(data => {
-      if (data['@graph'] && data['@graph'].length > 0) {
-        setUser(data['@graph'][0])
-        getAllUserResults(userId).then(data2 => {
-          if (data2['@graph']) {
-            const resultArr = data2['@graph']
-            for (let i = 0; i < resultArr.length; i++) {
-              if (resultArr[i].correctionFor) {
-                getResultTypeDetail(getShortID(resultArr.correctionFor)).then(
-                  corr => {
-                    if (corr['@graph'] && corr['@graph'].length > 0) {
-                      resultArr[i] = {
-                        ...resultArr[i],
-                        correction: corr['@graph'][0],
-                      }
-                    } else {
-                      resultArr[i] = { ...resultArr[i], correction: null }
-                    }
-                  }
-                )
-              } else {
-                resultArr[i] = { ...resultArr[i], correction: null }
-              }
+  if (userInCourseIsSuccess && userInCourseData && userInCourseData.length > 0) {
+    setUser(userInCourseData[0])
+    if (allUserResultsIsSuccess && allUserResultsData) {
+      const resultArr = allUserResultsData
+      for (let i = 0; i < resultArr.length; i++) {
+        if (resultArr[i].correctionFor) {
+          const { data, isSuccess } = useGetResultTypeDetailWithCorrectionQuery(getShortID(resultArr.correctionFor))
+          if (isSuccess && data && data.length > 0) {
+            resultArr[i] = {
+              ...resultArr[i],
+              correction: data[0],
             }
-            setResults(resultArr)
+          } else {
+            resultArr[i] = { ...resultArr[i], correction: null }
           }
-        })
+        } else {
+          resultArr[i] = { ...resultArr[i], correction: null }
+        }
       }
-    })
+      setResults(resultArr)
+    }
   }
-
-  useEffect(() => {
-    fetchStudent()
-  }, [])
 
   let grading = null
   let pointsUpper = null

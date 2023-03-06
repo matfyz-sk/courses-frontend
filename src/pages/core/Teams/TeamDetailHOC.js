@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import Page404 from '../../errors/Page404'
-import { authHeader } from '../../../components/Auth'
-import { BACKEND_URL } from "../../../constants";
+import { useGetTeamQuery, useGetTeamInstanceWithUsersQuery } from "services/team"
 
 const withTeamHandler = Component => props => {
   const {privilegesReducer, courseInstanceReducer} = props
@@ -11,83 +10,48 @@ const withTeamHandler = Component => props => {
   ) {
     return <Page404/>
   }
-  const [ team, setTeam ] = useState({})
-  const [ users, setUsers ] = useState([])
-  const [ resp, setResp ] = useState(200)
-
+  
   const {team_id, course_id} = props.match.params
   const create = !team_id
   const is_member = false
+  const {
+    data: teamData,
+    isSuccess: teamIsSuccess
+  } = useGetTeamQuery(team_id)
+  const {
+    data: usersData,
+    isSuccess: usersIsSuccess
+  } = useGetTeamInstanceWithUsersQuery(team_id)
 
-  const fetchUsers = () => {
-    fetch(
-      `${ BACKEND_URL }data/teamInstance?instanceOf=${ team_id }&_join=hasUser`,
-      {
-        method: 'GET',
-        headers: authHeader(),
-        mode: 'cors',
-        credentials: 'omit',
-      }
-    )
-      .then(response => {
-        if(!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
-        if(data['@graph'].length > 0) {
-          setUsers(data['@graph'])
-        }
-      })
+
+  let team = {}
+  if (!create && teamIsSuccess && teamData) {
+    team = teamData[0]
   }
-  const fetchData = () => {
-    fetch(`${ BACKEND_URL }data/team/${ team_id }`, {
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if(!response.ok) {
-          setResp(404)
-        }
-        return response.json()
-      })
-      .then(data => {
-        if(data['@graph'] && data['@graph'].length > 0) {
-          setTeam(data['@graph'][0])
-          fetchUsers()
-        } else {
-          setResp(404)
-        }
-      })
-  }
-  if(!create) {
-    useEffect(() => {
-      fetchData()
-    }, [])
+  let users = []
+  if (!create && usersIsSuccess && usersData) {
+    users = usersData
   }
 
-  if(resp === 200) {
-    return (
-      <Component
-        { ...props }
-        create={ create && !is_member }
-        team={ team }
-        users={ users }
-        isAdmin={ privilegesReducer.inCourseInstance !== 'student' }
-        course_id={ course_id }
-        privileges={
-          privilegesReducer.inGlobal === 'admin'
-            ? 'instructor'
-            : privilegesReducer.inCourseInstance
-        }
-      />
-    )
-  }
-  if(resp === 404) {
+  if(!teamIsSuccess || !usersIsSuccess) {
     return <Page404/>
   }
-  return null
+
+  return (
+    <Component
+      { ...props }
+      create={ create && !is_member }
+      team={ team }
+      users={ users }
+      isAdmin={ privilegesReducer.inCourseInstance !== 'student' }
+      course_id={ course_id }
+      privileges={
+        privilegesReducer.inGlobal === 'admin'
+          ? 'instructor'
+          : privilegesReducer.inCourseInstance
+      }
+    />
+  )
 }
 
 export default withTeamHandler

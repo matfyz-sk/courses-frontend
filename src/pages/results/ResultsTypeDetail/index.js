@@ -6,67 +6,74 @@ import withResultDetail from './withResultDetail'
 import { redirect } from '../../../constants/redirect'
 import {RESULT_DETAIL, RESULT_TYPE} from '../../../constants/routes';
 import { formatDate } from '../../../functions/global'
-import { getUsersInCourse, getResultsUsersInType, createUserResult, updateUserResult } from '../functions'
 import { showUserName } from '../../../components/Auth/userFunction'
 import { getUser } from '../../../components/Auth'
 import { getShortID } from '../../../helperFunctions'
+import { useGetResultByTypeQuery, useUpdateUserResultMutation, useNewUserResultMutation } from 'services/result'
+import { useGetUserEnrolledQuery } from 'services/user'
 
-const ResultsTypeDetail = props => {
+function ResultsTypeDetail(props) {
   const { canEdit, resultType, course_id, result_type_id, privileges, instance } = props
   const [users, setUsers] = useState(null)
   const [performUser, setPerformUser] = useState(null)
   const [msg, setMsg] = useState(null)
   const [loading, setLoading] = useState(false)
   const [extended, setExtended] = useState(false)
+  const [updateUserResult, updateUserResultResult] = useUpdateUserResultMutation()
+  const [newUserResult, newUserResultResult] = useNewUserResultMutation()
+  const {
+    data: usersData, 
+    isSuccess: usersIsSuccess
+  } = useGetUserEnrolledQuery(course_id)
+  const {
+    data: resultData, 
+    isSuccess: resultIsSuccess
+  } = useGetResultByTypeQuery(result_type_id)
 
-  function getResultsData(type_id, userList) {
-    getResultsUsersInType(result_type_id).then(data => {
-      if (data['@graph']) {
-        const resultList = data['@graph']
-        const userWithResults = []
-        for (let i = 0; i < userList.length; i++) {
-          let result = null
-          for (let j = 0; j < resultList.length; j++) {
-            if (resultList[j].hasUser[0]['@id'] === userList[i]['@id']) {
-              result = resultList[j]
-              break
-            }
-          }
-          if (result) {
-            userWithResults.push({
-              user: userList[i],
-              result,
-            })
-          } else {
-            userWithResults.push({
-              user: userList[i],
-              result: {
-                courseInstance: instance['@id'],
-                hasUser: userList[i]['@id'],
-                awardedBy: getUser().fullURI,
-                type: resultType['@id'],
-                points: '',
-                description: '',
-                reference: '',
-              },
-            })
+  const getResultsData = (type_id, userList) => {
+    if (resultIsSuccess && resultData) {
+      const resultList = resultData
+      const userWithResults = []
+      for (let i = 0; i < userList.length; i++) {
+        let result = null
+        for (let j = 0; j < resultList.length; j++) {
+          if (resultList[j].hasUser[0]['@id'] === userList[i]['@id']) {
+            result = resultList[j]
+            break
           }
         }
-        setUsers(userWithResults)
-        setPerformUser(JSON.parse(JSON.stringify(userWithResults)))
+        if (result) {
+          userWithResults.push({
+            user: userList[i],
+            result,
+          })
+        } else {
+          userWithResults.push({
+            user: userList[i],
+            result: {
+              courseInstance: instance['@id'],
+              hasUser: userList[i]['@id'],
+              awardedBy: getUser().fullURI,
+              type: resultType['@id'],
+              points: '',
+              description: '',
+              reference: '',
+            },
+          })
+        }
       }
-    })
+      setUsers(userWithResults)
+      setPerformUser(JSON.parse(JSON.stringify(userWithResults)))
+    }
   }
 
-  function getUsers() {
-    getUsersInCourse(course_id).then(data => {
-      if (data['@graph']) {
-        getResultsData(result_type_id, data['@graph'])
-      }
-    })
+  const getUsers = () => {
+    if(usersIsSuccess && usersData) {
+      getResultsData(result_type_id, usersData)
+    }
   }
 
-  function checkPerformance(i) {
+  const checkPerformance = (i) => {
     return (
       `${users[i].result.points}` !== `${performUser[i].result.points}` ||
       users[i].result.description !== performUser[i].result.description ||
@@ -74,13 +81,21 @@ const ResultsTypeDetail = props => {
     )
   }
 
-  function saveAll() {
+  const saveAll = () => {
     for (let i = 0; i < users.length; i++) {
       if (users[i].result.points !== '' && checkPerformance(i)) {
         if (users[i].result['@id']) {
           setMsg(`[ PROGRESS ] Creating results for students ...`)
           setLoading(true)
-          updateUserResult(users[i].result).then(data => {
+          const patch = {
+            points: users[i].result.points, 
+            description: users[i].result.description, 
+            reference: users[i].result.reference
+          }
+          updateUserResult({
+            id: getShortID(users[i].result['@id']),
+            patch
+          }).unwrap().then(response => {
             setPerformUser(JSON.parse(JSON.stringify(users)))
             setLoading(false)
             setMsg('Results has been saved!')
@@ -88,18 +103,19 @@ const ResultsTypeDetail = props => {
         } else {
           setLoading(true)
           setMsg(`[ PROGRESS ] Creating results for students ...`)
-          createUserResult(
-            users[i].result.courseInstance,
-            users[i].result.hasUser,
-            users[i].result.awardedBy,
-            users[i].result.type,
-            users[i].result.points,
-            users[i].result.description,
-            users[i].result.reference
-          ).then(data => {
-            if (data['@graph']) {
+          const post = {
+            courseInstance: users[i].result.courseInstance,
+            hasUser: users[i].result.hasUser,
+            awardedBy: users[i].result.awardedBy,
+            type: users[i].result.type,
+            points: users[i].result.points,
+            description: users[i].result.description,
+            reference: users[i].result.reference
+          }
+          newUserResult(post).unwrap().then(response => {
+            if (response) {
               const cUsers = [...users]
-              cUsers[i].result = data['@graph'][0]
+              cUsers[i].result = response[0]
               setUsers(cUsers)
               setPerformUser(JSON.parse(JSON.stringify(cUsers)))
               setLoading(false)

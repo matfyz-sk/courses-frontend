@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import {
   ListGroup,
   ListGroupItem,
@@ -6,42 +6,22 @@ import {
   ListGroupItemText,
 } from 'reactstrap'
 import { Link } from 'react-router-dom'
-import { authHeader, getUserID } from '../../../components/Auth'
+import { getUserID } from '../../../components/Auth'
 import { formatDate } from '../../../functions/global'
 import { redirect } from '../../../constants/redirect'
 import { TIMELINE } from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
-import { BACKEND_URL } from "../../../constants";
+import { useGetUserStudentOfQuery } from "services/user"
 
 const MyCourses = props => {
-  const [data, setData] = useState(null)
-  function getData() {
-    fetch(`${BACKEND_URL}data/user/${getUserID()}?_join=studentOf`, {
-      method: 'GET',
-      headers: authHeader(),
-      mode: 'cors',
-      credentials: 'omit',
-    })
-      .then(response => {
-        if (!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(_data => {
-        if (_data['@graph'].length > 0) {
-          setData(_data['@graph'][0].studentOf)
-        }
-      })
-  }
-  useEffect(() => {
-    getData()
-  }, [])
+  const {data, isSuccess } = useGetUserStudentOfQuery(getUserID())
 
-  if (!data || data.length === 0) {
+  if(!isSuccess || !data || data.length === 0) {
     return null
   }
 
   const renderList = []
-  data.forEach(item => {
+  data[0].studentOf.forEach(item => {
     renderList.push(
       <ListGroupItem key={`myCourses${item['@id']}`}>
         <ListGroupItemHeading>{item.name}</ListGroupItemHeading>

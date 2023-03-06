@@ -1,79 +1,36 @@
-import React, { Component } from 'react'
-import { Button, Form, FormGroup, Label } from 'reactstrap'
+import React, {useState} from 'react'
+import { Form, Label } from 'reactstrap'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import Chip from '@material-ui/core/Chip'
 import TextField from '@material-ui/core/TextField'
-import { BASE_URL, USER_URL } from '../constants'
-import { axiosRequest, getData } from '../AxiosRequests'
 import './AddInstructor.css'
 import { connect } from 'react-redux'
+import { useGetUsersQuery, useGetInstructorsOfCourseQuery } from 'services/user'
 
-class AddInstructor extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      users: [],
-      instructors: [],
-    }
+function AddInstructor(props) {
+  const { courseInstanceId } = props
+  const [instructors, setInstructors] = useState([])
+  const { data: getUsersData, isSuccess: getUsersIsSuccess } = useGetUsersQuery()
+  const { data: getInstructorsData, isSuccess: getInstructorsIsSuccess } = useGetInstructorsOfCourseQuery(courseInstanceId)
+
+  let users = []
+  if(getUsersIsSuccess && getUsersData) {
+    users = processPersonData(getUsersData)
   }
 
-  componentDidMount() {
-    const { courseInstanceId } = this.props
-
-    let url = BASE_URL + USER_URL
-    axiosRequest('get', null, url).then(response => {
-      const data = getData(response)
-      if (data != null) {
-        const users = data.map(user => {
-          return {
-            fullId: user['@id'],
-            name:
-              user.firstName !== '' && user.lastName !== ''
-                ? `${user.firstName} ${user.lastName}`
-                : 'Noname',
-          }
-        })
-        this.setState({
-          users,
-        })
-      }
-    })
-
-    if (courseInstanceId != null) {
-      url += `?instructorOf=${courseInstanceId}`
-      axiosRequest('get', null, url).then(response => {
-        const data = getData(response)
-        if (data != null) {
-          const instructors = data.map(user => {
-            return {
-              fullId: user['@id'],
-              name:
-                user.firstName !== '' && user.lastName !== ''
-                  ? `${user.firstName} ${user.lastName}`
-                  : 'Noname',
-            }
-          })
-          this.setState({
-            instructors,
-          })
-        }
-      })
-    }
+  if(courseInstanceId != null && instructors === [] && getInstructorsIsSuccess && getInstructorsData) {
+    setInstructors(processPersonData(getInstructorsData))
   }
 
-  handleSubmit = (event) => {
+  const handleSubmit = (event) => {
     console.log('submit')
   }
 
-  onInstructorChange = (event, values) => {
-    this.setState({ instructors: values })
+  const onInstructorChange = (event, values) => {
+    setInstructors(values)
   }
 
-  render() {
-    const { users, instructors } = this.state
-
-    return (
-      <Form className="add-instructors" onSubmit={this.handleSubmit}>
+  return (
+    <Form className="add-instructors" onSubmit={handleSubmit}>
         <Label id="instructors-label" for="instructors">
           Instructors
         </Label>
@@ -83,7 +40,7 @@ class AddInstructor extends Component {
           id="instructors"
           options={users}
           getOptionLabel={option => option.name}
-          onChange={this.onInstructorChange}
+          onChange={onInstructorChange}
           value={instructors}
           style={{ minWidth: 200, maxWidth: 500 }}
           renderInput={params => (
@@ -94,10 +51,21 @@ class AddInstructor extends Component {
             />
           )}
         />
-        <button type='submit' ref={ (button) => { this.activityFormButton = button } } >Submit</button>
+        <button type='submit' ref={ (button) => { activityFormButton = button } } >Submit</button>
       </Form>
-    )
-  }
+  )
+}
+
+const processPersonData = (data) => {
+  return data.map(user => {
+    return {
+      fullId: user['@id'],
+      name:
+        user.firstName !== '' && user.lastName !== ''
+          ? `${user.firstName} ${user.lastName}`
+          : 'Noname',
+    }
+  })
 }
 
 const mapStateToProps = ({ authReducer }) => {
