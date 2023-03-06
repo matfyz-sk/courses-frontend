@@ -10,7 +10,8 @@ import {
   periodHasEnded,
 } from '../../../helperFunctions'
 import classnames from 'classnames'
-import { useAddSubmissionToReviewMutation, useUpdateAssignmentMutation } from 'services/assignments'
+import { useUpdateAssignmentMutation } from 'services/assignments'
+import { useAddSubmissionToReviewMutation } from 'services/review'
 
 export default function InstructorAssignmentView(props) {
   const assignment = props.assignment

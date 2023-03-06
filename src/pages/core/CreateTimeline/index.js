@@ -40,7 +40,9 @@ function CreateTimeline(props) {
   const [saved, setSaved] = useState(false)
   const [disabled, setDisabled] = useState(false)
   const {data, isSuccess, isLoading} = useGetTimelineEventQuery(courseId)
+  const [newTimelineBlock, result] = useNewTimelineBlockMutation()
 
+  console.log(data)
   if(timelineBlocks === [] && nestedEvents === [] && isSuccess && courseId !== '' && data) {
     const events = getEvents(data).sort(sortEventsFunction)
 
@@ -58,7 +60,6 @@ function CreateTimeline(props) {
 
     if (course) {
       const blocks = generateWeeklyBlocks(course)
-      const [newTimelineBlock, result] = useNewTimelineBlockMutation()
 
       for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i]

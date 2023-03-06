@@ -14,7 +14,7 @@ import {
   useGetTeamReviewOfSubmissionQuery,
   useAddTeamReviewMutation,
   useUpdateTeamReviewMutation,
-} from 'services/assignments'
+} from 'services/review'
 
 function TeamReview(props) {
   const [teammates, setTeammates] = useState([])

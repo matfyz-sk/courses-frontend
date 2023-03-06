@@ -4,13 +4,15 @@ import {
   useAddAssignmentPeriodMutation, 
   useDeleteAssignmentPeriodMutation,
   useDeleteAssignmentPeerReviewPeriodMutation,
-  useAddPeerReviewQuestionMutation,
   useAddFieldMutation,
   useUpdateFieldMutation,
   useDeleteFieldMutation,
   useUpdateAssignmentMutation,
   useAddAssignmentMutation,
 } from 'services/assignments';
+import { 
+  useAddPeerReviewQuestionMutation,
+} from 'services/peerReview'
 import { useAddMaterialMutation } from 'services/documents';
 
 export const getAssignmentPeriods = (assignment) => {

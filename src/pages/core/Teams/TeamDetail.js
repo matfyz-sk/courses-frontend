@@ -16,6 +16,7 @@ import {
   useRemoveTeamInstanceMutation,
   useRemoveTeamMutation 
 } from "services/team"
+import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 function TeamsDetail(props) {
   const {
@@ -32,7 +33,30 @@ function TeamsDetail(props) {
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
   const [teamName, setTeamName] = useState('')
+  const [searchUserRequest, setSearchUserRequest] = useState(skipToken)
+  const [newTeamInstance, newTeamInstanceResult] = useNewTeamInstanceMutation()
+  const [updateTeamInstance, updateTeamInstanceResult] = useUpdateTeamInstanceMutation()
+  const [removeTeam, removeTeamResult] = useRemoveTeamMutation()
+  const [removeTeamInstance, removeTeamInstanceResult] = useRemoveTeamInstanceMutation()
+  const {
+    data: userByEmailData, 
+    isSuccess: userByEmailIsSuccess
+  } = useGetUserByEmailForCourseQuery(searchUserRequest)
 
+  if (userByEmailIsSuccess && userByEmailData && userByEmailData.length > 0) { 
+    appendUserToTeam(team['@id'], userByEmailData['@id'])
+  } else {
+    const {
+      data: userByNicknameData, 
+      isSuccess: userByNicknameIsSuccess
+    } = useGetUserByNicknameForCourseQuery(searchUserRequest)
+
+    if (userByNicknameIsSuccess && userByNicknameData && userByNicknameData.length > 0) {
+      appendUserToTeam(team['@id'], userByNicknameData['@id'])
+    } else {
+      setError('User was not found!')
+    }
+  }
 
   const searchUser = () => {
     if(search.length < 3) {
@@ -46,26 +70,7 @@ function TeamsDetail(props) {
       setError('You cannot add yourself!')
       return
     }
-
-    const {
-      data: userByEmailData, 
-      isSuccess: userByEmailIsSuccess
-    } = useGetUserByEmailForCourseQuery({course_id, search})
-
-    if (userByEmailIsSuccess && userByEmailData && userByEmailData.length > 0) { 
-      appendUserToTeam(team['@id'], userByEmailData['@id'])
-    } else {
-      const {
-        data: userByNicknameData, 
-        isSuccess: userByNicknameIsSuccess
-      } = useGetUserByNicknameForCourseQuery({course_id, search})
-
-      if (userByNicknameIsSuccess && userByNicknameData && userByNicknameData.length > 0) {
-        appendUserToTeam(team['@id'], userByNicknameData['@id'])
-      } else {
-        setError('User was not found!')
-      }
-    }
+    setSearchUserRequest({course_id, search})
   }
 
   const appendUserToTeam = (iri, user, approved = false, fillRequest = true) => {
@@ -75,7 +80,6 @@ function TeamsDetail(props) {
       hasUser: user,
       requestFrom: fillRequest ? getUser().fullURI : null,
     }
-    const [newTeamInstance, result] = useNewTeamInstanceMutation()
     newTeamInstance(post).unwrap().then(response => {
       if(!response.status) {
         setError('Error has occured during saving process. Please, try again.')
@@ -93,7 +97,6 @@ function TeamsDetail(props) {
   }
 
   const approveMember = (user) => {
-    const [updateTeamInstance, result] = useUpdateTeamInstanceMutation()
     const id = getShortID(user['@id'])
     const patch = {approved: true}
     updateTeamInstance({id, patch}).unwrap().then(response => {
@@ -110,14 +113,13 @@ function TeamsDetail(props) {
 
   const removeMember = (user) => {
     if(users.length === 1 || !verifyRemoveUser(users, user)) {
-      removeTeam()
+      removeTheTeam()
     } else {
       removeUserFromTeam(user)
     }
   }
 
-  const removeTeam = () => {
-    const [removeTeam, result] = useRemoveTeamMutation()
+  const removeTheTeam = () => {
     for(let i = 0; i < users.length; i++) {
       removeUserFromTeam(users[i], false)
     }
@@ -133,7 +135,6 @@ function TeamsDetail(props) {
   }
 
   const removeUserFromTeam = (user, rerender = true) => {
-    const [removeTeamInstance, result] = useRemoveTeamInstanceMutation()
     removeTeamInstance(getShortID(user['@id'])).unwrap().then(response => {
       if(rerender) {
         history.push(
@@ -236,7 +237,7 @@ function TeamsDetail(props) {
               color="danger"
               size="sm"
               className="float-right"
-              onClick={ removeTeam }
+              onClick={ removeTheTeam }
             >
               Remove team
             </Button>

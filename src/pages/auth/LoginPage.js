@@ -15,15 +15,10 @@ function LoginPage(props) {
   const [beError, setBeError] = useState(null)
   const [login, result] = useLoginMutation()
 
-  // This does the same thing as componentDidMount
-  useEffect(() => {
-    document.addEventListener('keyup', event => {
-      if(event.keyCode === 13) {
-        event.preventDefault();
-        authenticate();
-      }
-    });
-  }, [])
+  const onSubmit = (event) => {
+    event.preventDefault();
+    authenticate();
+  }
 
   const authenticate = () => {
     if(loginValidation()) {
@@ -41,7 +36,7 @@ function LoginPage(props) {
             setBeError('Something was wrong. Please, try it again.')
           }
         } else {
-          setBeError(data.msg)
+          setBeError(response.msg)
         }
       })
     }
@@ -61,7 +56,7 @@ function LoginPage(props) {
       { beError ? <Alert color="danger">Error! { beError } </Alert> : null }
       <Row>
         <Col sm={ {size: 4, offset: 4} } xs={ 12 }>
-          <Form>
+          <Form onSubmit={onSubmit}>
             <Row form>
               <Col xs={ 12 }>
                 <FormGroup>
@@ -108,7 +103,7 @@ function LoginPage(props) {
                 </FormGroup>
               </Col>
             </Row>
-            <Button onClick={ authenticate }>Sign in</Button>
+            <Button onClick={ authenticate } type="submit">Sign in</Button>
           </Form>
           <GithubAuth/>
         </Col>

@@ -18,7 +18,7 @@ import {
   ListItemText,
   useMediaQuery,
 } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/node_modules/@material-ui/styles'
+import { makeStyles } from '@material-ui/styles'
 import { customTheme } from '../styles'
 
 const useStyles = makeStyles(() => ({

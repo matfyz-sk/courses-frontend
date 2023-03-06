@@ -38,11 +38,11 @@ import TeamReview from './teamReview'
 import { 
   useGetAssignmentHasFieldQuery, 
   useGetAssignmentPeriodQuery,
-  useGetToReviewQuery,
   useGetSubmittedFieldQuery,
   useGetSubmissionSubmitedByStudentQuery,
   useGetSubmissionSubmitedByTeamQuery,
 } from 'services/assignments'
+import { useGetToReviewQuery } from 'services/review'
 
 function SubmissionContainer(props) {
   getCourseInstance(props)

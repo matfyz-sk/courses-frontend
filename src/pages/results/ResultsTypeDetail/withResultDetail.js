@@ -8,16 +8,15 @@ const withResultDetail = Component => props => {
   const { course_id, result_type_id } = props.match.params
   const [resultType, setResultType] = useState(null)
   const [resp, setResp] = useState(200)
+  const {data, isSuccess} = useGetResultTypeDetailCreatedByWithCorrectionQuery(result_type_id)
 
-  function fetchResultType(id) {
-    const {data, isSuccess} = useGetResultTypeDetailCreatedByWithCorrectionQuery(id)
+  function fetchResultType() {
     if (isSuccess) {
       if (data && data.length > 0) {
         setResultType(data[0])
       } else {
         setResp(404)
       }
-
     }
   }
 

@@ -12,12 +12,12 @@ const PER_PAGE = 18
 
 const MainPage = props => {
   const [ page, setPage ] = useState(0)
-  const {data, isSuccess, isError, error} = useGetUsersQuery()
-  //const {data, isSuccess} = useGetUsersOrderedByCreationDateQuery()
-  console.log(useGetUsersQuery())
+  //const {data, isSuccess, isError, error} = useGetUsersQuery()
+  const {data, isSuccess} = useGetUsersOrderedByCreationDateQuery()
+ /*console.log(useGetUsersQuery())
   if(isError) {
     console.log(error.message)
-  }
+  }*/
   const users = []
   if(isSuccess && data && data.length > 0) {
     let tmpData = [...data] 

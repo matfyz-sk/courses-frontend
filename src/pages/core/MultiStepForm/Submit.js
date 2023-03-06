@@ -17,6 +17,9 @@ function Submit(props) {
   const { go, previous } = props.navigation
   const [sent, setSent] = useState(false)
   const [errors, setErrors] = useState([])
+  const [newCourseInstance, newCourseInstanceResult] = useNewCourseInstanceMutation()
+  const [updateCourseInstance, updateCourseInstanceResult] = useUpdateCourseInstanceMutation()
+  const [newEvent, newEventResult] = useNewEventMutation()
   
   const migrate = () => {
     const {
@@ -33,7 +36,7 @@ function Submit(props) {
     const courseFullId = [
       `${ DATA_PREFIX }${ COURSE_URL }/${ courseId }`,
     ]
-
+    
     const hasInstructor = instructors.map(instructor => {
       return instructor.fullId
     })
@@ -49,13 +52,13 @@ function Submit(props) {
       instanceOf: courseFullId,
       hasDocument
     }
-    
+    console.log(data)
     const new_errors = []
-    const [newCourseInstance, newCourseInstanceResult] = useNewCourseInstanceMutation()
-
+    
     newCourseInstance(data).unwrap().then(async response => {
-      createEvents(response.data.resource.iri)
-      const newCourseInstanceId = response.data.resource.iri
+      console.log(response)
+      createEvents(response.resource.iri)
+      const newCourseInstanceId = response.resource.iri
       const data = {
         fileExplorerRoot: await copyFileSystem(
           courseInstance.fileExplorerRoot[0],
@@ -63,9 +66,10 @@ function Submit(props) {
         )
       }
       const id = getShortId(newCourseInstanceId)
-      const [updateCourseInstance, updateCourseInstanceResult] = useUpdateCourseInstanceMutation()
-
+      console.log(id)
+      console.log(data)
       updateCourseInstance({id, data}).unwrap().then(updateResponse => {
+        console.log(updateResponse)
         setSent(true)
       }).catch(errors => {
         new_errors.push(
@@ -116,7 +120,6 @@ function Submit(props) {
       }
     }
 
-    const [newEvent, newEventResult] = useNewEventMutation()
     const new_errors = []
 
     for (let event of eventsToAdd) {

@@ -49,8 +49,8 @@ function CoursesPageBase(props) {
   let myArchivedCourses = []  //    (enrolled || teaching || admin) && NOT this semester
   let allCourses = []
   if (courseInstancesIsSuccess && courseInstancesData) {
+    console.log(courseInstancesData)
     const courses = courseInstancesData.map(courseInstance => {
-      console.log(courseInstance)
       return {
         id: courseInstance['@id'].substring(
           courseInstance['@id'].length - 5
@@ -72,7 +72,7 @@ function CoursesPageBase(props) {
     })
 
     if (user) {
-      adjustCoursesData(courses)
+      adjustCoursesData(courses, user)
       for (const course of courses) {
         if (
           course.enrolled === true ||
@@ -266,7 +266,7 @@ function CoursesPageBase(props) {
   )
 }
 
-const adjustCoursesData = courses => {
+const adjustCoursesData = (courses, user) => {
   for (const course of courses) {
     course.enrolled =
       user.studentOf.findIndex(userEnrolledCourse => {

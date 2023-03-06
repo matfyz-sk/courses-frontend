@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { NavigationCourse } from '../components/Navigation/NavigationCourse'
@@ -13,52 +13,34 @@ import {
 } from '../redux/actions'
 import {idFromURL} from "../functions/global";
 
-class CourseLayout extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      course_id: this.props.match.params.course_id ?? null,
-      course: null,
-    }
-  }
+function CourseLayout(props) {
+  const course_id = props.match.params.course_id ?? null
+  const { course, privileges } = props
 
-  componentDidMount() {
-    store.dispatch(setMainNav('courses'))
-    // eslint-disable-next-line react/destructuring-assignment
-    const { course_id } = this.state
+  useEffect(() =>{
     if (course_id) {
-      this.setState({ course_id })
-      const { course } = this.props
       if (!course || idFromURL(course['@id']) !== course_id) {
         store.dispatch(setCourseInstancePrivileges({ course_id }))
-        this.props.fetchCourseInstance(this.props.history, course_id)
+        props.fetchCourseInstance(props.history, course_id)
       }
     }
-  }
+  },[])
 
-  componentWillUnmount() {
-    //store.dispatch(clearCourseInstance())
-  }
-
-  render() {
-    const { course, privileges } = this.props
-    const { course_id } = this.state
-    return (
-      <>
-        <NavigationCourse
-          history = { this.props.history }
-          match = { this.props.match }
-          abbr={
-            course && course.instanceOf
-              ? course.instanceOf[0].abbreviation
-              : '...'
-          }
-          courseId={course_id}
-        />
-        { this.props.children }
-      </>
-    )
-  }
+  return (
+    <>
+      <NavigationCourse
+        history = { props.history }
+        match = { props.match }
+        abbr={
+          course && course.instanceOf
+            ? course.instanceOf[0].abbreviation
+            : '...'
+        }
+        courseId={course_id}
+      />
+      { props.children }
+    </>
+  )
 }
 
 const mapStateToProps = ({ courseInstanceReducer, privilegesReducer }) => {

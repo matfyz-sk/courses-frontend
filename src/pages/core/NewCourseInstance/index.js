@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Container, Card, CardHeader, CardBody } from 'reactstrap'
+import { Container, Card, CardHeader, CardBody, Alert } from 'reactstrap'
 import EventForm from '../EventForm'
 import { INITIAL_EVENT_STATE } from '../constants'
 import { Redirect } from 'react-router-dom'
@@ -9,7 +9,15 @@ import { useGetPlainCourseQuery } from 'services/course'
 function NewCourseInstance(props) {
   const { match: { params } } = props
   const [redirectTo, setRedirectTo] = useState(null)
-  const { data, isSuccess } = useGetPlainCourseQuery(params.course_id)
+  const { data, isSuccess, isLoading } = useGetPlainCourseQuery(params.course_id)
+
+  if (isLoading) {
+    return (
+      <Alert color="secondary" className="empty-message">
+        Loading...
+      </Alert>
+    )
+  }
 
   let course = null
   if (isSuccess && data) {

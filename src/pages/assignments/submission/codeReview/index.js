@@ -31,7 +31,7 @@ import {
   useAddCodeCommentMutation,
   useGetCommentOfSubmissionCreatedByQuery,
   useGetCommentOfSubmissionQuery,
-} from 'services/assignments'
+} from 'services/peerReview'
 
 const mapStateToProps = () => {
   return {}

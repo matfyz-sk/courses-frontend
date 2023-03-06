@@ -59,81 +59,6 @@ export const assignmentApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Assignment'],
         }),
-        getToReview: builder.query({
-            query: (id) => ({ url: `toReview/${id}?_join=submission` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getToReviewForStudent: builder.query({
-            query: (id) => ({ url: `toReview?student=${id}&_join=submission` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getToReviewForTeam: builder.query({
-            query: (id) => ({ url: `toReview?team=${id}&_join=submission` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getPeerReview: builder.query({
-            query: (id) => ({ url: `peerReview` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getPeerReviewForTeam: builder.query({
-            query: ({teamId, id}) => ({ url: `peerReview?reviewedByTeam=${teamId}&ofSubmission=${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getPeerReviewAnswersOfSubmission: builder.query({
-            query: (id) => ({ url: `peerReview?ofSubmission=${id}&_join=hasQuestionAnswer,createdBy` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getTeamReviewOfUserAndSubmission: builder.query({
-            query: ({id, subId}) => ({ url: `teamReview?reviewedStudent=${id}&ofSubmission=${subId}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getPeerReviewForTeamHasAnswer: builder.query({
-            query: ({teamId, id}) => ({ url: `peerReview?reviewedByTeam=${teamId}&ofSubmission=${id}&_join=hasQuestionAnswer` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getPeerReviewOfUserHasAnswer: builder.query({
-            query: ({id, subId}) => ({ url: `peerReview?reviewedByStudent=${id}&ofSubmission=${subId}&_join=hasQuestionAnswer` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getTeamReviewOfSubmissionCreatedBy: builder.query({
-            query: ({id, subId}) => ({ url: `teamReview?ofSubmission=${subId}&createdBy=${id}&&_join=reviewedStudent` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getTeamReviewOfSubmission: builder.query({
-            query: (subId) => ({ url: `teamReview?ofSubmission=${subId}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getCommentOfSubmissionCreatedBy: builder.query({
-            query: (subId) => ({ url: `comment?ofSubmission=${subId}&_join=createdBy` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getCommentOfSubmission: builder.query({
-            query: (subId) => ({ url: `comment?ofSubmission=${subId}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getPeerReviewQuestion: builder.query({
-            query: (id) => ({ url: `peerReviewQuestion/${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
-        getPeerReviewQuestions: builder.query({
-            query: (id) => ({ url: `PeerReviewQuestion` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Assignment'],
-        }),
         getField: builder.query({
             query: (id) => ({ url: `field/${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
@@ -171,15 +96,6 @@ export const assignmentApi = createApi({
             transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
-        addSubmissionToReview: builder.mutation({
-            query: (post) => ({ 
-                url: `toReview`,
-                method: 'POST',
-                body: post,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Assignment'],
-        }),
         addSubmittedField: builder.mutation({
             query: (post) => ({ 
                 url: `submittedField`,
@@ -192,60 +108,6 @@ export const assignmentApi = createApi({
         addSubmission: builder.mutation({
             query: (post) => ({ 
                 url: `submission`,
-                method: 'POST',
-                body: post,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Assignment'],
-        }),
-        addTeamReview: builder.mutation({
-            query: (post) => ({ 
-                url: `teamReview`,
-                method: 'POST',
-                body: post,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Assignment'],
-        }),
-        addComment: builder.mutation({
-            query: (post) => ({ 
-                url: `comment`,
-                method: 'POST',
-                body: post,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Assignment'],
-        }),
-        addCodeComment: builder.mutation({
-            query: (post) => ({ 
-                url: `codeComment`,
-                method: 'POST',
-                body: post,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Assignment'],
-        }),
-        addPeerReview: builder.mutation({
-            query: (post) => ({ 
-                url: `peerReview`,
-                method: 'POST',
-                body: post,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Assignment'],
-        }),
-        addPeerReviewQuestion: builder.mutation({
-            query: (post) => ({ 
-                url: `PeerReviewQuestion`,
-                method: 'POST',
-                body: post,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Assignment'],
-        }),
-        addPeerReviewQuestionAnswer: builder.mutation({
-            query: (post) => ({ 
-                url: `peerReviewQuestionAnswer`,
                 method: 'POST',
                 body: post,
             }),
@@ -306,33 +168,6 @@ export const assignmentApi = createApi({
             transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Assignment'],
         }),
-        updateTeamReview: builder.mutation({
-            query: ({id, patch}) => ({ 
-                url: `teamReview/${id}`,
-                method: 'PATCH',
-                body: patch,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Assignment'],
-        }),
-        updatePeerReview: builder.mutation({
-            query: ({id, patch}) => ({ 
-                url: `peerReview/${id}`,
-                method: 'PATCH',
-                body: patch,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Assignment'],
-        }),
-        updatePeerReviewQuestionAnswer: builder.mutation({
-            query: ({id, patch}) => ({ 
-                url: `peerReviewQuestionAnswer/${id}`,
-                method: 'PATCH',
-                body: patch,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Assignment'],
-        }),
         updateAssignmentPeriod: builder.mutation({
             query: ({id, patch}) => ({ 
                 url: `assignmentPeriod/${id}`,
@@ -363,44 +198,19 @@ export const {
     useGetSubmissionSubmitedByStudentQuery,
     useGetSubmissionSubmitedByTeamQuery,
     useGetSubmittedFieldQuery,
-    useGetToReviewQuery,
-    useGetToReviewForStudentQuery,
-    useGetToReviewForTeamQuery,
-    useGetPeerReviewQuery,
-    useGetPeerReviewForTeamQuery,
-    useGetPeerReviewAnswersOfSubmissionQuery,
-    useGetTeamReviewOfUserAndSubmissionQuery,
-    useGetTeamReviewOfSubmissionCreatedByQuery,
-    useGetTeamReviewOfSubmissionQuery,
-    useGetCommentOfSubmissionCreatedByQuery,
-    useGetCommentOfSubmissionQuery,
-    useGetPeerReviewQuestionQuery,
-    useGetPeerReviewQuestionsQuery,
-    useGetPeerReviewForTeamHasAnswerQuery,
-    useGetPeerReviewOfUserHasAnswerQuery,
     useGetFieldQuery,
     useDeleteAssignmentMutation,
     useDeleteAssignmentPeriodMutation,
     useDeleteAssignmentPeerReviewPeriodMutation,
     useDeleteFieldMutation,
-    useAddSubmissionToReviewMutation,
     useAddSubmittedFieldMutation,
     useAddSubmissionMutation,
-    useAddTeamReviewMutation,
-    useAddCommentMutation,
-    useAddCodeCommentMutation,
-    useAddPeerReviewMutation,
-    useAddPeerReviewQuestionMutation,
-    useAddPeerReviewQuestionAnswerMutation,
     useAddAssignmentPeriodMutation,
     useAddFieldMutation,
     useAddAssignmentMutation,
     useUpdateAssignmentMutation,
     useUpdateSubmittedFieldMutation,
     useUpdateSubmissionMutation,
-    useUpdateTeamReviewMutation,
-    useUpdatePeerReviewMutation,
-    useUpdatePeerReviewQuestionAnswerMutation,
     useUpdateAssignmentPeriodMutation,
     useUpdateFieldMutation,
 } = assignmentApi

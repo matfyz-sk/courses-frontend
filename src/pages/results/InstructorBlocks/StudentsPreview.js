@@ -17,9 +17,9 @@ const StudentsPreview = props => {
   const privileges = privilegesReducer
   const { course_id } = match.params
   const [users, setUsers] = useState([])
+  const { data, isSuccess } = useGetUserEnrolledQuery(getShortID(course_id))
 
   const getUsers = () => {
-    const { data, isSuccess } = useGetUserEnrolledQuery(getShortID(course_id))
     if (isSuccess && data) {
       const { data: resultsData, isSuccess: resultsIsSuccess } = useGetResultForCourseInstanceQuery(course_id) // why not getShortID(course_id)
       if (resultsIsSuccess && resultsData) {

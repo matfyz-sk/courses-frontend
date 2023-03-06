@@ -13,11 +13,15 @@ import StudentSubmissionsView from './studentSubmissionsView'
 import { 
   useGetSubmissionSubmitedByStudentQuery, 
   useGetSubmissionSubmitedByTeamQuery,
+} from 'services/assignments'
+import { 
   useGetToReviewForStudentQuery,
-  useGetToReviewForTeamQuery,
+  useGetToReviewForTeamQuery, 
+} from 'services/review'
+import {
   useGetPeerReviewQuery,
   useGetPeerReviewForTeamQuery,
-} from 'services/assignments'
+} from 'services/peerReview'
 import { useGetUserQuery } from 'services/user'
 import { useGetTeamQuery } from 'services/team'
 

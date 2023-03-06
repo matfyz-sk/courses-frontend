@@ -62,7 +62,8 @@ function Timeline(props) {
   let eventsSorted = []
   let timelineBlocks = []
   let nestedEvents = []
-  if (isSuccess && data && data !== []) {
+  console.log(data)
+  if (isSuccess && data && data.length > 0) {
     eventsSorted = getEvents(data).sort(sortEventsFunction)
     timelineBlocks = getTimelineBlocks(eventsSorted)
     nestedEvents = getNestedEvents(eventsSorted, timelineBlocks)

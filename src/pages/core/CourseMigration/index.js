@@ -13,6 +13,7 @@ import { useGetCourseInstanceEventQuery } from 'services/event'
 
 function CourseMigration(props) {
   const { courseInstance } = props
+  console.log(courseInstance)
   const courseInstanceId = getShortId(courseInstance['@id'])
   const { data, isSuccess, isLoading } = useGetCourseInstanceEventQuery(courseInstanceId)
 
@@ -49,8 +50,8 @@ function CourseMigration(props) {
       </Alert>
     )
   }
-
-  if(isSuccess && data && data !== []) {
+  
+  if(isSuccess && data && !props.courseMigrationState.allEvents) {
     const allEvents = getEvents(data).sort(sortEventsFunction)
     props.setCourseMigrationAllEvents(allEvents)
   }

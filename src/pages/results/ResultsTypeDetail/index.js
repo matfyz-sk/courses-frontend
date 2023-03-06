@@ -21,11 +21,18 @@ function ResultsTypeDetail(props) {
   const [extended, setExtended] = useState(false)
   const [updateUserResult, updateUserResultResult] = useUpdateUserResultMutation()
   const [newUserResult, newUserResultResult] = useNewUserResultMutation()
+  const {
+    data: usersData, 
+    isSuccess: usersIsSuccess
+  } = useGetUserEnrolledQuery(course_id)
+  const {
+    data: resultData, 
+    isSuccess: resultIsSuccess
+  } = useGetResultByTypeQuery(result_type_id)
 
   const getResultsData = (type_id, userList) => {
-    const {data, isSuccess} = useGetResultByTypeQuery(result_type_id)
-    if (isSuccess && data) {
-      const resultList = data
+    if (resultIsSuccess && resultData) {
+      const resultList = resultData
       const userWithResults = []
       for (let i = 0; i < userList.length; i++) {
         let result = null
@@ -61,9 +68,8 @@ function ResultsTypeDetail(props) {
   }
 
   const getUsers = () => {
-    const {data, isSuccess} = useGetUserEnrolledQuery(course_id)
-    if(isSuccess && data) {
-      getResultsData(result_type_id, data)
+    if(usersIsSuccess && usersData) {
+      getResultsData(result_type_id, usersData)
     }
   }
 

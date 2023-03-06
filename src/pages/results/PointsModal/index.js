@@ -18,6 +18,7 @@ import {
 import { getShortID } from '../../../helperFunctions'
 import { getUser } from '../../../components/Auth'
 import { useGetUserResultsByTypeQuery, useUpdateUserResultMutation, useNewUserResultMutation } from 'services/result'
+import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 function PointsModal(props) {
   const { user, courseInstance, userIndex, resultModifier } = props
@@ -31,29 +32,27 @@ function PointsModal(props) {
     update: null,
     before: 0,
   })
+  const [typeId, setTypeId] = useState(skipToken)
+  const {data, isSuccess} = useGetUserResultsByTypeQuery({
+    id: getShortID(user['@id']),
+    typeId: getShortID(typeId)
+  })
   const [updateResult, updateResultResult] = useUpdateUserResultMutation()
   const [newUserResult, newUserResultResult] = useNewUserResultMutation()
 
-  const getTypeDetail = (type_id) => {
-    setLoading(true)
-    const {data, isSuccess} = useGetUserResultsByTypeQuery({
-      id: getShortID(user['@id']),
-      typeId: getShortID(type_id)
-    })
-    if (isSuccess) {
-      if (data && data.length > 0) {
-        setForm({
-          ...form,
-          type: type_id,
-          points: data[0].points,
-          description: data[0].description,
-          reference: data[0].reference,
-          update: data[0],
-          before: data[0].points,
-        })
-      } else {
-        setForm({ ...form, type: type_id, update: null, before: 0 })
-      }
+  if (isSuccess && typeId !== skipToken) {
+    if (data && data.length > 0) {
+      setForm({
+        ...form,
+        type: typeId,
+        points: data[0].points,
+        description: data[0].description,
+        reference: data[0].reference,
+        update: data[0],
+        before: data[0].points,
+      })
+    } else {
+      setForm({ ...form, type: typeId, update: null, before: 0 })
     }
     setLoading(false)
   }
@@ -61,7 +60,8 @@ function PointsModal(props) {
   const changeType = (e) => {
     const typeID = e.target.value !== '' ? e.target.value : null
     if (typeID && typeID !== '') {
-      getTypeDetail(typeID)
+      setLoading(true)
+      setTypeId(typeId)
     } else {
       setForm({ ...form, type: e.target.value, update: null, before: 0 })
     }

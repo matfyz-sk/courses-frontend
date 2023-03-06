@@ -1,10 +1,9 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Alert, Button, Col, Collapse, Container, Form, FormFeedback, FormGroup, Input, Label, Row, } from 'reactstrap'
 import { emailValidator, textValidator } from '../../functions/validators'
-import { authHeader, getUser, getUserID, logout, setUserProfile, } from '../../components/Auth'
-import { BACKEND_URL } from "../../constants";
+import { getUser, getUserID, logout, setUserProfile, } from '../../components/Auth'
 import { useDeleteUserMutation, useGetUserByEmailQuery, useUpdateUserMutation } from "services/user"
 
 function RegisterCompletion(props) {
@@ -32,6 +31,16 @@ function RegisterCompletion(props) {
   const [success, setSuccess] = useState(false)
   const [updateUser, updateUserResult] = useUpdateUserMutation()
   const [deleteUser, deleteUserResult] = useDeleteUserMutation()
+
+  if(newEmailError && newEmailError.result) {
+    const {data, isSuccess} = useGetUserByEmailQuery(email)
+    if(isSuccess && data && data.length > 0) {
+      setEmailError({result: false, msg: 'Sorry, but email is already taken!'})
+    } else {
+      validation()
+      setEmailError(null)
+    }
+  }
 
   // This does the same thing as componentDidMount
   useEffect(() => {
@@ -93,14 +102,6 @@ function RegisterCompletion(props) {
 
   const checkEmailExisting = () => {
     const newEmailError = emailValidator(email)
-    if(newEmailError && newEmailError.result) {
-      const {data, isSuccess} = useGetUserByEmailQuery(email)
-      if(isSuccess && data && data.length > 0) {
-        setEmailError({result: false, msg: 'Sorry, but email is already taken!'})
-        return false
-      }
-      return validation()
-    }
     setEmailError(newEmailError)
     return false
   }

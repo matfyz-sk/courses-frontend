@@ -47,10 +47,10 @@ function CourseForm(props) {
   }
 
   const onSubmit = (event) => {
+    event.preventDefault()
     const newErrors = validate(name, description, abbreviation)
     if (newErrors.length > 0) {
       setErrors(newErrors)
-      event.preventDefault()
       return
     }
 
@@ -73,8 +73,9 @@ function CourseForm(props) {
     try {
       let newUrl
       if (typeOfForm === 'Edit') {
-        updateCurse({id, body}).unwrap()
+        updateCurse({id, patch: body}).unwrap()
         newUrl = `/course/${id}`
+        setRedirectTo(newUrl)
       } else {
         newCourse(body).unwrap().then(response => {
           const newCourseId = getShortId(response.resource.iri)
@@ -82,18 +83,16 @@ function CourseForm(props) {
             pathname: `/newcourseinstance/${newCourseId}`,
             state: {courseName: name},
           }
-          console.log(newUrl)
+          console.log(response)
           setRedirectTo(newUrl)
         })
       }
-      
     } catch {
       newErrors.push(
         'There was a problem with server while sending your form. Try again later.'
       )
       setErrors(newErrors)
     }
-    event.preventDefault()
   }
 
   const validate = (name, description, abbreviation) => {

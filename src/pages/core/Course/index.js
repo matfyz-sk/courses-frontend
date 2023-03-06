@@ -12,6 +12,7 @@ import { useGetCourseQuery } from 'services/course'
 
 function Course(props) {
   const { match: { params }, user } = props
+  console.log(useGetCourseQuery(params.course_id))
   const { data, isSuccess, isLoading } = useGetCourseQuery(params.course_id)
   const [redirectTo, setRedirectTo] = useState(null)
 

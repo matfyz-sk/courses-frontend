@@ -15,6 +15,9 @@ function EnrollForm(props) {
     const [errors, setErrors] = useState([])
     const [globalPrivacy, setGlobalPrivacy] = useState(true)
     const [specificNickname, setSpecificNickname] = useState('')
+    const [updateUser, updateUserResult] = useUpdateUserMutation()
+    const [updateCourseInstance, updateCourseInstanceResult] = useUpdateCourseInstanceMutation()
+    const [newCoursePersonalSettings, newCoursePersonalSettingsResult] = useNewCoursePersonalSettingsMutation()
 
     const requestEnrollment = () => {
         const {user, courseInstance} = props
@@ -24,13 +27,12 @@ function EnrollForm(props) {
             return userRequestedCourse['@id']
           })
           newRequests.push(courseInstance.fullId)
-    
-          const [updateUser, result] = useUpdateUserMutation()
           
           updateUser({
             id: user.id,
             patch: {requests: newRequests},
           }).unwrap().then(response => {
+            console.log(response)
             const newRequest = {'@id': courseInstance.fullId}
             user.requests.push(newRequest)
             setUserProfile(user)
@@ -53,8 +55,6 @@ function EnrollForm(props) {
           personalSettings.push(courseInstance.hasPersonalSettings[i]['@id'])
         }
         personalSettings.push(iri)
-        
-        const [updateCourseInstance, result] = useUpdateCourseInstanceMutation()
 
         updateCourseInstance({
             id: courseInstance.id,
@@ -76,10 +76,10 @@ function EnrollForm(props) {
             hasUser: getUser().fullURI,
             nickName: specificNickname,
           }
-          const [newCoursePersonalSettings, result] = useNewCoursePersonalSettingsMutation()
 
           newCoursePersonalSettings(post).unwrap().then(response => {
-            const {iri} = data.resource
+            console.log(resposne)
+            const {iri} = response.resource
             assignPrivacyToCourse(iri)
           }).catch(error => {
             const new_errors = []
@@ -102,7 +102,6 @@ function EnrollForm(props) {
         )
         if(new_errors.length > 0) {
           setErrors(new_errors)
-          event.preventDefault()
           return
         }
         requestPrivacy()

@@ -12,7 +12,7 @@ import Fields from './2-fields';
 import Teams from './3-teams';
 import Reviews from './4-reviews';
 import TeamReviews from './5-teamReviews';
-import { useGetPeerReviewQuestionsQuery } from 'services/assignments';
+import { useGetPeerReviewQuestionsQuery } from 'services/peerReview';
 import { useGetMaterialsQuery } from 'services/documents';
 
 const defaultForm={

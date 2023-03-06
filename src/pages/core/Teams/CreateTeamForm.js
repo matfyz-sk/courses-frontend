@@ -12,6 +12,7 @@ function CreateTeamForm(props) {
         setError,
         appendUserToTeam
     } = props
+    const [newTeam, newTeamResult] = useNewTeamMutation()
 
     const handleInputChange = (event) => {
         const {value} = event.target
@@ -21,7 +22,6 @@ function CreateTeamForm(props) {
     }
 
     const handleCreateTeam = async () => {
-        const [newTeam, result] = useNewTeamMutation()
         if(!create) {
             setError('You cannot create team!')
         } else if(form.name.length < 3) {

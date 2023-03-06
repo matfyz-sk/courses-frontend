@@ -12,7 +12,8 @@ import Fields from './2-fields';
 import Teams from './3-teams';
 import Reviews from './4-reviews';
 import TeamReviews from './5-teamReviews';
-import { useGetFieldQuery, useGetPeerReviewQuestionsQuery } from 'services/assignments';
+import { useGetFieldQuery } from 'services/assignments';
+import { useGetPeerReviewQuestionsQuery } from 'services/peerReview'
 import { useGetMaterialsQuery } from 'services/documents';
 
 function ModalAddAssignment(props) {

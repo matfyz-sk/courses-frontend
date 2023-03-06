@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Modal,
   ModalHeader,
@@ -26,6 +26,7 @@ import {
   useNewCourseGradingMutation,
   useDeleteCourseGradingMutation,
 } from "services/result"
+import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 function CriteriaModal(props) {
   const { grading, courseInstance } = props
@@ -36,10 +37,27 @@ function CriteriaModal(props) {
   })
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [id, setId] = useState(skipToken)
   const [updateCourseInstance, updateCourseInstanceResult] = useUpdateCourseInstanceMutation()
   const [newCourseGrading, newCourseGradingResult] = useNewCourseGradingMutation()
   const [deleteCourseGrading, deleteCourseGradingResult] = useDeleteCourseGradingMutation()
+  const {data, isSuccess} = useGetCourseGradingQuery(id)
   const toggle = () => setModal(!modal)
+
+  if (isSuccess && id !== skipToken) {
+    setLoading(false)
+    setError(null)
+    if (data && data.length > 0) {
+      const result = data[0]
+      store.dispatch(addCourseInstanceGrading(result))
+      setError(null)
+      setModal(false)
+    } else {
+      setError(
+        'Error has occured during saving process. Please, try again.'
+      )
+    }
+  }
 
   const validate = () => {
     if (form.grade.length === 0) {
@@ -57,30 +75,6 @@ function CriteriaModal(props) {
     return true
   }
 
-  const getDetail = (id, action = null) => {
-    const {data, isSuccess} = useGetCourseGradingQuery(id)
-    if (isSuccess) {
-      setLoading(false)
-      setError(null)
-      if (data && data.length > 0) {
-        const result = data[0]
-        switch (action) {
-          case 'add':
-            store.dispatch(addCourseInstanceGrading(result))
-            setError(null)
-            setModal(false)
-            break
-          default:
-            break
-        }
-      } else {
-        setError(
-          'Error has occured during saving process. Please, try again.'
-        )
-      }
-    }
-  }
-
   const addGradingToCourse = (iri) => {
     const gradings = []
     for (let i = 0; i < courseInstance.hasGrading.length; i++) {
@@ -93,7 +87,7 @@ function CriteriaModal(props) {
       patch: { hasGrading: gradings }
     }).unwrap().then(response => {
       if (response.status) {
-        getDetail(getShortID(iri), 'add')
+        setId(getShortID(iri))
       } else {
         setLoading(false)
         setError(

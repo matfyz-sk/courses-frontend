@@ -27,7 +27,7 @@ import {
   useUpdatePeerReviewQuestionAnswerMutation,
   useAddPeerReviewMutation,
   useUpdatePeerReviewMutation,
-} from 'services/assignments'
+} from 'services/peerReview'
 import { useGetTeamQuery } from 'services/team'
 import { useGetUserQuery } from 'services/user'
 

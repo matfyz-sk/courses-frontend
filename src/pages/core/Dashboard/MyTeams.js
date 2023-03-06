@@ -48,34 +48,6 @@ function MyTeams(props) {
       setData(teamInstanceData)
     }
   }
-/*
-  const fetchTeamDetail = (fetched_data, index = 0) => {
-    const detail = fetched_data[index]
-    // ? the ?. seems to have fixed this typeerror here, not sure if this is the right way...
-    if (detail?.instanceOf && detail?.instanceOf.length > 0) {
-      const {data, isSuccess} = useGetTeamDetailsQuery(getShortID(
-        detail.instanceOf[0]['@id']
-      ))
-
-      if(isSuccess && data) {
-        if(data.length > 0 && data[0].courseInstance.length > 0) {
-          const newData = []
-          newData.push({
-            teamInstance: detail,
-            team: data[0],
-          })
-          setData(newData)
-        }
-        if (fetched_data.length > index) {
-          fetchTeamDetail(fetched_data, index + 1)
-        }
-      }
-    }
-  }
-
-  useEffect(() => {
-    
-  }, [])*/
 
   if (data === null) {
     return null

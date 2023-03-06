@@ -17,37 +17,37 @@ function StudentOverview(props) {
   const userId = user_id ? user_id : getUserID()
   const [user, setUser] = useState(null)
   const [results, setResults] = useState(null)
+  const { 
+    data: userInCourseData, 
+    isSuccess: userInCourseIsSuccess 
+  } = useGetUserOfCourseQuery({userId, course_id})
+  const { 
+    data: allUserResultsData, 
+    isSuccess: allUserResultsIsSuccess 
+  } = useGetAllUserResultsQuery(userId)
 
-  const fetchStudent = () => {
-    const { data: userInCourseData, isSuccess: userInCourseIsSuccess } = useGetUserOfCourseQuery({userId, course_id})
-    if (userInCourseIsSuccess && userInCourseData && userInCourseData.length > 0) {
-      setUser(userInCourseData[0])
-      const { data: allUserResultsData, isSuccess: allUserResultsIsSuccess } = useGetAllUserResultsQuery(userId)
-      if (allUserResultsIsSuccess && allUserResultsData) {
-        const resultArr = allUserResultsData
-        for (let i = 0; i < resultArr.length; i++) {
-          if (resultArr[i].correctionFor) {
-            const { data, isSuccess } = useGetResultTypeDetailWithCorrectionQuery(getShortID(resultArr.correctionFor))
-            if (isSuccess && data && data.length > 0) {
-              resultArr[i] = {
-                ...resultArr[i],
-                correction: data[0],
-              }
-            } else {
-              resultArr[i] = { ...resultArr[i], correction: null }
+  if (userInCourseIsSuccess && userInCourseData && userInCourseData.length > 0) {
+    setUser(userInCourseData[0])
+    if (allUserResultsIsSuccess && allUserResultsData) {
+      const resultArr = allUserResultsData
+      for (let i = 0; i < resultArr.length; i++) {
+        if (resultArr[i].correctionFor) {
+          const { data, isSuccess } = useGetResultTypeDetailWithCorrectionQuery(getShortID(resultArr.correctionFor))
+          if (isSuccess && data && data.length > 0) {
+            resultArr[i] = {
+              ...resultArr[i],
+              correction: data[0],
             }
           } else {
             resultArr[i] = { ...resultArr[i], correction: null }
           }
+        } else {
+          resultArr[i] = { ...resultArr[i], correction: null }
         }
-        setResults(resultArr)
       }
+      setResults(resultArr)
     }
   }
-
-  useEffect(() => {
-    fetchStudent()
-  }, [])
 
   let grading = null
   let pointsUpper = null

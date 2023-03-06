@@ -24,9 +24,9 @@ function ResultDetail(props) {
     privileges.inCourseInstance === 'instructor'
   const [updateUserResult, updateUserResultResult] = useUpdateUserResultMutation()
   const [deleteUserResult, deleteUserResultResult] = useDeleteUserResultMutation()
+  const {data, isSuccess} = useGetResultThatHasUserQuery(result_id)
 
   const getDetail = () => {
-    const {data, isSuccess} = useGetResultThatHasUserQuery(result_id)
     if (isSuccess && data && data.length > 0) {
       setResult(data[0])
     }

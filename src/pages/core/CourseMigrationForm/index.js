@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import {
@@ -28,6 +28,7 @@ function CourseMigrationForm(props) {
   const [startDate, setStartDate] = useState(propStartDate)
   const [endDate, setEndDate] = useState(propEndDate)
   const [instructors, setInstructors] = useState(propInstructors)
+  console.log(props)
 
   let users = []
   if(isSuccess && data) {
@@ -42,17 +43,17 @@ function CourseMigrationForm(props) {
     })
   }
 
-  onInstructorChange = (event, values) => {
+  const onInstructorChange = (event, values) => {
     setInstructors(values)
     props.setCourseMigrationInstructors(values)
   }
 
-  handleChangeFrom = date => {
+  const handleChangeFrom = date => {
     setStartDate(date)
     props.setCourseMigrationStartDate(date)
   }
 
-  handleChangeTo = date => {
+  const handleChangeTo = date => {
     setEndDate(date)
     props.setCourseMigrationEndDate(date)
   }
@@ -62,7 +63,7 @@ function CourseMigrationForm(props) {
       <CardSubtitle className="card-subtitle-migrations">
         Course Details
       </CardSubtitle>
-      <Form onSubmit={onSubmit} className="course-migration-container">
+      <Form onSubmit={ e => {}} className="course-migration-container">
         <Label id="from-label" for="from" className="new-event-label">
           From
         </Label>
