@@ -22,3 +22,6 @@ jobs:
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
       IMPERSONATION_PASSWORD: ${{ secrets.IMPERSONATION_PASSWORD }}
       SPARQL_HOST: ${{ secrets.SPARQL_HOST }}
+      SUPER_ADMIN_NAME: ${{ secrets.SUPER_ADMIN_NAME }}
+      SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
+      SUPER_ADMIN_PASSWORD: ${{ secrets.SUPER_ADMIN_PASSWORD }}
