@@ -17,7 +17,7 @@ jobs:
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
   deploy-frontend:
-    if: contains(github.event.pull_request.labels.*.name, 'no backend')
+    if: contains(github.event.pull_request.labels.*.name, 'master backend')
     needs: create-frontend-directory
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
     with:
@@ -31,13 +31,24 @@ jobs:
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
       WEBSITE: ${{ secrets.WEBSITE }}
+  config-apache:
+    if: contains(github.event.pull_request.labels.*.name, 'master backend')
+    needs: [create-frontend-directory, deploy-frontend]
+    uses: matfyz-sk/courses-frontend/.github/workflows/apache.yml@master
+    with:
+      BRANCH: ${{ github.event.pull_request.head.ref }}
+      PR_NUMBER: ${{ github.event.number }}
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
   get-pr-number:
-    if: contains(github.event.pull_request.labels.*.name, 'backend')
+    if: contains(github.event.pull_request.labels.*.name, 'branch backend')
     uses: matfyz-sk/courses-frontend/.github/workflows/get-pr-number.yml@master
     with:
       BRANCH: ${GITHUB_HEAD_REF}
   deploy-frontend-with-backend-pr:
-    if: contains(github.event.pull_request.labels.*.name, 'backend')
+    if: contains(github.event.pull_request.labels.*.name, 'branch backend')
     needs: [create-frontend-directory, get-pr-number]
     uses: matfyz-sk/courses-frontend/.github/workflows/deploy.yml@master
     with:
@@ -51,3 +62,14 @@ jobs:
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
       WEBSITE: ${{ secrets.WEBSITE }}
+  config-apache-with-backend-pr:
+    if: contains(github.event.pull_request.labels.*.name, 'branch backend')
+    needs: [create-frontend-directory, get-pr-number, deploy-frontend-with-backend-pr]
+    uses: matfyz-sk/courses-frontend/.github/workflows/apache.yml@master
+    with:
+      BRANCH: ${{ github.event.pull_request.head.ref }}
+      PR_NUMBER: ${{ needs.get-pr-number.outputs.pr-number }}
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}

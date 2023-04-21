@@ -1,0 +1,30 @@
+name: Clean apache
+
+on:
+  workflow_call:
+    inputs:
+      PR_BRANCH:
+        required: true
+        type: string
+    secrets:
+      SSH_PRIVATE_KEY:
+        required: true
+      SSH_HOST:
+        required: true
+      SSH_USER:
+        required: true
+
+jobs:
+  clean-apache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Make folder for frontend
+        uses: appleboy/ssh-action@master
+        env:
+          BRANCH: ${{ env.PR_BRANCH }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: BRANCH
+          script: ./removeConfig.sh ${BRANCH}

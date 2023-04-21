@@ -7,7 +7,7 @@ on:
 
 jobs:
   remove-backend:
-    if: ${{ github.event.label.name == 'no backend' }}
+    if: ${{ github.event.label.name == 'master backend' }}
     uses: matfyz-sk/courses-backend/.github/workflows/remove-backend.yml@master
     with:
       BRANCH: ${GITHUB_HEAD_REF}
