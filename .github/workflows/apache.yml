@@ -26,8 +26,7 @@ jobs:
         run: echo "PR_PORT_PART=$(printf "%03i" ${{ inputs.PR_NUMBER }} | tail -c 4)" >> $GITHUB_ENV
       - name: Calculate Website port
         run: echo "WEBSITE_PORT=$(expr ${{ inputs.BASE_WEBSITE_PORT }} + ${{ env.PR_PORT_PART }})" >> $GITHUB_ENV
-      - name: Use passed frontend path
-      - name: Make folder for frontend
+      - name: Configure apache
         uses: appleboy/ssh-action@master
         env:
           BRANCH: ${{ env.PR_BRANCH }}
