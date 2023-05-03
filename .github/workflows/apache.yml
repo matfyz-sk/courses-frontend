@@ -6,6 +6,9 @@ on:
       PR_BRANCH:
         required: true
         type: string
+      BASE_WEBSITE_PORT:
+        required: true
+        type: number
       PR_NUMBER:
         required: false
         type: string

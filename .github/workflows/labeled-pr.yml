@@ -11,7 +11,7 @@ jobs:
     uses: matfyz-sk/courses-backend/.github/workflows/old-deploy.yml@master
     with:
       BRANCH: ${GITHUB_HEAD_REF}
-      BASE_BACKEND_PORT: 7000
+      BASE_BACKEND_PORT: 10000
       VIRTUOSO_PORT: 8890
       PR_NUMBER: ${{ github.event.number }}
       FRONTEND_BRANCH: master

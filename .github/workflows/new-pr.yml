@@ -37,6 +37,7 @@ jobs:
     uses: matfyz-sk/courses-frontend/.github/workflows/apache.yml@master
     with:
       BRANCH: ${{ github.event.pull_request.head.ref }}
+      BASE_WEBSITE_PORT: 10000
       PR_NUMBER: ${{ github.event.number }}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -68,6 +69,7 @@ jobs:
     uses: matfyz-sk/courses-frontend/.github/workflows/apache.yml@master
     with:
       BRANCH: ${{ github.event.pull_request.head.ref }}
+      BASE_WEBSITE_PORT: 9000
       PR_NUMBER: ${{ needs.get-pr-number.outputs.pr-number }}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
