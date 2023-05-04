@@ -5,19 +5,13 @@ import { connect } from 'react-redux'
 import { Container, Row } from 'reactstrap';
 import UserCard from './UserCard'
 import { isVisibleUser } from "../../components/Auth/userFunction";
-import { useGetUsersOrderedByCreationDateQuery } from "services/user"
-import { useGetUsersQuery } from "services/userGraph"
+import { useGetUserQuery } from "services/user"
 
 const PER_PAGE = 18
 
 const MainPage = props => {
   const [ page, setPage ] = useState(0)
-  //const {data, isSuccess, isError, error} = useGetUsersQuery()
-  const {data, isSuccess} = useGetUsersOrderedByCreationDateQuery()
- /*console.log(useGetUsersQuery())
-  if(isError) {
-    console.log(error.message)
-  }*/
+  const {data, isSuccess} = useGetUserQuery({})
   const users = []
   if(isSuccess && data && data.length > 0) {
     let tmpData = [...data] 
