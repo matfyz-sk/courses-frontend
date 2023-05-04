@@ -7,7 +7,7 @@ import { afterNow, getShortID } from 'helperFunctions';
 import InstructorAssignmentView from './instructorView';
 import StudentAssignmentView from './studentView';
 import EditAssignment from '../assignment/edit';
-import { useDeleteAssignmentMutation, useDeleteAssignmentPeriodMutation } from 'services/assignments';
+import { useDeleteAssignmentMutation, useDeleteAssignmentPeriodMutation } from 'services/assignmentsGraph';
 
 function AssignmentView(props) {
   const [opened, setOpened] = useState(getDefaultOpenState())
@@ -34,7 +34,7 @@ function AssignmentView(props) {
   const groupSubmissions = (submissions, individualGrouping) => {
     let groupedSubmissions = [];
     submissions.forEach((submission)=>{
-      const id = individualGrouping ? submission.submittedByStudent[0]['@id'] : submission.submittedByTeam[0]['@id'];
+      const id = individualGrouping ? submission.submittedByStudent[0]['_id'] : submission.submittedByTeam[0]['_id'];
       const index = groupedSubmissions.findIndex( (gSubmission) => gSubmission.id === id )
       if(index === -1){
         groupedSubmissions.push({
@@ -63,9 +63,9 @@ function AssignmentView(props) {
         periodsToDelete.push(assignment.teamReviewPeriod);
       }
       periodsToDelete.forEach(period => {
-        deleteAssignmentPeriodRequest(getShortID(period['@id'])).unwrap()
+        deleteAssignmentPeriodRequest(period['_id']).unwrap()
       })
-      deleteAssignmentRequest(getShortID(assignment['@id'])).unwrap().then(response => {
+      deleteAssignmentRequest(assignment['_id']).unwrap().then(response => {
         setDeleting(false)
         props.removeAssignment();
       })
@@ -116,7 +116,7 @@ const mapStateToProps = ({assignCourseInstanceReducer, authReducer}) => {
   const { courseInstance } = assignCourseInstanceReducer;
   const { user } = authReducer;
   return {
-    isInstructor: courseInstance.hasInstructor.some((instructor) => instructor['@id'] === user.fullURI)
+    isInstructor: courseInstance.hasInstructor.some((instructor) => instructor['_id'] === user.fullURI)
   };
 };
 

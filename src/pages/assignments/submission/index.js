@@ -35,13 +35,8 @@ import Submission from './submission'
 import CodeReview from './codeReview'
 import Reviews from './peerReview'
 import TeamReview from './teamReview'
-import { 
-  useGetAssignmentHasFieldQuery, 
-  useGetAssignmentPeriodQuery,
-  useGetSubmittedFieldQuery,
-  useGetSubmissionSubmitedByStudentQuery,
-  useGetSubmissionSubmitedByTeamQuery,
-} from 'services/assignments'
+import { useLazyGetSubmissionQuery, useLazyGetSubmittedFieldQuery } from 'services/assignmentsGraph'
+import { useLazyGetAssignmentQuery, useLazyGetAssignmentPeriodQuery } from 'services/assignmentsGraph'
 import { useGetToReviewQuery } from 'services/review'
 
 function SubmissionContainer(props) {
@@ -58,6 +53,10 @@ function SubmissionContainer(props) {
   const [error, setError] = useState('')
   const [errorShow, setErrorShow] = useState(false)
   const [tabID, setTabID] = useState(getTabId(props))
+  const [getAssignment] = useLazyGetAssignmentQuery()
+  const [getAssignmentPeriod] = useLazyGetAssignmentPeriodQuery()
+  const [getSubmission] = useLazyGetSubmissionQuery()
+  const [getSubmittedField] = useLazyGetSubmittedFieldQuery()
 
   useEffect(() => {
     refreshAssignment()
@@ -73,7 +72,7 @@ function SubmissionContainer(props) {
       && !props.isInstructor && settings.teamAssignment) {
       props.assignmentsGetStudentTeams(
         props.user.fullURI,
-        props.courseInstance['@id']
+        props.courseInstance['_id']
       )
     }
   }, [
@@ -87,40 +86,37 @@ function SubmissionContainer(props) {
 
   const refreshAssignment = () => {
     //always get assignment
-    const {
-      data: assignmentData, 
-      isSuccess: assignmentIsSuccess
-    } = useGetAssignmentHasFieldQuery(props.match.params.assignmentID)
-    if (assignmentIsSuccess && assignmentData) { 
-      let assignment = assignmentData[0]
-      let periodsIDs = getAssignmentPeriods(assignment)
-      let periods = []
-      periodsIDs.forEach(period => {
-        const {data, isSuccess} = useGetAssignmentPeriodQuery(getShortID(period))
-        if (isSuccess && data) {
-          periods.push(data[0])
-        }
-      })
+    getAssignment({id: props.match.params.assignmentID}).unwrap().then(assignmentData => {
+      if(assignmentData) {
+        let assignment = assignmentData[0]
+        let periodsIDs = getAssignmentPeriods(assignment)
+        let periods = []
+        periodsIDs.forEach(period => {
+          getAssignmentPeriod(period).unwrap().then(data => {
+            periods.push(data[0])
+          })
+        })
 
-      assignment = assignPeriods(assignment, periods)
-      const settings = getAssignmentSettings(assignment, props)
-      if (!props.isInstructor 
-          && settings.teamAssignment 
-          && props.courseInstanceLoaded 
-          && props.user !== null) {
-        props.assignmentsGetStudentTeams(
-          props.user.fullURI,
-          props.courseInstance['@id']
-        )
+        assignment = assignPeriods(assignment, periods)
+        const settings = getAssignmentSettings(assignment, props)
+        if (!props.isInstructor 
+            && settings.teamAssignment 
+            && props.courseInstanceLoaded 
+            && props.user !== null) {
+          props.assignmentsGetStudentTeams(
+            props.user.fullURI,
+            props.courseInstance['_id']
+          )
+        }
+        refreshSubmissions(settings, assignment, props)
+        setAssignment(assignment)
+        setSettings(settings)
+        setAssignmentLoaded(true)
+      } else {
+        setError('Assignment not found')
+        setErrorShow(true)
       }
-      refreshSubmissions(settings, assignment, props)
-      setAssignment(assignment)
-      setSettings(settings)
-      setAssignmentLoaded(true)
-    } else {
-      setError('Assignment not found')
-      setErrorShow(true)
-    }
+    })
   }
 
   const refreshSubmissions = (settings, assignment, props) => {
@@ -134,11 +130,7 @@ function SubmissionContainer(props) {
         const initialSubmission =
           toReview.submission.length > 0 ? toReview.submission[0] : null
         const improvedSubmission = null
-        const {
-          data: submittedFieldData, 
-          isSuccess: submittedFieldIsSuccess
-        } = useGetSubmittedFieldQuery(getShortID(initialSubmission.submittedField))
-        if (submittedFieldIsSuccess && submittedFieldData) {
+        getSubmittedField(initialSubmission.submittedField).unwrap().then(submittedFieldData => {
           const submittedField = submittedFieldData[0]
           setToReview(toReview)
           setSubmissionsLoaded(true)
@@ -146,7 +138,7 @@ function SubmissionContainer(props) {
             ? { ...initialSubmission, submittedField: [submittedField] }
             : null)
           setImprovedSubmission(improvedSubmission !== undefined ? improvedSubmission : null)
-        }
+        })
       }
       return
     }
@@ -157,8 +149,7 @@ function SubmissionContainer(props) {
       return
     }
 
-    const {data, isSuccess} = getSubmissionSubmittedBy(settings, ID, assignment)
-    if (isSuccess && data) {
+    getSubmissionSubmittedBy(settings, ID, assignment).then(data => {
       const initialSubmission = data.find(
         submission => !submission.isImproved
       )
@@ -169,7 +160,7 @@ function SubmissionContainer(props) {
       setSubmissionsLoaded(true)
       setInitialSubmission(initialSubmission !== undefined ? initialSubmission : null)
       setImprovedSubmission(improvedSubmission !== undefined ? improvedSubmission : null)
-    }
+    })
   }
 
   let loading = !assignmentLoaded || !submissionsLoaded || props.courseInstanceLoading 
@@ -193,12 +184,12 @@ function SubmissionContainer(props) {
               props.match.params.teamID === undefined && (
                 <Select
                   styles={teamSelectStyle}
-                  value={toSelectInput(props.teams, 'name', '@id').find(
+                  value={toSelectInput(props.teams, 'name', '_id').find(
                     team =>
                       getShortID(team.value) ===
                       props.match.params.teamID
                   )}
-                  options={toSelectInput(props.teams, 'name', '@id')}
+                  options={toSelectInput(props.teams, 'name', '_id')}
                   onChange={newTeam => {
                     if (
                       props.match.params.teamID !== undefined &&
@@ -209,7 +200,7 @@ function SubmissionContainer(props) {
                       return
                     }
                     props.history.push(
-                      `../team/${getShortID(newTeam['@id'])}/submission/${
+                      `../team/${getShortID(newTeam['_id'])}/submission/${
                         tabID
                       }`
                     )
@@ -247,11 +238,11 @@ function SubmissionContainer(props) {
           {settings.myAssignment && settings.teamAssignment && (
             <Select
               styles={teamSelectStyle}
-              value={toSelectInput(props.teams, 'name', '@id').find(
+              value={toSelectInput(props.teams, 'name', '_id').find(
                 team =>
                   getShortID(team.value) === props.match.params.teamID
               )}
-              options={toSelectInput(props.teams, 'name', '@id')}
+              options={toSelectInput(props.teams, 'name', '_id')}
               onChange={newTeam => {
                 if (
                   props.match.params.teamID !== undefined &&
@@ -262,7 +253,7 @@ function SubmissionContainer(props) {
                   return
                 }
                 props.history.push(
-                  `../../${getShortID(newTeam['@id'])}/submission/${
+                  `../../${getShortID(newTeam['_id'])}/submission/${
                     tabID
                   }`
                 )
@@ -487,7 +478,7 @@ const getID = (settings, props) => {
 const getCourseInstance = (props) => {
   if (props.courseInstanceLoaded 
       && !props.courseInstanceLoading 
-      && getShortID(props.courseInstance['@id']) === props.match.params.courseInstanceID) {
+      && getShortID(props.courseInstance['_id']) === props.match.params.courseInstanceID) {
     return
   }
   props.assignmentsGetCourseInstance(props.match.params.courseInstanceID)
@@ -503,12 +494,12 @@ const getAssignmentName = (assignment, initialSubmission, improvedSubmission) =>
           || improvedSubmission !== null)) {
     if (initialSubmission) {
       name = initialSubmission.submittedField.find(
-        submittedField => submittedField.field[0]['@id'] === fieldType['@id']
+        submittedField => submittedField.field[0]['_id'] === fieldType['_id']
       ).value
     }
     if (improvedSubmission) {
       name = improvedSubmission.submittedField.find(
-        submittedField => submittedField.field[0]['@id'] === fieldType['@id']
+        submittedField => submittedField.field[0]['_id'] === fieldType['_id']
       ).value
     }
   }
@@ -517,17 +508,9 @@ const getAssignmentName = (assignment, initialSubmission, improvedSubmission) =>
 
 const getSubmissionSubmittedBy = (settings, id, assignment) => {
   if (settings.teamAssignment) {
-    return useGetSubmissionSubmitedByTeamQuery({
-      id: getShortID(assignment['@id']),
-      teamId: id,
-      attr: '&_join=submittedField',
-    })
+    return getSubmission({assignemntId: assignment['_id'], teamId: id}).unwrap()
   }
-  return useGetSubmissionSubmitedByStudentQuery({
-    id: getShortID(assignment['@id']),
-    studentId: id,
-    attr: '&_join=submittedField',
-  })
+  return getSubmission({assignemntId: assignment['_id'], studentId: id}).unwrap()
 }
 
 const mapStateToProps = ({
@@ -543,7 +526,7 @@ const mapStateToProps = ({
     courseInstanceLoaded &&
     user &&
     courseInstance.hasInstructor.some(
-      instructor => instructor['@id'] === user.fullURI
+      instructor => instructor['_id'] === user.fullURI
     )
   return {
     courseInstance,

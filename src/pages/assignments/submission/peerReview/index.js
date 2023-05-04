@@ -28,8 +28,8 @@ import {
   useAddPeerReviewMutation,
   useUpdatePeerReviewMutation,
 } from 'services/peerReview'
-import { useGetTeamQuery } from 'services/team'
-import { useGetUserQuery } from 'services/user'
+import { useLazyGetTeamQuery } from 'services/teamGraph'
+import { useLazyGetUserQuery } from 'services/user'
 
 
 function PeerReview(props) {
@@ -56,11 +56,13 @@ function PeerReview(props) {
 
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [getUser, getUserResult] = useLazyGetUserQuery()
   const [addComment, addCommentResult] = useAddCommentMutation()
   const [addPeerReview, addPeerReviewResult] = useAddPeerReviewMutation()
   const [updatePeerReview, updatePeerReviewResult] = useUpdatePeerReviewMutation()
   const [addPeerReviewQuestionAnswer, addPeerReviewQuestionAnswerResult] = useAddPeerReviewQuestionAnswerMutation()
   const [updatePeerReviewQuestionAnswer, updatePeerReviewQuestionAnswerResult] = useUpdatePeerReviewQuestionAnswerMutation()
+  const [getTeam] = useLazyGetTeamQuery()
 
   useEffect(() => {
     fetchComments()
@@ -93,7 +95,7 @@ function PeerReview(props) {
     if (initialSubmission === null) {
       return
     }
-    const {data, isSuccess} = getFetchCommentsRequest(commentCreatorsVisible, initialSubmission['@id'])
+    const {data, isSuccess} = getFetchCommentsRequest(commentCreatorsVisible, initialSubmission['_id'])
     if (isSuccess && data) {
       let allComments = data.filter(comment => !comment['@type'].endsWith('CodeComment'))
       let newMessageColors = [...messageColors]
@@ -103,10 +105,10 @@ function PeerReview(props) {
         )
         .map(comment => {
           if (
-            !newMessageColors.some(color => color.id === comment.createdBy['@id'])
+            !newMessageColors.some(color => color.id === comment.createdBy['_id'])
           ) {
             newMessageColors.push({
-              id: comment.createdBy['@id'],
+              id: comment.createdBy['_id'],
               hex: getRandomRolor(),
               name: `Anonymous ${newMessageColors.length + 1}`,
             })
@@ -114,7 +116,7 @@ function PeerReview(props) {
           return {
             ...comment,
             color: newMessageColors.find(
-              color => color.id === comment.createdBy['@id']
+              color => color.id === comment.createdBy['_id']
             ),
           }
         })
@@ -127,7 +129,7 @@ function PeerReview(props) {
           ...comment,
           childComments: childComments
             .filter(
-              subcomment => subcomment.ofComment[0]['@id'] === comment['@id']
+              subcomment => subcomment.ofComment[0]['_id'] === comment['_id']
             )
             .reverse(),
         }))
@@ -140,7 +142,7 @@ function PeerReview(props) {
   const fetchQuestions = () => {
     const peerReviewQuestions = []
     props.assignment.reviewsQuestion.forEach(question => {
-      const {data, isSuccess} = useGetPeerReviewQuestionQuery(getShortID(question['@id']))
+      const {data, isSuccess} = useGetPeerReviewQuestionQuery(getShortID(question['_id']))
       if (isSuccess && data) {
         peerReviewQuestions.push(data[0])
       }
@@ -153,7 +155,7 @@ function PeerReview(props) {
     if (submissionID === null 
       || props.toReview === null 
       || (props.assignment.reviewedByTeam 
-          && !props.teams.some(team => team['@id'] === props.toReview.team[0]['@id']))) {
+          && !props.teams.some(team => team['_id'] === props.toReview.team[0]['_id']))) {
       return
     }
     const {data, isSuccess} = getFetchMyReviewRequest(props, submissionID)
@@ -170,7 +172,7 @@ function PeerReview(props) {
     let questionare = questions.map(question => ({
       //load default values
       question,
-      id: question['@id'],
+      id: question['_id'],
       rated: question.rated,
       exists: false,
       score: 0,
@@ -188,7 +190,7 @@ function PeerReview(props) {
             exists: true,
             score: answer.score,
             answer: answer.answer,
-            answerID: answer['@id'],
+            answerID: answer['_id'],
           }
         }
       })
@@ -210,27 +212,23 @@ function PeerReview(props) {
           //get team
           const teams = []
           reviews.forEach(review => {
-            const {
-              data: getTeamData, 
-              isSuccess: getTeamIsSuccess
-            } = useGetTeamQuery(getShortID(review.reviewedByTeam[0]['@id']))
-            if (getTeamIsSuccess && getTeamData) {
+            getTeam({id: review.reviewedByTeam[0]['_id']}).unwrap().then(getTeamData => { 
               teams.push(getTeamData[0])
-            }
+            })
           })
           reviews = assignTeamToReview(reviews, teams)
           processReviews(reviews)
         } else {
           //get user
-          const users = []
+          const students = []
           reviews.forEach(review => {
-            const {
-              data: getUserData, 
-              isSuccess: getUserIsSuccess
-            } = useGetUserQuery(getShortID(review.reviewedByStudent[0]['@id']))
-            if (getUserIsSuccess && getUserData) {
-              users.push(getUserData[0])
-            }
+            getUser({
+              id: getShortID(review.reviewedByStudent[0]['_id'])
+            }).unwrap().then(response => {
+              if (getUserResult.isSuccess && response) {
+                students.push(response[0])
+              }
+            })
           })
           reviews = assignStudentToReview(reviews, students)
           processReviews(reviews)
@@ -261,7 +259,7 @@ function PeerReview(props) {
       return {
         ...question,
         answers: answers
-          .filter(answer => answer.question === question['@id'])
+          .filter(answer => answer.question === question['_id'])
           .sort((answer1, answer2) =>
             answer1.createdAt > answer2.createdAt ? -1 : 1
           ),
@@ -280,11 +278,11 @@ function PeerReview(props) {
     setGeneralCommentSaving(true)
     const newComment = {
       commentText: prepareMultiline(newGeneralComment),
-      ofSubmission: props.initialSubmission['@id'],
+      ofSubmission: props.initialSubmission['_id'],
       _type: 'comment',
     }
     if (newGeneralCommentParent !== null) {
-      newComment.ofComment = newGeneralCommentParent['@id']
+      newComment.ofComment = newGeneralCommentParent['_id']
     }
     addComment(newComment).unwrap().then(response => {
       setGeneralCommentSaving(false)
@@ -319,7 +317,7 @@ function PeerReview(props) {
       addPeerReviewQuestionAnswer({
         score: review.score,
         answer: review.answer,
-        question: review.question['@id'],
+        question: review.question['_id'],
       }).unwrap().then(response => {
         newIDs.push(response.data.resource.iri)
       })
@@ -335,7 +333,7 @@ function PeerReview(props) {
       }
 
       updatePeerReview({
-        id: getShortID(myReview['@id']),
+        id: getShortID(myReview['_id']),
         patch: {
           hasQuestionAnswer: [
             ...existingReviews.map(review => review.answerID),
@@ -356,10 +354,10 @@ function PeerReview(props) {
         ofSubmission: submissionID,
       }
       if (props.assignment.reviewedByTeam) {
-        newPeerReview.reviewedByTeam = props.toReview.team[0]['@id']
+        newPeerReview.reviewedByTeam = props.toReview.team[0]['_id']
       } else {
         newPeerReview.reviewedByStudent =
-          props.toReview.student[0]['@id']
+          props.toReview.student[0]['_id']
       }
       addPeerReview(newPeerReview).unwrap().then(response => {
         setSaving(false)
@@ -477,7 +475,7 @@ function PeerReview(props) {
         </div>
       )}
       {generalComments.map(genComment => (
-        <div key={genComment['@id']}>
+        <div key={genComment['_id']}>
           <Label className="flex row">
             Commented by
             <span
@@ -500,7 +498,7 @@ function PeerReview(props) {
           </div>
           <div style={{ padding: '5px 10px' }}>
             {genComment.childComments.map(childComment => (
-              <div key={childComment['@id']}>
+              <div key={childComment['_id']}>
                 <hr style={{ margin: 0 }} />
                 <Label className="flex row">
                   Commented by
@@ -581,7 +579,7 @@ const getCommentCreatorsVisible = (props) => {
 
 const getSubmissionID = (props) => {
   if (props.initialSubmission !== null) {
-    return props.initialSubmission['@id']
+    return props.initialSubmission['_id']
   }
   return null
 }
@@ -596,12 +594,12 @@ const getFetchCommentsRequest = (commentCreatorsVisible, id) => {
 const getFetchMyReviewRequest = (props, submissionID) => {
   if (this.props.assignment.reviewedByTeam) {
     return useGetPeerReviewForTeamHasAnswerQuery({
-      teamId: getShortID(props.toReview.team[0]['@id']),
+      teamId: getShortID(props.toReview.team[0]['_id']),
       id: getShortID(submissionID)
     })
   }
   return useGetPeerReviewOfUserHasAnswerQuery({
-    id: getShortID(props.toReview.student[0]['@id']),
+    id: getShortID(props.toReview.student[0]['_id']),
     subId: getShortID(submissionID)
   })
 }
@@ -616,7 +614,7 @@ const getCommentBy = (comment, commentCreatorsVisible) => {
 const assignTeamToReview = (reviews, teams) => {
   return reviews.map(review => ({
     ...review,
-    team: teams.find(team => team['@id'] === review.reviewedByTeam[0]['@id']),
+    team: teams.find(team => team['_id'] === review.reviewedByTeam[0]['_id']),
   }))
 }
 
@@ -624,7 +622,7 @@ const assignStudentToReview = (reviews, students) => {
   return reviews.map(review => ({
     ...review,
     student: students.find(
-      student => student['@id'] === review.reviewedByStudent[0]['@id']
+      student => student['_id'] === review.reviewedByStudent[0]['_id']
     ),
   }))
 }

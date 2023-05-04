@@ -3,7 +3,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, NavItem, NavLink, N
 import classnames from 'classnames';
 import { connect } from "react-redux";
 import { editAssignment } from '../reusableFunctions';
-import { getResponseBody, axiosGetEntities, getShortID, timestampToInput } from 'helperFunctions';
+import { getShortID, timestampToInput } from 'helperFunctions';
 import { infoOK, fieldsOK, submissionOK, teamsOK, reviewsOK, teamReviewsOK,getRealDeadline } from './verify';
 
 import Info from './0-info';
@@ -12,9 +12,24 @@ import Fields from './2-fields';
 import Teams from './3-teams';
 import Reviews from './4-reviews';
 import TeamReviews from './5-teamReviews';
-import { useGetFieldQuery } from 'services/assignments';
+import { useLazyGetFieldQuery } from 'services/assignmentsGraph';
 import { useGetPeerReviewQuestionsQuery } from 'services/peerReview'
 import { useGetMaterialsQuery } from 'services/documents';
+import { 
+  useUpdateAssignmentPeriodMutation, 
+  useNewAssignmentPeriodMutation, 
+  useDeleteAssignmentPeriodMutation,
+  useNewFieldMutation,
+  useUpdateFieldMutation,
+  useDeleteFieldMutation,
+  useUpdateAssignmentMutation,
+  useNewAssignmentMutation,
+} from 'services/assignmentsGraph';
+import { useDeleteAssignmentPeerReviewPeriodMutation } from 'services/assignments'
+import { 
+  useAddPeerReviewQuestionMutation,
+} from 'services/peerReview'
+import { useAddMaterialMutation } from 'services/documents';
 
 function ModalAddAssignment(props) {
   const assignment = props.assignment;
@@ -80,14 +95,25 @@ function ModalAddAssignment(props) {
     extraTime: null
   })
   const [defaultTeamReviews, setDefaultTeamReviews] = useState(teamReviews)
+  const [getField] = useLazyGetFieldQuery()
+  const [updateAssignmentPeriod, updateAssignmentPeriodResult] = useUpdateAssignmentPeriodMutation()
+  const [addAssignmentPeriod, addAssignmentPeriodResult] = useNewAssignmentPeriodMutation()
+  const [deleteAssignmentPeriod, deleteAssignmentPeriodResult] = useDeleteAssignmentPeriodMutation()
+  const [deleteAssignmentPeerReviewPeriod, deleteAssignmentPeerReviewPeriodResult] = useDeleteAssignmentPeerReviewPeriodMutation()
+  const [addPeerReviewQuestion, addPeerReviewQuestionResult] = useAddPeerReviewQuestionMutation()
+  const [newMaterial, newMaterialResult] = useAddMaterialMutation()
+  const [addField, addFieldResult] = useNewFieldMutation()
+  const [updateField, updateFieldResult] = useUpdateFieldMutation()
+  const [deleteField, deleteFieldResult] = useDeleteFieldMutation()
+  const [updateAssignment, updateAssignmentResult] = useUpdateAssignmentMutation()
+  const [addAssignment, addAssignmentResult] = useNewAssignmentMutation()
 
   useEffect(() => {
     const fields = []
     assignment.hasField.forEach((field) => {
-      const {data, isSuccess} = useGetFieldQuery(getShortID(field['@id']))
-      if (isSuccess && data) {
+      getField(field['_id']).unwrap().then(data => {
         fields.push(data[0])
-      }
+      })
     })
     prepareForm(fields)
   }, [allQuestions, allMaterials])
@@ -100,7 +126,7 @@ function ModalAddAssignment(props) {
 
   const deleteMaterial = (material) => {
     let newInfo = { ...info }
-    newInfo.hasMaterial = info.hasMaterial.filter((material2) => material2['@id'] !== material['@id'])
+    newInfo.hasMaterial = info.hasMaterial.filter((material2) => material2['_id'] !== material['_id'])
     setInfo(newInfo)
   }
 
@@ -108,7 +134,7 @@ function ModalAddAssignment(props) {
     let material = {...materialData}
     if (materialData.new === undefined) {
       material.new = true;
-      material['@id'] = '#n-' + getNewID();
+      material['_id'] = '#n-' + getNewID();
     }
     info.hasMaterial.push(material);
     if (materialData.new === undefined) {
@@ -120,7 +146,7 @@ function ModalAddAssignment(props) {
 
   const deleteQuestion = (question) => {
     let newReviews = { ...reviews };
-    newReviews.questions = reviews.questions.filter((question2) => question2['@id'] !== question['@id'] )
+    newReviews.questions = reviews.questions.filter((question2) => question2['_id'] !== question['_id'] )
     setReviews(newReviews)
   }
 
@@ -128,7 +154,7 @@ function ModalAddAssignment(props) {
     let question = {...questionData }
     if (questionData.new === undefined) {
       question.new = true;
-      question['@id'] = '#n-' + getNewID();
+      question['_id'] = '#n-' + getNewID();
     }
     reviews.questions.push(question);
     if (questionData.new === undefined) {
@@ -159,23 +185,23 @@ function ModalAddAssignment(props) {
   }
 
   const prepareForm = (fields) => {
-    const materialIDs = assignment.hasMaterial.map((material) => material['@id'] );
+    const materialIDs = assignment.hasMaterial.map((material) => material['_id'] );
     const info = {
       name: assignment.name,
       description: assignment.description,
       shortDescription: assignment.shortDescription,
-      hasMaterial: allMaterials.filter( (material) => materialIDs.includes(material['@id']) ),
+      hasMaterial: allMaterials.filter( (material) => materialIDs.includes(material['_id']) ),
     }
     const newFields = {
       fields: fields.map( (field) => ({
-        id: field['@id'],
+        id: field['_id'],
         title: field.name,
         description: field.description,
         type:{
           label: field.label,
           value: field.fieldType,
         },
-        fieldID: field['@id'],
+        fieldID: field['_id'],
         exists: true,
       })),
     } //DOLE
@@ -204,7 +230,7 @@ function ModalAddAssignment(props) {
       reviewsPerSubmission: (!assignment.reviewsDisabled && assignment.reviewsPerSubmission ) || 3,
       reviewedByTeam: (!assignment.reviewsDisabled && assignment.reviewedByTeam ) || !assignment.teamsDisabled,
       visibility: (!assignment.reviewsDisabled && assignment.reviewsVisibility ) || 'blind',
-      questions:  (!assignment.reviewsDisabled && allQuestions.filter((question) => assignment.reviewsQuestion.some((reviewQuestion) => question['@id'] === reviewQuestion['@id'] ) ) ) || []
+      questions:  (!assignment.reviewsDisabled && allQuestions.filter((question) => assignment.reviewsQuestion.some((reviewQuestion) => question['_id'] === reviewQuestion['_id'] ) ) ) || []
     }
     const teamReviews = {
       disabled: assignment.teamReviewsDisabled,
@@ -269,10 +295,20 @@ function ModalAddAssignment(props) {
       },
       props.assignment,
       (response)=>{
-        props.updateAssignment(props.assignment['@id']);
+        props.updateAssignment(props.assignment['_id']);
         toggle();
         setSaving(false)
-      }
+      },
+      updateAssignmentPeriod,
+      addAssignmentPeriod,
+      deleteAssignmentPeriod,
+      deleteAssignmentPeerReviewPeriod,
+      addPeerReviewQuestion,
+      newMaterial,
+      addField,
+      updateField,
+      deleteField,
+      updateAssignment
     );
   }
 

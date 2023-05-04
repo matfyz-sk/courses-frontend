@@ -1,19 +1,4 @@
 import { inputToTimestamp, getIRIFromAddResponse, axiosAddEntity, axiosUpdateEntity, axiosDeleteEntity, getShortID, htmlRemoveNewLines } from 'helperFunctions';
-import { 
-  useUpdateAssignmentPeriodMutation, 
-  useAddAssignmentPeriodMutation, 
-  useDeleteAssignmentPeriodMutation,
-  useDeleteAssignmentPeerReviewPeriodMutation,
-  useAddFieldMutation,
-  useUpdateFieldMutation,
-  useDeleteFieldMutation,
-  useUpdateAssignmentMutation,
-  useAddAssignmentMutation,
-} from 'services/assignments';
-import { 
-  useAddPeerReviewQuestionMutation,
-} from 'services/peerReview'
-import { useAddMaterialMutation } from 'services/documents';
 
 export const getAssignmentPeriods = (assignment) => {
   let periods = [...assignment.initialSubmissionPeriod];
@@ -26,11 +11,11 @@ export const getAssignmentPeriods = (assignment) => {
   if(!assignment.teamReviewsDisabled && !assignment.teamsDisabled){
     periods.push(...assignment.teamReviewPeriod);
   }
-  return periods.map((period) => period['@id'] );
+  return periods.map((period) => period['_id'] );
 }
 
 export const findPeriod = (oldPeriod, periods) => {
-  return periods.find( (period) => period['@id'] === oldPeriod[0]['@id'] )
+  return periods.find( (period) => period['_id'] === oldPeriod[0]['_id'] )
 }
 
 export const assignPeriods = (originalAssignment, periods) => {
@@ -88,12 +73,16 @@ export const preparePeriod = (source, improved = false) => {
   }
 }
 
-export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) => {
-  const [addAssignmentPeriod, addAssignmentPeriodResult] = useAddAssignmentPeriodMutation()
-  const [addPeerReviewQuestion, addPeerReviewQuestionResult] = useAddPeerReviewQuestionMutation()
-  const [addMaterial, addMaterialResult] = useAddMaterialMutation()
-  const [addField, addFieldResult] = useAddFieldMutation()
-  const [addAssignment, addAssignmentResult] = useAddAssignmentMutation()
+export const addAssignment = (
+  newAssignment, 
+  courseInstanceID, 
+  afterFunction,
+  addAssignmentPeriod,
+  addPeerReviewQuestion,
+  addMaterial,
+  addField,
+  addAssignment
+  ) => {
   let assignmentData = prepareAssignmentData( newAssignment );
   assignmentData.courseInstance = courseInstanceID;
 
@@ -103,14 +92,14 @@ export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) =
     deadline: 10,
   }));
 
-  let existingQuestionsIDs = newAssignment.reviews.questions.filter((question) => !question.new).map((question) => question['@id'] );
+  let existingQuestionsIDs = newAssignment.reviews.questions.filter((question) => !question.new).map((question) => question['_id'] );
 
   let newMaterials = newAssignment.info.hasMaterial.filter((material) => material.new).map((material) => ({
     name: material.name,
     URL: material.URL
   }));
 
-  let existingMaterialsIDs = newAssignment.info.hasMaterial.filter((material) => !material.new).map((material) => material['@id'] );
+  let existingMaterialsIDs = newAssignment.info.hasMaterial.filter((material) => !material.new).map((material) => material['_id'] );
 
   let newFields = newAssignment.fields.fields.map((field) => ({
     name: field.title,
@@ -187,19 +176,23 @@ export const addAssignment = (newAssignment, courseInstanceID, afterFunction ) =
   })
 }
 
-export const editAssignment = (newAssignment, assignment, afterFunction ) => {
-  const assignmentID = assignment['@id'];
-  const courseInstance = assignment.courseInstance['@id'];
-  const [updateAssignmentPeriod, updateAssignmentPeriodResult] = useUpdateAssignmentPeriodMutation()
-  const [addAssignmentPeriod, addAssignmentPeriodResult] = useAddAssignmentPeriodMutation()
-  const [deleteAssignmentPeriod, deleteAssignmentPeriodResult] = useDeleteAssignmentPeriodMutation()
-  const [deleteAssignmentPeerReviewPeriod, deleteAssignmentPeerReviewPeriodResult] = useDeleteAssignmentPeerReviewPeriodMutation()
-  const [addPeerReviewQuestion, addPeerReviewQuestionResult] = useAddPeerReviewQuestionMutation()
-  const [addMaterial, addMaterialResult] = useAddMaterialMutation()
-  const [addField, addFieldResult] = useAddFieldMutation()
-  const [updateField, updateFieldResult] = useUpdateFieldMutation()
-  const [deleteField, deleteFieldResult] = useDeleteFieldMutation()
-  const [updateAssignment, updateAssignmentResult] = useUpdateAssignmentMutation()
+export const editAssignment = (
+  newAssignment, 
+  assignment, 
+  afterFunction,
+  updateAssignmentPeriod,
+  addAssignmentPeriod,
+  deleteAssignmentPeriod,
+  deleteAssignmentPeerReviewPeriod,
+  addPeerReviewQuestion,
+  addMaterial,
+  addField,
+  updateField,
+  deleteField,
+  updateAssignment
+  ) => {
+  const assignmentID = assignment['_id'];
+  const courseInstance = assignment.courseInstance['_id'];
 
   let assignmentData = prepareAssignmentData(newAssignment);
   let newQuestions = newAssignment.reviews.questions.filter((question) => question.new).map((question) => ({
@@ -208,14 +201,14 @@ export const editAssignment = (newAssignment, assignment, afterFunction ) => {
     deadline: 10,
   }));
 
-  let existingQuestionsIDs = newAssignment.reviews.questions.filter((question) => !question.new).map((question) => question['@id'] );
+  let existingQuestionsIDs = newAssignment.reviews.questions.filter((question) => !question.new).map((question) => question['_id'] );
 
   let newMaterials = newAssignment.info.hasMaterial.filter((material) => material.new).map((material) => ({
     name: material.name,
     URL: material.URL
   }));
 
-  let existingMaterialsIDs = newAssignment.info.hasMaterial.filter((material) => !material.new).map((material) => material['@id'] );
+  let existingMaterialsIDs = newAssignment.info.hasMaterial.filter((material) => !material.new).map((material) => material['_id'] );
 
   let newFields = newAssignment.fields.fields.filter((field) => field.exists === undefined ).map((field) => ({
     name: field.title,
@@ -245,42 +238,42 @@ export const editAssignment = (newAssignment, assignment, afterFunction ) => {
   let axiosDeletePeriods = [];
   //initial sub - always update
   axiosPeriods.push(updateAssignmentPeriod({
-    id: getShortID(assignment.initialSubmissionPeriod['@id']),
-    patch: newAssignment.submission
+    id: getShortID(assignment.initialSubmissionPeriod['_id']),
+    body: preparePeriod(newAssignment.submission)
   }).unwrap())
   if(assignmentData.submissionImprovedSubmission && assignment.submissionImprovedSubmission){ //update existing
     axiosPeriods.push(updateAssignmentPeriod({
-      id: getShortID(assignment.improvedSubmissionPeriod['@id']),
-      patch: preparePeriod(newAssignment.submission, true)
+      id: getShortID(assignment.improvedSubmissionPeriod['_id']),
+      body: preparePeriod(newAssignment.submission, true)
     }).unwrap())
   }else if( assignmentData.submissionImprovedSubmission && !assignment.submissionImprovedSubmission ){ //add new
     axiosPeriods.push(addAssignmentPeriod({...preparePeriod(newAssignment.submission, true), courseInstance }).unwrap())
   }else if ( !assignmentData.submissionImprovedSubmission && assignment.submissionImprovedSubmission ){ //delete existing
-    axiosDeletePeriods.push(deleteAssignmentPeriod(getShortID(assignment.improvedSubmissionPeriod['@id'])).unwrap());
+    axiosDeletePeriods.push(deleteAssignmentPeriod(getShortID(assignment.improvedSubmissionPeriod['_id'])).unwrap());
     axiosDeletePeriods.push(deleteAssignmentPeerReviewPeriod(getShortID(assignmentID)).unwrap());
   }
 
   if(!assignmentData.reviewsDisabled && !assignment.reviewsDisabled){ //update existing
     axiosPeriods.push(updateAssignmentPeriod({
-      id: getShortID(assignment.peerReviewPeriod['@id']),
-      patch: preparePeriod(newAssignment.reviews)
+      id: getShortID(assignment.peerReviewPeriod['_id']),
+      body: preparePeriod(newAssignment.reviews)
     }).unwrap())
   }else if( !assignmentData.reviewsDisabled && assignment.reviewsDisabled ){ //add new
     axiosPeriods.push(addAssignmentPeriod({...preparePeriod(newAssignment.reviews), courseInstance }).unwrap())
   }else if ( assignmentData.reviewsDisabled && !assignment.reviewsDisabled ){ //delete existing
-    axiosDeletePeriods.push(deleteAssignmentPeriod(getShortID(assignment.peerReviewPeriod['@id'])).unwrap());
+    axiosDeletePeriods.push(deleteAssignmentPeriod(getShortID(assignment.peerReviewPeriod['_id'])).unwrap());
     axiosDeletePeriods.push(deleteAssignmentPeerReviewPeriod(getShortID(assignmentID)).unwrap());
   }
 
   if(!assignmentData.teamReviewsDisabled && !assignment.teamReviewsDisabled ){ //update existing
     axiosPeriods.push(updateAssignmentPeriod({
-      id: getShortID(assignment.teamReviewPeriod['@id']),
-      patch: preparePeriod(newAssignment.teamReviews)
+      id: getShortID(assignment.teamReviewPeriod['_id']),
+      body: preparePeriod(newAssignment.teamReviews)
     }).unwrap())
   }else if( !assignmentData.teamReviewsDisabled && assignment.teamReviewsDisabled ){ //add new
     axiosPeriods.push(addAssignmentPeriod({...preparePeriod(newAssignment.teamReviews), courseInstance }).unwrap())
   }else if ( assignmentData.teamReviewsDisabled && !assignment.teamReviewsDisabled ){ //delete existing
-    axiosDeletePeriods.push(deleteAssignmentPeriod(getShortID(assignment.teamReviewPeriod['@id'])).unwrap());
+    axiosDeletePeriods.push(deleteAssignmentPeriod(getShortID(assignment.teamReviewPeriod['_id'])).unwrap());
     axiosDeletePeriods.push(deleteAssignmentPeerReviewPeriod(getShortID(assignmentID)).unwrap());
   }
 
@@ -293,7 +286,7 @@ export const editAssignment = (newAssignment, assignment, afterFunction ) => {
   let axiosFields =  newFields.map((field) => addField(field).unwrap()).concat(
     existingFields.map((field) => updateField({
       id: getShortID(field.id),
-      patch: {
+      body: {
         name: field.name,
         description: field.description,
         label: field.label,
@@ -302,7 +295,7 @@ export const editAssignment = (newAssignment, assignment, afterFunction ) => {
     }).unwrap())
   )
 
-  let axiosDeleteFields = assignment.hasField.map( (field) => field['@id'] )
+  let axiosDeleteFields = assignment.hasField.map( (field) => field['_id'] )
     .filter( (filedID) => !existingFields.some((field) => field.id === filedID ))
     .map((fieldID)=> deleteField(getShortID(fieldID)).unwrap())
   Promise.all([
@@ -320,7 +313,7 @@ export const editAssignment = (newAssignment, assignment, afterFunction ) => {
     let index = 0;
     //periods
     assignmentData.initialSubmissionPeriod = periodsIDs[index];
-    index ++;
+    index++;
 
     if(assignmentData.submissionImprovedSubmission){
       assignmentData.improvedSubmissionPeriod = periodsIDs[index];
@@ -341,7 +334,7 @@ export const editAssignment = (newAssignment, assignment, afterFunction ) => {
     assignmentData.hasField = fieldsIDs;
     return updateAssignment({
       id: getShortID(assignmentID),
-      patch: assignmentData
+      body: assignmentData
     }).unwrap().then(afterFunction);
   })
 

@@ -7,18 +7,15 @@ import AddAssignment from './assignment/add';
 import { inputToTimestamp, getShortID, afterNow } from 'helperFunctions';
 import { assignmentsGetStudentTeams, assignmentsGetCourseInstance } from 'redux/actions';
 import { getAssignmentPeriods, assignPeriods } from './reusableFunctions';
-import { 
-  useGetAssignmentQuery, 
-  useGetAssignmentPeriodQuery, 
-  useGetSubmissionForAssignmentQuery, 
-  useGetAssignmentByCourseInstanceQuery 
-} from 'services/assignments';
-
+import { useLazyGetAssignmentQuery, useLazyGetAssignmentPeriodQuery, useLazyGetSubmissionQuery } from 'services/assignmentsGraph';
 
 function Assignments(props) {
   const [assignments, setAssignments] = useState([])
   const [loadingAssignments, setLoadingAssignments] = useState(true)
-  
+  const [getAssignment] = useLazyGetAssignmentQuery()
+  const [getAssignmentPeriod] = useLazyGetAssignmentPeriodQuery()
+  const [getSubmission] = useLazyGetSubmissionQuery()
+
   getCourseInstance()
 
   useEffect(() => {
@@ -32,7 +29,7 @@ function Assignments(props) {
   const getCourseInstance = () => {
     if(props.courseInstanceLoaded 
       && !props.courseInstanceLoading 
-      && getShortID(props.courseInstance['@id']) === props.match.params.courseInstanceID){
+      && getShortID(props.courseInstance['_id']) === props.match.params.courseInstanceID){
       return
     }
     props.assignmentsGetCourseInstance(props.match.params.courseInstanceID)
@@ -46,33 +43,29 @@ function Assignments(props) {
   }
 
   const updateAssignment = (assignmentID) => {
-    const { data: assignmentData, isSuccess: assignmentIsSuccess } = useGetAssignmentQuery(getShortID(assignmentID))
-    if(assignmentIsSuccess && assignmentData) {
+    getAssignment({id: assignmentID}).unwrap().then(assignmentData => {
       let assignment = assignmentData[0]
       const periodsIDs = getAssignmentPeriods(assignment)
       let periods = []
       periodsIDs.forEach(periodsId => {
-        const { data, isSuccess } = useGetAssignmentPeriodQuery(getShortID(periodsId))
-        if(isSuccess && data) {
+        getAssignmentPeriod(periodsId).unwrap().then(data => {
           periods.push(data[0])
-        }
+        })
       })
       
-      const { data: submissionData, isSuccess: submissionIsSuccess } = useGetSubmissionForAssignmentQuery(getShortID(assignmentID))
-      if(submissionIsSuccess && submissionData) {
+      getSubmission({assignmentId: assignmentID}).unwrap().then(submissionData => {
         assignment.submissions = submissionData
-      }
+      })
 
-      let newAssignments = [assignPeriods(assignment, periods)].concat(assignments.filter((assignment) => assignment['@id'] !== assignmentID ));
+      let newAssignments = [assignPeriods(assignment, periods)].concat(assignments.filter((assignment) => assignment['_id'] !== assignmentID ));
       newAssignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
       setAssignments(newAssignments)
-    }
+    })
   }
 
   const refreshAssignments = (argProps) => {
     if (argProps.courseInstance !== null && argProps.user !== null) {
-      const {data: assignmentData, isSuccess: assignmentIsSuccess } = useGetAssignmentByCourseInstanceQuery(getShortID(argProps.courseInstance['@id']))
-      if (assignmentIsSuccess && assignmentData) {
+      getAssignment({courseInstanceId: argProps.courseInstance['_id']}).unwrap().then(assignmentData => {
         let newAssignments = assignmentData.filter((result) => result['@type'].endsWith('ontology#Assignment'))
         const periodsIDs = newAssignments.map(getAssignmentPeriods).reduce(
           (acc,value)=>{
@@ -83,18 +76,16 @@ function Assignments(props) {
         if (argProps.isInstructor) {
           let periods = []
           periodsIDs.forEach(periodsId => {
-            const { data, isSuccess } = useGetAssignmentPeriodQuery(getShortID(periodsId))
-            if(isSuccess && data) {
+            getAssignmentPeriod(periodsId).unwrap().then(data => {
               periods.push(data[0])
-            }
+            })
           })
 
           let submissions = []
           newAssignments.forEach(assignment => {
-            const { data, isSuccess } = useGetSubmissionForAssignmentQuery(getShortID(assignment['@id']))
-            if(isSuccess && data) {
+            getSubmission({assignmentId: assignment['_id']}).unwrap().then(data => {
               submissions.push(data)
-            }
+            })
           })
 
           newAssignments = assignSubmissions(newAssignments, submissions);
@@ -103,13 +94,12 @@ function Assignments(props) {
           setAssignments(newAssignments)
           setLoadingAssignments(false)
         } else {
-          props.assignmentsGetStudentTeams(argProps.user.fullURI, argProps.courseInstance['@id']);
+          props.assignmentsGetStudentTeams(argProps.user.fullURI, argProps.courseInstance['_id']);
           let periods = []
           periodsIDs.forEach(periodsId => {
-            const { data, isSuccess } = useGetAssignmentPeriodQuery(getShortID(periodsId))
-            if(isSuccess && data) {
+            getAssignmentPeriod(periodsId).unwrap().then(data => {
               periods.push(data[0])
-            }
+            })
           })
           
           newAssignments = newAssignments.map((assignment) => assignPeriods(assignment, periods));
@@ -117,7 +107,7 @@ function Assignments(props) {
           setAssignments(newAssignments)
           setLoadingAssignments(false)
         }
-      }
+      })
     }
   }
 
@@ -144,7 +134,7 @@ function Assignments(props) {
     <div className="assignmentsContainer center-ver mt-3">
       <h1 className="row">
         Assignments { props.user !== null &&
-          props.courseInstance.hasInstructor.some((instructor) => instructor['@id'] === props.user.fullURI ) &&
+          props.courseInstance.hasInstructor.some((instructor) => instructor['_id'] === props.user.fullURI ) &&
           <AddAssignment updateAssignment={updateAssignment} /> }
       </h1>
 
@@ -153,12 +143,12 @@ function Assignments(props) {
       </Alert>
       {
         (props.isInstructor ? assignments : assignments.filter(studentReadyAssignment) ).map((assignment)=>
-        <AssignmentView key={assignment['@id']}
+        <AssignmentView key={assignment['_id']}
           assignment={assignment}
           history={props.history}
           updateAssignment={updateAssignment}
           removeAssignment={()=>{
-            let newAssignments = state.assignments.filter((assignment2) => assignment2['@id'] !== assignment['@id'] )
+            let newAssignments = state.assignments.filter((assignment2) => assignment2['_id'] !== assignment['_id'] )
             setAssignments(newAssignments)
           }}
           />)
@@ -171,7 +161,7 @@ const mapStateToProps = ({assignCourseInstanceReducer, authReducer, assignStuden
   const { courseInstance, courseInstanceLoaded, courseInstanceLoading } = assignCourseInstanceReducer;
   const { user } = authReducer;
   const { teamsLoaded } = assignStudentDataReducer;
-  const isInstructor = courseInstanceLoaded && user && courseInstance.hasInstructor.some((instructor) => instructor['@id'] === user.fullURI );
+  const isInstructor = courseInstanceLoaded && user && courseInstance.hasInstructor.some((instructor) => instructor['_id'] === user.fullURI );
 	return {
     courseInstance, courseInstanceLoaded, courseInstanceLoading,
     user,
