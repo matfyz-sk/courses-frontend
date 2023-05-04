@@ -3,7 +3,7 @@ import { getUser, getUserID } from './index'
 
 function hasSpecificNickName(user, course) {
   for (let k = 0; k < course.hasPersonalSettings.length; k++) {
-    if (course.hasPersonalSettings[k].hasUser === user['@id']) {
+    if (course.hasPersonalSettings[k].hasUser === user['_id']) {
       if (course.hasPersonalSettings[k].nickName.length > 0) {
         return course.hasPersonalSettings[k].nickName
       }
@@ -19,7 +19,7 @@ export function showUserName(user, privilege, courseInstance = null) {
   }
 
   if (
-    getShortID(user['@id']) === getUserID() ||
+    getShortID(user['_id']) === getUserID() ||
     (!user.useNickName && !specificNickName)
   ) {
     return `${user.firstName} ${user.lastName}`
@@ -60,7 +60,7 @@ export function isVisibleUser(user) {
     user.allowContact ||
     user.showCourses ||
     user.showBadges ||
-    (getUserID() && getUserID() === getShortID(user['@id'])) ||
+    (getUserID() && getUserID() === getShortID(user['_id'])) ||
     (getUser() && getUser().isSuperAdmin)
   )
 }
