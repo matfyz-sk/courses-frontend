@@ -25,6 +25,7 @@ import {
   useGetCourseGradingQuery,
   useNewCourseGradingMutation,
   useDeleteCourseGradingMutation,
+  useUpdateCourseGradingMutation,
 } from "services/result"
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 
@@ -41,6 +42,7 @@ function CriteriaModal(props) {
   const [updateCourseInstance, updateCourseInstanceResult] = useUpdateCourseInstanceMutation()
   const [newCourseGrading, newCourseGradingResult] = useNewCourseGradingMutation()
   const [deleteCourseGrading, deleteCourseGradingResult] = useDeleteCourseGradingMutation()
+  const [updateCourseGrading, updateCourseGradingResult] = useUpdateCourseGradingMutation()
   const {data, isSuccess} = useGetCourseGradingQuery(id)
   const toggle = () => setModal(!modal)
 
@@ -78,13 +80,13 @@ function CriteriaModal(props) {
   const addGradingToCourse = (iri) => {
     const gradings = []
     for (let i = 0; i < courseInstance.hasGrading.length; i++) {
-      gradings.push(courseInstance.hasGrading[i]['@id'])
+      gradings.push(courseInstance.hasGrading[i]['_id'])
     }
     gradings.push(iri)
 
     updateCourseInstance({
-      id: getShortID(courseInstance['@id']),
-      patch: { hasGrading: gradings }
+      id: courseInstance['_id'],
+      body: { hasGrading: gradings }
     }).unwrap().then(response => {
       if (response.status) {
         setId(getShortID(iri))
@@ -116,9 +118,9 @@ function CriteriaModal(props) {
   const submitUpdate = () => {
     setLoading(true)
     if (validate()) {
-      updateCourseInstance({
-        id: getShortID(grading['@id']),
-        patch: form
+      updateCourseGrading({
+        id: grading['_id'],
+        body: form
       }).unwrap().then(response => {
         setLoading(false)
         if (response.status) {
@@ -140,7 +142,7 @@ function CriteriaModal(props) {
 
   const submitDelete = () => {
     setLoading(true)
-    deleteCourseGrading(getShortID(grading['@id'])).unwrap().then(response => {
+    deleteCourseGrading(grading['_id']).unwrap().then(response => {
       setLoading(false)
       if (response.status) {
         store.dispatch(removeCourseInstanceGrading(grading))

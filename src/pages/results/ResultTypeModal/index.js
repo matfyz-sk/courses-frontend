@@ -10,7 +10,7 @@ import {
   updateCourseInstanceResultType,
 } from '../../../redux/actions'
 import { 
-  useGetResultTypeDetailQuery, 
+  useLazyGetResultTypeQuery, 
   useNewResultTypeMutation,
   useUpdateResultTypeMutation,
   useDeleteResultTypeMutation,
@@ -32,6 +32,7 @@ function ResultTypeModal(props) {
   const [newResultType, newResultTypeResult] = useNewResultTypeMutation()
   const [updateResultType, updateResultTypeResult] = useUpdateResultTypeMutation()
   const [deleteResultType, deleteResultTypeResult] = useDeleteResultTypeMutation()
+  const [getResultType] = useLazyGetResultTypeQuery()
   const toggle = () => setModal(!modal)
 
   const validate = () => {
@@ -51,8 +52,7 @@ function ResultTypeModal(props) {
   }
 
   const getDetail = (id, action = null) => {
-    const {data, isSuccess} = useGetResultTypeDetailQuery(id)
-    if (isSuccess) { 
+    getResultType(id).unwrap().then(data => { 
       setLoading(false)
       setError(null)
       if(data && data.length > 0) {
@@ -66,23 +66,23 @@ function ResultTypeModal(props) {
           default:
             break
         }
-      } else {
-        setError(
-          'Error has occured during saving process. Please, try again.'
-        )
       }
-    }
+    }).catch(e => {
+      setError(
+        'Error has occured during saving process. Please, try again.'
+      )
+    })
   }
 
   const addResultTypeToCourse = (iri) => {
     const resultTypes = []
     for(let i = 0; i < courseInstance.hasResultType.length; i++) {
-      resultTypes.push(courseInstance.hasResultType[i]['@id'])
+      resultTypes.push(courseInstance.hasResultType[i]['_id'])
     }
     resultTypes.push(iri)
     updateCourseInstance({
-      id: getShortID(courseInstance['@id']),
-      patch: {hasResultType: resultTypes}
+      id: courseInstance['_id'],
+      body: {hasResultType: resultTypes}
     }).unwrap().then(response => {
       if(response.status) {
         getDetail(getShortID(iri), 'add')
@@ -118,8 +118,8 @@ function ResultTypeModal(props) {
     setLoading(true)
     if(validate()) {
       updateResultType({
-        id: getShortID(resultType['@id']),
-        patch: form
+        id: resultType['_id'],
+        body: form
       }).unwrap().then(response => {
         setLoading(false)
         if(response.status) {
@@ -141,7 +141,7 @@ function ResultTypeModal(props) {
 
   const submitDelete = () => {
     setLoading(true)
-    deleteResultType(getShortID(resultType['@id'])).unwrap().then(response => {
+    deleteResultType(resultType['_id']).unwrap().then(response => {
       setLoading(false)
         if(response.status) {
           store.dispatch(removeCourseInstanceResultType(resultType))
@@ -166,12 +166,12 @@ function ResultTypeModal(props) {
       if(
         !resultType ||
         (resultType &&
-          resultType['@id'] !== courseInstance.hasResultType[i]['@id'])
+          resultType['_id'] !== courseInstance.hasResultType[i]['_id'])
       ) {
         options.push(
           <option
-            value={ courseInstance.hasResultType[i]['@id'] }
-            key={ courseInstance.hasResultType[i]['@id'] }
+            value={ courseInstance.hasResultType[i]['_id'] }
+            key={ courseInstance.hasResultType[i]['_id'] }
           >
             { courseInstance.hasResultType[i].name }
           </option>

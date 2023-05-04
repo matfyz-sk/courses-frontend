@@ -8,9 +8,9 @@ import {connect} from "react-redux"
 import {showUserName} from "../../../components/Auth/userFunction";
 import {formatDate} from "../../../functions/global";
 import { 
-  useGetResultThatHasUserQuery, 
-  useUpdateUserResultMutation,
-  useDeleteUserResultMutation 
+  useGetResultQuery, 
+  useUpdateResultMutation,
+  useDeleteResultMutation 
 } from "services/result"
 
 function ResultDetail(props) {
@@ -22,9 +22,9 @@ function ResultDetail(props) {
   const canEdit =
     privileges.inGlobal === 'admin' ||
     privileges.inCourseInstance === 'instructor'
-  const [updateUserResult, updateUserResultResult] = useUpdateUserResultMutation()
-  const [deleteUserResult, deleteUserResultResult] = useDeleteUserResultMutation()
-  const {data, isSuccess} = useGetResultThatHasUserQuery(result_id)
+  const [updateUserResult, updateUserResultResult] = useUpdateResultMutation()
+  const [deleteUserResult, deleteUserResultResult] = useDeleteResultMutation()
+  const {data, isSuccess} = useGetResultQuery({id: result_id})
 
   const getDetail = () => {
     if (isSuccess && data && data.length > 0) {
@@ -35,8 +35,8 @@ function ResultDetail(props) {
   const saveChanges = () => {
     if (result.points && result.points !== '') {
       updateUserResult({
-        id: getShortID(result['@id']),
-        patch: result
+        id: result['_id'],
+        body: result
       }).unwrap().then(response => {
         setLoading(false)
         setMsg('Result has been saved!')
@@ -45,7 +45,7 @@ function ResultDetail(props) {
   }
 
   const removeResult = () => {
-    const user_id = getShortID(result.hasUser[0]['@id'])
+    const user_id = result.hasUser[0]['_id']
     deleteUserResult(user_id).unwrap().then(response => {
       history.push(
         redirect(RESULT_USER, [
@@ -76,7 +76,7 @@ function ResultDetail(props) {
           },
           {
             key: 'result_type_id',
-            value: getShortID(result.type[0]['@id']),
+            value: getShortID(result.type[0]['_id']),
           },
         ])}
       >

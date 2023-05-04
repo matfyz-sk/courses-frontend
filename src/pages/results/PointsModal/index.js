@@ -17,7 +17,7 @@ import {
 } from 'reactstrap'
 import { getShortID } from '../../../helperFunctions'
 import { getUser } from '../../../components/Auth'
-import { useGetUserResultsByTypeQuery, useUpdateUserResultMutation, useNewUserResultMutation } from 'services/result'
+import { useGetResultQuery, useUpdateResultMutation, useNewResultMutation } from 'services/result'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 function PointsModal(props) {
@@ -33,12 +33,12 @@ function PointsModal(props) {
     before: 0,
   })
   const [typeId, setTypeId] = useState(skipToken)
-  const {data, isSuccess} = useGetUserResultsByTypeQuery({
-    id: getShortID(user['@id']),
-    typeId: getShortID(typeId)
+  const {data, isSuccess} = useGetResultQuery({
+    userId: user['_id'],
+    typeId: typeId
   })
-  const [updateResult, updateResultResult] = useUpdateUserResultMutation()
-  const [newUserResult, newUserResultResult] = useNewUserResultMutation()
+  const [updateResult, updateResultResult] = useUpdateResultMutation()
+  const [newUserResult, newUserResultResult] = useNewResultMutation()
 
   if (isSuccess && typeId !== skipToken) {
     if (data && data.length > 0) {
@@ -77,14 +77,14 @@ function PointsModal(props) {
 
   const saveChanges = () => {
     if (form.update) {
-      const patch = {
+      const body = {
         points: form.points,
         description: form.description,
         reference: form.reference,
       }
       updateResult({
-        id: getShortID(form.update['@id']),
-        patch
+        id: getShortID(form.update['_id']),
+        body
       }).unwrap().then(response => {
         setLoading(false)
         modifyResultsIfNecessary()
@@ -93,8 +93,8 @@ function PointsModal(props) {
     } else {
       setLoading(true)
       const post = {
-        courseInstance: courseInstance['@id'],
-        hasUser: user['@id'],
+        courseInstance: courseInstance['_id'],
+        hasUser: user['_id'],
         awardedBy: getUser().fullURI,
         type: form.type === '' ? null : form.type,
         points: form.points,
@@ -119,8 +119,8 @@ function PointsModal(props) {
     for (let i = 0; i < courseInstance.hasResultType.length; i++) {
       options.push(
         <option
-          value={courseInstance.hasResultType[i]['@id']}
-          key={courseInstance.hasResultType[i]['@id']}
+          value={courseInstance.hasResultType[i]['_id']}
+          key={courseInstance.hasResultType[i]['_id']}
         >
           {courseInstance.hasResultType[i].name}
         </option>
