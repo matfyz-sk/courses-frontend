@@ -1,130 +1,266 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { getToken } from 'components/Auth'
-import { API_URL } from "../constants";
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { BACKEND_URL } from "../constants";
+import { gql } from 'graphql-request'
+import { 
+  graphqlBaseQuery, 
+  getNonStringEquals, 
+  getOrderBy, 
+  getSelectById, 
+  getStringEquals 
+} from './baseQuery';
 
 export const courseApi = createApi({
     reducerPath: 'courseApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: API_URL,
-        prepareHeaders: (headers, {}) => {
-            const token = getToken()
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`)
-            }
-            headers.set('Content-Type', 'application/json')
-            headers.set('Accept', 'application/json')
-            headers.set('Cache-Control', 'no-cache')
-            return headers
-        },
+    baseQuery: graphqlBaseQuery({
+      url: `${BACKEND_URL}graphql`,
     }),
     tagTypes: ['Course'],
     endpoints: (builder) => ({
-        getCourseWithInstructor: builder.query({
-            query: (id) => ({ url: `courseInstance?hasInstructor=${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Course'],
+      getCourse: builder.query({
+        query: ({id}) => ({
+          document: gql`
+            query {
+                courses_Course${id ? getSelectById(id) : ""} {
+                    _id
+                    courses_createdAt
+                    courses_name
+                    courses_description
+                    courses_abbreviation
+                    courses_covers {
+                      _id
+                    }
+                    courses_hasPrerequisite {
+                      _id
+                      courses_name
+                    }
+                    courses_mentions {
+                      _id
+                    }
+                    courses_hasAdmin {
+                      _id
+                      courses_firstName
+                      courses_lastName
+                    }
+                }
+            }
+          `,
         }),
-        getPlainCourse: builder.query({
-            query: (id) => ({ url: `course/${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Course'],
+        transformResponse: (response, meta, arg) => response.Course,
+        providesTags: ['Course'],
+      }), 
+      getCourseInstance: builder.query({
+        query: ({id, instructorId}) => ({
+          document: gql`
+            query {
+                courses_CourseInstance${id ? getSelectById(id) : ""} {
+                    _id
+                    courses_location
+                    courses_createdAt
+                    courses_startDate
+                    courses_endDate
+                    courses_name
+                    courses_description
+                    courses_documentReference {
+                      _id
+                    }
+                    courses_instanceOf {
+                      ... on courses_Course {
+                        _id
+                        courses_name
+                        courses_description
+                        courses_abbreviation
+                        courses_hasPrerequisite {
+                          _id
+                          courses_name
+                        }
+                      }
+                    }
+                    courses_hasPersonalSettings {
+                      _id
+                    }
+                    courses_uses {
+                      _id
+                    }
+                    courses_recommends {
+                      _id
+                    }
+                    courses_hasGrading {
+                      _id
+                    }
+                    courses_requires {
+                      _id
+                    }
+                    courses_hasDocument {
+                      _id
+                    }
+                    courses_hasResultType {
+                      _id
+                    }
+                    courses_hasInstructor${instructorId ? getSelectById(instructorId) : ""} {
+                      _id
+                      courses_firstName
+                      courses_lastName
+                    }
+                    courses_covers {
+                      _id
+                    }
+                    courses_mentions {
+                      _id
+                    }
+                    courses_courseInstance {
+                      _id
+                    }
+                    courses_fileExplorerRoot {
+                      _id
+                    }
+                }
+            }
+          `,
         }),
-        getCourse: builder.query({
-            query: (id) => ({ url: `course/${id}?_join=hasPrerequisite,hasAdmin` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Course'],
+        transformResponse: (response, meta, arg) => response.CourseInstance,
+        providesTags: ['Course'],
+      }),
+      updateCourse: builder.mutation({
+        query: ({id, body}) => ({ 
+          document: gql`
+            mutation {
+              update_courses_Course(
+                _id: "${id}"
+                courses_name: "${body.name}"
+                courses_description: "${body.description}"
+                ${body.abbreviation ? `courses_abbreviation: "${body.abbreviation}"` : ""}
+                ${body.hasAdmin ? `courses_hasAdmin: ["${body.hasAdmin}"]` : ""}
+                ${body.hasPrerequisite ? `courses_hasPrerequisite_as_courses_Course: "${body.hasPrerequisite}"` : ""}
+              ) {
+                _id
+              }
+            }
+          `,
         }),
-        getCourses: builder.query({
-            query: () => ({ url: `course` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Course'],
+        transformResponse: (response, meta, arg) => response.Course,
+        invalidatesTags: ['Course'],
+      }),
+      updateCourseInstance: builder.mutation({
+        query: ({id, body}) => ({ 
+          document: gql`
+            mutation {
+              update_courses_CourseInstance(
+                _id: "${id}"
+                ${body.fileExplorerRoot ? `courses_fileExplorerRoot: "${body.fileExplorerRoot}"` : ""}
+                ${body.hasResultType ? `courses_hasResultType: ${body.hasResultType}` : ""}
+                ${body.hasPersonalSettings ? `courses_hasPersonalSettings: ${body.hasPersonalSettings}` : ""}
+                ${body.hasGrading ? `courses_hasGrading: ${body.hasGrading}` : ""}
+              ) {
+                _id
+              }
+            }
+          `,
         }),
-        getCourseInstance: builder.query({
-            query: (id) => ({ url: `courseInstance/${id}?_join=instanceOf,covers,hasInstructor` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Course'],
+        transformResponse: (response, meta, arg) => response.CourseInstance,
+        invalidatesTags: ['Course'],
+      }),
+      newCourse: builder.mutation({
+        query: (body) => ({ 
+          document: gql`
+            mutation {
+              insert_courses_Course(
+                courses_name: "${body.name}"
+                courses_description: "${body.description}"
+                ${body.abbreviation ? `courses_abbreviation: "${body.abbreviation}"` : ""}
+                ${body.hasAdmin ? `courses_hasAdmin: ["${body.hasAdmin}"]` : ""}
+                ${body.hasPrerequisite ? `courses_hasPrerequisite_as_courses_Course: "${body.hasPrerequisite}"` : ""}
+              ) {
+                _id
+              }
+            }
+          `,
         }),
-        getCourseInstances: builder.query({
-            query: () => ({ url: `courseInstance?_join=instanceOf` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Course'],
+        transformResponse: (response, meta, arg) => response.Course,
+        invalidatesTags: ['Course'],
+      }),
+      newCoursePersonalSettings: builder.mutation({
+        query: (body) => ({ 
+          document: gql`
+            mutation {
+              insert_courses_CoursePersonalSettings(
+                courses_nickName: "${body.nickName}"
+                courses_hasUser: "${body.hasUser}"
+              ) {
+                _id
+              }
+            }
+          `,
         }),
-        deleteCourse: builder.mutation({
-            query: (id) => ({ 
-                url: `course/${id}`,
-                method: 'DELETE',
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Course'],
+        transformResponse: (response, meta, arg) => response.CoursePersonalSettings,
+        invalidatesTags: ['Course'],
+      }),
+      newCourseInstance: builder.mutation({
+        query: (body) => ({ 
+          document: gql`
+            mutation {
+              insert_courses_CourseInstance(
+                courses_name: "${body.name}"
+                courses_description: "${body.description}"
+                courses_startDate: ${body.startDate}
+                courses_endDate: ${body.endDate}
+                courses_hasInstructor: ${body.hasInstructor}
+                ${body.type === "CourseInstance" ? `courses_instanceOf_as_courses_Course: "${body.courseInstance}"` : ""}
+                ${body.type === "Team" ? `courses_instanceOf_as_courses_Team: "${body.courseInstance}"` : ""}
+                ${body.location ? `courses_location: "${body.location}"` : ""}
+                ${body.uses ? `courses_uses: ${body.uses}` : ""}
+                ${body.recommends ? `courses_recommends: ${body.recommends}` : ""}
+                ${body.documentReference ? `courses_documentReference: ${body.documentReference}` : ""}
+                ${body.hasDocument ? `courses_hasDocument: "${body.hasDocument}"` : ""}
+              ) {
+                _id
+              }
+            }
+          `,
         }),
-        deleteCourseInstance: builder.mutation({
-            query: (id) => ({ 
-                url: `courseInstance/${id}`,
-                method: 'DELETE', 
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Course'],
+        transformResponse: (response, meta, arg) => response.CourseInstance,
+        invalidatesTags: ['Course'],
+      }),
+      deleteCourse: builder.mutation({
+        query: (id) => ({ 
+          document: gql`
+            mutation {
+              delete_courses_Course(
+                _id: "${id}"
+              ) {
+                _id
+              }
+            }
+          `,
         }),
-        updateCourseInstance: builder.mutation({
-            query: ({id, patch}) => ({ 
-                url: `courseInstance/${id}`,
-                method: 'PATCH',
-                body: patch,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Course'],
+        transformResponse: (response, meta, arg) => response.Course,
+        invalidatesTags: ['Course'],
+      }),
+      deleteCourseInstance: builder.mutation({
+        query: (id) => ({ 
+          document: gql`
+            mutation {
+              delete_courses_CourseInstance(
+                _id: "${id}"
+              ) {
+                _id
+              }
+            }
+          `,
         }),
-        updateCourse: builder.mutation({
-            query: ({id, patch}) => ({ 
-                url: `course/${id}`,
-                method: 'PATCH',
-                body: patch,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Course'],
-        }),
-        newCourseInstance: builder.mutation({
-            query: (body) => ({ 
-                url: `courseInstance`,
-                method: 'POST',
-                body: body,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Course'],
-        }),
-        newCoursePersonalSettings: builder.mutation({
-            query: (body) => ({ 
-                url: `coursePersonalSettings`,
-                method: 'POST',
-                body: body,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Course'],
-        }),
-        newCourse: builder.mutation({
-            query: (body) => ({ 
-                url: `course`,
-                method: 'POST',
-                body: body,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Course'],
-        }),
-    }),
+        transformResponse: (response, meta, arg) => response.CourseInstance,
+        invalidatesTags: ['Course'],
+      }),   
+    })
 })
 
 export const { 
-    useGetCourseWithInstructorQuery,
     useGetCourseQuery,
-    useGetCoursesQuery,
-    useGetPlainCourseQuery,
     useGetCourseInstanceQuery,
-    useGetCourseInstancesQuery,
+    useUpdateCourseMutation,
+    useUpdateCourseInstanceMutation,
+    useNewCourseMutation,
+    useNewCoursePersonalSettingsMutation,
+    useNewCourseInstanceMutation,
     useDeleteCourseMutation,
     useDeleteCourseInstanceMutation,
-    useUpdateCourseInstanceMutation,
-    useUpdateCourseMutation,
-    useNewCourseInstanceMutation,
-    useNewCoursePersonalSettingsMutation,
-    useNewCourseMutation,
 } = courseApi

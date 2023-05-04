@@ -1,110 +1,139 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { getToken } from 'components/Auth'
-import { API_URL } from "../constants";
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { BACKEND_URL } from "../constants";
+import { gql } from 'graphql-request'
+import { 
+  graphqlBaseQuery, 
+  getNonStringEquals, 
+  getOrderBy, 
+  getSelectById, 
+  getStringEquals 
+} from './baseQuery';
 
 export const userApi = createApi({
     reducerPath: 'userApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: API_URL,
-        prepareHeaders: (headers, {}) => {
-            const token = getToken()
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`)
-            }
-            headers.set('Content-Type', 'application/json')
-            headers.set('Accept', 'application/json')
-            headers.set('Cache-Control', 'no-cache')
-            return headers
-        },
+    baseQuery: graphqlBaseQuery({
+      url: `${BACKEND_URL}graphql`,
     }),
     tagTypes: ['User'],
     endpoints: (builder) => ({
-        getUser: builder.query({
-            query: (id) => ({ url: `user/${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['User'],
+      getUser: builder.query({
+        query: ({id, order, email, nickname, studentOfId, instructorOfId, requestId}) => ({
+          document: gql`
+            query {
+              courses_User${id ? getSelectById(id) : ""} {
+                _id
+                courses_createdAt${order ? getOrderBy() : ""}
+                courses_firstName
+                courses_publicProfile
+                courses_avatar
+                courses_lastName
+                courses_showCourses
+                courses_allowContact 
+                courses_isSuperAdmin
+                courses_githubId
+                courses_useNickName
+                courses_nickname${nickname ? getStringEquals(nickname) : ""}
+                courses_description
+                courses_email${email ? getStringEquals(email) : ""}
+                courses_nickNameTeamException
+                courses_showBadges
+                courses_studentOf${studentOfId ? getSelectById(studentOfId) : ""} {
+                  _id
+                  courses_name
+                }
+                courses_instructorOf${instructorOfId ? getSelectById(instructorOfId) : ""} {
+                  _id
+                }
+                courses_understands {
+                  _id
+                }
+                courses_memberOf {
+                  _id
+                }
+                courses_requests${requestId ? getSelectById(requestId) : ""} {
+                  _id
+                }
+              }
+            }
+          `,
         }),
-        getUserByEmail: builder.query({
-            query: (email) => ({ url: `user?email=${ email }` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['User'],
+        transformResponse: (response, meta, arg) => response.User,
+        providesTags: ['User'],
+      }),  
+      getUserTeamInstanceAndTeam: builder.query({
+        query: (id) => ({
+          document: gql`
+            query {
+              courses_User(_id: "${id}") {
+                courses_memberOf {
+                  _id
+                  courses_approved
+                  courses_instanceOf {
+                    ... on courses_Team {
+                      _id
+                      courses_name
+                      courses_courseInstance {
+                        _id
+                        courses_name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          `,
         }),
-        getUsersOrderedByCreationDate: builder.query({
-            query: () => ({ url: `user?_orderBy=createdAt` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['User'],
+        transformResponse: (response, meta, arg) => response.User,
+        providesTags: ['User'],
+      }),
+      updateUserInfo: builder.mutation({
+        query: ({id, body}) => ({ 
+          document: gql`
+            mutation {
+              update_courses_User(
+                _id: "${id}"
+                courses_firstName: "${body.firstName}"
+                courses_lastName: "${body.lastName}"
+                courses_description: "${body.description}"
+                courses_email: "${body.email}"
+                courses_nickname: "${body.nickname}"
+                courses_useNickName: ${body.useNickName}
+                courses_nickNameTeamException: ${body.nickNameTeamException}
+                courses_allowContact: ${body.allowContact}
+                courses_publicProfile: ${body.publicProfile}
+                courses_showBadges:  ${body.showBadges}
+                courses_showCourses: ${body.showCourses}
+              ) {
+                _id
+              }
+            }
+          `,
         }),
-        getUserRequest: builder.query({
-            query: (id) => ({ url: `user?requests=${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['User'],
+        transformResponse: (response, meta, arg) => response.User,
+        invalidatesTags: ['User'],
+      }),
+      deleteUser: builder.mutation({
+        query: (id) => ({ 
+          document: gql`
+            mutation {
+              delete_courses_User(
+                _id: "${id}"
+              ) {
+                _id
+              }
+            }
+          `,
         }),
-        getUserEnrolled: builder.query({
-            query: (id) => ({ url: `user?studentOf=${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['User'],
-        }),
-        getUsers: builder.query({
-            query: () => ({ url: `user` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['User'],
-        }),
-        getUserByEmailForCourse: builder.query({
-            query: ({id, email}) => ({ url: `user?email=${ email }&studentOf=${ id }` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['User'],
-        }),
-        getUserByNicknameForCourse: builder.query({
-            query: ({id, nickname}) => ({ url: `user?nickname=${ nickname }&studentOf=${ id }` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['User'],
-        }),
-        getInstructorsOfCourse: builder.query({
-            query: (id) => ({ url: `user?instructorOf=${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-        }),
-        getUserStudentOf: builder.query({
-            query: (id) => ({ url: `user/${id}?_join=studentOf` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['User'],
-        }),
-        getUserOfCourse: builder.query({
-            query: ({user_id, course_id}) => ({ url: `user/${user_id}?studentOf=${course_id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['User'],
-        }),
-        updateUser: builder.mutation({
-            query: ({id, patch}) => ({ 
-                url: `user/${id}`,
-                method: 'PATCH',
-                body: patch,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['User'],
-        }),
-        deleteUser: builder.mutation({
-            query: (id) => ({ 
-                url: `user/${id}`,
-                method: 'DELETE',
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['User'],
-        }),
+        transformResponse: (response, meta, arg) => response.data,
+        invalidatesTags: ['User'],
+      }),
     }),
 })
 
 export const { 
     useGetUserQuery,
-    useGetUserByEmailQuery, 
-    useGetUsersOrderedByCreationDateQuery,
-    useGetUserRequestQuery,
-    useGetUserEnrolledQuery,
-    useGetUserByEmailForCourseQuery,
-    useGetUserByNicknameForCourseQuery,
-    useGetUsersQuery, 
-    useGetInstructorsOfCourseQuery,
-    useGetUserStudentOfQuery,
-    useGetUserOfCourseQuery,
-    useUpdateUserMutation,
+    useLazyGetUserQuery,
+    useGetUserTeamInstanceAndTeamQuery,
+    useUpdateUserInfoMutation,
     useDeleteUserMutation,
 } = userApi

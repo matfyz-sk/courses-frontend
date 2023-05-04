@@ -1,163 +1,259 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { getToken } from 'components/Auth'
-import { API_URL } from "../constants";
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { BACKEND_URL } from "../constants";
+import { gql } from 'graphql-request'
+import { 
+  graphqlBaseQuery, 
+  getNonStringEquals, 
+  getOrderBy, 
+  getSelectById, 
+  getStringEquals 
+} from './baseQuery';
 
 export const resultApi = createApi({
     reducerPath: 'resultApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: API_URL,
-        prepareHeaders: (headers, {}) => {
-            const token = getToken()
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`)
-            }
-            headers.set('Content-Type', 'application/json')
-            headers.set('Accept', 'application/json')
-            headers.set('Cache-Control', 'no-cache')
-            return headers
-        },
+    baseQuery: graphqlBaseQuery({
+      url: `${BACKEND_URL}graphql`,
     }),
     tagTypes: ['Result'],
     endpoints: (builder) => ({
-        getResultForUser: builder.query({
-            query: (id) => ({ url: `result?hasUser=${id}&_join=courseInstance,awardedBy,type` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+        getResult: builder.query({
+            query: ({id, typeId, userId, courseInstanceId}) => ({
+              document: gql`
+                query {
+                    courses_Result${id ? getSelectById(id) : ""} {
+                        _id
+                        courses_createdAt
+                        courses_reference
+                        courses_points
+                        courses_description
+                        courses_awardedBy {
+                            _id
+                        }
+                        courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
+                            _id
+                        }
+                        courses_type${typeId ? getSelectById(typeId) : ""} {
+                            _id
+                        }
+                        courses_hasUser${userId ? getSelectById(userId) : ""} {
+                            _id
+                        }
+                    }
+                }
+              `,
+            }),
+            transformResponse: (response, meta, arg) => response.Result,
             providesTags: ['Result'],
         }),
-        getAllUserResults: builder.query({
-            query: (id) => ({ url: `result?hasUser=${id}&_join=awardedBy,type` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Result'],
-        }),
-        getUserResultsByType: builder.query({
-            query: ({id, typeId}) => ({ url: `result?hasUser=${id}&type=${typeId}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Result'],
-        }),
-        getResultThatHasUser: builder.query({
-            query: (id) => ({ url: `result/${id}?_join=hasUser,awardedBy,type` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Result'],
-        }),
-        getResultByType: builder.query({
-            query: (id) => ({ url: `result?type=${id}&_join=hasUser,awardedBy` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Result'],
-        }),
-        getResultForCourseInstance: builder.query({
-            query: (id) => ({ url: `result?courseInstance=${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Result'],
-        }),
-        getResultTypeDetail: builder.query({
-            query: (id) => ({ url: `resultType/${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Result'],
-        }),
-        getResultTypeDetailWithCorrection: builder.query({
-            query: (id) => ({ url: `resultType/${id}?_join=correctionFor` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Result'],
-        }),
-        getResultTypeDetailCreatedByWithCorrection: builder.query({
-            query: (id) => ({ url: `resultType/${id}?_join=createdBy,correctionFor` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+        getResultType: builder.query({
+            query: (id) => ({
+              document: gql`
+                query {
+                    courses_ResultType${id ? getSelectById(id) : ""} {
+                        _id
+                        courses_createdAt
+                        courses_minPoints
+                        courses_name
+                        courses_description
+                        courses_correctionFor {
+                            _id
+                        }
+                    }
+                }
+              `,
+            }),
+            transformResponse: (response, meta, arg) => response.ResultType,
             providesTags: ['Result'],
         }),
         getCourseGrading: builder.query({
-            query: (id) => ({ url: `courseGrading/${id}` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            query: (id) => ({
+              document: gql`
+                query {
+                    courses_CourseGrading${id ? getSelectById(id) : ""} {
+                        _id
+                        courses_createdAt
+                        courses_minPoints
+                        courses_grade
+                    }
+                }
+              `,
+            }),
+            transformResponse: (response, meta, arg) => response.CourseGrading,
             providesTags: ['Result'],
         }),
-        newUserResult: builder.mutation({
-            query: (post) => ({ 
-                url: `result`,
-                method: 'POST',
-                body: post,
+        updateResult: builder.mutation({
+            query: ({id, body}) => ({ 
+              document: gql`
+                mutation {
+                    update_courses_Result (
+                        _id: ${id}
+                        ${body.points ? `courses_points: ${body.points}` : ""}
+                        ${body.courseInstance ? `courses_courseInstance: "${body.courseInstance}"` : ""}
+                        ${body.description ? `courses_description: "${body.description}"` : ""}
+                        ${body.hasUser ? `courses_hasUser: "${body.hasUser}"` : ""}
+                        ${body.reference ? `courses_reference: "${body.reference}"` : ""}
+                        ${body.type ? `courses_type: "${body.type}"` : ""}
+                        ${body.awardedBy ? `courses_awardedBy: "${body.awardedBy}"` : ""}
+                    ){
+                        _id
+                    }
+                }
+              `,
             }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Result'],
-        }),
-        newResultType: builder.mutation({
-            query: (post) => ({ 
-                url: `resultType`,
-                method: 'POST',
-                body: post,
-            }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Result'],
-        }),
-        updateUserResult: builder.mutation({
-            query: ({id, patch}) => ({ 
-                url: `result/${id}`,
-                method: 'PATCH',
-                body: patch,
-            }),
-            transformResponse: (response, meta, arg) => response,
+            transformResponse: (response, meta, arg) => response.Result,
             invalidatesTags: ['Result'],
         }),
         updateResultType: builder.mutation({
-            query: ({id, patch}) => ({ 
-                url: `resultType/${id}`,
-                method: 'PATCH',
-                body: patch,
+            query: ({id, body}) => ({ 
+              document: gql`
+                mutation {
+                    update_courses_ResultType (
+                        _id: ${id}
+                        ${body.correctionFor ? `courses_correctionFor: "${body.correctionFor}"` : ""}
+                        ${body.description ? `courses_description: "${body.description}"` : ""}
+                        ${body.name ? `courses_name: "${body.name}"` : ""}
+                        ${body.minPoints ? `courses_minPoints: ${body.minPoints}` : ""}
+                    ){
+                        _id
+                    }
+                }
+              `,
             }),
-            transformResponse: (response, meta, arg) => response,
+            transformResponse: (response, meta, arg) => response.ResultType,
             invalidatesTags: ['Result'],
         }),
-        deleteUserResult: builder.mutation({
-            query: (id) => ({ 
-                url: `result/${id}`,
-                method: 'DELETE',
+        updateCourseGrading: builder.mutation({
+            query: ({id, body}) => ({ 
+              document: gql`
+                mutation {
+                    update_courses_CourseGrading (
+                        _id: ${id}
+                        ${body.minPoints ? `courses_minPoints: ${body.minPoints}` : ""}
+                        ${body.grade ? `courses_grade: "${body.grade}"` : ""}
+                    ){
+                        _id
+                    }
+                }
+              `,
             }),
-            transformResponse: (response, meta, arg) => response,
+            transformResponse: (response, meta, arg) => response.CourseGrading,
+            invalidatesTags: ['Result'],
+        }),
+        newResult: builder.mutation({
+            query: (body) => ({ 
+              document: gql`
+                mutation {
+                    insert_courses_Result (
+                        ${body.points ? `courses_points: ${body.points}` : ""}
+                        ${body.courseInstance ? `courses_courseInstance: "${body.courseInstance}"` : ""}
+                        ${body.description ? `courses_description: "${body.description}"` : ""}
+                        ${body.hasUser ? `courses_hasUser: "${body.hasUser}"` : ""}
+                        ${body.reference ? `courses_reference: "${body.reference}"` : ""}
+                        ${body.type ? `courses_type: "${body.type}"` : ""}
+                        ${body.awardedBy ? `courses_awardedBy: "${body.awardedBy}"` : ""}
+                    ){
+                        _id
+                    }
+                }
+              `,
+            }),
+            transformResponse: (response, meta, arg) => response.Result,
+            invalidatesTags: ['Result'],
+        }),
+        newResultType: builder.mutation({
+            query: (body) => ({ 
+              document: gql`
+                mutation {
+                    insert_courses_ResultType (
+                        ${body.correctionFor ? `courses_correctionFor: "${body.correctionFor}"` : ""}
+                        ${body.description ? `courses_description: "${body.description}"` : ""}
+                        ${body.name ? `courses_name: "${body.name}"` : ""}
+                        ${body.minPoints ? `courses_minPoints: ${body.minPoints}` : ""}
+                    ){
+                        _id
+                    }
+                }
+              `,
+            }),
+            transformResponse: (response, meta, arg) => response.ResultType,
             invalidatesTags: ['Result'],
         }),
         newCourseGrading: builder.mutation({
             query: (body) => ({ 
-                url: `courseGrading`,
-                method: 'POST',
-                body: body,
+              document: gql`
+                mutation {
+                    insert_courses_CourseGrading (
+                        ${body.minPoints ? `courses_minPoints: ${body.minPoints}` : ""}
+                        ${body.grade ? `courses_grade: "${body.grade}"` : ""}
+                    ){
+                        _id
+                    }
+                }
+              `,
             }),
-            transformResponse: (response, meta, arg) => response,
+            transformResponse: (response, meta, arg) => response.CourseGrading,
+            invalidatesTags: ['Result'],
+        }),
+        deleteResult: builder.mutation({
+            query: (id) => ({ 
+              document: gql`
+                mutation {
+                  delete_courses_Result(
+                    _id: "${id}"
+                  ) {
+                    _id
+                  }
+                }
+              `,
+            }),
+            transformResponse: (response, meta, arg) => response.Result,
             invalidatesTags: ['Result'],
         }),
         deleteCourseGrading: builder.mutation({
             query: (id) => ({ 
-                url: `courseGrading/${id}`,
-                method: 'DELETE', 
+              document: gql`
+                mutation {
+                  delete_courses_CourseGrading(
+                    _id: "${id}"
+                  ) {
+                    _id
+                  }
+                }
+              `,
             }),
-            transformResponse: (response, meta, arg) => response,
+            transformResponse: (response, meta, arg) => response.CourseGrading,
             invalidatesTags: ['Result'],
         }),
         deleteResultType: builder.mutation({
             query: (id) => ({ 
-                url: `resultType/${id}`,
-                method: 'DELETE', 
+              document: gql`
+                mutation {
+                  delete_courses_ResultType(
+                    _id: "${id}"
+                  ) {
+                    _id
+                  }
+                }
+              `,
             }),
-            transformResponse: (response, meta, arg) => response,
+            transformResponse: (response, meta, arg) => response.ResultType,
             invalidatesTags: ['Result'],
         }),
-    }),
+    })
 })
 
 export const { 
-    useGetResultForUserQuery,
-    useGetAllUserResultsQuery,
-    useGetUserResultsByTypeQuery,
-    useGetResultThatHasUserQuery,
-    useGetResultByTypeQuery,
-    useGetResultForCourseInstanceQuery,
-    useGetResultTypeDetailQuery,
-    useGetResultTypeDetailWithCorrectionQuery,
-    useGetResultTypeDetailCreatedByWithCorrectionQuery,
+    useGetResultQuery,
+    useGetResultTypeQuery,
+    useLazyGetResultTypeQuery,
     useGetCourseGradingQuery,
-    useNewUserResultMutation,
-    useNewResultTypeMutation,
-    useUpdateUserResultMutation,
+    useUpdateResultMutation,
     useUpdateResultTypeMutation,
-    useDeleteUserResultMutation,
+    useUpdateCourseGradingMutation,
+    useNewResultMutation,
+    useNewResultTypeMutation,
     useNewCourseGradingMutation,
-    useDeleteCourseGradingMutation,
+    useDeleteResultMutation,
     useDeleteResultTypeMutation,
+    useDeleteCourseGradingMutation,
 } = resultApi
