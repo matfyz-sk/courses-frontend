@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { getToken } from './components/Auth';
 import { API_URL as REST_URL } from './constants';
+import { DATA_PREFIX } from 'constants/ontology';
 import moment from 'moment';
 
 //time manipulation
@@ -116,6 +117,10 @@ export const getResponseBody = (response) => {
 
 export const getShortID = (fullID) => {
   return fullID.substring(fullID.lastIndexOf('/')+1)
+}
+
+export const getFullID = (shortID, type) => {
+  return DATA_PREFIX + type + "/" + shortID
 }
 
 export const getIRIFromAddResponse = (response) => {

@@ -10,8 +10,8 @@ import { teamApi } from 'services/team'
 import { documentsApi } from 'services/documents'
 import { authApi } from 'services/auth'
 import { assignmentApi } from 'services/assignments'
-import { userGraphApi } from 'services/userGraph'
-
+import { assignmentGraphApi } from 'services/assignmentsGraph'
+import { teamGraphApi } from 'services/teamGraph'
 
 const reducers = combineReducers({
   ...allReducers,
@@ -23,7 +23,8 @@ const reducers = combineReducers({
   [documentsApi.reducerPath]: documentsApi.reducer,
   [authApi.reducerPath]: authApi.reducer,
   [assignmentApi.reducerPath]: assignmentApi.reducer,
-  [userGraphApi.reducerPath]: userGraphApi.reducer,
+  [assignmentGraphApi.reducerPath]: assignmentGraphApi.reducer,
+  [teamGraphApi.reducerPath]: teamGraphApi.reducer,
 })
 
 const composeEnhancers =
@@ -46,7 +47,8 @@ const enhancers = composeEnhancers(compose(
     documentsApi.middleware,
     authApi.middleware,
     assignmentApi.middleware,
-    userGraphApi.middleware,
+    assignmentGraphApi.middleware,
+    teamGraphApi.middleware,
   )
 ))
 
