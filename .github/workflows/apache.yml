@@ -3,7 +3,7 @@ name: Configure apache
 on:
   workflow_call:
     inputs:
-      PR_BRANCH:
+      BRANCH:
         required: true
         type: string
       BASE_WEBSITE_PORT:
@@ -32,7 +32,7 @@ jobs:
       - name: Configure apache
         uses: appleboy/ssh-action@master
         env:
-          BRANCH: ${{ env.PR_BRANCH }}
+          BRANCH: ${{ inputs.BRANCH }}
           PORT: ${{ env.WEBSITE_PORT }}
         with:
           host: ${{ secrets.SSH_HOST }}
