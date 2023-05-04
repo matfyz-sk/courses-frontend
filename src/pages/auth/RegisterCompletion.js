@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { Alert, Button, Col, Collapse, Container, Form, FormFeedback, FormGroup, Input, Label, Row, } from 'reactstrap'
 import { emailValidator, textValidator } from '../../functions/validators'
 import { getUser, getUserID, logout, setUserProfile, } from '../../components/Auth'
-import { useDeleteUserMutation, useGetUserByEmailQuery, useUpdateUserMutation } from "services/user"
+import { useUpdateUserInfoMutation, useDeleteUserMutation, useGetUserQuery } from 'services/user'
 
 function RegisterCompletion(props) {
   const user = getUser()
@@ -29,11 +29,11 @@ function RegisterCompletion(props) {
 
   const [be_error, setBeError] = useState(null)
   const [success, setSuccess] = useState(false)
-  const [updateUser, updateUserResult] = useUpdateUserMutation()
+  const [updateUser, updateUserResult] = useUpdateUserInfoMutation()
   const [deleteUser, deleteUserResult] = useDeleteUserMutation()
 
-  if(newEmailError && newEmailError.result) {
-    const {data, isSuccess} = useGetUserByEmailQuery(email)
+  if(emailError && emailError.result) {
+    const {data, isSuccess} = useGetUserQuery({email: email})
     if(isSuccess && data && data.length > 0) {
       setEmailError({result: false, msg: 'Sorry, but email is already taken!'})
     } else {
