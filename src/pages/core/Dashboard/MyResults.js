@@ -6,10 +6,10 @@ import { redirect } from '../../../constants/redirect'
 import { RESULT_DETAIL, RESULT_TYPE, TIMELINE } from '../../../constants/routes';
 import { getShortID } from '../../../helperFunctions'
 import { formatDate } from "../../../functions/global";
-import { useGetResultForUserQuery } from  "services/result"
+import { useGetResultQuery } from  "services/result"
 
 const MyResults = props => {
-  const { data, isSuccess } = useGetResultForUserQuery(getUserID())
+  const { data, isSuccess } = useGetResultQuery({userId: getUserID()})
   
   if(!isSuccess || !data || data.length === 0) {
     return null
@@ -26,7 +26,7 @@ const MyResults = props => {
         to={ redirect(TIMELINE, [
           {
             key: 'course_id',
-            value: getShortID(item.courseInstance[0]['@id']),
+            value: getShortID(item.courseInstance[0]['_id']),
           },
         ]) }
       >
@@ -43,11 +43,11 @@ const MyResults = props => {
         to={ redirect(RESULT_DETAIL, [
           {
             key: 'course_id',
-            value: getShortID(item.courseInstance[0]['@id']),
+            value: getShortID(item.courseInstance[0]['_id']),
           },
           {
             key: 'result_id',
-            value: getShortID(item['@id']),
+            value: getShortID(item['_id']),
           },
         ]) }
         className="btn btn-sm btn-link float-right text-primary"
@@ -63,11 +63,11 @@ const MyResults = props => {
           to={ redirect(RESULT_TYPE, [
             {
               key: 'course_id',
-              value: getShortID(item.courseInstance[0]['@id']),
+              value: getShortID(item.courseInstance[0]['_id']),
             },
             {
               key: 'result_type_id',
-              value: getShortID(item.type[0]['@id']),
+              value: getShortID(item.type[0]['_id']),
             },
           ]) }
         >
@@ -76,7 +76,7 @@ const MyResults = props => {
       )
     }
     renderList.push(
-      <ListGroupItem key={ `result-${ item['@id'] }` }>
+      <ListGroupItem key={ `result-${ item['_id'] }` }>
         <ListGroupItemHeading>
           { result_type_link || 'Without type' } - { item.points } points
           <Badge

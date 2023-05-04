@@ -25,7 +25,7 @@ import {
   addDays,
 } from '../Timeline/timeline-helper'
 import { BlockMenuToggle } from '../Events'
-import { useGetTimelineEventQuery, useNewTimelineBlockMutation } from 'services/event'
+import { useNewTimelineBlockMutation, useGetEventQuery } from 'services/event'
 
 const ScrollLink = Scroll.Link
 
@@ -39,10 +39,9 @@ function CreateTimeline(props) {
   const [nestedEvents, setNestedEvents] = useState([])
   const [saved, setSaved] = useState(false)
   const [disabled, setDisabled] = useState(false)
-  const {data, isSuccess, isLoading} = useGetTimelineEventQuery(courseId)
+  const {data, isSuccess, isLoading} = useGetEventQuery({courseInstanceId: courseId})
   const [newTimelineBlock, result] = useNewTimelineBlockMutation()
 
-  console.log(data)
   if(timelineBlocks === [] && nestedEvents === [] && isSuccess && courseId !== '' && data) {
     const events = getEvents(data).sort(sortEventsFunction)
 
@@ -63,7 +62,7 @@ function CreateTimeline(props) {
 
       for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i]
-        block.courseInstance = course['@id']
+        block.courseInstance = course['_id']
         
         newTimelineBlock({...block}).unwrap().catch(error => {
           errors.push(`There was a problem with server while posting ${block.name}`)
@@ -205,7 +204,7 @@ const generateWeeklyBlocks = (course) => {
     if (startDate > courseStartDate) {
       const block = {
         name: `Week ${i}`,
-        desc: '...',
+        description: '...',
         startDate: courseStartDate,
         endDate: startDate,
       }
@@ -216,7 +215,7 @@ const generateWeeklyBlocks = (course) => {
     while (endDate < courseEndDate) {
       const block = {
         name: `Week ${i}`,
-        desc: '...',
+        description: '...',
         startDate,
         endDate,
       }
@@ -229,7 +228,7 @@ const generateWeeklyBlocks = (course) => {
     if (endDate > courseEndDate) {
       const block = {
         name: `Week ${i}`,
-        desc: '...',
+        description: '...',
         startDate,
         endDate: courseEndDate,
       }

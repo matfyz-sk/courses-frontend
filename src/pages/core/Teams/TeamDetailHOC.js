@@ -1,6 +1,7 @@
 import React from 'react'
 import Page404 from '../../errors/Page404'
-import { useGetTeamQuery, useGetTeamInstanceWithUsersQuery } from "services/team"
+import { useGetTeamInstanceWithUsersQuery } from "services/team"
+import { useGetTeamQuery } from 'services/teamGraph'
 
 const withTeamHandler = Component => props => {
   const {privilegesReducer, courseInstanceReducer} = props
@@ -17,7 +18,7 @@ const withTeamHandler = Component => props => {
   const {
     data: teamData,
     isSuccess: teamIsSuccess
-  } = useGetTeamQuery(team_id)
+  } = useGetTeamQuery({id: team_id})
   const {
     data: usersData,
     isSuccess: usersIsSuccess

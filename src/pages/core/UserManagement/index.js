@@ -6,24 +6,24 @@ import { connect } from 'react-redux'
 
 import './UserManagement.css'
 import { getShortId } from '../Helper'
-import { useGetUserRequestQuery, useGetUserEnrolledQuery, useUpdateUserMutation } from 'services/user'
+import { useGetUserQuery, useUpdateUserInfoMutation } from 'services/user'
 
 function UserManagement(props) {
   const { course } = props
-  const courseId = getShortId(course['@id'])
+  const courseId = getShortId(course['_id'])
   const {
     data: userRequestData, 
     isSuccess: userRequestIsSuccess,
     isLoading: userRequestIsLoading,
     error: userRequestError
-  } = useGetUserRequestQuery(courseId)
+  } = useGetUserQuery({requestId: courseId})
   const {
     data: userEnrolledData, 
     isSuccess: userEnrolledIsSuccess,
     isLoading: userEnrolledIsLoading,
     error: userEnrolledError
-  } = useGetUserEnrolledQuery(courseId)
-  const [updateUser, result] = useUpdateUserMutation()
+  } = useGetUserQuery({studentOfId: courseId})
+  const [updateUser, result] = useUpdateUserInfoMutation()
   
   if (userRequestIsLoading || userEnrolledIsLoading) {
     return (
@@ -37,16 +37,16 @@ function UserManagement(props) {
   if (userRequestIsSuccess && userRequestData) {
     requestedUsers = userRequestData.map(user => {
       return {
-        id: getShortId(user['@id']),
-        fullId: user['@id'],
+        id: getShortId(user['_id']),
+        fullId: user['_id'],
         nickname: user.nickname,
         firstName: user.firstName,
         lastName: user.lastName,
         studentOf: user.studentOf.map(courseElement => {
-          return courseElement['@id']
+          return courseElement['_id']
         }),
         requests: user.requests.map(courseElement => {
-          return courseElement['@id']
+          return courseElement['_id']
         }),
       }
     })
@@ -58,16 +58,16 @@ function UserManagement(props) {
   if (userEnrolledIsSuccess && userEnrolledData) {
     enrolledUsers = userEnrolledData.map(user => {
       return {
-        id: getShortId(user['@id']),
-        fullId: user['@id'],
+        id: getShortId(user['_id']),
+        fullId: user['_id'],
         nickname: user.nickname,
         firstName: user.firstName,
         lastName: user.lastName,
         studentOf: user.studentOf.map(courseElement => {
-          return courseElement['@id']
+          return courseElement['_id']
         }),
         requests: user.requests.map(courseElement => {
-          return courseElement['@id']
+          return courseElement['_id']
         }),
       }
     })
@@ -76,7 +76,7 @@ function UserManagement(props) {
   }
 
   const changeStatusOfStudent = (userId, action) => {
-    const { courseFullId } = course['@id']
+    const { courseFullId } = course['_id']
 
     let index
     let user

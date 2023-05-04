@@ -11,11 +11,13 @@ import { formatDate } from '../../../functions/global'
 import { redirect } from '../../../constants/redirect'
 import { TIMELINE } from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
-import { useGetCourseWithInstructorQuery } from "services/course"
+import { useGetCourseQuery } from "services/course"
 
 const MyInstructorCourses = props => {
-  const {data, isSuccess } = useGetCourseWithInstructorQuery(getUserID()) 
+  const {data, isSuccess } = useGetCourseQuery({instructorId: getUserID()}) 
 
+  console.log(data)
+  console.log(isSuccess)
   if (!isSuccess || !data || data.length === 0) {
     return null
   }
@@ -23,7 +25,7 @@ const MyInstructorCourses = props => {
   const renderList = []
   data.forEach(item => {
     renderList.push(
-      <ListGroupItem key={`instructorOf${item['@id']}`}>
+      <ListGroupItem key={`instructorOf${item['_id']}`}>
         <ListGroupItemHeading>{item.name}</ListGroupItemHeading>
         <ListGroupItemText>
           {`${formatDate(item.startDate)} - ${formatDate(item.endDate)}`}

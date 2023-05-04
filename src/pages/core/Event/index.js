@@ -12,7 +12,7 @@ import { INITIAL_EVENT_STATE } from '../constants'
 import { NOT_FOUND } from 'constants/routes'
 import DocumentViewer from '../../documents/DocumentViewer'
 import { EventCard } from './EventCard'
-import { useGetEventCourseInstanceQuery } from 'services/event'
+import { useGetEventQuery } from 'services/event'
 
 function Event(props) {
   const {
@@ -22,7 +22,7 @@ function Event(props) {
   } = props
   const [redirectTo, setRedirectTo] = useState(null)
   const [viewingDocument, setViewingDocument] = useState(null)
-  const {data, isSuccess, isLoading} = useGetEventCourseInstanceQuery(params.event_id)
+  const {data, isSuccess, isLoading} = useGetEventQuery({id: params.event_id})
   const hasAccess = courseInstance && user && getInstructorRights(user, courseInstance)
 
   if (redirectTo) {
@@ -41,31 +41,31 @@ function Event(props) {
   if(isSuccess && data && data !== []) {
     event = data.map(eventData => {
       return {
-        id: getShortId(eventData['@id']),
+        id: getShortId(eventData['_id']),
         name: eventData.name,
         description: eventData.description,
         startDate: new Date(eventData.startDate),
         endDate: new Date(eventData.endDate),
         place: eventData.location,
-        type: eventData['@type'].split('#')[1],
+        type: eventData['_type'].split('#')[1],
         uses: eventData.uses.map(material => {
           return {
-            id: getShortId(material['@id']),
-            fullId: material['@id'],
+            id: getShortId(material['_id']),
+            fullId: material['_id'],
             name: material.name,
           }
         }),
         recommends: eventData.recommends.map(material => {
           return {
-            id: getShortId(material['@id']),
-            fullId: material['@id'],
+            id: getShortId(material['_id']),
+            fullId: material['_id'],
             name: material.name,
           }
         }),
         documentReference: eventData.documentReference,
         courseInstance: eventData.courseInstance[0]
-          ? eventData.courseInstance[0]['@id']
-          : eventData['@id'],
+          ? eventData.courseInstance[0]['_id']
+          : eventData['_id'],
         instructors: eventData.courseInstance[0]
           ? eventData.courseInstance[0].hasInstructor
           : eventData.hasInstructor,

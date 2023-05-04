@@ -4,11 +4,11 @@ import { connect } from 'react-redux'
 import { Alert, Button, Col, Collapse, Container, Form, FormFeedback, FormGroup, Input, Label, Row, } from 'reactstrap'
 import { emailValidator, textValidator, } from '../../../functions/validators'
 import { getUserID } from '../../../components/Auth';
-import { useGetUserQuery, useUpdateUserMutation } from 'services/user'
+import { useGetUserQuery, useUpdateUserInfoMutation } from 'services/user'
  
 function Profile(props) {
-  const { data, isSuccess, isError, error } = useGetUserQuery(getUserID())
-  const [updateUser, result] = useUpdateUserMutation()
+  const { data, isSuccess, isError, error } = useGetUserQuery({id: getUserID()})
+  const [updateUser, result] = useUpdateUserInfoMutation()
   const [user, setUser] = useState(null)
   const [errors, setErrors] = useState({})
   const [success, setSuccess] = useState(false)
@@ -41,7 +41,6 @@ function Profile(props) {
   const handleSubmit = () => {
     const new_errors = validation(user)
     if(new_errors) {
-      setErrors(new_errors)
       const updatedAttrs = [
         'firstName', 'lastName', 'description', 'email',
         'nickname', 'useNickName', 'nickNameTeamException', 'allowContact', 'publicProfile', 'showBadges', 'showCourses'
@@ -53,13 +52,36 @@ function Profile(props) {
 
       updateUser({
           id: getUserID(), 
-          patch: body
+          body
       }).unwrap().then(response => {
         setSuccess(true)
       }).catch(error => {
+        console.log(error)
         throw new Error("Failed to execute PATCH request to update user information")
       })
     }
+  }
+
+  const validation = (user) => {
+    if(user === null) {
+      return false
+    }
+    let new_errors = {}
+    new_errors.firstName = textValidator(user.firstName, 3, 20)
+    new_errors.lastName = textValidator(user.lastName, 3, 20)
+    new_errors.email = emailValidator(user.email)
+    if(user.useNickName) {
+      new_errors.nickname = textValidator(user.nickname, 5, 20)
+    } else {
+      new_errors.nickname = null
+    }
+    setErrors(new_errors)
+    return (
+      new_errors.firstName.result &&
+      new_errors.lastName.result &&
+      new_errors.email.result &&
+      (new_errors.nickname === null || new_errors.nickname.result === true)
+    )
   }
 
   const handleToggleNickException = () => {
@@ -287,27 +309,6 @@ function Profile(props) {
         </Col>
       </Row>
     </Container>
-  )
-}
-
-const validation = (user) => {
-  if(user === null) {
-    return false
-  }
-  let new_errors = {}
-  new_errors.firstName = textValidator(user.firstName, 3, 20)
-  new_errors.lastName = textValidator(user.lastName, 3, 20)
-  new_errors.email = emailValidator(user.email)
-  if(user.useNickName) {
-    new_errors.nickname = textValidator(user.nickname, 5, 20)
-  } else {
-    new_errors.nickname = null
-  }
-  return (
-    new_errors.firstName.result &&
-    new_errors.lastName.result &&
-    new_errors.email.result &&
-    (new_errors.nickname === null || new_errors.nickname.result === true)
   )
 }
 

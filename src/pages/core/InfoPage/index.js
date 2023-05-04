@@ -16,7 +16,7 @@ import { useGetCourseInstanceQuery } from 'services/course'
 
 function InfoPage(props) {
   const { match: { params } } = props
-  const { data, isSuccess, isLoading } = useGetCourseInstanceQuery(params.course_id)
+  const { data, isSuccess, isLoading } = useGetCourseInstanceQuery({id: params.course_id})
   const [redirectTo, setRedirectTo] = useState(null)
 
   if (redirectTo) {
@@ -39,7 +39,7 @@ function InfoPage(props) {
       abbreviation: data[0].instanceOf[0].abbreviation,
       prerequisites: data[0].instanceOf[0].hasPrerequisite
         ? data[0].instanceOf[0].hasPrerequisite.map(prerequisite => {
-            return { fullId: prerequisite['@id'], name: prerequisite.name }
+            return { fullId: prerequisite['_id'], name: prerequisite.name }
           })
         : [],
       startDate: new Date(data[0].startDate),
@@ -47,7 +47,7 @@ function InfoPage(props) {
       instructors: data[0].hasInstructor
         ? data[0].hasInstructor.map(i => {
             return {
-              fullId: i['@id'],
+              fullId: i['_id'],
               name: `${i.firstName} ${i.lastName}`,
             }
           })

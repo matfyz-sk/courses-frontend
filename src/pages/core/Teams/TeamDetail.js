@@ -9,13 +9,13 @@ import withTeamHandler from './TeamDetailHOC'
 import { getShortID } from '../../../helperFunctions'
 import { isVisibleUser, showUserName } from '../../../components/Auth/userFunction';
 import { CreateTeamForm } from './CreateTeamForm'
-import { useGetUserByEmailForCourseQuery, useGetUserByNicknameForCourseQuery } from "services/user"
+import { useGetUserQuery } from "services/user"
 import { 
   useNewTeamInstanceMutation, 
   useUpdateTeamInstanceMutation,
-  useRemoveTeamInstanceMutation,
-  useRemoveTeamMutation 
-} from "services/team"
+  useDeleteTeamInstanceMutation,
+  useDeleteTeamMutation 
+} from "services/teamGraph"
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 function TeamsDetail(props) {
@@ -33,26 +33,27 @@ function TeamsDetail(props) {
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
   const [teamName, setTeamName] = useState('')
-  const [searchUserRequest, setSearchUserRequest] = useState(skipToken)
+  const [searchUserRequestByEmail, setSearchUserRequestByEmail] = useState(skipToken)
+  const [searchUserRequestByNickname, setSearchUserRequestByNickname] = useState(skipToken)
   const [newTeamInstance, newTeamInstanceResult] = useNewTeamInstanceMutation()
   const [updateTeamInstance, updateTeamInstanceResult] = useUpdateTeamInstanceMutation()
-  const [removeTeam, removeTeamResult] = useRemoveTeamMutation()
-  const [removeTeamInstance, removeTeamInstanceResult] = useRemoveTeamInstanceMutation()
+  const [removeTeam, removeTeamResult] = useDeleteTeamMutation()
+  const [removeTeamInstance, removeTeamInstanceResult] = useDeleteTeamInstanceMutation()
   const {
     data: userByEmailData, 
     isSuccess: userByEmailIsSuccess
-  } = useGetUserByEmailForCourseQuery(searchUserRequest)
+  } = useGetUserQuery(searchUserRequestByEmail)
 
   if (userByEmailIsSuccess && userByEmailData && userByEmailData.length > 0) { 
-    appendUserToTeam(team['@id'], userByEmailData['@id'])
+    appendUserToTeam(team['_id'], userByEmailData['_id'])
   } else {
     const {
       data: userByNicknameData, 
       isSuccess: userByNicknameIsSuccess
-    } = useGetUserByNicknameForCourseQuery(searchUserRequest)
+    } = useGetUserQuery(searchUserRequestByNickname)
 
     if (userByNicknameIsSuccess && userByNicknameData && userByNicknameData.length > 0) {
-      appendUserToTeam(team['@id'], userByNicknameData['@id'])
+      appendUserToTeam(team['_id'], userByNicknameData['_id'])
     } else {
       setError('User was not found!')
     }
@@ -70,7 +71,8 @@ function TeamsDetail(props) {
       setError('You cannot add yourself!')
       return
     }
-    setSearchUserRequest({course_id, search})
+    setSearchUserRequestByEmail({email: search, studentOfId: course_id})
+    setSearchUserRequestByNickname({nickname: search, studentOfId: course_id})
   }
 
   const appendUserToTeam = (iri, user, approved = false, fillRequest = true) => {
@@ -97,13 +99,13 @@ function TeamsDetail(props) {
   }
 
   const approveMember = (user) => {
-    const id = getShortID(user['@id'])
-    const patch = {approved: true}
-    updateTeamInstance({id, patch}).unwrap().then(response => {
+    const id = user['_id']
+    const body = {approved: true}
+    updateTeamInstance({id, body}).unwrap().then(response => {
       history.push(
         redirect(ROUTES.COURSE_TEAM_DETAIL, [
           {key: 'course_id', value: course_id},
-          {key: 'team_id', value: getShortID(team['@id'])},
+          {key: 'team_id', value: getShortID(team['_id'])},
         ])
       )
     }).catch(error => {
@@ -123,7 +125,7 @@ function TeamsDetail(props) {
     for(let i = 0; i < users.length; i++) {
       removeUserFromTeam(users[i], false)
     }
-    removeTeam(getShortID(team['@id'])).unwrap().then(response => {
+    removeTeam(team['_id']).unwrap().then(response => {
       history.push(
         redirect(ROUTES.COURSE_TEAMS, [
           {key: 'course_id', value: course_id},
@@ -135,12 +137,12 @@ function TeamsDetail(props) {
   }
 
   const removeUserFromTeam = (user, rerender = true) => {
-    removeTeamInstance(getShortID(user['@id'])).unwrap().then(response => {
+    removeTeamInstance(user['_id']).unwrap().then(response => {
       if(rerender) {
         history.push(
           redirect(ROUTES.COURSE_TEAM_DETAIL, [
             {key: 'course_id', value: course_id},
-            {key: 'team_id', value: getShortID(team['@id'])},
+            {key: 'team_id', value: getShortID(team['_id'])},
           ])
         )
       }
@@ -154,12 +156,12 @@ function TeamsDetail(props) {
   let isMember = false
   if(users) {
     for(let i = 0; i < users.length; i++) {
-      if(getShortID(users[i].hasUser[0]['@id']) === getUserID()) {
+      if(getShortID(users[i].hasUser[0]['_id']) === getUserID()) {
         isMember = true
       }
       if(
         users[i].approved &&
-        getShortID(users[i].hasUser[0]['@id']) === getUserID()
+        getShortID(users[i].hasUser[0]['_id']) === getUserID()
       ) {
         canEdit = true
       }
@@ -215,7 +217,7 @@ function TeamsDetail(props) {
                 to={ redirect(ROUTES.PUBLIC_PROFILE, [
                   {
                     key: 'user_id',
-                    value: getShortID(users[i].hasUser[0]['@id']),
+                    value: getShortID(users[i].hasUser[0]['_id']),
                   },
                 ]) }
               >
@@ -290,7 +292,7 @@ function TeamsDetail(props) {
               className="mt-3"
               onClick={ () =>
                 appendUserToTeam(
-                  team['@id'],
+                  team['_id'],
                   getUser().fullURI,
                   false,
                   false

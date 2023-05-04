@@ -12,40 +12,25 @@ import { getUserID } from '../../../components/Auth'
 import { redirect } from '../../../constants/redirect'
 import { COURSE_TEAM_DETAIL, TIMELINE}  from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
-import { useGetTeamInstanceWithUsersQuery, useGetTeamDetailsQuery } from 'services/team'
+import { useGetUserTeamInstanceAndTeamQuery } from 'services/user'
 
 function MyTeams(props) {
   const [data, setData] = useState(null)
+  const {data: requestedData, isSuccess: isSuccessRequestedData} = useGetUserTeamInstanceAndTeamQuery(getUserID())
 
-  const {
-    data: teamInstanceData, 
-    isSuccess: teamInstanceIsSuccess
-  } = useGetTeamInstanceWithUsersQuery(getUserID())
-  if(data !== null && teamInstanceIsSuccess && teamInstanceData) {
-    if(teamInstanceData.length > 0) {
+  if (data !== null && isSuccessRequestedData && requestedData && requestedData.length > 0) {
+    if(requestedData[0].memberOf.length > 0) {
       const newData = []
-      for (const detail of teamInstanceData) {
-        if (detail?.instanceOf && detail?.instanceOf.length > 0) {
-          const {
-            data: teamData, 
-            isSuccess: teamIsSucces
-          } = useGetTeamDetailsQuery(getShortID(
-            detail.instanceOf[0]['@id']
-          ))
-    
-          if(teamIsSucces && teamData) {
-            if(teamData.length > 0 && teamData[0].courseInstance.length > 0) {
-              newData.push({
-                teamInstance: detail,
-                team: teamData[0],
-              })
-            }
-          }
+      for (const detail of requestedData.memberOf) {
+        if (detail?.instanceOf && detail?.instanceOf.length > 0 && detail?.instanceOf.courseInstance.length > 0) {
+          newData.push({
+            teamInstance: detail,
+            team: detail.instanceOf,
+          })
         }
       }
-      setData(newData)
     } else {
-      setData(teamInstanceData)
+      setData(requestedData.memberOf)
     }
   }
 

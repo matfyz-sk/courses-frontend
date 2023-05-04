@@ -15,7 +15,7 @@ import './Courses.css'
 import { getShortId } from '../Helper'
 import { NEW_COURSE } from '../../../constants/routes'
 import { CoursesList } from './CoursesList'
-import { useGetCourseInstancesQuery, useGetCoursesQuery } from 'services/course'
+import { useGetCourseQuery, useGetCourseInstanceQuery } from 'services/course'
 
 function CoursesPageBase(props) {
   const { user } = props
@@ -24,11 +24,11 @@ function CoursesPageBase(props) {
     data: courseInstancesData,
     isSuccess: courseInstancesIsSuccess,
     isLoading
-  } = useGetCourseInstancesQuery()
+  } = useGetCourseInstanceQuery({})
   const {
     data: coursesData,
     isSuccess: coursesIsSuccess
-  } = useGetCoursesQuery()
+  } = useGetCourseQuery({})
 
   const toggle = tab => {
     if (activeTab !== tab) {
@@ -52,16 +52,16 @@ function CoursesPageBase(props) {
     console.log(courseInstancesData)
     const courses = courseInstancesData.map(courseInstance => {
       return {
-        id: courseInstance['@id'].substring(
-          courseInstance['@id'].length - 5
+        id: courseInstance['_id'].substring(
+          courseInstance['_id'].length - 5
         ),
-        fullId: courseInstance['@id'],
+        fullId: courseInstance['_id'],
         year: courseInstance.year,
         name: courseInstance.instanceOf[0].name,
         abbreviation: courseInstance.instanceOf[0].abbreviation,
         description: courseInstance.instanceOf[0].description,
-        courseId: courseInstance.instanceOf[0]['@id'].substring(
-          courseInstance.instanceOf[0]['@id'].length - 5
+        courseId: courseInstance.instanceOf[0]['_id'].substring(
+          courseInstance.instanceOf[0]['_id'].length - 5
         ),
         startDate: courseInstance.startDate,
         endDate: courseInstance.endDate,
@@ -104,16 +104,16 @@ function CoursesPageBase(props) {
         const courseIds = courses.map(c => c.courseId)
         const coursesToAdd = []
         for (const course of coursesData) {
-          if (!courseIds.includes(getShortId(course['@id']))) {
+          if (!courseIds.includes(getShortId(course['_id']))) {
             coursesToAdd.push(course)
           }
         }
 
         for (const course of coursesToAdd) {
-          const admins = course.hasAdmin.map(a => getShortId(a['@id']))
+          const admins = course.hasAdmin.map(a => getShortId(a['_id']))
           const courseToAdd = {
-            id: getShortId(course['@id']),
-            fullId: course['@id'],
+            id: getShortId(course['_id']),
+            fullId: course['_id'],
             name: course.name,
             desc: course.description,
             abbr: course.abbreviation,
@@ -270,19 +270,19 @@ const adjustCoursesData = (courses, user) => {
   for (const course of courses) {
     course.enrolled =
       user.studentOf.findIndex(userEnrolledCourse => {
-        return userEnrolledCourse['@id'] === course.fullId
+        return userEnrolledCourse['_id'] === course.fullId
       }) > -1
 
     course.requests =
       user.requests.findIndex(userRequestedCourse => {
-        return userRequestedCourse['@id'] === course.fullId
+        return userRequestedCourse['_id'] === course.fullId
       }) > -1
 
     // eslint-disable-next-line no-nested-ternary
     course.instructor = course.hasInstructor
       ? Array.isArray(course.hasInstructor)
         ? course.hasInstructor
-            .map(instructor => instructor['@id'])
+            .map(instructor => instructor['_id'])
             .findIndex(instructor => {
               return instructor === user.fullURI
             }) > -1

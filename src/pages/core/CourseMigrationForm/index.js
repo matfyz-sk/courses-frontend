@@ -18,23 +18,22 @@ import {
   setCourseMigrationEndDate,
   setCourseMigrationInstructors,
 } from '../../../redux/actions'
-import { useGetUsersQuery } from 'services/user'
+import { useGetUserQuery } from 'services/user'
 
 
 function CourseMigrationForm(props) {
   const { startDate: propStartDate, endDate: propEndDate, instructors: propInstructors } = props
   const { next } = props.navigation
-  const { data, isSuccess } = useGetUsersQuery()
+  const { data, isSuccess } = useGetUserQuery({})
   const [startDate, setStartDate] = useState(propStartDate)
   const [endDate, setEndDate] = useState(propEndDate)
   const [instructors, setInstructors] = useState(propInstructors)
-  console.log(props)
 
   let users = []
   if(isSuccess && data) {
     users = data.map(user => {
       return {
-        fullId: user['@id'],
+        fullId: user['_id'],
         name:
           user.firstName !== '' && user.lastName !== ''
             ? `${user.firstName} ${user.lastName}`
