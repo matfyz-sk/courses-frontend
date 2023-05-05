@@ -3,7 +3,7 @@ name: Clean apache
 on:
   workflow_call:
     inputs:
-      PR_BRANCH:
+      BRANCH:
         required: true
         type: string
     secrets:
@@ -21,7 +21,7 @@ jobs:
       - name: Make folder for frontend
         uses: appleboy/ssh-action@master
         env:
-          BRANCH: ${{ env.PR_BRANCH }}
+          BRANCH: ${{ inputs.BRANCH }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
