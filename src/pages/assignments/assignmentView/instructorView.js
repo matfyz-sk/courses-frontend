@@ -10,7 +10,7 @@ import {
   periodHasEnded,
 } from '../../../helperFunctions'
 import classnames from 'classnames'
-import { useUpdateAssignmentMutation } from 'services/assignments'
+import { useUpdateAssignmentMutation } from 'services/assignmentsGraph'
 import { useAddSubmissionToReviewMutation } from 'services/review'
 
 export default function InstructorAssignmentView(props) {
@@ -73,12 +73,12 @@ export default function InstructorAssignmentView(props) {
           let submissionToReview =
             submissions[(index + count) % submissions.length]
           console.log('TO REVIEW_:', {
-            submission: submissionToReview['@id'],
-            student: submission.submittedByStudent[0]['@id'],
+            submission: submissionToReview['_id'],
+            student: submission.submittedByStudent[0]['_id'],
           })
           toReviews.push({
-            submission: submissionToReview['@id'],
-            student: submission.submittedByStudent[0]['@id'],
+            submission: submissionToReview['_id'],
+            student: submission.submittedByStudent[0]['_id'],
           })
         }
       })
@@ -88,8 +88,8 @@ export default function InstructorAssignmentView(props) {
           let submissionToReview =
             submissions[(index + count) % submissions.length]
           toReviews.push({
-            submission: submissionToReview['@id'],
-            team: submission.submittedByTeam[0]['@id'],
+            submission: submissionToReview['_id'],
+            team: submission.submittedByTeam[0]['_id'],
           })
         }
       })
@@ -98,10 +98,10 @@ export default function InstructorAssignmentView(props) {
     toReviews.forEach(toReview => {
       addSubmissionToReview(toReview).unwrap().then(response => {
         updateAssignment({
-          id: getShortID(props.assignment['@id']),
-          patch: { hasAssignedReviews: true },
+          id: getShortID(props.assignment['_id']),
+          body: { hasAssignedReviews: true },
         }).unwrap().then(responseFromUpdate => {
-          props.updateAssignment(assignment['@id'])
+          props.updateAssignment(assignment['_id'])
         })
       })
     })
@@ -183,7 +183,7 @@ export default function InstructorAssignmentView(props) {
                     onClick={() =>
                       props.history.push(
                         `./assignments/assignment/${getShortID(
-                          assignment['@id']
+                          assignment['_id']
                         )}/${getShortID(submission.id)}/submission`
                       )
                     }
@@ -337,8 +337,8 @@ const groupSubmissions = (submissions, individualGrouping) => {
   let groupedSubmissions = []
   submissions.forEach(submission => {
     const id = individualGrouping
-      ? submission.submittedByStudent[0]['@id']
-      : submission.submittedByTeam[0]['@id']
+      ? submission.submittedByStudent[0]['_id']
+      : submission.submittedByTeam[0]['_id']
     const index = groupedSubmissions.findIndex(
       gSubmission => gSubmission.id === id
     )

@@ -22,15 +22,11 @@ import { getEvents, greater, greaterEqual, sortEventsFunction, } from '../Timeli
 import { connect } from 'react-redux'
 import { getIRIFromAddResponse } from 'helperFunctions'
 import DocumentReferencer from 'pages/documents/common/DocumentsReferencer'
-import { 
-  useGetCourseInstanceEventDocRefQuery, 
-  useNewEventMutation, 
-  useUpdateEventByTypeMutation, 
-  useDeleteEventByTypeMutation, 
-} from 'services/event'
-import { useNewCourseInstanceMutation, useUpdateCourseInstanceMutation } from 'services/course'
+import { useGetEventQuery, useNewEventByTypeMutation } from 'services/event'
+import { useDeleteEventByTypeMutation, useUpdateEventByTypeMutation } from 'services/event'
+import { useUpdateCourseInstanceMutation, useNewCourseInstanceMutation } from 'services/course'
 import { useNewFolderMutation, useGetMaterialsQuery } from 'services/documents'
-import { useGetUsersQuery } from 'services/user'
+import { useGetUserQuery } from 'services/user'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 function EventForm(props) {
@@ -63,10 +59,10 @@ function EventForm(props) {
   const {
     data: subEventsData, 
     isSuccess: subEventsIsSuccess
-  } = useGetCourseInstanceEventDocRefQuery(courseId !== '' ? courseId : skipToken)
-  const {data: usersData, isSuccess: usersIsSuccess} = useGetUsersQuery()
+  } = useGetEventQuery(courseId !== '' ? {courseInstanceId: courseId} : skipToken)
+  const {data: usersData, isSuccess: usersIsSuccess} = useGetUserQuery({})
   const {data: materialsData, isSuccess: materialsIsSuccess} = useGetMaterialsQuery()
-  const [newEvent, newEventResult] = useNewEventMutation()
+  const [newEvent, newEventResult] = useNewEventByTypeMutation()
   const [newNewCourseInstance, newNewCourseInstanceResult] = useNewCourseInstanceMutation()
   const [newFolder, newFolderResult] = useNewFolderMutation()
   const [updateCourseInstance, updateCourseInstanceResult] = useUpdateCourseInstanceMutation()
@@ -77,7 +73,7 @@ function EventForm(props) {
   if(usersIsSuccess && usersData) {
     users = usersData.map(user => {
       return {
-        fullId: user['@id'],
+        fullId: user['_id'],
         name:
           user.firstName !== '' && user.lastName !== ''
             ? `${ user.firstName } ${ user.lastName }`
@@ -90,7 +86,7 @@ function EventForm(props) {
   if(materialsIsSuccess && materialsData) {
     docs = materialsData.map(doc => {
       return {
-        fullId: doc['@id'],
+        fullId: doc['_id'],
         name: doc.name,
       }
     })
@@ -169,7 +165,7 @@ function EventForm(props) {
       location: place.split('"').join("'"),
       uses: usedMaterials,
       recommends: recommendedMaterials,
-      documentReference: documentReference.map(doc => doc["@id"])
+      documentReference: documentReference.map(doc => doc["_id"])
     }
 
     if(type === 'CourseInstance') {
@@ -177,12 +173,10 @@ function EventForm(props) {
     }
     if(typeOfForm === 'Create') {
       // eslint-disable-next-line no-underscore-dangle
-      data._type = type
       data.courseInstance = courseInstanceFullId
       
-      newEvent(data).unwrap().then(response => {
-        console.log(response)
-        const newEventId = getShortId(response.resource.iri)
+      newEvent({type, body: data}).unwrap().then(response => {
+        const newEventId = response["_id"]
         callBack(newEventId)
       }).catch(error => {
         newErrors.push('There was a problem with server while sending your form. Try again later.')
@@ -191,17 +185,16 @@ function EventForm(props) {
     } else if(typeOfForm === 'New Course Instance') {
       data.instanceOf = courseFullId
       data.hasInstructor = hasInstructor
-      console.log(data)
       newNewCourseInstance(data).unwrap().then(response => {
-        const newEventId = getShortId(response.resource.iri)
+        const newEventId = getShortId(response["_id"])
         const folderData = {
           name: 'Home',
-          courseInstance: response.resource.iri,
+          courseInstance: response["_id"],
         }
         
         newFolder(folderData).unwrap().then(folderResponse => {
-          const fileExplorerRoot = folderResponse.resource.iri
-          updateCourseInstance({id: newEventId, patch: {fileExplorerRoot}}).unwrap()
+          const fileExplorerRoot = folderResponse["_id"]
+          updateCourseInstance({id: newEventId, body: {fileExplorerRoot}}).unwrap()
         })
         callBack(newEventId)
       }).catch(error => {
@@ -212,12 +205,12 @@ function EventForm(props) {
       updateEventByType({
         id,
         type: typeLowerCase,
-        patch: data
+        body: data
       }).unwrap().then(response => {
         if (typeOfForm === 'Edit') {
           callBack(id)
         } else {
-          const newEventId = getShortId(response.resource.iri)
+          const newEventId = response[type]["_id"]
           callBack(newEventId)
         }
       }).catch(error => {

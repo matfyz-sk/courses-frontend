@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import Page404 from '../../errors/Page404'
 // eslint-disable-next-line import/no-cycle
-import { useGetResultTypeDetailCreatedByWithCorrectionQuery } from "services/result"
+import { useGetResultTypeQuery } from "services/result"
 
 const withResultDetail = Component => props => {
   const { privileges, courseInstance } = props
   const { course_id, result_type_id } = props.match.params
   const [resultType, setResultType] = useState(null)
   const [resp, setResp] = useState(200)
-  const {data, isSuccess} = useGetResultTypeDetailCreatedByWithCorrectionQuery(result_type_id)
+  const {data, isSuccess} = useGetResultTypeQuery(result_type_id)
 
   function fetchResultType() {
     if (isSuccess) {

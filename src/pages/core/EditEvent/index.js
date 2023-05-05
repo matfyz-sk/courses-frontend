@@ -9,7 +9,7 @@ import { useGetEventQuery } from 'services/event'
 
 function EditEvent(props) {
   const { match: { params } } = props
-  const { data, isSuccess, isLoading } = useGetEventQuery(params.event_id)
+  const { data, isSuccess, isLoading } = useGetEventQuery({id: params.event_id})
   const [redirectTo, setRedirectTo] = useState(null)
 
   const setRedirect = id => {
@@ -36,8 +36,8 @@ function EditEvent(props) {
   if (isSuccess && data) {
     event = data.map(eventData => {
       return {
-        id: getShortId(eventData['@id']),
-        fullId: eventData['@id'],
+        id: getShortId(eventData['_id']),
+        fullId: eventData['_id'],
         name: eventData.name,
         description: eventData.description ? eventData.description : '',
         startDate: new Date(eventData.startDate),
@@ -49,26 +49,26 @@ function EditEvent(props) {
             : '',
         uses: eventData.uses.map(material => {
           return {
-            id: getShortId(material['@id']),
-            fullId: material['@id'],
+            id: getShortId(material['_id']),
+            fullId: material['_id'],
             name: material.name,
           }
         }),
         recommends: eventData.recommends.map(material => {
           return {
-            id: getShortId(material['@id']),
-            fullId: material['@id'],
+            id: getShortId(material['_id']),
+            fullId: material['_id'],
             name: material.name,
           }
         }),
         documentReference: eventData.documentReference,
         courseInstance: eventData.courseInstance[0]
-          ? eventData.courseInstance[0]['@id']
+          ? eventData.courseInstance[0]['_id']
           : '',
         instructors: eventData.hasInstructor
           ? eventData.hasInstructor.map(instructor => {
               return {
-                fullId: instructor['@id'],
+                fullId: instructor['_id'],
                 name: `${instructor.firstName} ${instructor.lastName}`,
               }
             })

@@ -8,8 +8,8 @@ import { RESULT_USER } from '../../../constants/routes'
 // eslint-disable-next-line import/no-cycle
 import { getShortID } from '../../../helperFunctions'
 import { showUserName } from '../../../components/Auth/userFunction'
-import { useGetUserEnrolledQuery } from 'services/user'
-import { useGetResultForCourseInstanceQuery } from 'services/result'
+import { useGetUserQuery } from 'services/user'
+import { useGetResultQuery } from 'services/result'
 
 const StudentsPreview = props => {
   const { match, courseInstanceReducer, privilegesReducer } = props
@@ -17,11 +17,11 @@ const StudentsPreview = props => {
   const privileges = privilegesReducer
   const { course_id } = match.params
   const [users, setUsers] = useState([])
-  const { data, isSuccess } = useGetUserEnrolledQuery(getShortID(course_id))
+  const { data, isSuccess } = useGetUserQuery({studentOfId: getShortID(course_id)})
 
   const getUsers = () => {
     if (isSuccess && data) {
-      const { data: resultsData, isSuccess: resultsIsSuccess } = useGetResultForCourseInstanceQuery(course_id) // why not getShortID(course_id)
+      const { data: resultsData, isSuccess: resultsIsSuccess } = useGetResultQuery({courseInstanceId: course_id}) // why not getShortID(course_id)
       if (resultsIsSuccess && resultsData) {
         const userList = []
         for (let i = 0; i < data.length; i++) {
@@ -30,7 +30,7 @@ const StudentsPreview = props => {
             result: 0,
           }
           for (let r = 0; r < resultsData.length; r++) {
-            if (user.user['@id'] === resultsData[r].hasUser[0]['@id']) {
+            if (user.user['_id'] === resultsData[r].hasUser[0]['_id']) {
               user.result = user.result + resultsData[r].points
             }
           }
@@ -84,7 +84,7 @@ const StudentsPreview = props => {
                 key: 'course_id',
                 value: course_id,
               },
-              { key: 'user_id', value: getShortID(users[i].user['@id']) },
+              { key: 'user_id', value: getShortID(users[i].user['_id']) },
             ])}
             className="btn btn-sm btn-link ml-2"
           >

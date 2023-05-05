@@ -5,11 +5,11 @@ import { Container, Table } from 'reactstrap'
 import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import { formatDate, idFromURL } from '../../../functions/global';
-import { useGetTeamForCourseOrderedByNameQuery } from "services/team"
+import { useGetTeamQuery } from "services/teamGraph"
 
 function Teams(props) {
   const courseId = props.match.params.course_id ?? null
-  const {data, isSuccess} = useGetTeamForCourseOrderedByNameQuery(courseId)
+  const {data, isSuccess} = useGetTeamQuery({courseInstanceId: courseId, order: true})
   let teams = null
   if (isSuccess && data) {
     teams = data
@@ -19,7 +19,7 @@ function Teams(props) {
   if(teams) {
     for(let i = 0; i < teams.length; i++) {
       const team = teams[i]
-      const team_id = idFromURL(team['@id'])
+      const team_id = idFromURL(team['_id'])
       render_teams.push(
         <tr key={ `team-${ i }` }>
           <th>{ team.name }</th>

@@ -10,10 +10,7 @@ import {
 } from '../../../helperFunctions'
 import StudentTeamSubmissionsView from './studentTeamSubmissionsView'
 import StudentSubmissionsView from './studentSubmissionsView'
-import { 
-  useGetSubmissionSubmitedByStudentQuery, 
-  useGetSubmissionSubmitedByTeamQuery,
-} from 'services/assignments'
+import { useLazyGetSubmissionQuery } from 'services/assignmentsGraph'
 import { 
   useGetToReviewForStudentQuery,
   useGetToReviewForTeamQuery, 
@@ -22,8 +19,8 @@ import {
   useGetPeerReviewQuery,
   useGetPeerReviewForTeamQuery,
 } from 'services/peerReview'
-import { useGetUserQuery } from 'services/user'
-import { useGetTeamQuery } from 'services/team'
+import { useLazyGetUserQuery } from 'services/user'
+import { useLazyGetTeamQuery } from 'services/teamGraph'
 
 function StudentAssignmentView(props) {
   let assignment = props.assignment
@@ -34,6 +31,9 @@ function StudentAssignmentView(props) {
   const [improvedSubmissions, setImprovedSubmissions] = useState([])
   const [toReviews, setToReviews] = useState([])
   const [reviewsTemporary, setReviewsTemporary] = useState([])
+  const [getUser, getUserResult] = useLazyGetUserQuery()
+  const [getSubmission] = useLazyGetSubmissionQuery()
+  const [getTeam] = useLazyGetTeamQuery()
 
   useEffect(() =>{
     getSubmissions()
@@ -43,26 +43,14 @@ function StudentAssignmentView(props) {
   const getSubmissions = () => {
     let submissions = []
     if (assignment.teamsDisabled) {
-      const {data, isSuccess} = useGetSubmissionSubmitedByStudentQuery({
-        id: getShortID(assignment['@id']),
-        studentId: getShortID(props.user.fullURI),
-        attr: '',
-      })
-      if(isSuccess && data) {
+      getSubmission({assignemntId: assignment['_id'], studentId: props.user.fullURI}).unwrap().then(data => {
         submissions.push(data)
-      }
-      
+      })
     } else {
       props.teams.forEach(team => {
-        const {data, isSuccess} = useGetSubmissionSubmitedByTeamQuery({
-          id: getShortID(assignment['@id']),
-          teamId: getShortID(team['@id']),
-          attr: '',
-        })
-
-        if(isSuccess && data) {
+        getSubmission({assignemntId: assignment['_id'], teamId: team['_id']}).unwrap().then(data => {
           submissions.push(data)
-        }
+        })
       })
     }
 
@@ -99,7 +87,7 @@ function StudentAssignmentView(props) {
     } else {
       props.teams.forEach(team => {
         const {data, isSuccess} = useGetToReviewForTeamQuery(getShortID(
-          team['@id']
+          team['_id']
         ))
         
         if(isSuccess && data) {
@@ -112,7 +100,7 @@ function StudentAssignmentView(props) {
       return acc.concat(value)
     }, []).filter(
       toReview =>
-        toReview.submission[0].ofAssignment === assignment['@id']
+        toReview.submission[0].ofAssignment === assignment['_id']
     )
 
     let reviewsResponses = []
@@ -123,28 +111,26 @@ function StudentAssignmentView(props) {
         reviewsResponses.push(peerReviewData)
       }
       
-      const {data: userData, isSuccess: userDataIsSuccess} = useGetUserQuery(getShortID(
-        toReview.submission[0].submittedByStudent
-      ))
-      if (userDataIsSuccess && userData) {
-        creatorsResponses.push(userData)
-      }
+      getUser({
+        id: getShortID(toReview.submission[0].submittedByStudent)
+      }).unwrap().then(response => {
+        if (getUserResult.isSuccess && response) {
+          creatorsResponses.push(response)
+        }
+      })
     } else {
       fetchedToReviews.forEach(toReview => {
         const {data: peerReviewData, isSuccess: peerReviewIsSuccess} = useGetPeerReviewForTeamQuery({
-          teamId: getShortID(toReview.team[0]['@id']),
-          id: getShortID(toReview.submission[0]['@id']),
+          teamId: getShortID(toReview.team[0]['_id']),
+          id: getShortID(toReview.submission[0]['_id']),
         })
         if (peerReviewIsSuccess && peerReviewData) {
           reviewsResponses.push(peerReviewData)
         }
         
-        const {data: teamData, isSuccess: teamDataIsSuccess} = useGetTeamQuery(getShortID(
-          toReview.submission[0].submittedByTeam
-        ))
-        if (teamDataIsSuccess && teamData) {
+        getTeam({id: toReview.submission[0].submittedByTeam}).unwrap().then(teamData => {
           creatorsResponses.push(teamData)
-        }
+        })
       })
     }
 
@@ -206,7 +192,7 @@ function StudentAssignmentView(props) {
             onClick={() =>
               props.history.push(
                 `./assignments/assignment/${getShortID(
-                  assignment['@id']
+                  assignment['_id']
                 )}/submission/submission`
               )
             }
@@ -232,7 +218,7 @@ function StudentAssignmentView(props) {
             onClick={() =>
               props.history.push(
                 `./assignments/assignment/${getShortID(
-                  assignment['@id']
+                  assignment['_id']
                 )}/submission/submission`
               )
             }
@@ -264,7 +250,7 @@ function StudentAssignmentView(props) {
             onClick={() =>
               props.history.push(
                 `./assignments/assignment/${getShortID(
-                  assignment['@id']
+                  assignment['_id']
                 )}/submission/teamReview`
               )
             }
@@ -299,7 +285,7 @@ function StudentAssignmentView(props) {
           onClick={() =>
             props.history.push(
               `./assignments/assignment/${getShortID(
-                props.assignment['@id']
+                props.assignment['_id']
               )}/submission/submission`
             )
           }
@@ -350,13 +336,13 @@ function StudentAssignmentView(props) {
               </thead>
               <tbody>
                 {toReviews.map(toReview => (
-                  <tr key={toReview['@id']}>
+                  <tr key={toReview['_id']}>
                     {['blind', 'open'].includes(
                       assignment.reviewsVisibility
                     ) && <td>{toReview.name}</td>}
                     <td className="center-cell">
                       {toReview.review &&
-                      toReview.review.reviewedByStudent[0]['@id'] ==
+                      toReview.review.reviewedByStudent[0]['_id'] ==
                         props.user.fullURI ? (
                         <i className="fa fa-check green-color" />
                       ) : (
@@ -379,8 +365,8 @@ function StudentAssignmentView(props) {
                         onClick={() =>
                           props.history.push(
                             `./assignments/assignment/${getShortID(
-                              props.assignment['@id']
-                            )}/review/${getShortID(toReview['@id'])}/reviews`
+                              props.assignment['_id']
+                            )}/review/${getShortID(toReview['_id'])}/reviews`
                           )
                         }
                       >
@@ -402,12 +388,12 @@ const getCreatorsName = (creators, toReview, individual) => {
     return getStudentName(
       creators.find(
         creator =>
-          creator['@id'] === toReview.submission[0].submittedByStudent
+          creator['_id'] === toReview.submission[0].submittedByStudent
       )
     )
   }
   return creators.find(
-    creator => creator['@id'] === toReview.submission[0].submittedByTeam
+    creator => creator['_id'] === toReview.submission[0].submittedByTeam
   ).name
 }
 
@@ -416,7 +402,7 @@ const assignReviews = (toReviews, reviews, creators, individual) => {
     ...toReviewItem,
     review: reviews.find(
       review =>
-        review.ofSubmission[0]['@id'] === toReviewItem.submission[0]['@id']
+        review.ofSubmission[0]['_id'] === toReviewItem.submission[0]['_id']
     ),
     name: getCreatorsName(creators, toReviewItem, individual),
   }))
@@ -425,7 +411,7 @@ const assignReviews = (toReviews, reviews, creators, individual) => {
 const getToReviewButtonText = (review, peerReviewPeriod, userFullURI) => {
   if (periodHappening(peerReviewPeriod)) {
     return review &&
-      review.reviewedByStudent[0]['@id'] == userFullURI
+      review.reviewedByStudent[0]['_id'] == userFullURI
       ? 'Update Review'
       : 'Review'
   }
@@ -442,7 +428,7 @@ const getToReviewButtonColor = (toReview, peerReviewPeriod) => {
 const getWasReviewed = (reviews, initialSubmissions) => {
   if (initialSubmissions.length > 0) {
     const wasReviewed = reviews.find(
-      review => review.ofSubmission[0]['@id'] === initialSubmissions[0]['@id']
+      review => review.ofSubmission[0]['_id'] === initialSubmissions[0]['_id']
     )
     if (wasReviewed) {
       return true

@@ -9,8 +9,8 @@ import { setCourseMigrationState } from '../../../redux/actions'
 import { getShortId } from '../Helper'
 import { addDays, dateDiffInDays } from '../Timeline/timeline-helper'
 import copyFileSystem from '../../documents/common/functions/copyFileSystem'
-import { useNewCourseInstanceMutation, useUpdateCourseInstanceMutation } from 'services/course'
-import { useNewEventMutation } from 'services/event'
+import { useUpdateCourseInstanceMutation, useNewCourseInstanceMutation } from 'services/course'
+import { useNewEventByTypeMutation } from 'services/event'
 
 function Submit(props) {
   const { courseMigrationState } = props
@@ -19,7 +19,7 @@ function Submit(props) {
   const [errors, setErrors] = useState([])
   const [newCourseInstance, newCourseInstanceResult] = useNewCourseInstanceMutation()
   const [updateCourseInstance, updateCourseInstanceResult] = useUpdateCourseInstanceMutation()
-  const [newEvent, newEventResult] = useNewEventMutation()
+  const [newEvent, newEventResult] = useNewEventByTypeMutation()
   
   const migrate = () => {
     const {
@@ -32,7 +32,7 @@ function Submit(props) {
     } = courseMigrationState
     const courseInstance = props.courseInstance
 
-    const courseId = getShortId(instanceOf[0]['@id'])
+    const courseId = getShortId(instanceOf[0]['_id'])
     const courseFullId = [
       `${ DATA_PREFIX }${ COURSE_URL }/${ courseId }`,
     ]
@@ -41,7 +41,7 @@ function Submit(props) {
       return instructor.fullId
     })
 
-    const hasDocument = courseInstance.hasDocument.map(doc => doc["@id"])
+    const hasDocument = courseInstance.hasDocument.map(doc => doc["_id"])
 
     const data = {
       name,
@@ -50,6 +50,7 @@ function Submit(props) {
       endDate,
       hasInstructor,
       instanceOf: courseFullId,
+      type: "CourseInstance",
       hasDocument
     }
     console.log(data)
@@ -65,10 +66,8 @@ function Submit(props) {
           newCourseInstanceId
         )
       }
-      const id = getShortId(newCourseInstanceId)
-      console.log(id)
-      console.log(data)
-      updateCourseInstance({id, data}).unwrap().then(updateResponse => {
+      const id = newCourseInstanceId
+      updateCourseInstance({id, body: data}).unwrap().then(updateResponse => {
         console.log(updateResponse)
         setSent(true)
       }).catch(errors => {
@@ -113,7 +112,7 @@ function Submit(props) {
           startDate: newStartDate,
           endDate: newEndDate,
           courseInstance: courseId,
-          _type: event.type,
+          type: event.type,
           documentReference: newDocumentReference
         }
         eventsToAdd.push(e)
@@ -123,7 +122,7 @@ function Submit(props) {
     const new_errors = []
 
     for (let event of eventsToAdd) {
-      newEvent(event).unwrap().catch(error => {
+      newEvent({type: event.type, body: event}).unwrap().catch(error => {
         new_errors.push(`There was a problem with server while posting ${event.name}`)
       })
     }

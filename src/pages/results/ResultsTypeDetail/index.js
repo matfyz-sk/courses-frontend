@@ -9,8 +9,8 @@ import { formatDate } from '../../../functions/global'
 import { showUserName } from '../../../components/Auth/userFunction'
 import { getUser } from '../../../components/Auth'
 import { getShortID } from '../../../helperFunctions'
-import { useGetResultByTypeQuery, useUpdateUserResultMutation, useNewUserResultMutation } from 'services/result'
-import { useGetUserEnrolledQuery } from 'services/user'
+import { useGetResultQuery, useUpdateResultMutation, useNewResultMutation } from 'services/result'
+import { useGetUserQuery } from 'services/user'
 
 function ResultsTypeDetail(props) {
   const { canEdit, resultType, course_id, result_type_id, privileges, instance } = props
@@ -19,16 +19,16 @@ function ResultsTypeDetail(props) {
   const [msg, setMsg] = useState(null)
   const [loading, setLoading] = useState(false)
   const [extended, setExtended] = useState(false)
-  const [updateUserResult, updateUserResultResult] = useUpdateUserResultMutation()
-  const [newUserResult, newUserResultResult] = useNewUserResultMutation()
+  const [updateUserResult, updateUserResultResult] = useUpdateResultMutation()
+  const [newUserResult, newUserResultResult] = useNewResultMutation()
   const {
     data: usersData, 
     isSuccess: usersIsSuccess
-  } = useGetUserEnrolledQuery(course_id)
+  } = useGetUserQuery({studentOfId: course_id})
   const {
     data: resultData, 
     isSuccess: resultIsSuccess
-  } = useGetResultByTypeQuery(result_type_id)
+  } = useGetResultQuery({typeId: result_type_id})
 
   const getResultsData = (type_id, userList) => {
     if (resultIsSuccess && resultData) {
@@ -37,7 +37,7 @@ function ResultsTypeDetail(props) {
       for (let i = 0; i < userList.length; i++) {
         let result = null
         for (let j = 0; j < resultList.length; j++) {
-          if (resultList[j].hasUser[0]['@id'] === userList[i]['@id']) {
+          if (resultList[j].hasUser[0]['_id'] === userList[i]['_id']) {
             result = resultList[j]
             break
           }
@@ -51,10 +51,10 @@ function ResultsTypeDetail(props) {
           userWithResults.push({
             user: userList[i],
             result: {
-              courseInstance: instance['@id'],
-              hasUser: userList[i]['@id'],
+              courseInstance: instance['_id'],
+              hasUser: userList[i]['_id'],
               awardedBy: getUser().fullURI,
-              type: resultType['@id'],
+              type: resultType['_id'],
               points: '',
               description: '',
               reference: '',
@@ -84,17 +84,17 @@ function ResultsTypeDetail(props) {
   const saveAll = () => {
     for (let i = 0; i < users.length; i++) {
       if (users[i].result.points !== '' && checkPerformance(i)) {
-        if (users[i].result['@id']) {
+        if (users[i].result['_id']) {
           setMsg(`[ PROGRESS ] Creating results for students ...`)
           setLoading(true)
-          const patch = {
+          const body = {
             points: users[i].result.points, 
             description: users[i].result.description, 
             reference: users[i].result.reference
           }
           updateUserResult({
-            id: getShortID(users[i].result['@id']),
-            patch
+            id: getShortID(users[i].result['_id']),
+            body
           }).unwrap().then(response => {
             setPerformUser(JSON.parse(JSON.stringify(users)))
             setLoading(false)
@@ -145,7 +145,7 @@ function ResultsTypeDetail(props) {
             },
             {
               key: 'result_type_id',
-              value: getShortID(resultType.correctionFor[0]['@id']),
+              value: getShortID(resultType.correctionFor[0]['_id']),
             },
           ])}
         >
@@ -232,7 +232,7 @@ function ResultsTypeDetail(props) {
               <b>{users[i].result ? `${users[i].result.points} p` : '-'}</b>
             )}
           </td>
-          <td>{users[i].result['@id'] ? (
+          <td>{users[i].result['_id'] ? (
               <Link
                 to={redirect(RESULT_DETAIL, [
                   {
@@ -241,7 +241,7 @@ function ResultsTypeDetail(props) {
                   },
                   {
                     key: 'result_id',
-                    value: getShortID(users[i].result['@id']),
+                    value: getShortID(users[i].result['_id']),
                   },
                 ])}
               >

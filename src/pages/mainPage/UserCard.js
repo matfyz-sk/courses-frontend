@@ -18,7 +18,7 @@ const UserCard = ({ user, privileges }) => (
       />
       <CardBody style={{ padding: '25px 0' }}>
         <CardTitle>{showUserName(user, privileges)}</CardTitle>
-        <Link to={redirect(ROUTES.PUBLIC_PROFILE, [{ key: 'user_id', value: getShortID(user['@id']) }])}>
+        <Link to={redirect(ROUTES.PUBLIC_PROFILE, [{ key: 'user_id', value: getShortID(user['_id']) }])}>
           Show more
         </Link>
       </CardBody>

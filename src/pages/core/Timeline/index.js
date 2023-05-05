@@ -18,7 +18,7 @@ import './Timeline.css'
 import { redirect } from '../../../constants/redirect'
 // import TeacherNavigation from '../../../components/Navigation/TeacherNavigation'
 import DocumentViewer from '../../documents/DocumentViewer'
-import { useGetTimelineEventQuery } from 'services/event'
+import { useGetEventQuery } from 'services/event'
 
 const { scroller } = Scroll
 
@@ -28,10 +28,10 @@ function Timeline(props) {
     user, 
     course 
   } = props
-  const courseId = course ? getShortId(course['@id']) : ''
+  const courseId = course ? getShortId(course['_id']) : ''
   const [viewingDocument, setViewingDocument] = useState(null)
   const [scrollToBlock, setScrollToBlock] = useState(null)
-  const {data, isSuccess, isLoading} = useGetTimelineEventQuery(params.course_id)
+  const {data, isSuccess, isLoading} = useGetEventQuery({courseInstanceId: params.course_id})
   const hasAccess = course && user && getInstructorRights(user, course)
 
   if (scrollToBlock) {

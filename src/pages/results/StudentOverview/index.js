@@ -8,8 +8,8 @@ import { redirect } from '../../../constants/redirect'
 import { RESULT_DETAIL, RESULT_TYPE } from '../../../constants/routes'
 import { getUserID } from '../../../components/Auth'
 import { showUserName } from '../../../components/Auth/userFunction'
-import { useGetUserOfCourseQuery } from 'services/user'
-import { useGetAllUserResultsQuery, useGetResultTypeDetailWithCorrectionQuery } from 'services/result'
+import { useGetUserQuery } from 'services/user'
+import { useGetResultQuery, useGetResultTypeQuery } from 'services/result'
 
 function StudentOverview(props) {
   const { courseInstance, privileges, match } = props
@@ -20,11 +20,11 @@ function StudentOverview(props) {
   const { 
     data: userInCourseData, 
     isSuccess: userInCourseIsSuccess 
-  } = useGetUserOfCourseQuery({userId, course_id})
+  } = useGetUserQuery({id: userId, studentOfId: course_id})
   const { 
     data: allUserResultsData, 
     isSuccess: allUserResultsIsSuccess 
-  } = useGetAllUserResultsQuery(userId)
+  } = useGetResultQuery({userId: userId})
 
   if (userInCourseIsSuccess && userInCourseData && userInCourseData.length > 0) {
     setUser(userInCourseData[0])
@@ -32,7 +32,7 @@ function StudentOverview(props) {
       const resultArr = allUserResultsData
       for (let i = 0; i < resultArr.length; i++) {
         if (resultArr[i].correctionFor) {
-          const { data, isSuccess } = useGetResultTypeDetailWithCorrectionQuery(getShortID(resultArr.correctionFor))
+          const { data, isSuccess } = useGetResultTypeQuery(resultArr.correctionFor)
           if (isSuccess && data && data.length > 0) {
             resultArr[i] = {
               ...resultArr[i],
@@ -61,7 +61,7 @@ function StudentOverview(props) {
       total_result += result.points
       renderResult.push(
         <tr
-          key={result['@id']}
+          key={result['_id']}
           className={
             result.type &&
             result.type.length > 0 &&
@@ -76,11 +76,11 @@ function StudentOverview(props) {
                 to={redirect(RESULT_TYPE, [
                   {
                     key: 'course_id',
-                    value: getShortID(courseInstance['@id']),
+                    value: getShortID(courseInstance['_id']),
                   },
                   {
                     key: 'result_type_id',
-                    value: getShortID(result.type[0]['@id']),
+                    value: getShortID(result.type[0]['_id']),
                   },
                 ])}
               >
@@ -96,11 +96,11 @@ function StudentOverview(props) {
                 to={redirect(RESULT_TYPE, [
                   {
                     key: 'course_id',
-                    value: getShortID(courseInstance['@id']),
+                    value: getShortID(courseInstance['_id']),
                   },
                   {
                     key: 'result_type_id',
-                    value: getShortID(result.correction['@id']),
+                    value: getShortID(result.correction['_id']),
                   },
                 ])}
               >
@@ -143,7 +143,7 @@ function StudentOverview(props) {
                 },
                 {
                   key: 'result_id',
-                  value: getShortID(result['@id']),
+                  value: getShortID(result['_id']),
                 },
               ])}
             >
@@ -206,7 +206,7 @@ function StudentOverview(props) {
         )
       }
       renderGradings.push(
-        <tr className="border-bottom" key={`grading-list-${item['@id']}`}>
+        <tr className="border-bottom" key={`grading-list-${item['_id']}`}>
           {compareString}
           <th>{item.grade}</th>
         </tr>

@@ -14,6 +14,15 @@ import Reviews from './4-reviews';
 import TeamReviews from './5-teamReviews';
 import { useGetPeerReviewQuestionsQuery } from 'services/peerReview';
 import { useGetMaterialsQuery } from 'services/documents';
+import { 
+  useNewAssignmentPeriodMutation, 
+  useNewFieldMutation,
+  useNewAssignmentMutation,
+} from 'services/assignmentsGraph';
+import { 
+  useAddPeerReviewQuestionMutation,
+} from 'services/peerReview'
+import { useAddMaterialMutation } from 'services/documents';
 
 const defaultForm={
   info:{
@@ -77,6 +86,12 @@ function ModalAddAssignment(props) {
   const [reviews, setReviews] = useState(defaultForm.reviews)
   const [teamReviews, setTeamReviews] = useState(defaultForm.teamReviews)
 
+  const [addAssignmentPeriod, addAssignmentPeriodResult] = useNewAssignmentPeriodMutation()
+  const [addPeerReviewQuestion, addPeerReviewQuestionResult] = useAddPeerReviewQuestionMutation()
+  const [newMaterial, newMaterialResult] = useAddMaterialMutation()
+  const [addField, addFieldResult] = useNewFieldMutation()
+  const [addAssignment, addAssignmentResult] = useNewAssignmentMutation()
+
   const getNewID = () => {
     const id = newID
     setNewID(newID++)
@@ -85,7 +100,7 @@ function ModalAddAssignment(props) {
 
   const deleteMaterial = (material) => {
     let newInfo = { ...info }
-    newInfo.hasMaterial = info.hasMaterial.filter((material2) => material2['@id'] !== material['@id'])
+    newInfo.hasMaterial = info.hasMaterial.filter((material2) => material2['_id'] !== material['_id'])
     setInfo(newInfo)
   }
 
@@ -93,7 +108,7 @@ function ModalAddAssignment(props) {
     let material = {...materialData}
     if (materialData.new === undefined) {
       material.new = true;
-      material['@id'] = '#n-' + getNewID();
+      material['_id'] = '#n-' + getNewID();
     }
     info.hasMaterial.push(material);
     if (materialData.new === undefined) {
@@ -105,7 +120,7 @@ function ModalAddAssignment(props) {
 
   const deleteQuestion = (question) => {
     let newReviews = { ...reviews };
-    newReviews.questions = reviews.questions.filter((question2) => question2['@id'] !== question['@id'] )
+    newReviews.questions = reviews.questions.filter((question2) => question2['_id'] !== question['_id'] )
     setReviews(newReviews)
   }
 
@@ -113,7 +128,7 @@ function ModalAddAssignment(props) {
     let question = {...questionData }
     if (questionData.new === undefined) {
       question.new = true;
-      question['@id'] = '#n-' + getNewID();
+      question['_id'] = '#n-' + getNewID();
     }
     reviews.questions.push(question);
     if (questionData.new === undefined) {
@@ -178,7 +193,7 @@ function ModalAddAssignment(props) {
         reviews,
         teamReviews,
       },
-      props.courseInstance['@id'],
+      props.courseInstance['_id'],
       (response)=>{
         let reviews = { ...defaultForm.reviews };
         reviews.questions = [];
@@ -189,7 +204,12 @@ function ModalAddAssignment(props) {
         setSaving(false)
         props.updateAssignment(getIRIFromAddResponse(response));
         toggle();
-      }
+      },
+      addAssignmentPeriod,
+      addPeerReviewQuestion,
+      newMaterial,
+      addField,
+      addAssignment
     );
   }
 

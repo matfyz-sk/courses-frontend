@@ -8,7 +8,7 @@ import { useGetCourseQuery } from 'services/course'
 
 function EditCourse(props) {
   const { match: { params } } = props
-  const { data, isSuccess, isLoading } = useGetCourseQuery(params.course_id)
+  const { data, isSuccess, isLoading } = useGetCourseQuery({id: params.course_id})
   const [redirectTo, setRedirectTo] = useState(null)
 
   if (redirectTo) {
@@ -28,16 +28,16 @@ function EditCourse(props) {
     if(data !== []) {
       course = data.map(courseData => {
         return {
-          id: courseData['@id'].substring(courseData['@id'].length - 5),
+          id: courseData['_id'].substring(courseData['_id'].length - 5),
           name: courseData.name,
           abbreviation: courseData.abbreviation,
           description: courseData.description,
           prerequisites: courseData.hasPrerequisite.map(prerequisite => {
-            return { fullId: prerequisite['@id'], name: prerequisite.name }
+            return { fullId: prerequisite['_id'], name: prerequisite.name }
           }),
           admins: courseData.hasAdmin.map(admin => {
             return {
-              fullId: admin['@id'],
+              fullId: admin['_id'],
               name: `${admin.firstName} ${admin.lastName}`,
             }
           }),

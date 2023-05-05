@@ -1,80 +1,136 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { getToken } from 'components/Auth'
-import { API_URL } from "../constants";
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { BACKEND_URL } from "../constants";
+import { gql } from 'graphql-request'
+import { 
+  graphqlBaseQuery, 
+  getNonStringEquals, 
+  getOrderBy, 
+  getSelectById, 
+  getStringEquals 
+} from './baseQuery';
 
 export const eventApi = createApi({
     reducerPath: 'eventApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: API_URL,
-        prepareHeaders: (headers, {}) => {
-            const token = getToken()
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`)
-            }
-            headers.set('Content-Type', 'application/json')
-            headers.set('Accept', 'application/json')
-            headers.set('Cache-Control', 'no-cache')
-            return headers
-        },
+    baseQuery: graphqlBaseQuery({
+      url: `${BACKEND_URL}graphql`,
     }),
     tagTypes: ['Event'],
     endpoints: (builder) => ({
-        getCourseInstanceEvent: builder.query({
-            query: (id) => ({ url: `event?courseInstance=${id}&_join=uses,recommends,documentReference` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Event'],
-        }),
-        getCourseInstanceEventDocRef: builder.query({
-            query: (id) => ({ url: `event?courseInstance=${id}&_join=documentReference` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Event'],
-        }),
-        getTimelineEvent: builder.query({
-            query: (id) => ({ url: `event?courseInstance=${id}&_join=courseInstance,documentReference` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Event'],
-        }),
         getEvent: builder.query({
-            query: (id) => ({ url: `event/${id}?_join=hasInstructor,uses,recommends,documentReference` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Event'],
-        }),
-        getEventCourseInstance: builder.query({
-            query: (id) => ({ url: `event/${id}?_join=courseInstance,uses,recommends,documentReference` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Event'],
-        }),
-        newEvent: builder.mutation({
-            query: (body) => ({ 
-                url: `event`,
-                method: 'POST',
-                body: body,
+            query: ({id, courseInstanceId}) => ({
+              document: gql`
+                query { 
+                    courses_Event${id ? getSelectById(id) : ""} {
+                        _id
+                        courses_name
+                        courses_description
+                        courses_startDate
+                        courses_endDate
+                        courses_location
+                        courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
+                            _id
+                        }
+                        courses_recommends {
+                            _id
+                        }
+                        courses_uses {
+                            _id
+                        }
+                        courses_requires {
+                            _id
+                        }
+                        courses_documentReference {
+                            _id
+                        }
+                        courses_covers {
+                            _id
+                        }
+                        courses_mentions {
+                            _id
+                        }
+                    }
+                }
+              `,
             }),
-            transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Event'],
-        }),
+            transformResponse: (response, meta, arg) => response.Event,
+            providesTags: ['Event'],
+        }),  
         newTimelineBlock: builder.mutation({
             query: (body) => ({ 
-                url: `block`,
-                method: 'POST',
-                body: body,
+              document: gql`
+                mutation {
+                  insert_courses_Block(
+                    courses_name: "${body.name}"
+                    courses_description: "${body.description}"
+                    courses_startDate: ${body.startDate}
+                    courses_endDate: ${body.endDate}
+                    courses_courseInstance: "${body.courseInstance}"
+                  ) {
+                    _id
+                  }
+                }
+              `,
+            }),
+            transformResponse: (response, meta, arg) => response.Block,
+            invalidatesTags: ['Event'],
+        }),
+        newEventByType: builder.mutation({
+            query: ({type, body}) => ({ 
+              document: gql`
+                mutation {
+                  ${getEventHeaderByType("insert", type)}(
+                    courses_name: "${body.name}"
+                    courses_description: "${body.description}"
+                    courses_startDate: ${body.startDate}
+                    courses_endDate: ${body.endDate}
+                    ${body.courseInstance ? `courses_courseInstance: "${body.courseInstance}"` : ""}
+                    ${body.location ? `courses_location: "${body.location}"` : ""}
+                    ${body.uses ? `courses_uses: ${body.uses}` : ""}
+                    ${body.recommends ? `courses_recommends: ${body.recommends}` : ""}
+                    ${body.documentReference ? `courses_documentReference: ${body.documentReference}` : ""}
+                  ) {
+                    _id
+                  }
+                }
+              `,
             }),
             transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Event'],
         }),
         updateEventByType: builder.mutation({
-            query: ({id, type, patch}) => ({ 
-                url: `${type}/${id}`,
-                method: 'PATCH',
-                body: patch,
+            query: ({id, type, body}) => ({ 
+              document: gql`
+                mutation {
+                  ${getEventHeaderByType("update", type)}(
+                    _id: "${id}"
+                    courses_name: "${body.name}"
+                    courses_description: "${body.description}"
+                    courses_startDate: ${body.startDate}
+                    courses_endDate: ${body.endDate}
+                    ${body.location ? `courses_location: "${body.location}"` : ""}
+                    ${body.uses ? `courses_uses: ${body.uses}` : ""}
+                    ${body.recommends ? `courses_recommends: ${body.recommends}` : ""}
+                    ${body.documentReference ? `courses_documentReference: ${body.documentReference}` : ""}
+                  ) {
+                    _id
+                  }
+                }
+              `,
             }),
             transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Event'],
         }),
         deleteEventByType: builder.mutation({
             query: ({id, type}) => ({ 
-                url: `${type}/${id}`,
-                method: 'DELETE',
+              document: gql`
+                mutation {
+                  ${getEventHeaderByType("delete", type)}(
+                    _id: "${id}"
+                  ) {
+                    _id
+                  }
+                }
+              `,
             }),
             transformResponse: (response, meta, arg) => response,
             invalidatesTags: ['Event'],
@@ -83,13 +139,14 @@ export const eventApi = createApi({
 })
 
 export const { 
-    useGetCourseInstanceEventQuery,
-    useGetCourseInstanceEventDocRefQuery,
-    useGetTimelineEventQuery,
     useGetEventQuery,
-    useGetEventCourseInstanceQuery,
-    useNewEventMutation,
+    useNewEventByTypeMutation,
     useNewTimelineBlockMutation,
     useUpdateEventByTypeMutation,
     useDeleteEventByTypeMutation,
 } = eventApi
+
+
+const getEventHeaderByType = (prefix, type) => { 
+    return prefix + "_courses_" + type 
+} 

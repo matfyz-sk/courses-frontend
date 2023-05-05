@@ -2,14 +2,15 @@ import React, { useState } from 'react'
 import { getUser } from '../../../components/Auth'
 import Page404 from '../../errors/Page404'
 import { isVisibleUser } from '../../../components/Auth/userFunction'
-import { useGetUserStudentOfQuery } from 'services/user'
-import { useGetCourseWithInstructorQuery } from 'services/course'
+import { useGetUserQuery } from 'services/user'
+import { useGetCourseQuery } from 'services/course'
+import { getFullID } from 'helperFunctions'
 
 const withPublic = Component => props => {
   const { user_id } = props.match.params
   const { privilegesReducer } = props
-  const { data, isSuccess, isError} = useGetUserStudentOfQuery(user_id)
-  const { data: coursesQueryData, isSuccess: coursesQueryIsSuccess} = useGetCourseWithInstructorQuery(user_id)
+  const { data, isSuccess, isError} = useGetUserQuery({id: getFullID(user_id, "user")})
+  const { data: coursesQueryData, isSuccess: coursesQueryIsSuccess} = useGetCourseQuery({instructorId: getFullID(user_id, "user")})
   const [user, setUser] = useState(null)
   const [status, setStatus] = useState(200)
   const [role, setRole] = useState({ color: 'light', name: 'User' })
@@ -17,7 +18,7 @@ const withPublic = Component => props => {
   const [instruct, setInstruct] = useState([])
   const isMyProfile = getUser() && getUser().id === user_id
 
-  if(isSuccess && user === null) {
+  if(isSuccess && user === null && data) {
     saveUser(data[0])
   } else if (isError) {
     setStatus(404)
@@ -46,7 +47,7 @@ const withPublic = Component => props => {
   }
 
   function saveCourses(userData) {
-    if(coursesQueryIsSuccess && coursesQueryData.length > 0) {
+    if(coursesQueryIsSuccess && coursesQueryData && coursesQueryData.length > 0) {
       setRole({ color: 'primary', name: 'Instructor' })
       if (
         userData.publicProfile ||

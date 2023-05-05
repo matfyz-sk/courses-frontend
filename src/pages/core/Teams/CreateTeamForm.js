@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, FormGroup, Input, Label } from 'reactstrap'
 import { getUser } from '../../../components/Auth'
-import { useNewTeamMutation } from "services/team"
+import { useNewTeamMutation } from "services/teamGraph"
 
 function CreateTeamForm(props) {
     const {

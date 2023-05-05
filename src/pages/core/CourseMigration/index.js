@@ -3,19 +3,16 @@ import { Alert, Card, CardBody, CardHeader, Container } from 'reactstrap'
 import './CourseMigration.css'
 import { connect } from 'react-redux'
 import { MultiStepForm } from '../MultiStepForm'
-import { getShortId } from '../Helper'
 import { getEvents, sortEventsFunction } from '../Timeline/timeline-helper'
 import {
   setCourseMigrationState,
   setCourseMigrationAllEvents,
 } from '../../../redux/actions'
-import { useGetCourseInstanceEventQuery } from 'services/event'
+import { useGetEventQuery } from 'services/event'
 
 function CourseMigration(props) {
   const { courseInstance } = props
-  console.log(courseInstance)
-  const courseInstanceId = getShortId(courseInstance['@id'])
-  const { data, isSuccess, isLoading } = useGetCourseInstanceEventQuery(courseInstanceId)
+  const { data, isSuccess, isLoading } = useGetEventQuery({courseInstanceId: courseInstance['_id']})
 
   if (!props.initialized && courseInstance) {
     const state = {
@@ -29,7 +26,7 @@ function CourseMigration(props) {
       instructors: courseInstance.hasInstructor
         ? courseInstance.hasInstructor.map(instructor => {
             return {
-              fullId: instructor['@id'],
+              fullId: instructor['_id'],
               name: `${instructor.firstName} ${instructor.lastName}`,
             }
           })

@@ -14,14 +14,14 @@ import SubmissionForm from './form'
 import SubmissionView from './view'
 import Slider from 'components/slider'
 import { useGetMaterialQuery } from 'services/documents'
-import { useGetTeamQuery } from 'services/team'
-import { useGetUserQuery } from 'services/user'
+import { useLazyGetTeamQuery } from 'services/teamGraph'
 import { 
-  useAddSubmittedFieldMutation,
-  useAddSubmissionMutation,
+  useNewSubmittedFieldMutation,
+  useNewSubmissionMutation,
   useUpdateSubmittedFieldMutation,
   useUpdateSubmissionMutation
-} from 'services/assignments'
+} from 'services/assignmentsGraph'
+import { useLazyGetUserQuery } from 'services/user'
 
 function Submission(props) {
   const { assignment, settings, improvedSubmission, initialSubmission } = props
@@ -40,10 +40,12 @@ function Submission(props) {
   const [savingScore, setSavingScore] = useState(false)
   const [submissionBy, setSubmissionBy] = useState('')
 
-  const [addSubmittedField, addSubmittedFieldResult] = useAddSubmittedFieldMutation()
-  const [addSubmission, addSubmissionResult] = useAddSubmissionMutation()
+  const [getUser, getUserResult] = useLazyGetUserQuery()
+  const [addSubmittedField, addSubmittedFieldResult] = useNewSubmittedFieldMutation()
+  const [addSubmission, addSubmissionResult] = useNewSubmissionMutation()
   const [updateSubmittedField, updateSubmittedFieldResult] = useUpdateSubmittedFieldMutation()
   const [updateSubmission, updateSubmissionResult] = useUpdateSubmissionMutation()
+  const [getTeam] = useLazyGetTeamQuery()
 
   const studentSubmitting =
       settings.myAssignment &&
@@ -109,13 +111,13 @@ function Submission(props) {
       existingResource.forEach(submittedField => {
         let field = data.find(
           field =>
-            field.type['@id'] === submittedField.field ||
-            field.type['@id'] === submittedField.field[0]['@id']
+            field.type['_id'] === submittedField.field ||
+            field.type['_id'] === submittedField.field[0]['_id']
         )
         if (field !== undefined) {
           field.value = submittedField.value
           field.exists = true
-          field.fieldID = submittedField['@id']
+          field.fieldID = submittedField['_id']
         }
       })
     }
@@ -136,7 +138,7 @@ function Submission(props) {
   const fetchMaterials = () => {
     let materials = []
     props.assignment.hasMaterial.forEach(material => {
-      const {data: materialData, isSuccess: materialDataIsSuccess} = useGetMaterialQuery(getShortID(material['@id']))
+      const {data: materialData, isSuccess: materialDataIsSuccess} = useGetMaterialQuery(getShortID(material['_id']))
       if(materialDataIsSuccess && materialData) {
         materials.push(materialData[0])
       }
@@ -146,19 +148,21 @@ function Submission(props) {
 
   const fetchSubmissionBy = () => {
     const ID =
-      props.initialSubmission.submittedByStudent[0]['@id'] ||
-      props.improvedSubmission.submittedByStudent[0]['@id']
+      props.initialSubmission.submittedByStudent[0]['_id'] ||
+      props.improvedSubmission.submittedByStudent[0]['_id']
     // const ID = this.props.match.params.targetID || 'dvyaa'
     if(props.settings.teamAssignment) {
-      const {data: teamData, isSuccess: teamDataIsSuccess} = useGetTeamQuery(getShortID(ID))
-      if(teamDataIsSuccess && teamData) {
-        setSubmissionBy(`${teamData[0].firstName} ${teamData[0].lastName}`)
-      }
+      getTeam({id: ID}).unwrap().then(teamData => {
+        setSubmissionBy(`${teamData[0].name}`)
+      }) 
     } else {
-      const {data: userData, isSuccess: userDataIsSuccess} = useGetUserQuery(getShortID(ID))
-      if(userDataIsSuccess && userData) {
-        setSubmissionBy(`${userData[0].firstName} ${userData[0].lastName}`)
-      }
+      getUser({
+        id: ID
+      }).unwrap().then(response => {
+        if (getUserResult.isSuccess && response) {
+          setSubmissionBy(`${response[0].firstName} ${response[0].lastName}`)
+        }
+      })
     }
   }
 
@@ -176,7 +180,7 @@ function Submission(props) {
       const submittedField = []
       filteredData.forEach(field =>
         addSubmittedField({ 
-          field: field.type['@id'], 
+          field: field.type['_id'], 
           value: field.value 
         }).unwrap().then(response => {
           submittedField.push(response.data.resource.iri)
@@ -184,7 +188,7 @@ function Submission(props) {
       )
 
       let newSubmission = {
-        ofAssignment: assignment['@id'],
+        ofAssignment: assignment['_id'],
         submittedField,
         isImproved:
           assignment.submissionImprovedSubmission &&
@@ -192,8 +196,8 @@ function Submission(props) {
       }
       if (props.settings.teamAssignment) {
         newSubmission.submittedByTeam = props.teams.find(
-          team => getShortID(team['@id']) === props.match.params.teamID
-        )['@id']
+          team => getShortID(team['_id']) === props.match.params.teamID
+        )['_id']
       } else {
         newSubmission.submittedByStudent = props.user.fullURI
       }
@@ -205,7 +209,7 @@ function Submission(props) {
       filteredData.filter(field => !field.exists)
         .forEach(field => {
           addSubmittedField({ 
-            field: field.type['@id'], 
+            field: field.type['_id'], 
             value: field.value 
           }).unwrap().then(response => {
             submittedField.push(response.data.resource.iri)
@@ -215,7 +219,7 @@ function Submission(props) {
         .forEach(field => {
           updateSubmittedField({
             id: getShortID(field.fieldID),
-            patch: { value: field.value }
+            body: { value: field.value }
           }).unwrap().then(response => {
             submittedField.push(response.data.resource.iri)
           })
@@ -223,7 +227,7 @@ function Submission(props) {
       if (submittedField.length !== 0) {
         updateSubmission({
           id: getShortID(update),
-          patch: updateSubmission
+          body: submittedField
         }).unwrap().then(response => {
           props.refreshAssignment()
           setSavingSubmission(false)
@@ -248,8 +252,8 @@ function Submission(props) {
     }
     setSavingScore(true)
     updateSubmission({
-      id: getShortID(submission['@id']),
-      patch: {
+      id: getShortID(submission['_id']),
+      body: {
         teacherRating: teacherRating,
         hasTeacherComment: hasTeacherComment,
       }
@@ -324,7 +328,7 @@ function Submission(props) {
       {materials
         .filter(material => material.URL !== undefined)
         .map(material => (
-          <div key={material['@id']}>
+          <div key={material['_id']}>
             <a
               href={material.URL}
               target="_blank"
@@ -379,7 +383,7 @@ function Submission(props) {
                     let newData = [...data]
                     const index = newData.findIndex(
                       oldField =>
-                        oldField.type['@id'] === newField.type['@id']
+                        oldField.type['_id'] === newField.type['_id']
                     )
                     newData[index] = newField
                     setData(newData)
@@ -566,11 +570,11 @@ const getFilteredData = (data) => {
 const getUpdate = (assignment, props) => {
   if (periodHappening(assignment.initialSubmissionPeriod) 
       && props.initialSubmission) {
-    return props.initialSubmission['@id']
+    return props.initialSubmission['_id']
   } else if (assignment.submissionImprovedSubmission 
             && periodHappening(assignment.improvedSubmissionPeriod) 
             && props.improvedSubmission) {
-    return props.improvedSubmission['@id']
+    return props.improvedSubmission['_id']
   }
   return null
 }

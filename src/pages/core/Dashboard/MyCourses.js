@@ -11,10 +11,10 @@ import { formatDate } from '../../../functions/global'
 import { redirect } from '../../../constants/redirect'
 import { TIMELINE } from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
-import { useGetUserStudentOfQuery } from "services/user"
+import { useGetUserQuery } from "services/user"
 
 const MyCourses = props => {
-  const {data, isSuccess } = useGetUserStudentOfQuery(getUserID())
+  const {data, isSuccess } = useGetUserQuery({id: getUserID()})
 
   if(!isSuccess || !data || data.length === 0) {
     return null
@@ -23,14 +23,14 @@ const MyCourses = props => {
   const renderList = []
   data[0].studentOf.forEach(item => {
     renderList.push(
-      <ListGroupItem key={`myCourses${item['@id']}`}>
+      <ListGroupItem key={`myCourses${item['_id']}`}>
         <ListGroupItemHeading>{item.name}</ListGroupItemHeading>
         <ListGroupItemText>
           {`${formatDate(item.startDate)} - ${formatDate(item.endDate)}`}
         </ListGroupItemText>
         <Link
           to={redirect(TIMELINE, [
-            { key: 'course_id', value: getShortID(item['@id']) },
+            { key: 'course_id', value: getShortID(item['_id']) },
           ])}
           className="btn btn-sm btn-link float-right text-primary"
         >

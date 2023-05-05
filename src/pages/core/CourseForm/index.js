@@ -6,8 +6,8 @@ import './CourseForm.css'
 import {getShortId} from '../Helper'
 import {Redirect} from 'react-router-dom'
 import {connect} from 'react-redux'
-import {useGetCoursesQuery, useUpdateCourseMutation, useNewCourseMutation} from 'services/course'
-import {useGetUsersQuery} from 'services/user'
+import { useGetCourseQuery, useUpdateCourseMutation, useNewCourseMutation } from 'services/course'
+import { useGetUserQuery } from 'services/user'
 
 function CourseForm(props) {
   const { typeOfForm, user, id } = props
@@ -18,16 +18,16 @@ function CourseForm(props) {
   const [admins, setAdmins] = useState(props.admins)
   const [errors, setErrors] = useState([])
   const [redirectTo, setRedirectTo] = useState(null)
-  const {data: coursesData, isSuccess: coursesIsSuccess} = useGetCoursesQuery()
-  const {data: usersData, isSuccess: usersIsSuccess} = useGetUsersQuery()
-  const [updateCurse, updateCurseResult] = useUpdateCourseMutation()
+  const {data: coursesData, isSuccess: coursesIsSuccess} = useGetCourseQuery({})
+  const {data: usersData, isSuccess: usersIsSuccess} = useGetUserQuery({})
+  const [updateCourse, updateCurseResult] = useUpdateCourseMutation()
   const [newCourse, newCourseResult] = useNewCourseMutation()
 
   let courses = []
   if(coursesIsSuccess && coursesData) {
     courses = coursesData.map(course => {
       return {
-        fullId: course['@id'],
+        fullId: course['_id'],
         name: course.name ? course.name : '',
       }
     })
@@ -37,7 +37,7 @@ function CourseForm(props) {
   if(usersIsSuccess && usersData) {
     users = usersData.map(user => {
       return {
-        fullId: user['@id'],
+        fullId: user['_id'],
         name:
           user.firstName !== '' && user.lastName !== ''
             ? `${user.firstName} ${user.lastName}`
@@ -73,17 +73,16 @@ function CourseForm(props) {
     try {
       let newUrl
       if (typeOfForm === 'Edit') {
-        updateCurse({id, patch: body}).unwrap()
+        updateCourse({id, body}).unwrap()
         newUrl = `/course/${id}`
         setRedirectTo(newUrl)
       } else {
         newCourse(body).unwrap().then(response => {
-          const newCourseId = getShortId(response.resource.iri)
+          const newCourseId = response[0]["_id"]
           newUrl = {
             pathname: `/newcourseinstance/${newCourseId}`,
             state: {courseName: name},
           }
-          console.log(response)
           setRedirectTo(newUrl)
         })
       }

@@ -4,13 +4,13 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import './AddInstructor.css'
 import { connect } from 'react-redux'
-import { useGetUsersQuery, useGetInstructorsOfCourseQuery } from 'services/user'
+import { useGetUserQuery } from 'services/user'
 
 function AddInstructor(props) {
   const { courseInstanceId } = props
   const [instructors, setInstructors] = useState([])
-  const { data: getUsersData, isSuccess: getUsersIsSuccess } = useGetUsersQuery()
-  const { data: getInstructorsData, isSuccess: getInstructorsIsSuccess } = useGetInstructorsOfCourseQuery(courseInstanceId)
+  const { data: getUsersData, isSuccess: getUsersIsSuccess } = useGetUserQuery({})
+  const { data: getInstructorsData, isSuccess: getInstructorsIsSuccess } = useGetUserQuery({instructorOfId: courseInstanceId})
 
   let users = []
   if(getUsersIsSuccess && getUsersData) {
@@ -59,7 +59,7 @@ function AddInstructor(props) {
 const processPersonData = (data) => {
   return data.map(user => {
     return {
-      fullId: user['@id'],
+      fullId: user['_id'],
       name:
         user.firstName !== '' && user.lastName !== ''
           ? `${user.firstName} ${user.lastName}`

@@ -6,8 +6,8 @@ import { axiosRequest } from '../AxiosRequests'
 import { BASE_URL, USER_URL } from '../constants'
 import { Redirect } from 'react-router-dom'
 import { BACKEND_URL } from "../../../constants";
-import { useNewCoursePersonalSettingsMutation, useUpdateCourseInstanceMutation } from 'services/course'
-import { useUpdateUserMutation } from 'services/user'
+import { useUpdateCourseInstanceMutation, useNewCoursePersonalSettingsMutation } from 'services/course'
+import { useUpdateUserInfoMutation } from 'services/user'
 
 function EnrollForm(props) {
     const [termsAndConditions, setTermsAndConditions] = useState(false)
@@ -15,7 +15,7 @@ function EnrollForm(props) {
     const [errors, setErrors] = useState([])
     const [globalPrivacy, setGlobalPrivacy] = useState(true)
     const [specificNickname, setSpecificNickname] = useState('')
-    const [updateUser, updateUserResult] = useUpdateUserMutation()
+    const [updateUser, updateUserResult] = useUpdateUserInfoMutation()
     const [updateCourseInstance, updateCourseInstanceResult] = useUpdateCourseInstanceMutation()
     const [newCoursePersonalSettings, newCoursePersonalSettingsResult] = useNewCoursePersonalSettingsMutation()
 
@@ -24,7 +24,7 @@ function EnrollForm(props) {
     
         if(user) {
           const newRequests = user.requests.map(userRequestedCourse => {
-            return userRequestedCourse['@id']
+            return userRequestedCourse['_id']
           })
           newRequests.push(courseInstance.fullId)
           
@@ -32,8 +32,7 @@ function EnrollForm(props) {
             id: user.id,
             patch: {requests: newRequests},
           }).unwrap().then(response => {
-            console.log(response)
-            const newRequest = {'@id': courseInstance.fullId}
+            const newRequest = {'_id': courseInstance.fullId}
             user.requests.push(newRequest)
             setUserProfile(user)
             setRedirect('/courses')
@@ -52,13 +51,13 @@ function EnrollForm(props) {
         const {courseInstance} = props
         const personalSettings = []
         for(let i = 0; i < courseInstance.hasPersonalSettings.length; i++) {
-          personalSettings.push(courseInstance.hasPersonalSettings[i]['@id'])
+          personalSettings.push(courseInstance.hasPersonalSettings[i]['_id'])
         }
         personalSettings.push(iri)
 
         updateCourseInstance({
             id: courseInstance.id,
-            patch: {hasPersonalSettings: personalSettings},
+            body: {hasPersonalSettings: personalSettings},
         }).unwrap().then(response => {
             requestEnrollment()
         }).catch(error => {
@@ -79,8 +78,8 @@ function EnrollForm(props) {
 
           newCoursePersonalSettings(post).unwrap().then(response => {
             console.log(resposne)
-            const {iri} = response.resource
-            assignPrivacyToCourse(iri)
+            const {_id} = response
+            assignPrivacyToCourse(_id)
           }).catch(error => {
             const new_errors = []
             new_errors.push(
