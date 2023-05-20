@@ -85,6 +85,7 @@ export const teamGraphApi = createApi({
                         courses_approved: ${body.approved}
                         ${body.requestFrom ? `courses_requestFrom: "${body.requestFrom}"` : ""}
                         courses_instanceOf_as_courses_Team: "${body.instanceOf}"
+                        courses_instanceOf_as_courses_Course: ""
                     ) {
                         _id
                     }

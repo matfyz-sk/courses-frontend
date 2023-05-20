@@ -55,7 +55,7 @@ export default function courseInstanceReducer(state = initialState, action) {
     case RESULTS_UPDATE_GRADING:
       if (ci && ci.hasGrading) {
         for (let i = 0; i < ci.hasGrading.length; i++) {
-          if (ci.hasGrading[i]['@id'] === action.item['@id']) {
+          if (ci.hasGrading[i]['_id'] === action.item['_id']) {
             ci.hasGrading[i] = action.item
           }
         }
@@ -68,7 +68,7 @@ export default function courseInstanceReducer(state = initialState, action) {
       if (ci && ci.hasGrading) {
         let newArray = [...ci.hasGrading]
         for (let i = 0; i < ci.hasGrading.length; i++) {
-          if (ci.hasGrading[i]['@id'] === action.item['@id']) {
+          if (ci.hasGrading[i]['_id'] === action.item['_id']) {
             newArray.splice(i, 1)
             break
           }
@@ -86,7 +86,7 @@ export default function courseInstanceReducer(state = initialState, action) {
     case RESULTS_UPDATE_TYPE:
       if (ci && ci.hasResultType) {
         for (let i = 0; i < ci.hasResultType.length; i++) {
-          if (ci.hasResultType[i]['@id'] === action.item['@id']) {
+          if (ci.hasResultType[i]['_id'] === action.item['_id']) {
             ci.hasResultType[i] = action.item
           }
         }
@@ -99,7 +99,7 @@ export default function courseInstanceReducer(state = initialState, action) {
       if (ci && ci.hasResultType) {
         let newArray = [...ci.hasResultType]
         for (let i = 0; i < ci.hasResultType.length; i++) {
-          if (ci.hasResultType[i]['@id'] === action.item['@id']) {
+          if (ci.hasResultType[i]['_id'] === action.item['_id']) {
             newArray.splice(i, 1)
             break
           }

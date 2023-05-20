@@ -32,7 +32,7 @@ const MyInstructorCourses = props => {
         </ListGroupItemText>
         <Link
           to={redirect(TIMELINE, [
-            { key: 'course_id', value: getShortID(item['@id']) },
+            { key: 'course_id', value: getShortID(item['_id']) },
           ])}
           className="btn btn-sm btn-link float-right text-primary"
         >

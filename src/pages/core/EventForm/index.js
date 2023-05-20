@@ -24,7 +24,8 @@ import { getIRIFromAddResponse } from 'helperFunctions'
 import DocumentReferencer from 'pages/documents/common/DocumentsReferencer'
 import { useGetEventQuery, useNewEventByTypeMutation } from 'services/event'
 import { useDeleteEventByTypeMutation, useUpdateEventByTypeMutation } from 'services/event'
-import { useUpdateCourseInstanceMutation, useNewCourseInstanceMutation } from 'services/course'
+import { useUpdateCourseInstanceMutation } from 'services/course'
+import { useNewCourseInstanceMutation } from 'services/courseTmp'
 import { useNewFolderMutation, useGetMaterialsQuery } from 'services/documents'
 import { useGetUserQuery } from 'services/user'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
@@ -186,18 +187,19 @@ function EventForm(props) {
       data.instanceOf = courseFullId
       data.hasInstructor = hasInstructor
       newNewCourseInstance(data).unwrap().then(response => {
-        const newEventId = getShortId(response["_id"])
+        const newEventId = getShortId(response.resource.iri)
         const folderData = {
           name: 'Home',
-          courseInstance: response["_id"],
+          courseInstance: response.resource.iri,
         }
         
         newFolder(folderData).unwrap().then(folderResponse => {
-          const fileExplorerRoot = folderResponse["_id"]
-          updateCourseInstance({id: newEventId, body: {fileExplorerRoot}}).unwrap()
+          const fileExplorerRoot = folderResponse.resource.iri
+          updateCourseInstance({id: response.resource.iri, body: {fileExplorerRoot: fileExplorerRoot}}).unwrap()
         })
         callBack(newEventId)
       }).catch(error => {
+        console.log(error)
         newErrors.push('There was a problem with server while sending your form. Try again later.')
         setErrors(newErrors)
       })

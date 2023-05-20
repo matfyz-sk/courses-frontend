@@ -73,7 +73,15 @@ export const courseApi = createApi({
                           _id
                           courses_name
                         }
+                        courses_hasAdmin {
+                          _id
+                        }
                       }
+                    }
+                    courses_instanceOf {
+                      ... on courses_Team {
+                        _id
+                      }      
                     }
                     courses_hasPersonalSettings {
                       _id
@@ -203,14 +211,15 @@ export const courseApi = createApi({
                 courses_description: "${body.description}"
                 courses_startDate: ${body.startDate}
                 courses_endDate: ${body.endDate}
-                courses_hasInstructor: ${body.hasInstructor}
+                courses_courseInstance: "${body.courseInstance}"
+                ${body.hasInstructor ? `courses_hasInstructor: ${body.hasInstructor}` : ""}
                 ${body.type === "CourseInstance" ? `courses_instanceOf_as_courses_Course: "${body.courseInstance}"` : ""}
                 ${body.type === "Team" ? `courses_instanceOf_as_courses_Team: "${body.courseInstance}"` : ""}
                 ${body.location ? `courses_location: "${body.location}"` : ""}
                 ${body.uses ? `courses_uses: ${body.uses}` : ""}
                 ${body.recommends ? `courses_recommends: ${body.recommends}` : ""}
                 ${body.documentReference ? `courses_documentReference: ${body.documentReference}` : ""}
-                ${body.hasDocument ? `courses_hasDocument: "${body.hasDocument}"` : ""}
+                courses_hasDocument: "${body.hasDocument ? body.hasDocument : ""}"
               ) {
                 _id
               }
@@ -256,6 +265,7 @@ export const courseApi = createApi({
 export const { 
     useGetCourseQuery,
     useGetCourseInstanceQuery,
+    useLazyGetCourseInstanceQuery,
     useUpdateCourseMutation,
     useUpdateCourseInstanceMutation,
     useNewCourseMutation,

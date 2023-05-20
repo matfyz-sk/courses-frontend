@@ -12,7 +12,6 @@ function NewCourseInstance(props) {
   const [redirectTo, setRedirectTo] = useState(null)
   const { data, isSuccess, isLoading } = useGetCourseQuery({id: getFullID(params.course_id, "course")})
 
-  console.log(getFullID(params.course_id, "course"))
   if (isLoading) {
     return (
       <Alert color="secondary" className="empty-message">

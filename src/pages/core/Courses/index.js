@@ -49,7 +49,6 @@ function CoursesPageBase(props) {
   let myArchivedCourses = []  //    (enrolled || teaching || admin) && NOT this semester
   let allCourses = []
   if (courseInstancesIsSuccess && courseInstancesData) {
-    console.log(courseInstancesData)
     const courses = courseInstancesData.map(courseInstance => {
       return {
         id: courseInstance['_id'].substring(
@@ -57,15 +56,15 @@ function CoursesPageBase(props) {
         ),
         fullId: courseInstance['_id'],
         year: courseInstance.year,
-        name: courseInstance.instanceOf[0].name,
-        abbreviation: courseInstance.instanceOf[0].abbreviation,
-        description: courseInstance.instanceOf[0].description,
-        courseId: courseInstance.instanceOf[0]['_id'].substring(
-          courseInstance.instanceOf[0]['_id'].length - 5
+        name: courseInstance.instanceOf.name,
+        abbreviation: courseInstance.instanceOf.abbreviation,
+        description: courseInstance.instanceOf.description,
+        courseId: courseInstance.instanceOf['_id'].substring(
+          courseInstance.instanceOf['_id'].length - 5
         ),
         startDate: courseInstance.startDate,
         endDate: courseInstance.endDate,
-        hasAdmin: courseInstance.instanceOf[0].hasAdmin,
+        hasAdmin: courseInstance.instanceOf.hasAdmin,
         hasInstructor: courseInstance.hasInstructor,
         hasPersonalSettings: courseInstance.hasPersonalSettings,
       }

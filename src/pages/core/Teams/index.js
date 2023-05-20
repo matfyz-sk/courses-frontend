@@ -6,10 +6,13 @@ import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import { formatDate, idFromURL } from '../../../functions/global';
 import { useGetTeamQuery } from "services/teamGraph"
+import {useGetTeamWithCourseInstanceQuery} from "services/team"
+import { getFullID } from 'helperFunctions'
 
 function Teams(props) {
   const courseId = props.match.params.course_id ?? null
-  const {data, isSuccess} = useGetTeamQuery({courseInstanceId: courseId, order: true})
+  const {data, isSuccess} = useGetTeamWithCourseInstanceQuery(courseId)
+  console.log(data)
   let teams = null
   if (isSuccess && data) {
     teams = data

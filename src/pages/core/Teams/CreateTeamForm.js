@@ -20,21 +20,23 @@ function CreateTeamForm(props) {
           setTeamName(value)
         }
     }
-
+    
     const handleCreateTeam = async () => {
         if(!create) {
             setError('You cannot create team!')
-        } else if(form.name.length < 3) {
+        } else if(teamName.length < 3) {
             setError('Team name must contain from 3 to 30 characters.')
         } else {
             const post = {
                 name: teamName,
-                courseInstance: course['@id'],
+                courseInstance: course['_id'],
             }
             newTeam(post).unwrap().then(response => {
-                const {iri} = response.resource
-                appendUserToTeam(iri, getUser().fullURI, true)
+                const teamId = response[0]['_id']
+                console.log(teamId)
+                appendUserToTeam(teamId, getUser().fullURI, true)
             }).catch(error => {
+                console.log(error)
                 setError('Error has occured during saving process. Please, try again.')
             })
         }

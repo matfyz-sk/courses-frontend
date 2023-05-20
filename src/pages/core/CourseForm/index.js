@@ -8,6 +8,7 @@ import {Redirect} from 'react-router-dom'
 import {connect} from 'react-redux'
 import { useGetCourseQuery, useUpdateCourseMutation, useNewCourseMutation } from 'services/course'
 import { useGetUserQuery } from 'services/user'
+import { getFullID, getShortID } from 'helperFunctions'
 
 function CourseForm(props) {
   const { typeOfForm, user, id } = props
@@ -54,11 +55,11 @@ function CourseForm(props) {
       return
     }
 
-    const hasPrerequisite = prerequisites.map(prerequisite => {
+    const hasPrerequisite = prerequisites?.map(prerequisite => {
       return prerequisite.fullId
     })
 
-    const hasAdmin = admins.map(admin => {
+    const hasAdmin = admins?.map(admin => {
       return admin.fullId
     })
 
@@ -73,12 +74,14 @@ function CourseForm(props) {
     try {
       let newUrl
       if (typeOfForm === 'Edit') {
-        updateCourse({id, body}).unwrap()
+        console.log(body)
+        console.log(getFullID(id, "course"))
+        updateCourse({id: getFullID(id, "course"), body}).unwrap()
         newUrl = `/course/${id}`
         setRedirectTo(newUrl)
       } else {
         newCourse(body).unwrap().then(response => {
-          const newCourseId = response[0]["_id"]
+          const newCourseId = getShortID(response[0]["_id"])
           newUrl = {
             pathname: `/newcourseinstance/${newCourseId}`,
             state: {courseName: name},

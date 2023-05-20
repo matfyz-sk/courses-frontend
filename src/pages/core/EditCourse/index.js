@@ -5,10 +5,12 @@ import { INITIAL_COURSE_STATE } from '../constants'
 import { Redirect } from 'react-router'
 import { NOT_FOUND } from '../../../constants/routes'
 import { useGetCourseQuery } from 'services/course'
+import { getFullID } from 'helperFunctions'
 
 function EditCourse(props) {
   const { match: { params } } = props
-  const { data, isSuccess, isLoading } = useGetCourseQuery({id: params.course_id})
+  console.log(props)
+  const { data, isSuccess, isLoading } = useGetCourseQuery({id: getFullID(params.course_id, "course")})
   const [redirectTo, setRedirectTo] = useState(null)
 
   if (redirectTo) {
@@ -32,10 +34,10 @@ function EditCourse(props) {
           name: courseData.name,
           abbreviation: courseData.abbreviation,
           description: courseData.description,
-          prerequisites: courseData.hasPrerequisite.map(prerequisite => {
+          prerequisites: courseData.hasPrerequisite?.map(prerequisite => {
             return { fullId: prerequisite['_id'], name: prerequisite.name }
           }),
-          admins: courseData.hasAdmin.map(admin => {
+          admins: courseData.hasAdmin?.map(admin => {
             return {
               fullId: admin['_id'],
               name: `${admin.firstName} ${admin.lastName}`,
