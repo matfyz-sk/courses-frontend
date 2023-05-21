@@ -24,7 +24,7 @@ function CreateTeamForm(props) {
     const handleCreateTeam = async () => {
         if(!create) {
             setError('You cannot create team!')
-        } else if(form.name.length < 3) {
+        } else if(teamName.length < 3) {
             setError('Team name must contain from 3 to 30 characters.')
         } else {
             const post = {

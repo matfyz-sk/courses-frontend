@@ -1,6 +1,7 @@
 import React from 'react'
 import Page404 from '../../errors/Page404'
 import { useGetTeamQuery, useGetTeamInstanceWithUsersQuery } from "services/team"
+import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 const withTeamHandler = Component => props => {
   const {privilegesReducer, courseInstanceReducer} = props
@@ -10,19 +11,20 @@ const withTeamHandler = Component => props => {
   ) {
     return <Page404/>
   }
-  
+
   const {team_id, course_id} = props.match.params
   const create = !team_id
   const is_member = false
   const {
     data: teamData,
-    isSuccess: teamIsSuccess
-  } = useGetTeamQuery(team_id)
+    isSuccess: teamIsSuccess,
+    isError: teamIsError
+  } = useGetTeamQuery(team_id ? team_id : skipToken)
   const {
     data: usersData,
-    isSuccess: usersIsSuccess
-  } = useGetTeamInstanceWithUsersQuery(team_id)
-
+    isSuccess: usersIsSuccess,
+    isError: usersIsError
+  } = useGetTeamInstanceWithUsersQuery(team_id ? team_id : skipToken)
 
   let team = {}
   if (!create && teamIsSuccess && teamData) {
@@ -33,7 +35,7 @@ const withTeamHandler = Component => props => {
     users = usersData
   }
 
-  if(!teamIsSuccess || !usersIsSuccess) {
+  if(teamIsError || usersIsError) {
     return <Page404/>
   }
 

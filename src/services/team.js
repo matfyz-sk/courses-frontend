@@ -21,7 +21,7 @@ export const teamApi = createApi({
     endpoints: (builder) => ({
         getTeamForCourseOrderedByName: builder.query({
             query: (id) => ({ url: `team?courseInstance=${id}&_orderBy=name` }),
-            transformResponse: (response, meta, arg) => response["@graph"],
+            transformResponse: (response, meta, arg) => response,
             providesTags: ['Team'],
         }),
         getTeam: builder.query({

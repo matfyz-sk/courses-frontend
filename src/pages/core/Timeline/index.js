@@ -33,6 +33,7 @@ function Timeline(props) {
   const [scrollToBlock, setScrollToBlock] = useState(null)
   const {data, isSuccess, isLoading} = useGetTimelineEventQuery(params.course_id)
   const hasAccess = course && user && getInstructorRights(user, course)
+  console.log(data)
 
   if (scrollToBlock) {
     scroller.scrollTo(scrollToBlock, { 

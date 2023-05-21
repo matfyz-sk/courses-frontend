@@ -8,24 +8,27 @@ import { inputToTimestamp, getShortID, afterNow } from 'helperFunctions';
 import { assignmentsGetStudentTeams, assignmentsGetCourseInstance } from 'redux/actions';
 import { getAssignmentPeriods, assignPeriods } from './reusableFunctions';
 import { 
-  useGetAssignmentQuery, 
-  useGetAssignmentPeriodQuery, 
-  useGetSubmissionForAssignmentQuery, 
-  useGetAssignmentByCourseInstanceQuery 
+  useLazyGetAssignmentQuery,
+  useLazyGetAssignmentPeriodQuery,
+  useLazyGetSubmissionForAssignmentQuery,
+  useLazyGetAssignmentByCourseInstanceQuery,
 } from 'services/assignments';
 
 
 function Assignments(props) {
   const [assignments, setAssignments] = useState([])
   const [loadingAssignments, setLoadingAssignments] = useState(true)
-  
-  getCourseInstance()
+  const [getAssignmentRequest] = useLazyGetAssignmentQuery()
+  const [getAssignmentPeriodRequest] = useLazyGetAssignmentPeriodQuery()
+  const [getSubmissionForAssignmentRequest] = useLazyGetSubmissionForAssignmentQuery()
+  const [getAssignmentForCourseInstanceRequest] = useLazyGetAssignmentByCourseInstanceQuery()
 
   useEffect(() => {
     refreshAssignments(props)
   }, [props.user, props.courseInstance])
 
   useEffect(() =>{
+    getCourseInstance()
     refreshAssignments(props)
   },[])
 
@@ -46,78 +49,85 @@ function Assignments(props) {
   }
 
   const updateAssignment = (assignmentID) => {
-    const { data: assignmentData, isSuccess: assignmentIsSuccess } = useGetAssignmentQuery(getShortID(assignmentID))
-    if(assignmentIsSuccess && assignmentData) {
-      let assignment = assignmentData[0]
-      const periodsIDs = getAssignmentPeriods(assignment)
-      let periods = []
-      periodsIDs.forEach(periodsId => {
-        const { data, isSuccess } = useGetAssignmentPeriodQuery(getShortID(periodsId))
-        if(isSuccess && data) {
-          periods.push(data[0])
-        }
-      })
-      
-      const { data: submissionData, isSuccess: submissionIsSuccess } = useGetSubmissionForAssignmentQuery(getShortID(assignmentID))
-      if(submissionIsSuccess && submissionData) {
-        assignment.submissions = submissionData
+    getAssignmentRequest(getShortID(assignmentID)).unwrap().then(assignmentData => {
+      if(assignmentData) {
+        let assignment = assignmentData[0]
+        const periodsIDs = getAssignmentPeriods(assignment)
+        let periods = []
+        periodsIDs.forEach(periodsId => {
+          getAssignmentPeriodRequest(getShortID(periodsId)).unwrap().then(data => {
+            if(data) {
+              periods.push(data[0])
+            }
+          })
+        })
+        
+        getSubmissionForAssignmentRequest(getShortID(assignmentID)).unwrap().then(submissionData => {
+          if(submissionData) {
+            assignment.submissions = submissionData
+          }
+        })
+  
+        let newAssignments = [assignPeriods(assignment, periods)].concat(assignments.filter((assignment) => assignment['@id'] !== assignmentID ));
+        newAssignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
+        setAssignments(newAssignments)
       }
-
-      let newAssignments = [assignPeriods(assignment, periods)].concat(assignments.filter((assignment) => assignment['@id'] !== assignmentID ));
-      newAssignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
-      setAssignments(newAssignments)
-    }
+    })
   }
 
   const refreshAssignments = (argProps) => {
     if (argProps.courseInstance !== null && argProps.user !== null) {
-      const {data: assignmentData, isSuccess: assignmentIsSuccess } = useGetAssignmentByCourseInstanceQuery(getShortID(argProps.courseInstance['@id']))
-      if (assignmentIsSuccess && assignmentData) {
-        let newAssignments = assignmentData.filter((result) => result['@type'].endsWith('ontology#Assignment'))
-        const periodsIDs = newAssignments.map(getAssignmentPeriods).reduce(
-          (acc,value)=>{
-            return acc.concat(value)
-          },[]
-        )
-
-        if (argProps.isInstructor) {
-          let periods = []
-          periodsIDs.forEach(periodsId => {
-            const { data, isSuccess } = useGetAssignmentPeriodQuery(getShortID(periodsId))
-            if(isSuccess && data) {
-              periods.push(data[0])
-            }
-          })
-
-          let submissions = []
-          newAssignments.forEach(assignment => {
-            const { data, isSuccess } = useGetSubmissionForAssignmentQuery(getShortID(assignment['@id']))
-            if(isSuccess && data) {
-              submissions.push(data)
-            }
-          })
-
-          newAssignments = assignSubmissions(newAssignments, submissions);
-          newAssignments = newAssignments.map((assignment) => assignPeriods(assignment, periods))
-          newAssignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
-          setAssignments(newAssignments)
-          setLoadingAssignments(false)
-        } else {
-          props.assignmentsGetStudentTeams(argProps.user.fullURI, argProps.courseInstance['@id']);
-          let periods = []
-          periodsIDs.forEach(periodsId => {
-            const { data, isSuccess } = useGetAssignmentPeriodQuery(getShortID(periodsId))
-            if(isSuccess && data) {
-              periods.push(data[0])
-            }
-          })
-          
-          newAssignments = newAssignments.map((assignment) => assignPeriods(assignment, periods));
-          newAssignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
-          setAssignments(newAssignments)
-          setLoadingAssignments(false)
+      getAssignmentForCourseInstanceRequest(getShortID(argProps.courseInstance['@id'])).unwrap().then(assignmentData => {
+        if (assignmentData) {
+          let newAssignments = assignmentData.filter((result) => result['@type'].endsWith('ontology#Assignment'))
+          const periodsIDs = newAssignments.map(getAssignmentPeriods).reduce(
+            (acc,value)=>{
+              return acc.concat(value)
+            },[]
+          )
+  
+          if (argProps.isInstructor) {
+            let periods = []
+            periodsIDs.forEach(periodsId => {
+              getAssignmentPeriodRequest(getShortID(periodsId)).unwrap().then(data => {
+                if(data) {
+                  periods.push(data[0])
+                }
+              })
+            })
+  
+            let submissions = []
+            newAssignments.forEach(assignment => {
+              getSubmissionForAssignmentRequest(getShortID(assignment['@id'])).unwrap().then(data => {
+                if(data) {
+                  submissions.push(data)
+                }
+              })
+            })
+  
+            newAssignments = assignSubmissions(newAssignments, submissions);
+            newAssignments = newAssignments.map((assignment) => assignPeriods(assignment, periods))
+            newAssignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
+            setAssignments(newAssignments)
+            setLoadingAssignments(false)
+          } else {
+            props.assignmentsGetStudentTeams(argProps.user.fullURI, argProps.courseInstance['@id']);
+            let periods = []
+            periodsIDs.forEach(periodsId => {
+              getAssignmentPeriodRequest(getShortID(periodsId)).unwrap().then(data => {
+                if(data) {
+                  periods.push(data[0])
+                }
+              })
+            })
+            
+            newAssignments = newAssignments.map((assignment) => assignPeriods(assignment, periods));
+            newAssignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
+            setAssignments(newAssignments)
+            setLoadingAssignments(false)
+          }
         }
-      }
+      })   
     }
   }
 

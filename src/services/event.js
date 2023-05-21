@@ -85,6 +85,7 @@ export const eventApi = createApi({
 export const { 
     useGetCourseInstanceEventQuery,
     useGetCourseInstanceEventDocRefQuery,
+    useLazyGetCourseInstanceEventDocRefQuery,
     useGetTimelineEventQuery,
     useGetEventQuery,
     useGetEventCourseInstanceQuery,

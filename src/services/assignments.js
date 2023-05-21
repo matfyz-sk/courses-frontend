@@ -191,10 +191,14 @@ export const assignmentApi = createApi({
 
 export const { 
     useGetAssignmentQuery,
+    useLazyGetAssignmentQuery,
     useGetAssignmentByCourseInstanceQuery,
+    useLazyGetAssignmentByCourseInstanceQuery,
     useGetAssignmentHasFieldQuery,
     useGetAssignmentPeriodQuery,
+    useLazyGetAssignmentPeriodQuery,
     useGetSubmissionForAssignmentQuery,
+    useLazyGetSubmissionForAssignmentQuery,
     useGetSubmissionSubmitedByStudentQuery,
     useGetSubmissionSubmitedByTeamQuery,
     useGetSubmittedFieldQuery,

@@ -24,6 +24,7 @@ import { getIRIFromAddResponse } from 'helperFunctions'
 import DocumentReferencer from 'pages/documents/common/DocumentsReferencer'
 import { 
   useGetCourseInstanceEventDocRefQuery, 
+  useLazyGetCourseInstanceEventDocRefQuery,
   useNewEventMutation, 
   useUpdateEventByTypeMutation, 
   useDeleteEventByTypeMutation, 
@@ -31,7 +32,6 @@ import {
 import { useNewCourseInstanceMutation, useUpdateCourseInstanceMutation } from 'services/course'
 import { useNewFolderMutation, useGetMaterialsQuery } from 'services/documents'
 import { useGetUsersQuery } from 'services/user'
-import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 function EventForm(props) {
   const {
@@ -45,25 +45,22 @@ function EventForm(props) {
   } = props
   const courseId = params.course_id
   //Event state
-  const [id, setId] = useState('')
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [startDate, setStartDate] = useState(new Date())
-  const [endDate, setEndDate] = useState(new Date())
-  const [place, setPlace] = useState('')
+  const [id, setId] = useState(props.id ? props.id : '')
+  const [name, setName] = useState(props.name ? props.name : '')
+  const [description, setDescription] = useState(props.description ? props.description : '')
+  const [startDate, setStartDate] = useState(props.startDate ? props.startDate : new Date())
+  const [endDate, setEndDate] = useState(props.endDate ? props.endDate : new Date())
+  const [place, setPlace] = useState(props.place ? props.place : '')
   const [type, setType] = useState(options[0])
-  const [instructors, setInstructors] = useState([])
-  const [uses, setUses] = useState([])
-  const [recommends, setRecommends] = useState([])
-  const [documentReference, setDocumentReference] = useState([])
+  const [instructors, setInstructors] = useState(props.instructors ? props.instructors : [])
+  const [uses, setUses] = useState(props.uses ? props.uses : [])
+  const [recommends, setRecommends] = useState(props.recommends ? props.recommends : [])
+  const [documentReference, setDocumentReference] = useState(props.documentReference ? props.documentReference : [])
 
   const [errors, setErrors] = useState([])
   const [tasks, setTasks] = useState([])
   const [sessions, setSessions] = useState([])
-  const {
-    data: subEventsData, 
-    isSuccess: subEventsIsSuccess
-  } = useGetCourseInstanceEventDocRefQuery(courseId !== '' ? courseId : skipToken)
+  const [getSubEventsRequest] = useLazyGetCourseInstanceEventDocRefQuery()
   const {data: usersData, isSuccess: usersIsSuccess} = useGetUsersQuery()
   const {data: materialsData, isSuccess: materialsIsSuccess} = useGetMaterialsQuery()
   const [newEvent, newEventResult] = useNewEventMutation()
@@ -104,30 +101,32 @@ function EventForm(props) {
 
   const getSubEvents = () => {
     if (courseId !== '') {
-      if(subEventsIsSuccess && subEventsData && subEventsData !== []) {
-        const events = getEvents(subEventsData).sort(sortEventsFunction)
-        const newTasks = []
-        const newSessions = []
-
-        for (const event of events) {
-          if (isEventInSession(event, startDate, endDate)) {
-            event.displayDateTime = getDisplayDateTime(event.startDate, false)
-            newSessions.push(event)
-          } else if (isEventInTask(event, startDate, endDate)) {
-            if(TASKS_EXAMS.includes(event.type)) {
-              event.displayDateTime = getDisplayDateTime(
-                event.startDate,
-                false
-              )
-            } else {
-              event.displayDateTime = getDisplayDateTime(event.endDate, false)
+      getSubEventsRequest(courseId).unwrap().then(subEventsData => {
+        if(subEventsData && subEventsData !== []) {
+          const events = getEvents(subEventsData).sort(sortEventsFunction)
+          const newTasks = []
+          const newSessions = []
+  
+          for (const event of events) {
+            if (isEventInSession(event, startDate, endDate)) {
+              event.displayDateTime = getDisplayDateTime(event.startDate, false)
+              newSessions.push(event)
+            } else if (isEventInTask(event, startDate, endDate)) {
+              if(TASKS_EXAMS.includes(event.type)) {
+                event.displayDateTime = getDisplayDateTime(
+                  event.startDate,
+                  false
+                )
+              } else {
+                event.displayDateTime = getDisplayDateTime(event.endDate, false)
+              }
+              newTasks.push(event)
             }
-            newTasks.push(event)
           }
+          setTasks(newTasks)
+          setSessions(newSessions)
         }
-        setTasks(newTasks)
-        setSessions(newSessions)
-      }
+      })
     }
   }
 
@@ -171,7 +170,7 @@ function EventForm(props) {
       recommends: recommendedMaterials,
       documentReference: documentReference.map(doc => doc["@id"])
     }
-
+    
     if(type === 'CourseInstance') {
       data.hasInstructor = hasInstructor
     }

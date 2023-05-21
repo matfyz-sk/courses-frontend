@@ -15,6 +15,7 @@ function Teams(props) {
     teams = data
   }
 
+  console.log(data)
   const render_teams = []
   if(teams) {
     for(let i = 0; i < teams.length; i++) {

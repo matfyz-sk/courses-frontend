@@ -49,7 +49,6 @@ function CoursesPageBase(props) {
   let myArchivedCourses = []  //    (enrolled || teaching || admin) && NOT this semester
   let allCourses = []
   if (courseInstancesIsSuccess && courseInstancesData) {
-    console.log(courseInstancesData)
     const courses = courseInstancesData.map(courseInstance => {
       return {
         id: courseInstance['@id'].substring(

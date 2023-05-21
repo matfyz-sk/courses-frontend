@@ -9,14 +9,13 @@ import withTeamHandler from './TeamDetailHOC'
 import { getShortID } from '../../../helperFunctions'
 import { isVisibleUser, showUserName } from '../../../components/Auth/userFunction';
 import { CreateTeamForm } from './CreateTeamForm'
-import { useGetUserByEmailForCourseQuery, useGetUserByNicknameForCourseQuery } from "services/user"
+import { useLazyGetUserByEmailForCourseQuery, useLazyGetUserByNicknameForCourseQuery } from "services/user"
 import { 
   useNewTeamInstanceMutation, 
   useUpdateTeamInstanceMutation,
   useRemoveTeamInstanceMutation,
   useRemoveTeamMutation 
 } from "services/team"
-import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 function TeamsDetail(props) {
   const {
@@ -33,30 +32,12 @@ function TeamsDetail(props) {
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
   const [teamName, setTeamName] = useState('')
-  const [searchUserRequest, setSearchUserRequest] = useState(skipToken)
   const [newTeamInstance, newTeamInstanceResult] = useNewTeamInstanceMutation()
   const [updateTeamInstance, updateTeamInstanceResult] = useUpdateTeamInstanceMutation()
   const [removeTeam, removeTeamResult] = useRemoveTeamMutation()
   const [removeTeamInstance, removeTeamInstanceResult] = useRemoveTeamInstanceMutation()
-  const {
-    data: userByEmailData, 
-    isSuccess: userByEmailIsSuccess
-  } = useGetUserByEmailForCourseQuery(searchUserRequest)
-
-  if (userByEmailIsSuccess && userByEmailData && userByEmailData.length > 0) { 
-    appendUserToTeam(team['@id'], userByEmailData['@id'])
-  } else {
-    const {
-      data: userByNicknameData, 
-      isSuccess: userByNicknameIsSuccess
-    } = useGetUserByNicknameForCourseQuery(searchUserRequest)
-
-    if (userByNicknameIsSuccess && userByNicknameData && userByNicknameData.length > 0) {
-      appendUserToTeam(team['@id'], userByNicknameData['@id'])
-    } else {
-      setError('User was not found!')
-    }
-  }
+  const [getUserByEmailRequest] = useLazyGetUserByEmailForCourseQuery()
+  const [getUserByNicknameRequest] = useLazyGetUserByNicknameForCourseQuery()
 
   const searchUser = () => {
     if(search.length < 3) {
@@ -70,7 +51,25 @@ function TeamsDetail(props) {
       setError('You cannot add yourself!')
       return
     }
-    setSearchUserRequest({course_id, search})
+    searchFetch()
+  }
+
+  const searchFetch = () => {
+    getUserByEmailRequest({course_id, search}).unwrap().then(userByEmailData => {
+      console.log(userByEmailData)
+      if(userByEmailData) {
+        appendUserToTeam(team['@id'], userByEmailData['@id'])
+      } else {
+        getUserByNicknameRequest({course_id, search}).unwrap().then(userByNicknameData => {
+          console.log(userByNicknameData)
+          if(userByNicknameData) {
+            appendUserToTeam(team['@id'], userByNicknameData['@id'])
+          } else {
+            setError('User was not found!')
+          }
+        })
+      }
+    })
   }
 
   const appendUserToTeam = (iri, user, approved = false, fillRequest = true) => {
