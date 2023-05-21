@@ -36,7 +36,7 @@ export const teamGraphApi = createApi({
             providesTags: ['Team'],
         }),
         getTeamInstance: builder.query({
-            query: (id) => ({
+            query: ({id, userId, instanceOf}) => ({
               document: gql`
                 query {
                     courses_TeamInstance${id ? getSelectById(id) : ""} {
@@ -48,15 +48,25 @@ export const teamGraphApi = createApi({
                         }
                         courses_hasUser${userId ? getSelectById(userId) : ""} {
                             _id
+                            courses_showBadges
+                            courses_showCourses
+                            courses_publicProfile
+                            courses_allowContact
+                            courses_isSuperAdmin
+                            courses_firstName
+                            courses_lastName
+                            courses_nickNameTeamException
+                            courses_nickname
+                            courses_useNickName
                         }
-                        courses_instanceOf {
+                        courses_instanceOf${instanceOf ? getSelectById(instanceOf) : ""} {
                             _id
                         }
                     }
                 }
               `,
             }),
-            transformResponse: (response, meta, arg) => response.Team,
+            transformResponse: (response, meta, arg) => response.TeamInstance,
             providesTags: ['Team'],
         }),
         newTeam: builder.mutation({

@@ -11,13 +11,11 @@ import { formatDate } from '../../../functions/global'
 import { redirect } from '../../../constants/redirect'
 import { TIMELINE } from '../../../constants/routes'
 import { getShortID } from '../../../helperFunctions'
-import { useGetCourseQuery } from "services/course"
+import { useGetCourseInstanceQuery } from "services/course"
 
 const MyInstructorCourses = props => {
-  const {data, isSuccess } = useGetCourseQuery({instructorId: getUserID()}) 
+  const {data, isSuccess } = useGetCourseInstanceQuery({instructorId: getUserID()}) 
 
-  console.log(data)
-  console.log(isSuccess)
   if (!isSuccess || !data || data.length === 0) {
     return null
   }

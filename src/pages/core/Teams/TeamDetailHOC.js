@@ -1,7 +1,6 @@
 import React from 'react'
 import Page404 from '../../errors/Page404'
-import { useGetTeamInstanceWithUsersQuery } from "services/team"
-import { useGetTeamQuery } from 'services/teamGraph'
+import { useGetTeamQuery, useGetTeamInstanceQuery } from 'services/teamGraph'
 import { getFullID } from 'helperFunctions'
 
 const withTeamHandler = Component => props => {
@@ -18,16 +17,15 @@ const withTeamHandler = Component => props => {
   const is_member = false
   const {
     data: teamData,
-    isSuccess: teamIsSuccess
+    isSuccess: teamIsSuccess,
+    isError: teamIsError
   } = useGetTeamQuery({id: getFullID(team_id, "team")})
   const {
     data: usersData,
-    isSuccess: usersIsSuccess
-  } = useGetTeamInstanceWithUsersQuery(team_id)
+    isSuccess: usersIsSuccess,
+    isError: usersIsError
+  } = useGetTeamInstanceQuery({instanceOf: getFullID(team_id, "team")})
 
-  console.log(teamData)
-  console.log(usersData)
-  console.log(team_id)
   let team = {}
   if (!create && teamIsSuccess && teamData) {
     team = teamData[0]
@@ -37,11 +35,9 @@ const withTeamHandler = Component => props => {
     users = usersData
   }
 
-  if(!teamIsSuccess || !usersIsSuccess) {
+  if(teamIsError || usersIsError) {
     return <Page404/>
   }
-
-  console.log(team)
 
   return (
     <Component

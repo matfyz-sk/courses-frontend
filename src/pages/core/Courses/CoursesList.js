@@ -246,7 +246,7 @@ const NavLinkCourseInstance = ({ course, courseInstance, to }) => (
         className="instance-container-name"
       >
         <span>{course.name}</span>&nbsp;
-        <b>{new Date(courseInstance.startDate).getFullYear()}</b>
+        <b>{new Date(courseInstance.startDate?.millis).getFullYear()}</b>
       </NavLink>
     </>
 )

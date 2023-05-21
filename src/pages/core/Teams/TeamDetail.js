@@ -78,9 +78,11 @@ function TeamsDetail(props) {
       hasUser: user,
       requestFrom: fillRequest ? getUser().fullURI : null,
     }
+    console.log(post)
     newTeamInstance(post).unwrap().then(response => {
+      console.log(response)
+      console.log(getShortID(iri))
       if(!response) {
-        console.log(response)
         setError('Error has occured during saving process. Please, try again.')
       } else {
         history.push(
@@ -149,23 +151,24 @@ function TeamsDetail(props) {
     })
   }
 
+
   const render_members = []
   let canEdit = false
   let isMember = false
   if(users) {
     for(let i = 0; i < users.length; i++) {
-      if(getShortID(users[i].hasUser[0]['_id']) === getUserID()) {
+      if(getShortID(users[i].hasUser['_id']) === getUserID()) {
         isMember = true
       }
       if(
         users[i].approved &&
-        getShortID(users[i].hasUser[0]['_id']) === getUserID()
+        getShortID(users[i].hasUser['_id']) === getUserID()
       ) {
         canEdit = true
       }
     }
     for(let i = 0; i < users.length; i++) {
-      const user = users[i].hasUser[0]
+      const user = users[i].hasUser
       const action = []
       if(canEdit || isAdmin) {
         action.push(
@@ -210,12 +213,12 @@ function TeamsDetail(props) {
           </td>
           <td>{ action }</td>
           <td>
-            { isVisibleUser(users[i].hasUser[0]) ? (
+            { isVisibleUser(users[i].hasUser) ? (
               <Link
                 to={ redirect(ROUTES.PUBLIC_PROFILE, [
                   {
                     key: 'user_id',
-                    value: getShortID(users[i].hasUser[0]['_id']),
+                    value: getShortID(users[i].hasUser['_id']),
                   },
                 ]) }
               >

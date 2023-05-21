@@ -3,14 +3,14 @@ import { getUser } from '../../../components/Auth'
 import Page404 from '../../errors/Page404'
 import { isVisibleUser } from '../../../components/Auth/userFunction'
 import { useGetUserQuery } from 'services/user'
-import { useGetCourseQuery } from 'services/course'
+import { useGetCourseInstanceQuery } from 'services/course'
 import { getFullID } from 'helperFunctions'
 
 const withPublic = Component => props => {
   const { user_id } = props.match.params
   const { privilegesReducer } = props
   const { data, isSuccess, isError} = useGetUserQuery({id: getFullID(user_id, "user")})
-  const { data: coursesQueryData, isSuccess: coursesQueryIsSuccess} = useGetCourseQuery({instructorId: getFullID(user_id, "user")})
+  const { data: coursesQueryData, isSuccess: coursesQueryIsSuccess} = useGetCourseInstanceQuery({instructorId: getFullID(user_id, "user")})
   const [user, setUser] = useState(null)
   const [status, setStatus] = useState(200)
   const [role, setRole] = useState({ color: 'light', name: 'User' })

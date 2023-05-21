@@ -33,7 +33,6 @@ function CreateTeamForm(props) {
             }
             newTeam(post).unwrap().then(response => {
                 const teamId = response[0]['_id']
-                console.log(teamId)
                 appendUserToTeam(teamId, getUser().fullURI, true)
             }).catch(error => {
                 console.log(error)

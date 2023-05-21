@@ -49,7 +49,6 @@ function DocumentReferencer({
   useEffect(() => {
     // folder gets set and document references find their corresponding docs
     if (courseInstance) {
-      console.log(courseInstance)
       if (!courseInstance.fileExplorerRoot) {
         console.error('File system not initialized')
         return

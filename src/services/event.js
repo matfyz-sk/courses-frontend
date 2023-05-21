@@ -140,6 +140,7 @@ export const eventApi = createApi({
 
 export const { 
     useGetEventQuery,
+    useLazyGetEventQuery,
     useNewEventByTypeMutation,
     useNewTimelineBlockMutation,
     useUpdateEventByTypeMutation,

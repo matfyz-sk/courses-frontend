@@ -25,7 +25,8 @@ import {
   addDays,
 } from '../Timeline/timeline-helper'
 import { BlockMenuToggle } from '../Events'
-import { useNewTimelineBlockMutation, useGetEventQuery } from 'services/event'
+import { useNewTimelineBlockMutation, useLazyGetEventQuery } from 'services/event'
+import { getFullID } from 'helperFunctions'
 
 const ScrollLink = Scroll.Link
 
@@ -39,17 +40,19 @@ function CreateTimeline(props) {
   const [nestedEvents, setNestedEvents] = useState([])
   const [saved, setSaved] = useState(false)
   const [disabled, setDisabled] = useState(false)
-  const {data, isSuccess, isLoading} = useGetEventQuery({courseInstanceId: courseId})
+  const [getEventRequest] = useLazyGetEventQuery()
   const [newTimelineBlock, result] = useNewTimelineBlockMutation()
 
-  if(timelineBlocks === [] && nestedEvents === [] && isSuccess && courseId !== '' && data) {
-    const events = getEvents(data).sort(sortEventsFunction)
+  
+  if(timelineBlocks === [] && nestedEvents === [] && courseId !== '') {
+    getEventRequest({courseInstanceId: getFullID(courseId, "courseInstance")}).unwrap().then(data => {
+      const events = getEvents(data).sort(sortEventsFunction)
+      const timelineBlocks = getTimelineBlocks(events)
+      const nestedEvents = getNestedEvents(events, timelineBlocks)
 
-    const timelineBlocks = getTimelineBlocks(events)
-    const nestedEvents = getNestedEvents(events, timelineBlocks)
-
-    setTimelineBlocks(timelineBlocks)
-    setNestedEvents(nestedEvents)
+      setTimelineBlocks(timelineBlocks)
+      setNestedEvents(nestedEvents)
+    })
   }
 
   const postWeeklyBlocks = () => {
@@ -90,14 +93,14 @@ function CreateTimeline(props) {
       setSaved(true)
     }
   }
-
+/*
   if (isLoading) {
     return (
       <Alert color="secondary" className="empty-message">
         Loading...
       </Alert>
     )
-  }
+  }*/
 
   return (
     <div>
@@ -194,8 +197,8 @@ const generateWeeklyBlocks = (course) => {
   const blocks = []
 
   if (course) {
-    const courseStartDate = new Date(course.startDate)
-    const courseEndDate = new Date(course.endDate)
+    const courseStartDate = new Date(course.startDate.millis)
+    const courseEndDate = new Date(course.endDate.millis)
 
     let startDate = nextDay(courseStartDate, 1)
     let endDate = addDays(startDate, 7)

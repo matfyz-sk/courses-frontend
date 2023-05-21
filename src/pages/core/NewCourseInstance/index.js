@@ -24,7 +24,6 @@ function NewCourseInstance(props) {
     return <Redirect to={redirectTo} />
   }
 
-  console.log(data)
   let course = null
   if (isSuccess && data) {
     course = data.map(courseData => {
