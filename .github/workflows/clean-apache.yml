@@ -18,10 +18,13 @@ jobs:
   clean-apache:
     runs-on: ubuntu-latest
     steps:
+      - name: Create path to the frontend
+        if: ${{ inputs.BRANCH != ''}}
+        run: echo "BRANCH=${{ inputs.BRANCH }}" >> $GITHUB_ENV
       - name: Make folder for frontend
         uses: appleboy/ssh-action@master
         env:
-          BRANCH: ${{ inputs.BRANCH }}
+          BRANCH: ${{ env.BRANCH }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
