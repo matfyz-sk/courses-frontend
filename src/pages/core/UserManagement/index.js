@@ -24,7 +24,8 @@ function UserManagement(props) {
     error: userEnrolledError
   } = useGetUserEnrolledQuery(courseId)
   const [updateUser, result] = useUpdateUserMutation()
-  
+  console.log(userEnrolledData)
+
   if (userRequestIsLoading || userEnrolledIsLoading) {
     return (
       <Alert color="secondary" className="empty-message">
@@ -53,6 +54,7 @@ function UserManagement(props) {
   } else {
     console.log(userRequestError)
   }
+  console.log(requestedUsers)
   
   let enrolledUsers = []
   if (userEnrolledIsSuccess && userEnrolledData) {
@@ -123,12 +125,13 @@ function UserManagement(props) {
         break
     }
 
-    const body = {
+    const patch = {
       studentOf: user.studentOf,
       requests: user.requests,
     }
-
-    updateUser({userId, body}).unwrap().catch(error => {
+    console.log(userId)
+    updateUser({id: userId, patch}).unwrap().catch(error => {
+      console.log(error)
       throw new Error(error)
     })
   }
