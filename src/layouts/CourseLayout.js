@@ -12,16 +12,19 @@ import {
   clearCourseInstance
 } from '../redux/actions'
 import {idFromURL} from "../functions/global";
+import { useLazyGetCourseInstanceQuery } from 'services/course'
+import { getFullID } from 'helperFunctions'
 
 function CourseLayout(props) {
   const course_id = props.match.params.course_id ?? null
   const { course, privileges } = props
+  const [getCourseInstace] = useLazyGetCourseInstanceQuery()
 
   useEffect(() =>{
     if (course_id) {
-      if (!course || idFromURL(course['@id']) !== course_id) {
+      if (!course || idFromURL(course['_id']) !== course_id) {
         store.dispatch(setCourseInstancePrivileges({ course_id }))
-        props.fetchCourseInstance(props.history, course_id)
+        props.fetchCourseInstance(props.history, getFullID(course_id, "courseInstance"), getCourseInstace)
       }
     }
   },[])
@@ -33,7 +36,7 @@ function CourseLayout(props) {
         match = { props.match }
         abbr={
           course && course.instanceOf
-            ? course.instanceOf[0].abbreviation
+            ? course.instanceOf.abbreviation
             : '...'
         }
         courseId={course_id}

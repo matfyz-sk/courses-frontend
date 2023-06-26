@@ -26,10 +26,11 @@ export const greater = (dateTime1, dateTime2) => {
 }
 
 export const getEvents = data => {
+  console.log(data)
   return data.map(eventData => {
     const event = {
-      id: getShortId(eventData['@id']),
-      fullId: eventData['@id'],
+      id: getShortId(eventData['_id']),
+      fullId: eventData['_id'],
       type: typeof eventData['@type'] === 'string' ? eventData['@type'].split('#')[1] : '',
       name: eventData.name,
       description: eventData.description ? eventData.description : '',
@@ -38,15 +39,15 @@ export const getEvents = data => {
       place: eventData.location ? eventData.location : '',
       uses: eventData.uses.map(material => {
         return {
-          id: getShortId(material['@id']),
-          fullId: material['@id'],
+          id: getShortId(material['_id']),
+          fullId: material['_id'],
           name: material.name,
         }
       }),
       recommends: eventData.recommends.map(material => {
         return {
-          id: getShortId(material['@id']),
-          fullId: material['@id'],
+          id: getShortId(material['_id']),
+          fullId: material['_id'],
           name: material.name,
         }
       }),
@@ -54,7 +55,7 @@ export const getEvents = data => {
       courseAbbr: eventData.courseInstance[0]
         ? eventData.courseInstance[0].abbreviation
         : '',
-      courseInstance: eventData.courseInstance[0]['@id'],
+      courseInstance: eventData.courseInstance[0]['_id'],
       instructors: eventData.courseInstance[0]
         ? eventData.courseInstance[0].hasInstructor
         : eventData.hasInstructor,

@@ -6,10 +6,11 @@ import { redirect } from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import { formatDate, idFromURL } from '../../../functions/global';
 import { useGetTeamQuery } from "services/teamGraph"
+import { getFullID, getShortID } from 'helperFunctions'
 
 function Teams(props) {
   const courseId = props.match.params.course_id ?? null
-  const {data, isSuccess} = useGetTeamQuery({courseInstanceId: courseId, order: true})
+  const {data, isSuccess} = useGetTeamQuery({order: true})
   let teams = null
   if (isSuccess && data) {
     teams = data
@@ -20,27 +21,30 @@ function Teams(props) {
     for(let i = 0; i < teams.length; i++) {
       const team = teams[i]
       const team_id = idFromURL(team['_id'])
-      render_teams.push(
-        <tr key={ `team-${ i }` }>
-          <th>{ team.name }</th>
-          <td>{ formatDate(team.createdAt) }</td>
-          <td>
-            <Link
-              key={ `team-${ i }-edit` }
-              className="btn btn-dark btn-sm ml-1"
-              to={ redirect(ROUTES.COURSE_TEAM_DETAIL, [
-                {
-                  key: 'course_id',
-                  value: props.match.params.course_id,
-                },
-                {key: 'team_id', value: team_id},
-              ]) }
-            >
-              Detail
-            </Link>
-          </td>
-        </tr>
-      )
+      const courseInstanceId = getShortID(team.courseInstance['_id'])
+      if(courseId === courseInstanceId) {
+        render_teams.push(
+          <tr key={ `team-${ i }` }>
+            <th>{ team.name }</th>
+            <td>{ formatDate(team.createdAt.millis) }</td>
+            <td>
+              <Link
+                key={ `team-${ i }-edit` }
+                className="btn btn-dark btn-sm ml-1"
+                to={ redirect(ROUTES.COURSE_TEAM_DETAIL, [
+                  {
+                    key: 'course_id',
+                    value: props.match.params.course_id,
+                  },
+                  {key: 'team_id', value: team_id},
+                ]) }
+              >
+                Detail
+              </Link>
+            </td>
+          </tr>
+        )
+      }
     }
   }
 

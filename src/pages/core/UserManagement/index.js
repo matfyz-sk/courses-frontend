@@ -127,8 +127,10 @@ function UserManagement(props) {
       studentOf: user.studentOf,
       requests: user.requests,
     }
+    console.log(body)
 
     updateUser({userId, body}).unwrap().catch(error => {
+      console.log(error)
       throw new Error(error)
     })
   }

@@ -92,17 +92,20 @@ export const userApi = createApi({
             mutation {
               update_courses_User(
                 _id: "${id}"
-                courses_firstName: "${body.firstName}"
-                courses_lastName: "${body.lastName}"
-                courses_description: "${body.description}"
-                courses_email: "${body.email}"
-                courses_nickname: "${body.nickname}"
-                courses_useNickName: ${body.useNickName}
-                courses_nickNameTeamException: ${body.nickNameTeamException}
-                courses_allowContact: ${body.allowContact}
-                courses_publicProfile: ${body.publicProfile}
-                courses_showBadges:  ${body.showBadges}
-                courses_showCourses: ${body.showCourses}
+                ${body.firstName ? `courses_firstName: "${body.firstName}"` : ""}
+                ${body.lastName ? `courses_lastName: "${body.lastName}"` : ""}
+                ${body.description ? `courses_description: "${body.description}"` : ""}
+                ${body.email ? `courses_email: "${body.email}"` : ""}
+                ${body.nickname ? `courses_nickname: "${body.nickname}"` : ""}
+                ${body.useNickName ? `courses_useNickName: ${body.useNickName}` : ""}
+                ${body.nickNameTeamException ? `courses_nickNameTeamException: ${body.nickNameTeamException}` : ""}
+                ${body.allowContact ? `courses_allowContact: ${body.allowContact}` : ""}
+                ${body.publicProfile ? `courses_publicProfile: ${body.publicProfile}` : ""}
+                ${body.showBadges ? `courses_showBadges: ${body.showBadges}` : ""}
+                ${body.showCourses ? `courses_showCourses: ${body.showCourses}` : ""}
+                ${body.studentOf ? `courses_studentOf: "${body.studentOf}"` : ""}
+                ${body.memberOf ? `courses_memberOf: "${body.memberOf}"` : ""}
+                ${body.requests ? `courses_requests: "${body.requests}"` : ""}
               ) {
                 _id
               }

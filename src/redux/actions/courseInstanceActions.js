@@ -33,49 +33,35 @@ export const clearCourseInstance = () => ({
   type: CLEAR_COURSE_INSTANCE,
 })
 
-export const fetchCourseInstance = (history, course_id) => {
-  const header = authHeader()
+export const fetchCourseInstance = (history, course_id, getCourseInstace) => {
   return dispatch => {
-    fetch(
-      `${BASE_URL}${COURSE_INSTANCE_URL}/${course_id}?_join=instanceOf,covers,hasInstructor,hasGrading,hasResultType,hasPersonalSettings`,
-      {
-        method: 'GET',
-        headers: header,
-        mode: 'cors',
-        credentials: 'omit',
-      }
-    )
-      .then(response => {
-        if (!response.ok) throw new Error(response)
-        else return response.json()
-      })
-      .then(data => {
-        if (data['@graph'].length > 0) {
-          const course = data['@graph'][0]
-          dispatch(setCourseInstance(course))
+    getCourseInstace({id: course_id}).unwrap().then(data => {
+      if (data && data.length > 0) {
+        const course = data[0]
+        dispatch(setCourseInstance(course))
 
-          // special case where the already created courses haven't got a root folder at their creation
-          if (course.fileExplorerRoot.length === 0) {
-            const createRootFolder = async () => dispatch(setFileExplorerRoot(await initializeFileSystem(course['@id'])))
-            createRootFolder()
-          }
+        // special case where the already created courses haven't got a root folder at their creation
+        if (course.fileExplorerRoot && course.fileExplorerRoot.length === 0) {
+          const createRootFolder = async () => dispatch(setFileExplorerRoot(await initializeFileSystem(course['_id'])))
+          createRootFolder()
+        }
 
-          let hasPrivilege = false
-          if (getUser() && course.hasInstructor) {
-            for (let i = 0; i < course.hasInstructor.length; i++) {
-              if (getShortID(course.hasInstructor[i]['@id']) === getUserID()) {
-                dispatch(setCourseInstanceInstructor())
-                hasPrivilege = true
-              }
+        let hasPrivilege = false
+        if (getUser() && course.hasInstructor) {
+          for (let i = 0; i < course.hasInstructor.length; i++) {
+            if (getShortID(course.hasInstructor[i]['_id']) === getUserID()) {
+              dispatch(setCourseInstanceInstructor())
+              hasPrivilege = true
             }
           }
-          if (!hasPrivilege) {
-            dispatch(setCourseInstancePrivileges({ course_id }))
-          }
-        } else {
-          history.push(NOT_FOUND)
         }
-      })
+        if (!hasPrivilege) {
+          dispatch(setCourseInstancePrivileges({ course_id }))
+        }
+      } else {
+        history.push(NOT_FOUND)
+      }
+    })
   }
 }
 

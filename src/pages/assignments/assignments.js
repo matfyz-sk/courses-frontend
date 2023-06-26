@@ -16,8 +16,6 @@ function Assignments(props) {
   const [getAssignmentPeriod] = useLazyGetAssignmentPeriodQuery()
   const [getSubmission] = useLazyGetSubmissionQuery()
 
-  getCourseInstance()
-
   useEffect(() => {
     refreshAssignments(props)
   }, [props.user, props.courseInstance])
@@ -34,6 +32,8 @@ function Assignments(props) {
     }
     props.assignmentsGetCourseInstance(props.match.params.courseInstanceID)
   }
+
+  getCourseInstance()
 
   const assignSubmissions = (assignments, submissions) => {
     return assignments.map((ass, index) => ({

@@ -49,11 +49,11 @@ function DocumentReferencer({
   useEffect(() => {
     // folder gets set and document references find their corresponding docs
     if (courseInstance) {
-      if (!courseInstance.fileExplorerRoot[0]) {
+      if (!courseInstance.fileExplorerRoot) {
         console.error('File system not initialized')
         return
       }
-      setFolderId(getShortID(courseInstance.fileExplorerRoot[0]['@id']))
+      setFolderId(getShortID(courseInstance.fileExplorerRoot['_id']))
 
       const docsPromises = []
       for (const docRef of documentReferences) {

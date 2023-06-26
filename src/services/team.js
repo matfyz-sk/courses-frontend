@@ -24,6 +24,11 @@ export const teamApi = createApi({
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Team'],
         }),
+        getTeamWithCourseInstance: builder.query({
+            query: (id) => ({ url: `team?courseInstance=${id}&_orderBy=name` }),
+            transformResponse: (response, meta, arg) => response["@graph"],
+            providesTags: ['Team'],
+        }),
         getTeamInstanceWithApprovedUsers: builder.query({
             query: (id) => ({ url: `teamInstance?instanceOf=${id}&approved=true&_join=hasUser` }),
             transformResponse: (response, meta, arg) => response["@graph"],
@@ -34,5 +39,6 @@ export const teamApi = createApi({
 
 export const {
     useGetTeamInstanceWithUsersQuery,
+    useGetTeamWithCourseInstanceQuery,
     useGetTeamInstanceWithApprovedUsersQuery,
 } = teamApi

@@ -25,6 +25,7 @@ function Event(props) {
   const {data, isSuccess, isLoading} = useGetEventQuery({id: params.event_id})
   const hasAccess = courseInstance && user && getInstructorRights(user, courseInstance)
 
+  console.log(params.event_id)
   if (redirectTo) {
     return <Redirect to={redirectTo} />
   }
@@ -81,7 +82,7 @@ function Event(props) {
 
     event.materials = mergeMaterials(event.uses, event.recommends)
   } else {
-    setRedirectTo(NOT_FOUND)
+    //setRedirectTo(NOT_FOUND)
   }
 
   return (

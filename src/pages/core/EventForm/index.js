@@ -20,14 +20,14 @@ import ModalCreateEvent from '../ModalCreateEvent'
 import { SubEventList } from '../Events'
 import { getEvents, greater, greaterEqual, sortEventsFunction, } from '../Timeline/timeline-helper'
 import { connect } from 'react-redux'
-import { getIRIFromAddResponse } from 'helperFunctions'
+import { getFullID, getIRIFromAddResponse } from 'helperFunctions'
 import DocumentReferencer from 'pages/documents/common/DocumentsReferencer'
-import { useGetEventQuery, useNewEventByTypeMutation } from 'services/event'
+import { useLazyGetEventQuery, useNewEventByTypeMutation } from 'services/event'
 import { useDeleteEventByTypeMutation, useUpdateEventByTypeMutation } from 'services/event'
-import { useUpdateCourseInstanceMutation, useNewCourseInstanceMutation } from 'services/course'
+import { useUpdateCourseInstanceMutation } from 'services/course'
+import { useNewCourseInstanceMutation } from 'services/courseTmp'
 import { useNewFolderMutation, useGetMaterialsQuery } from 'services/documents'
 import { useGetUserQuery } from 'services/user'
-import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 function EventForm(props) {
   const {
@@ -56,10 +56,7 @@ function EventForm(props) {
   const [errors, setErrors] = useState([])
   const [tasks, setTasks] = useState([])
   const [sessions, setSessions] = useState([])
-  const {
-    data: subEventsData, 
-    isSuccess: subEventsIsSuccess
-  } = useGetEventQuery(courseId !== '' ? {courseInstanceId: courseId} : skipToken)
+  const [getEventRequest] = useLazyGetEventQuery()
   const {data: usersData, isSuccess: usersIsSuccess} = useGetUserQuery({})
   const {data: materialsData, isSuccess: materialsIsSuccess} = useGetMaterialsQuery()
   const [newEvent, newEventResult] = useNewEventByTypeMutation()
@@ -100,30 +97,32 @@ function EventForm(props) {
 
   const getSubEvents = () => {
     if (courseId !== '') {
-      if(subEventsIsSuccess && subEventsData && subEventsData !== []) {
-        const events = getEvents(subEventsData).sort(sortEventsFunction)
-        const newTasks = []
-        const newSessions = []
-
-        for (const event of events) {
-          if (isEventInSession(event, startDate, endDate)) {
-            event.displayDateTime = getDisplayDateTime(event.startDate, false)
-            newSessions.push(event)
-          } else if (isEventInTask(event, startDate, endDate)) {
-            if(TASKS_EXAMS.includes(event.type)) {
-              event.displayDateTime = getDisplayDateTime(
-                event.startDate,
-                false
-              )
-            } else {
-              event.displayDateTime = getDisplayDateTime(event.endDate, false)
+      getEventRequest({courseInstanceId: getFullID(courseId, "courseInstance")}).unwrap().then(subEventsData => {
+        if(subEventsData && subEventsData !== []) {
+          const events = getEvents(subEventsData).sort(sortEventsFunction)
+          const newTasks = []
+          const newSessions = []
+  
+          for (const event of events) {
+            if (isEventInSession(event, startDate, endDate)) {
+              event.displayDateTime = getDisplayDateTime(event.startDate, false)
+              newSessions.push(event)
+            } else if (isEventInTask(event, startDate, endDate)) {
+              if(TASKS_EXAMS.includes(event.type)) {
+                event.displayDateTime = getDisplayDateTime(
+                  event.startDate,
+                  false
+                )
+              } else {
+                event.displayDateTime = getDisplayDateTime(event.endDate, false)
+              }
+              newTasks.push(event)
             }
-            newTasks.push(event)
           }
+          setTasks(newTasks)
+          setSessions(newSessions)
         }
-        setTasks(newTasks)
-        setSessions(newSessions)
-      }
+      })
     }
   }
 
@@ -186,18 +185,19 @@ function EventForm(props) {
       data.instanceOf = courseFullId
       data.hasInstructor = hasInstructor
       newNewCourseInstance(data).unwrap().then(response => {
-        const newEventId = getShortId(response["_id"])
+        const newEventId = getShortId(response.resource.iri)
         const folderData = {
           name: 'Home',
-          courseInstance: response["_id"],
+          courseInstance: response.resource.iri,
         }
         
         newFolder(folderData).unwrap().then(folderResponse => {
-          const fileExplorerRoot = folderResponse["_id"]
-          updateCourseInstance({id: newEventId, body: {fileExplorerRoot}}).unwrap()
+          const fileExplorerRoot = folderResponse.resource.iri
+          updateCourseInstance({id: response.resource.iri, body: {fileExplorerRoot: fileExplorerRoot}}).unwrap()
         })
         callBack(newEventId)
       }).catch(error => {
+        console.log(error)
         newErrors.push('There was a problem with server while sending your form. Try again later.')
         setErrors(newErrors)
       })
@@ -221,6 +221,7 @@ function EventForm(props) {
   }
 
   const deleteEvent = () => {
+    console.log("FAF")
     const typeLowerCase = lowerFirstLetter(type)
     deleteEventByType({id: id, type: typeLowerCase}).unwrap().then(response => {
       callBack(null)

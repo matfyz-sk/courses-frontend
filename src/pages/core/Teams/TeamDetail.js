@@ -9,14 +9,13 @@ import withTeamHandler from './TeamDetailHOC'
 import { getShortID } from '../../../helperFunctions'
 import { isVisibleUser, showUserName } from '../../../components/Auth/userFunction';
 import { CreateTeamForm } from './CreateTeamForm'
-import { useGetUserQuery } from "services/user"
+import { useLazyGetUserQuery } from "services/user"
 import { 
   useNewTeamInstanceMutation, 
   useUpdateTeamInstanceMutation,
   useDeleteTeamInstanceMutation,
   useDeleteTeamMutation 
 } from "services/teamGraph"
-import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 function TeamsDetail(props) {
   const {
@@ -33,31 +32,11 @@ function TeamsDetail(props) {
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
   const [teamName, setTeamName] = useState('')
-  const [searchUserRequestByEmail, setSearchUserRequestByEmail] = useState(skipToken)
-  const [searchUserRequestByNickname, setSearchUserRequestByNickname] = useState(skipToken)
   const [newTeamInstance, newTeamInstanceResult] = useNewTeamInstanceMutation()
   const [updateTeamInstance, updateTeamInstanceResult] = useUpdateTeamInstanceMutation()
   const [removeTeam, removeTeamResult] = useDeleteTeamMutation()
   const [removeTeamInstance, removeTeamInstanceResult] = useDeleteTeamInstanceMutation()
-  const {
-    data: userByEmailData, 
-    isSuccess: userByEmailIsSuccess
-  } = useGetUserQuery(searchUserRequestByEmail)
-
-  if (userByEmailIsSuccess && userByEmailData && userByEmailData.length > 0) { 
-    appendUserToTeam(team['_id'], userByEmailData['_id'])
-  } else {
-    const {
-      data: userByNicknameData, 
-      isSuccess: userByNicknameIsSuccess
-    } = useGetUserQuery(searchUserRequestByNickname)
-
-    if (userByNicknameIsSuccess && userByNicknameData && userByNicknameData.length > 0) {
-      appendUserToTeam(team['_id'], userByNicknameData['_id'])
-    } else {
-      setError('User was not found!')
-    }
-  }
+  const [getUserRequest] = useLazyGetUserQuery()
 
   const searchUser = () => {
     if(search.length < 3) {
@@ -71,8 +50,25 @@ function TeamsDetail(props) {
       setError('You cannot add yourself!')
       return
     }
-    setSearchUserRequestByEmail({email: search, studentOfId: course_id})
-    setSearchUserRequestByNickname({nickname: search, studentOfId: course_id})
+    searchFetch()
+  }
+
+  const searchFetch = () => {
+    getUserRequest({email: search, studentOfId: course_id}).unwrap().then(userByEmailData => {
+      console.log(userByEmailData)
+      if(userByEmailData) {
+        appendUserToTeam(team['_id'], userByEmailData['_id'])
+      } else {
+        getUserRequest({nickname: search, studentOfId: course_id}).unwrap().then(userByNicknameData => {
+          console.log(userByNicknameData)
+          if(userByNicknameData) {
+            appendUserToTeam(team['_id'], userByNicknameData['_id'])
+          } else {
+            setError('User was not found!')
+          }
+        })
+      }
+    })
   }
 
   const appendUserToTeam = (iri, user, approved = false, fillRequest = true) => {
@@ -82,8 +78,11 @@ function TeamsDetail(props) {
       hasUser: user,
       requestFrom: fillRequest ? getUser().fullURI : null,
     }
+    console.log(post)
     newTeamInstance(post).unwrap().then(response => {
-      if(!response.status) {
+      console.log(response)
+      console.log(getShortID(iri))
+      if(!response) {
         setError('Error has occured during saving process. Please, try again.')
       } else {
         history.push(
@@ -94,6 +93,7 @@ function TeamsDetail(props) {
         )
       }
     }).catch(error => {
+      console.log(error)
       setError('Error has occured during saving process. Please, try again.')
     })
   }
@@ -151,23 +151,24 @@ function TeamsDetail(props) {
     })
   }
 
+
   const render_members = []
   let canEdit = false
   let isMember = false
   if(users) {
     for(let i = 0; i < users.length; i++) {
-      if(getShortID(users[i].hasUser[0]['_id']) === getUserID()) {
+      if(getShortID(users[i].hasUser['_id']) === getUserID()) {
         isMember = true
       }
       if(
         users[i].approved &&
-        getShortID(users[i].hasUser[0]['_id']) === getUserID()
+        getShortID(users[i].hasUser['_id']) === getUserID()
       ) {
         canEdit = true
       }
     }
     for(let i = 0; i < users.length; i++) {
-      const user = users[i].hasUser[0]
+      const user = users[i].hasUser
       const action = []
       if(canEdit || isAdmin) {
         action.push(
@@ -212,12 +213,12 @@ function TeamsDetail(props) {
           </td>
           <td>{ action }</td>
           <td>
-            { isVisibleUser(users[i].hasUser[0]) ? (
+            { isVisibleUser(users[i].hasUser) ? (
               <Link
                 to={ redirect(ROUTES.PUBLIC_PROFILE, [
                   {
                     key: 'user_id',
-                    value: getShortID(users[i].hasUser[0]['_id']),
+                    value: getShortID(users[i].hasUser['_id']),
                   },
                 ]) }
               >
