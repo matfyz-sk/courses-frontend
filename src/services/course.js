@@ -29,7 +29,7 @@ export const courseApi = createApi({
                     courses_covers {
                       _id
                     }
-                    courses_hasPrerequisite {
+                    courses_coursePrerequisite {
                       _id
                       courses_name
                     }
@@ -63,25 +63,18 @@ export const courseApi = createApi({
                     courses_documentReference {
                       _id
                     }
-                    courses_instanceOf {
-                      ... on courses_Course {
+                    courses_course {
                         _id
                         courses_name
                         courses_description
                         courses_abbreviation
-                        courses_hasPrerequisite {
+                        courses_coursePrerequisite {
                           _id
                           courses_name
                         }
                         courses_hasAdmin {
                           _id
                         }
-                      }
-                    }
-                    courses_instanceOf {
-                      ... on courses_Team {
-                        _id
-                      }      
                     }
                     courses_hasPersonalSettings {
                       _id
@@ -138,7 +131,7 @@ export const courseApi = createApi({
                 courses_description: "${body.description}"
                 ${body.abbreviation ? `courses_abbreviation: "${body.abbreviation}"` : ""}
                 ${body.hasAdmin ? `courses_hasAdmin: ${JSON.stringify(body.hasAdmin)}` : ""}
-                ${body.hasPrerequisite ? `courses_hasPrerequisite_as_courses_Course: "${body.hasPrerequisite}"` : ""}
+                ${body.hasPrerequisite ? `courses_coursePrerequisite: "${JSON.stringify(body.hasPrerequisite)}"` : ""}
               ) {
                 _id
               }
@@ -176,7 +169,7 @@ export const courseApi = createApi({
                 courses_description: "${body.description}"
                 ${body.abbreviation ? `courses_abbreviation: "${body.abbreviation}"` : ""}
                 ${body.hasAdmin ? `courses_hasAdmin: ${JSON.stringify(body.hasAdmin)}` : ""}
-                ${body.hasPrerequisite ? `courses_hasPrerequisite_as_courses_Course: "${body.hasPrerequisite}"` : ""}
+                ${body.hasPrerequisite ? `courses_coursePrerequisite: "${JSON.stringify(body.hasPrerequisite)}"` : ""}
               ) {
                 _id
               }
@@ -213,8 +206,7 @@ export const courseApi = createApi({
                 courses_endDate: ${body.endDate}
                 courses_courseInstance: "${body.courseInstance}"
                 ${body.hasInstructor ? `courses_hasInstructor: ${body.hasInstructor}` : ""}
-                ${body.type === "CourseInstance" ? `courses_instanceOf_as_courses_Course: "${body.courseInstance}"` : ""}
-                ${body.type === "Team" ? `courses_instanceOf_as_courses_Team: "${body.courseInstance}"` : ""}
+                ${body.course ? `courses_course: "${body.course}"` : ""}
                 ${body.location ? `courses_location: "${body.location}"` : ""}
                 ${body.uses ? `courses_uses: ${body.uses}` : ""}
                 ${body.recommends ? `courses_recommends: ${body.recommends}` : ""}

@@ -34,11 +34,11 @@ function InfoPage(props) {
   let info = INITIAL_INFO_STATE
   if (isSuccess && data && data !== []) {
     info = {
-      name: data[0].instanceOf[0].name,
-      description: data[0].instanceOf[0].description,
-      abbreviation: data[0].instanceOf[0].abbreviation,
-      prerequisites: data[0].instanceOf[0].hasPrerequisite
-        ? data[0].instanceOf[0].hasPrerequisite.map(prerequisite => {
+      name: data[0].course[0].name,
+      description: data[0].course[0].description,
+      abbreviation: data[0].course[0].abbreviation,
+      prerequisites: data[0].course[0].hasPrerequisite
+        ? data[0].course[0].hasPrerequisite.map(prerequisite => {
             return { fullId: prerequisite['_id'], name: prerequisite.name }
           })
         : [],

@@ -31,7 +31,7 @@ function CourseMigration(props) {
             }
           })
         : [],
-      instanceOf: courseInstance.instanceOf,
+      course: courseInstance.course,
       quizzes: [],
       assignments: [],
       checkedEvents: [],
@@ -59,7 +59,7 @@ function CourseMigration(props) {
         <Card className="course-migration-card event-card">
           <CardHeader className="event-card-header">
             Course Migration
-            {courseInstance && <> - {courseInstance.instanceOf[0].name}</>}
+            {courseInstance && <> - {courseInstance.course[0].name}</>}
           </CardHeader>
           <CardBody className="course-migration-card">
             <MultiStepForm />

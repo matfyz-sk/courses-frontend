@@ -49,8 +49,7 @@ function Submit(props) {
       startDate,
       endDate,
       hasInstructor,
-      instanceOf: courseFullId,
-      type: "CourseInstance",
+      course: courseFullId,
       hasDocument
     }
     console.log(data)

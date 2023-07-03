@@ -182,7 +182,7 @@ function EventForm(props) {
         setErrors(newErrors)
       })
     } else if(typeOfForm === 'New Course Instance') {
-      data.instanceOf = courseFullId
+      data.course = courseFullId
       data.hasInstructor = hasInstructor
       newNewCourseInstance(data).unwrap().then(response => {
         const newEventId = getShortId(response.resource.iri)
