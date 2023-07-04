@@ -56,15 +56,15 @@ function CoursesPageBase(props) {
         ),
         fullId: courseInstance['_id'],
         year: courseInstance.year,
-        name: courseInstance.instanceOf.name,
-        abbreviation: courseInstance.instanceOf.abbreviation,
-        description: courseInstance.instanceOf.description,
-        courseId: courseInstance.instanceOf['_id'].substring(
-          courseInstance.instanceOf['_id'].length - 5
+        name: courseInstance.course.name,
+        abbreviation: courseInstance.course.abbreviation,
+        description: courseInstance.course.description,
+        courseId: courseInstance.course['_id'].substring(
+          courseInstance.course['_id'].length - 5
         ),
         startDate: courseInstance.startDate,
         endDate: courseInstance.endDate,
-        hasAdmin: courseInstance.instanceOf.hasAdmin,
+        hasAdmin: courseInstance.course.hasAdmin,
         hasInstructor: courseInstance.hasInstructor,
         hasPersonalSettings: courseInstance.hasPersonalSettings,
       }

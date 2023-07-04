@@ -24,7 +24,7 @@ const withTeamHandler = Component => props => {
     data: usersData,
     isSuccess: usersIsSuccess,
     isError: usersIsError
-  } = useGetTeamInstanceQuery({instanceOf: getFullID(team_id, "team")})
+  } = useGetTeamInstanceQuery({team: getFullID(team_id, "team")})
 
   let team = {}
   if (!create && teamIsSuccess && teamData) {

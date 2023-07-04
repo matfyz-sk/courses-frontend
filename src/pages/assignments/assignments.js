@@ -21,6 +21,7 @@ function Assignments(props) {
   }, [props.user, props.courseInstance])
 
   useEffect(() =>{
+    getCourseInstance()
     refreshAssignments(props)
   },[])
 
@@ -32,8 +33,6 @@ function Assignments(props) {
     }
     props.assignmentsGetCourseInstance(props.match.params.courseInstanceID)
   }
-
-  getCourseInstance()
 
   const assignSubmissions = (assignments, submissions) => {
     return assignments.map((ass, index) => ({
@@ -66,46 +65,48 @@ function Assignments(props) {
   const refreshAssignments = (argProps) => {
     if (argProps.courseInstance !== null && argProps.user !== null) {
       getAssignment({courseInstanceId: argProps.courseInstance['_id']}).unwrap().then(assignmentData => {
-        let newAssignments = assignmentData.filter((result) => result['@type'].endsWith('ontology#Assignment'))
-        const periodsIDs = newAssignments.map(getAssignmentPeriods).reduce(
-          (acc,value)=>{
-            return acc.concat(value)
-          },[]
-        )
+        if (assignmentData) {
+          let newAssignments = assignmentData.filter((result) => result['@type'].endsWith('ontology#Assignment'))
+          const periodsIDs = newAssignments.map(getAssignmentPeriods).reduce(
+            (acc,value)=>{
+              return acc.concat(value)
+            },[]
+          )
 
-        if (argProps.isInstructor) {
-          let periods = []
-          periodsIDs.forEach(periodsId => {
-            getAssignmentPeriod(periodsId).unwrap().then(data => {
-              periods.push(data[0])
+          if (argProps.isInstructor) {
+            let periods = []
+            periodsIDs.forEach(periodsId => {
+              getAssignmentPeriod(periodsId).unwrap().then(data => {
+                periods.push(data[0])
+              })
             })
-          })
 
-          let submissions = []
-          newAssignments.forEach(assignment => {
-            getSubmission({assignmentId: assignment['_id']}).unwrap().then(data => {
-              submissions.push(data)
+            let submissions = []
+            newAssignments.forEach(assignment => {
+              getSubmission({assignmentId: assignment['_id']}).unwrap().then(data => {
+                submissions.push(data)
+              })
             })
-          })
 
-          newAssignments = assignSubmissions(newAssignments, submissions);
-          newAssignments = newAssignments.map((assignment) => assignPeriods(assignment, periods))
-          newAssignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
-          setAssignments(newAssignments)
-          setLoadingAssignments(false)
-        } else {
-          props.assignmentsGetStudentTeams(argProps.user.fullURI, argProps.courseInstance['_id']);
-          let periods = []
-          periodsIDs.forEach(periodsId => {
-            getAssignmentPeriod(periodsId).unwrap().then(data => {
-              periods.push(data[0])
+            newAssignments = assignSubmissions(newAssignments, submissions);
+            newAssignments = newAssignments.map((assignment) => assignPeriods(assignment, periods))
+            newAssignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
+            setAssignments(newAssignments)
+            setLoadingAssignments(false)
+          } else {
+            props.assignmentsGetStudentTeams(argProps.user.fullURI, argProps.courseInstance['_id']);
+            let periods = []
+            periodsIDs.forEach(periodsId => {
+              getAssignmentPeriod(periodsId).unwrap().then(data => {
+                periods.push(data[0])
+              })
             })
-          })
-          
-          newAssignments = newAssignments.map((assignment) => assignPeriods(assignment, periods));
-          newAssignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
-          setAssignments(newAssignments)
-          setLoadingAssignments(false)
+            
+            newAssignments = newAssignments.map((assignment) => assignPeriods(assignment, periods));
+            newAssignments.sort((assignment1,assignment2) => inputToTimestamp(assignment1.createdAt) > inputToTimestamp(assignment2.createdAt) ? -1 : 1 );
+            setAssignments(newAssignments)
+            setLoadingAssignments(false)
+          } 
         }
       })
     }

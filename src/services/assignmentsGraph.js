@@ -38,6 +38,7 @@ export const assignmentGraphApi = createApi({
                         courses_teamReviewsDisabled
                         courses_teamsDisabled
                         courses_teamsMaximumInTeam
+                        courses_isReviewedByTeam
                         courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
                             _id
                         }
@@ -57,9 +58,6 @@ export const assignmentGraphApi = createApi({
                             _id
                         }
                         courses_teamReviewPeriod {
-                            _id
-                        }
-                        courses_reviewedByTeam {
                             _id
                         }
                         courses_hasField {

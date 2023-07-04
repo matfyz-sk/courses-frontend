@@ -74,13 +74,12 @@ function CourseForm(props) {
     try {
       let newUrl
       if (typeOfForm === 'Edit') {
-        console.log(body)
-        console.log(getFullID(id, "course"))
         updateCourse({id: getFullID(id, "course"), body}).unwrap()
         newUrl = `/course/${id}`
         setRedirectTo(newUrl)
       } else {
         newCourse(body).unwrap().then(response => {
+          console.log(response)
           const newCourseId = getShortID(response[0]["_id"])
           newUrl = {
             pathname: `/newcourseinstance/${newCourseId}`,
