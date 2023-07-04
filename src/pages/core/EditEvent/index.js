@@ -6,10 +6,12 @@ import { getShortId } from '../Helper'
 import { Redirect } from 'react-router-dom'
 import { NOT_FOUND } from '../../../constants/routes'
 import { useGetEventQuery } from 'services/event'
+import { getFullID } from 'helperFunctions'
 
 function EditEvent(props) {
   const { match: { params } } = props
-  const { data, isSuccess, isLoading } = useGetEventQuery({id: params.event_id})
+  console.log(getFullID(params.event_id, "courseInstance"))
+  const { data, isSuccess, isLoading } = useGetEventQuery({id: getFullID(params.event_id, "courseInstance")})
   const [redirectTo, setRedirectTo] = useState(null)
 
   const setRedirect = id => {

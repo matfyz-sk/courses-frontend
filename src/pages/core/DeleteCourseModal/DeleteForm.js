@@ -8,6 +8,7 @@ import {
 } from 'reactstrap'
 import './DeleteCourseModal.css'
 import { useDeleteCourseInstanceMutation, useDeleteCourseMutation } from 'services/course'
+import { getFullID } from 'helperFunctions'
 
 function DeleteForm(props) {
     const [deleteCourse, deleteCourseResult] = useDeleteCourseMutation()
@@ -17,6 +18,7 @@ function DeleteForm(props) {
     const { course, courseInstance, type, callback } = props
    
     const onSubmit = (event) => {      
+      event.preventDefault()
       if (!agreeWithDelete) {
         setError('You must be sure to delete course.')
         event.preventDefault()
@@ -24,19 +26,19 @@ function DeleteForm(props) {
       }
     
       if(type === 'course') {
-        deleteCourse(course.id).unwrap().then(response => {
+        deleteCourse(getFullID(course.id, "course")).unwrap().then(response => {
           callback()
         }).catch(error => {
           setError('There was a problem with server. Try again later.')
         })
       } else {
-        deleteCourseInstance(courseInstance.id).unwrap().then(response => {
+        deleteCourseInstance(getFullID(courseInstance.id, "courseInstance")).unwrap().then(response => {
           callback()
         }).catch(error => {
           setError('There was a problem with server. Try again later.')
         })
       }
-      event.preventDefault()
+      
     }
     
     const onChange = event => {

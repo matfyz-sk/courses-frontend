@@ -2,11 +2,9 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { BACKEND_URL } from "../constants";
 import { gql } from 'graphql-request'
 import { 
-  graphqlBaseQuery, 
-  getNonStringEquals, 
+  graphqlBaseQuery,  
   getOrderBy, 
   getSelectById, 
-  getStringEquals 
 } from './baseQuery';
 
 export const teamGraphApi = createApi({
@@ -36,7 +34,7 @@ export const teamGraphApi = createApi({
             providesTags: ['Team'],
         }),
         getTeamInstance: builder.query({
-            query: ({id, userId, instanceOf}) => ({
+            query: ({id, userId, team}) => ({
               document: gql`
                 query {
                     courses_TeamInstance${id ? getSelectById(id) : ""} {
@@ -59,7 +57,7 @@ export const teamGraphApi = createApi({
                             courses_nickname
                             courses_useNickName
                         }
-                        courses_instanceOf${instanceOf ? getSelectById(instanceOf) : ""} {
+                        courses_team${team ? getSelectById(team) : ""} {
                             _id
                         }
                     }
@@ -94,8 +92,7 @@ export const teamGraphApi = createApi({
                         courses_hasUser: "${body.hasUser}"
                         courses_approved: ${body.approved}
                         ${body.requestFrom ? `courses_requestFrom: "${body.requestFrom}"` : ""}
-                        courses_instanceOf_as_courses_Team: "${body.instanceOf}"
-                        courses_instanceOf_as_courses_Course: ""
+                        courses_team: "${body.team}"
                     ) {
                         _id
                     }
@@ -114,7 +111,7 @@ export const teamGraphApi = createApi({
                         ${body.hasUser ? `courses_hasUser: "${body.hasUser}"` : ""}
                         ${body.approved ? `courses_approved: "${body.approved}"` : ""}
                         ${body.requestFrom ? `courses_requestFrom: "${body.requestFrom}"` : ""}
-                        ${body.instanceOf ? `courses_instanceOf_as_courses_Team: "${body.instanceOf}"` : ""}
+                        ${body.team ? `courses_team: "${body.team}"` : ""}
                     ) {
                         _id
                     }

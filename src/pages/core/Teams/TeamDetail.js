@@ -74,14 +74,11 @@ function TeamsDetail(props) {
   const appendUserToTeam = (iri, user, approved = false, fillRequest = true) => {
     const post = {
       approved,
-      instanceOf: iri,
+      team: iri,
       hasUser: user,
       requestFrom: fillRequest ? getUser().fullURI : null,
     }
-    console.log(post)
     newTeamInstance(post).unwrap().then(response => {
-      console.log(response)
-      console.log(getShortID(iri))
       if(!response) {
         setError('Error has occured during saving process. Please, try again.')
       } else {
