@@ -178,6 +178,7 @@ function EventForm(props) {
         const newEventId = response["_id"]
         callBack(newEventId)
       }).catch(error => {
+        console.log(error)
         newErrors.push('There was a problem with server while sending your form. Try again later.')
         setErrors(newErrors)
       })

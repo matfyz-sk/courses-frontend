@@ -18,7 +18,7 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => (
         <NavLink
           to={redirect(ROUTES.EVENT_ID, [
             { key: 'course_id', value: getShortId(event.courseInstance) },
-            { key: 'event_id', value: event.id },
+            { key: 'event_id', value: event.type + "-" + event.id },
           ])}
           className="subevent-name"
         >
@@ -33,7 +33,7 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => (
             <NavLink
               to={redirect(ROUTES.EDIT_EVENT_ID, [
                 { key: 'course_id', value: getShortId(event.courseInstance) },
-                { key: 'event_id', value: event.id },
+                { key: 'event_id', value: event.type + "-" + event.id },
               ])}
               className="edit-delete-buttons"
             >

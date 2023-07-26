@@ -25,7 +25,7 @@ import {
   addDays,
 } from '../Timeline/timeline-helper'
 import { BlockMenuToggle } from '../Events'
-import { useNewTimelineBlockMutation, useLazyGetEventQuery } from 'services/event'
+import { useNewTimelineBlockMutation, useLazyGetTimelineEventsQuery } from 'services/event'
 import { getFullID } from 'helperFunctions'
 
 const ScrollLink = Scroll.Link
@@ -40,18 +40,21 @@ function CreateTimeline(props) {
   const [nestedEvents, setNestedEvents] = useState([])
   const [saved, setSaved] = useState(false)
   const [disabled, setDisabled] = useState(false)
-  const [getEventRequest] = useLazyGetEventQuery()
+  const [getEventRequest] = useLazyGetTimelineEventsQuery()
   const [newTimelineBlock, result] = useNewTimelineBlockMutation()
 
-  
-  if(timelineBlocks === [] && nestedEvents === [] && courseId !== '') {
+  if(timelineBlocks.length == 0 && nestedEvents.length == 0 && courseId !== '') {
+    console.log("dads")
     getEventRequest({courseInstanceId: getFullID(courseId, "courseInstance")}).unwrap().then(data => {
-      const events = getEvents(data).sort(sortEventsFunction)
-      const timelineBlocks = getTimelineBlocks(events)
-      const nestedEvents = getNestedEvents(events, timelineBlocks)
+      const dataArray = Object.values(data)
+      if (dataArray.length > 0) {
+        const events = getEvents(dataArray).sort(sortEventsFunction)
+        const timelineBlocks = getTimelineBlocks(events)
+        const nestedEvents = getNestedEvents(events, timelineBlocks)
 
-      setTimelineBlocks(timelineBlocks)
-      setNestedEvents(nestedEvents)
+        setTimelineBlocks(timelineBlocks)
+        setNestedEvents(nestedEvents)
+      }
     })
   }
 
@@ -68,6 +71,7 @@ function CreateTimeline(props) {
         block.courseInstance = course['_id']
         
         newTimelineBlock({...block}).unwrap().catch(error => {
+          console.log(error)
           errors.push(`There was a problem with server while posting ${block.name}`)
         })
       }
