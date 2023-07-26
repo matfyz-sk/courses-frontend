@@ -26,16 +26,15 @@ export const greater = (dateTime1, dateTime2) => {
 }
 
 export const getEvents = data => {
-  console.log(data)
   return data.map(eventData => {
     const event = {
       id: getShortId(eventData['_id']),
       fullId: eventData['_id'],
-      type: typeof eventData['@type'] === 'string' ? eventData['@type'].split('#')[1] : '',
+      type: typeof eventData['_type'] === 'string' ? eventData['_type'].split('#')[1] : '',
       name: eventData.name,
       description: eventData.description ? eventData.description : '',
-      startDate: new Date(eventData.startDate),
-      endDate: new Date(eventData.endDate),
+      startDate: new Date(eventData.startDate.millis),
+      endDate: new Date(eventData.endDate.millis),
       place: eventData.location ? eventData.location : '',
       uses: eventData.uses.map(material => {
         return {
@@ -52,12 +51,12 @@ export const getEvents = data => {
         }
       }),
       documentReference: eventData.documentReference,
-      courseAbbr: eventData.courseInstance[0]
-        ? eventData.courseInstance[0].abbreviation
+      courseAbbr: eventData.courseInstance.course
+        ? eventData.courseInstance.course.abbreviation
         : '',
-      courseInstance: eventData.courseInstance[0]['_id'],
-      instructors: eventData.courseInstance[0]
-        ? eventData.courseInstance[0].hasInstructor
+      courseInstance: eventData.courseInstance['_id'],
+      instructors: eventData.courseInstance
+        ? eventData.courseInstance.hasInstructor
         : eventData.hasInstructor,
     }
     event.materials = mergeMaterials(event.uses, event.recommends)

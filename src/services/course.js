@@ -202,8 +202,8 @@ export const courseApi = createApi({
               insert_courses_CourseInstance(
                 courses_name: "${body.name}"
                 courses_description: "${body.description}"
-                courses_startDate: ${body.startDate}
-                courses_endDate: ${body.endDate}
+                courses_startDate: ${body.startDate.toISOString()}
+                courses_endDate: ${body.endDate.toISOString()}
                 courses_courseInstance: "${body.courseInstance}"
                 ${body.hasInstructor ? `courses_hasInstructor: ${body.hasInstructor}` : ""}
                 ${body.course ? `courses_course: "${body.course}"` : ""}

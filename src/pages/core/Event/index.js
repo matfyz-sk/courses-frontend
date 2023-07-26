@@ -12,7 +12,8 @@ import { INITIAL_EVENT_STATE } from '../constants'
 import { NOT_FOUND } from 'constants/routes'
 import DocumentViewer from '../../documents/DocumentViewer'
 import { EventCard } from './EventCard'
-import { useGetEventQuery } from 'services/event'
+import { useGetEventByTypeQuery } from 'services/event'
+import { getFullID } from 'helperFunctions'
 
 function Event(props) {
   const {
@@ -20,12 +21,15 @@ function Event(props) {
     user,
     courseInstance,
   } = props
+  const parsedEvent = params.event_id.split("-")
+  const eventType = parsedEvent[0].charAt(0).toLowerCase() + parsedEvent[0].slice(1)
+  const eventId = parsedEvent[1]
   const [redirectTo, setRedirectTo] = useState(null)
   const [viewingDocument, setViewingDocument] = useState(null)
-  const {data, isSuccess, isLoading} = useGetEventQuery({id: params.event_id})
+  const {data, isSuccess, isLoading} = useGetEventByTypeQuery({id: getFullID(eventId, eventType), type: parsedEvent[0]})
   const hasAccess = courseInstance && user && getInstructorRights(user, courseInstance)
 
-  console.log(params.event_id)
+  console.log(getFullID(eventId, eventType))
   if (redirectTo) {
     return <Redirect to={redirectTo} />
   }
@@ -39,14 +43,15 @@ function Event(props) {
   }
 
   let event = INITIAL_EVENT_STATE
+  console.log(data)
   if(isSuccess && data && data !== []) {
     event = data.map(eventData => {
       return {
         id: getShortId(eventData['_id']),
         name: eventData.name,
         description: eventData.description,
-        startDate: new Date(eventData.startDate),
-        endDate: new Date(eventData.endDate),
+        startDate: new Date(eventData.startDate.millis),
+        endDate: new Date(eventData.endDate.millis),
         place: eventData.location,
         type: eventData['_type'].split('#')[1],
         uses: eventData.uses.map(material => {
@@ -64,15 +69,15 @@ function Event(props) {
           }
         }),
         documentReference: eventData.documentReference,
-        courseInstance: eventData.courseInstance[0]
-          ? eventData.courseInstance[0]['_id']
+        courseInstance: eventData.courseInstance
+          ? eventData.courseInstance['_id']
           : eventData['_id'],
-        instructors: eventData.courseInstance[0]
-          ? eventData.courseInstance[0].hasInstructor
+        instructors: eventData.courseInstance
+          ? eventData.courseInstance.hasInstructor
           : eventData.hasInstructor,
       }
     })[0]
-    
+    console.log(event)
     if (
       event.courseInstance !== '' &&
       params.course_id !== getShortId(event.courseInstance)
@@ -84,7 +89,7 @@ function Event(props) {
   } else {
     //setRedirectTo(NOT_FOUND)
   }
-
+  console.log(event)
   return (
     <div>
       {viewingDocument && (

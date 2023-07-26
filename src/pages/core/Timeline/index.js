@@ -18,7 +18,8 @@ import './Timeline.css'
 import { redirect } from '../../../constants/redirect'
 // import TeacherNavigation from '../../../components/Navigation/TeacherNavigation'
 import DocumentViewer from '../../documents/DocumentViewer'
-import { useGetEventQuery } from 'services/event'
+import { useGetTimelineEventsQuery } from 'services/event'
+import { getFullID } from 'helperFunctions'
 
 const { scroller } = Scroll
 
@@ -31,7 +32,7 @@ function Timeline(props) {
   const courseId = course ? getShortId(course['_id']) : ''
   const [viewingDocument, setViewingDocument] = useState(null)
   const [scrollToBlock, setScrollToBlock] = useState(null)
-  const {data, isSuccess, isLoading} = useGetEventQuery({courseInstanceId: params.course_id})
+  const {data, isSuccess, isLoading} = useGetTimelineEventsQuery({courseInstanceId: getFullID(params.course_id, "courseInstance")})
   const hasAccess = course && user && getInstructorRights(user, course)
 
   if (scrollToBlock) {
@@ -62,18 +63,21 @@ function Timeline(props) {
   let eventsSorted = []
   let timelineBlocks = []
   let nestedEvents = []
-  if (isSuccess && data && data.length > 0) {
-    eventsSorted = getEvents(data).sort(sortEventsFunction)
-    timelineBlocks = getTimelineBlocks(eventsSorted)
-    nestedEvents = getNestedEvents(eventsSorted, timelineBlocks)
-    const currentBlock = getCurrentBlock(timelineBlocks)
-    if (currentBlock) {
-      scroller.scrollTo(currentBlock, {
-        duration: 500,
-        // delay: 100,
-        smooth: true,
-        containerId: 'containerElement',
-      })
+  if (isSuccess && data) {
+    const dataArray = Object.values(data)
+    if (dataArray.length > 0) {
+      eventsSorted = getEvents(dataArray).sort(sortEventsFunction)
+      timelineBlocks = getTimelineBlocks(eventsSorted)
+      nestedEvents = getNestedEvents(eventsSorted, timelineBlocks)
+      const currentBlock = getCurrentBlock(timelineBlocks)
+      if (currentBlock) {
+        scroller.scrollTo(currentBlock, {
+          duration: 500,
+          // delay: 100,
+          smooth: true,
+          containerId: 'containerElement',
+        })
+      }
     }
   }
 

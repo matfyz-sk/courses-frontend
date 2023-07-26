@@ -17,7 +17,7 @@ export const eventApi = createApi({
     tagTypes: ['Event'],
     endpoints: (builder) => ({
         getEvent: builder.query({
-            query: ({id, courseInstanceId}) => ({
+            query: ({id, type, courseInstanceId}) => ({
               document: gql`
                 query { 
                     courses_Event${id ? getSelectById(id) : ""} {
@@ -54,6 +54,254 @@ export const eventApi = createApi({
             }),
             transformResponse: (response, meta, arg) => response.Event,
             providesTags: ['Event'],
+        }),
+        getEventByType: builder.query({
+          query: ({id, type, courseInstanceId}) => ({
+            document: gql`
+              query { 
+                  courses_${type}${id ? getSelectById(id) : ""} {
+                      _id
+                      _type
+                      courses_name
+                      courses_description
+                      courses_startDate
+                      courses_endDate
+                      courses_location
+                      courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
+                          _id
+                      }
+                      courses_recommends {
+                          _id
+                      }
+                      courses_uses {
+                          _id
+                      }
+                      courses_requires {
+                          _id
+                      }
+                      courses_documentReference {
+                          _id
+                      }
+                      courses_covers {
+                          _id
+                      }
+                      courses_mentions {
+                          _id
+                      }
+                  }
+              }
+            `,
+          }),
+          transformResponse: (response, meta, arg) => {
+            return (
+            new Array().concat(
+              response.Event, 
+              response.Block,
+              response.Lab,
+              response.Session,
+              response.Lecture
+            ).filter(e => e !== undefined)
+          )},
+          providesTags: ['Event'],
+      }),
+        getTimelineEvents: builder.query({
+          query: ({courseInstanceId}) => ({
+            document: gql`
+              query { 
+                  courses_Event {
+                      _id
+                      _type
+                      courses_name
+                      courses_description
+                      courses_startDate
+                      courses_endDate
+                      courses_location
+                      courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
+                          _id
+                          courses_hasInstructor {
+                            _id
+                          }
+                          courses_course {
+                            courses_abbreviation
+                          }
+                      }
+                      courses_recommends {
+                          _id
+                      }
+                      courses_uses {
+                          _id
+                      }
+                      courses_requires {
+                          _id
+                      }
+                      courses_documentReference {
+                          _id
+                      }
+                      courses_covers {
+                          _id
+                      }
+                      courses_mentions {
+                          _id
+                      }
+                  }
+                  courses_Block {
+                    _id
+                    _type
+                    courses_name
+                    courses_description
+                    courses_startDate
+                    courses_endDate
+                    courses_location
+                    courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
+                        _id
+                        courses_hasInstructor {
+                          _id
+                        }
+                        courses_course {
+                          courses_abbreviation
+                        }
+                    }
+                    courses_recommends {
+                        _id
+                    }
+                    courses_uses {
+                        _id
+                    }
+                    courses_requires {
+                        _id
+                    }
+                    courses_documentReference {
+                        _id
+                    }
+                    courses_covers {
+                        _id
+                    }
+                    courses_mentions {
+                        _id
+                    }
+                  }
+                  courses_Lab {
+                    _id
+                    _type
+                    courses_name
+                    courses_description
+                    courses_startDate
+                    courses_endDate
+                    courses_location
+                    courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
+                        _id
+                        courses_hasInstructor {
+                          _id
+                        }
+                        courses_course {
+                          courses_abbreviation
+                        } 
+                    }
+                    courses_recommends {
+                        _id
+                    }
+                    courses_uses {
+                        _id
+                    }
+                    courses_requires {
+                        _id
+                    }
+                    courses_documentReference {
+                        _id
+                    }
+                    courses_covers {
+                        _id
+                    }
+                    courses_mentions {
+                        _id
+                    }
+                  }
+                  courses_Session {
+                    _id
+                    _type
+                    courses_name
+                    courses_description
+                    courses_startDate
+                    courses_endDate
+                    courses_location
+                    courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
+                        _id
+                        courses_hasInstructor {
+                          _id
+                        }
+                        courses_course {
+                          courses_abbreviation
+                        }
+                    }
+                    courses_recommends {
+                        _id
+                    }
+                    courses_uses {
+                        _id
+                    }
+                    courses_requires {
+                        _id
+                    }
+                    courses_documentReference {
+                        _id
+                    }
+                    courses_covers {
+                        _id
+                    }
+                    courses_mentions {
+                        _id
+                    }
+                  }
+                  courses_Lecture {
+                    _id
+                    _type
+                    courses_name
+                    courses_description
+                    courses_startDate
+                    courses_endDate
+                    courses_location
+                    courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
+                        _id
+                        courses_hasInstructor {
+                          _id
+                        }
+                        courses_course {
+                          courses_abbreviation
+                        }
+                    }
+                    courses_recommends {
+                        _id
+                    }
+                    courses_uses {
+                        _id
+                    }
+                    courses_requires {
+                        _id
+                    }
+                    courses_documentReference {
+                        _id
+                    }
+                    courses_covers {
+                        _id
+                    }
+                    courses_mentions {
+                        _id
+                    }
+                  }
+              }
+            `,
+          }),
+          transformResponse: (response, meta, arg) => {
+            return (
+            new Array().concat(
+              response.Event, 
+              response.Block,
+              response.Lab,
+              response.Session,
+              response.Lecture
+            ).filter(e => e !== undefined)
+          )},
+          providesTags: ['Event'],
         }),  
         newTimelineBlock: builder.mutation({
             query: (body) => ({ 
@@ -62,8 +310,8 @@ export const eventApi = createApi({
                   insert_courses_Block(
                     courses_name: "${body.name}"
                     courses_description: "${body.description}"
-                    courses_startDate: ${body.startDate}
-                    courses_endDate: ${body.endDate}
+                    courses_startDate: "${body.startDate.toISOString()}"
+                    courses_endDate: "${body.endDate.toISOString()}"
                     courses_courseInstance: "${body.courseInstance}"
                   ) {
                     _id
@@ -81,13 +329,13 @@ export const eventApi = createApi({
                   ${getEventHeaderByType("insert", type)}(
                     courses_name: "${body.name}"
                     courses_description: "${body.description}"
-                    courses_startDate: ${body.startDate}
-                    courses_endDate: ${body.endDate}
+                    courses_startDate: "${body.startDate.toISOString()}"
+                    courses_endDate: "${body.endDate.toISOString()}"
                     ${body.courseInstance ? `courses_courseInstance: "${body.courseInstance}"` : ""}
                     ${body.location ? `courses_location: "${body.location}"` : ""}
-                    ${body.uses ? `courses_uses: ${body.uses}` : ""}
-                    ${body.recommends ? `courses_recommends: ${body.recommends}` : ""}
-                    ${body.documentReference ? `courses_documentReference: ${body.documentReference}` : ""}
+                    ${body.uses ? `courses_uses: ${JSON.stringify(body.uses)}` : ""}
+                    ${body.recommends ? `courses_recommends: ${JSON.stringify(body.recommends)}` : ""}
+                    ${body.documentReference ? `courses_documentReference: ${JSON.stringify(body.documentReference)}` : ""}
                   ) {
                     _id
                   }
@@ -105,12 +353,12 @@ export const eventApi = createApi({
                     _id: "${id}"
                     courses_name: "${body.name}"
                     courses_description: "${body.description}"
-                    courses_startDate: ${body.startDate}
-                    courses_endDate: ${body.endDate}
+                    courses_startDate: "${body.startDate.toISOString()}"
+                    courses_endDate: "${body.endDate.toISOString()}"
                     ${body.location ? `courses_location: "${body.location}"` : ""}
-                    ${body.uses ? `courses_uses: ${body.uses}` : ""}
-                    ${body.recommends ? `courses_recommends: ${body.recommends}` : ""}
-                    ${body.documentReference ? `courses_documentReference: ${body.documentReference}` : ""}
+                    ${body.uses ? `courses_uses: ${JSON.stringify(body.uses)}` : ""}
+                    ${body.recommends ? `courses_recommends: ${JSON.stringify(body.recommends)}` : ""}
+                    ${body.documentReference ? `courses_documentReference: ${JSON.stringify(body.documentReference)}` : ""}
                   ) {
                     _id
                   }
@@ -140,7 +388,10 @@ export const eventApi = createApi({
 
 export const { 
     useGetEventQuery,
+    useGetEventByTypeQuery,
+    useGetTimelineEventsQuery,
     useLazyGetEventQuery,
+    useLazyGetTimelineEventsQuery,
     useNewEventByTypeMutation,
     useNewTimelineBlockMutation,
     useUpdateEventByTypeMutation,
