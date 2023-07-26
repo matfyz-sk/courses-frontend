@@ -16,6 +16,20 @@ jobs:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      DOCKERHUB_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+      DOCKERHUB_OWNER: ${{ secrets.DOCKERHUB_OWNER }}
+      IMPERSONATION_PASSWORD: ${{ secrets.IMPERSONATION_PASSWORD }}
+      JDBC_PORT: ${{ secrets.JDBC_PORT }}
+      OWNER: ${{ secrets.OWNER }}
+      OWNER_ACCESS_TOKEN: ${{ secrets.OWNER_ACCESS_TOKEN }}
+      SPARQL_HOST: ${{ secrets.SPARQL_HOST }}
+      SPARQL_PASSWORD: ${{ secrets.SPARQL_PASSWORD }}
+      SPARQL_USER: ${{ secrets.SPARQL_USER }}
+      SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
+      SSH_USSUPER_ADMIN_NAMEER: ${{ secrets.SUPER_ADMIN_NAME }}
+      SUPER_ADMIN_PASSWORD: ${{ secrets.SUPER_ADMIN_PASSWORD }}
+      WEBSITE: ${{ secrets.WEBSITE }}
   deploy-frontend:
     if: contains(github.event.pull_request.labels.*.name, 'master backend')
     needs: create-frontend-directory
