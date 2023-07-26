@@ -27,7 +27,7 @@ jobs:
       SPARQL_PASSWORD: ${{ secrets.SPARQL_PASSWORD }}
       SPARQL_USER: ${{ secrets.SPARQL_USER }}
       SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
-      SSH_USSUPER_ADMIN_NAMEER: ${{ secrets.SUPER_ADMIN_NAME }}
+      SSH_USSUPER_ADMIN_NAME: ${{ secrets.SUPER_ADMIN_NAME }}
       SUPER_ADMIN_PASSWORD: ${{ secrets.SUPER_ADMIN_PASSWORD }}
       WEBSITE: ${{ secrets.WEBSITE }}
   deploy-frontend:
