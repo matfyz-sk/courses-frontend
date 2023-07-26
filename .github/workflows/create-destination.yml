@@ -17,34 +17,6 @@ on:
         required: true
       SSH_USER:
         required: true
-      AUTH_SECRET:
-        required: true
-      DOCKERHUB_ACCESS_TOKEN:
-        required: true
-      DOCKERHUB_OWNER:
-        required: true
-      IMPERSONATION_PASSWORD:
-        required: true
-      JDBC_PORT:
-        required: true
-      OWNER:
-        required: true
-      OWNER_ACCESS_TOKEN:
-        required: true
-      SPARQL_HOST:
-        required: true
-      SPARQL_PASSWORD:
-        required: true
-      SPARQL_USER:
-        required: true
-      SUPER_ADMIN_EMAIL:
-        required: true
-      SUPER_ADMIN_NAME:
-        required: true
-      SUPER_ADMIN_PASSWORD:
-        required: true
-      WEBSITE:
-        required: true
 
 jobs:
   create-destination:
@@ -60,44 +32,9 @@ jobs:
         uses: appleboy/ssh-action@master
         env:
           FRONTEND_PATH: ${{ env.FRONTEND_PATH }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          DOCKERHUB_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-          DOCKERHUB_OWNER: ${{ secrets.DOCKERHUB_OWNER }}
-          IMPERSONATION_PASSWORD: ${{ secrets.IMPERSONATION_PASSWORD }}
-          JDBC_PORT: ${{ secrets.JDBC_PORT }}
-          OWNER: ${{ secrets.OWNER }}
-          OWNER_ACCESS_TOKEN: ${{ secrets.OWNER_ACCESS_TOKEN }}
-          SPARQL_HOST: ${{ secrets.SPARQL_HOST }}
-          SPARQL_PASSWORD: ${{ secrets.SPARQL_PASSWORD }}
-          SPARQL_USER: ${{ secrets.SPARQL_USER }}
-          SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
-          SUPER_ADMIN_NAME: ${{ secrets.SUPER_ADMIN_NAME }}
-          SUPER_ADMIN_PASSWORD: ${{ secrets.SUPER_ADMIN_PASSWORD }}
-          WEBSITE: ${{ secrets.WEBSITE }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: FRONTEND_PATH, SSH_PRIVATE_KEY, SSH_HOST, SSH_USER, AUTH_SECRET, DOCKERHUB_ACCESS_TOKEN, DOCKERHUB_OWNER, IMPERSONATION_PASSWORD, JDBC_PORT, OWNER, OWNER_ACCESS_TOKEN, SPARQL_HOST, SPARQL_PASSWORD, SPARQL_USER, SUPER_ADMIN_EMAIL, SUPER_ADMIN_NAME, SUPER_ADMIN_PASSWORD, WEBSITE
-          script: |
-            echo "SSH_PRIVATE_KEY = ${SSH_PRIVATE_KEY}" > file.txt
-            echo "SSH_HOST = ${SSH_HOST}" >> file.txt
-            echo "SSH_USER = ${SSH_USER}" >> file.txt
-            echo "AUTH_SECRET = ${AUTH_SECRET}" >> file.txt
-            echo "DOCKERHUB_ACCESS_TOKEN = ${DOCKERHUB_ACCESS_TOKEN}" >> file.txt
-            echo "DOCKERHUB_OWNER = ${DOCKERHUB_OWNER}" >> file.txt
-            echo "IMPERSONATION_PASSWORD = ${IMPERSONATION_PASSWORD}" >> file.txt
-            echo "JDBC_PORT = ${JDBC_PORT}" >> file.txt
-            echo "OWNER = ${OWNER}" >> file.txt
-            echo "OWNER_ACCESS_TOKEN = ${OWNER_ACCESS_TOKEN}" >> file.txt
-            echo "SPARQL_HOST = ${SPARQL_HOST}" >> file.txt
-            echo "SPARQL_PASSWORD = ${SPARQL_PASSWORD}" >> file.txt
-            echo "SPARQL_USER = ${SPARQL_USER}" >> file.txt
-            echo "SUPER_ADMIN_EMAIL = ${SUPER_ADMIN_EMAIL}" >> file.txt
-            echo "SUPER_ADMIN_NAME = ${SUPER_ADMIN_NAME}" >> file.txt
-            echo "SUPER_ADMIN_PASSWORD = ${SUPER_ADMIN_PASSWORD}" >> file.txt
-            echo "WEBSITE = ${WEBSITE}" >> file.txt
-            mkdir -p ${FRONTEND_PATH}
+          envs: FRONTEND_PATH
+          script: mkdir -p ${FRONTEND_PATH}
