@@ -87,6 +87,8 @@ export const courseApi = createApi({
                     }
                     courses_hasGrading {
                       _id
+                      courses_grade
+                      courses_minPoints
                     }
                     courses_requires {
                       _id
@@ -148,9 +150,9 @@ export const courseApi = createApi({
               update_courses_CourseInstance(
                 _id: "${id}"
                 ${body.fileExplorerRoot ? `courses_fileExplorerRoot: "${body.fileExplorerRoot}"` : ""}
-                ${body.hasResultType ? `courses_hasResultType: ${body.hasResultType}` : ""}
+                ${body.hasResultType ? `courses_hasResultType: ${JSON.stringify(body.hasResultType)}` : ""}
                 ${body.hasPersonalSettings ? `courses_hasPersonalSettings: ${body.hasPersonalSettings}` : ""}
-                ${body.hasGrading ? `courses_hasGrading: ${body.hasGrading}` : ""}
+                ${body.hasGrading ? `courses_hasGrading: ${JSON.stringify(body.hasGrading)}` : ""}
               ) {
                 _id
               }
