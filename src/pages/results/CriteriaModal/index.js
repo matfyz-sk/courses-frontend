@@ -29,10 +29,16 @@ import {
 } from "services/result"
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 
+
+
 function CriteriaModal(props) {
   const { grading, courseInstance } = props
   const [modal, setModal] = useState(false)
   const [form, setForm] = useState({
+    grade: grading ? grading.grade : '',
+    minPoints: grading ? grading.minPoints : 0,
+  })
+  const [oldForm, setOldForm] = useState({
     grade: grading ? grading.grade : '',
     minPoints: grading ? grading.minPoints : 0,
   })
@@ -45,6 +51,8 @@ function CriteriaModal(props) {
   const [updateCourseGrading, updateCourseGradingResult] = useUpdateCourseGradingMutation()
   const {data, isSuccess} = useGetCourseGradingQuery(id)
   const toggle = () => setModal(!modal)
+
+  
 
   if (isSuccess && id !== skipToken) {
     setLoading(false)
@@ -61,6 +69,41 @@ function CriteriaModal(props) {
     }
   }
 
+  const isGradeValid = (grade, minPoints) => {
+    if (grade < 'A' || grade > 'E'){
+      setError('You can only create gradings: A, B, C, D or E!')
+      setLoading(false)
+      return false
+    }
+    for (let i=0; i<props.list.length; i++){
+      if (grade == props.list[i].grade){
+        if (oldForm.grade != grade){
+          setError('Grade ' + grade + ' already exists!')
+        setLoading(false)
+        return false
+        }
+      }
+      if (grade < props.list[i].grade && minPoints < props.list[i].minPoints){
+        setError('Grade ' + grade + ' cannot have lower min. points than grade ' + props.list[i].grade + '!')
+        setLoading(false)
+        return false
+      }
+      if (grade > props.list[i].grade && minPoints > props.list[i].minPoints){
+        setError('Grade ' + grade + ' cannot have higher min. points than grade ' + props.list[i].grade + '!')
+        setLoading(false)
+        return false
+      }
+      if (minPoints == props.list[i].minPoints){
+        setError('Grade ' + grade + ' cannot have the same min. points as grade ' + props.list[i].grade + '!')
+        setLoading(false)
+        return false
+      }
+    }
+    return true
+  }
+
+  
+
   const validate = () => {
     if (form.grade.length === 0) {
       setError('Name of grade is required!')
@@ -73,44 +116,102 @@ function CriteriaModal(props) {
       setLoading(false)
       return false
     }
+    if (!isGradeValid(form.grade, form.minPoints)){
+      return false
+    }
     setLoading(false)
+    setOldForm(form)
     return true
   }
 
-  const addGradingToCourse = (iri) => {
+  const addGradingToCourse = (id, grade, minPoints) => {
     const gradings = []
-    for (let i = 0; i < courseInstance.hasGrading.length; i++) {
-      gradings.push(courseInstance.hasGrading[i]['_id'])
+    for (let i = 0; i < props.list.length; i++) {
+      gradings.push(props.list[i]['_id'])
     }
-    gradings.push(iri)
-
+    gradings.push(id)
+    
     updateCourseInstance({
       id: courseInstance['_id'],
       body: { hasGrading: gradings }
     }).unwrap().then(response => {
-      if (response.status) {
-        setId(getShortID(iri))
+      
+      if (response) {
+        props.updateGrading()
       } else {
         setLoading(false)
         setError(
           'Error has occured during saving process. Please, try again.'
         )
       }
+    }).catch(error => {
+      console.log(error.message)
     })
   }
+
+  const updateGradingInCourse = (id, grade, minPoints) => {
+    const gradings = []
+    for (let i = 0; i < props.list.length; i++) {
+      gradings.push(props.list[i]['_id'])
+    }
+    updateCourseInstance({
+      id: courseInstance['_id'],
+      body: { hasGrading: gradings }
+    }).unwrap().then(response => {
+      if (response) {
+        props.updateGrading()
+      } else {
+        setLoading(false)
+        setError(
+          'Error has occured during saving process. Please, try again.'
+        )
+      }
+    }).catch(error => {
+      console.log(error.message)
+    })
+  }
+
+  const deleteGradingFromCourse = (id) => {
+    const gradings = []
+    for (let i = 0; i < props.list.length; i++) {
+      if (props.list[i]._id != id){
+        gradings.push(props.list[i]['_id'])
+      }
+    }
+    updateCourseInstance({
+      id: courseInstance['_id'],
+      body: { hasGrading: gradings }
+    }).unwrap().then(response => {
+      if (response) {
+        props.updateGrading()
+      } else {
+        setLoading(false)
+        setError(
+          'Error has occured during removing process. Please, try again.'
+        )
+      }
+    }).catch(error => {
+      console.log(error.message)
+    })
+  }
+
+
 
   const submitCreate = () => {
     setLoading(true)
     if (validate()) {
       newCourseGrading(form).unwrap().then(response => {
-        if (response.status) {
-          addGradingToCourse(response.resource.iri)
+        if (response) {
+          addGradingToCourse(response[0]._id, form.grade, form.minPoints);
+          setModal(false)
         } else {
           setLoading(false)
           setError(
             'Error has occured during saving process. Please, try again.'
           )
         }
+      }).catch(error => {
+        console.log(error.message)
       })
     }
   }
@@ -119,32 +220,35 @@ function CriteriaModal(props) {
     setLoading(true)
     if (validate()) {
       updateCourseGrading({
-        id: grading['_id'],
+        id: grading._id,
         body: form
       }).unwrap().then(response => {
         setLoading(false)
-        if (response.status) {
-          const newGrading = {
+        if (response) {
+          let newGrading = {
             ...grading,
             ...form,
           }
-          store.dispatch(updateCourseInstanceGrading(newGrading))
+          //store.dispatch(updateCourseInstanceGrading(newGrading))
           setError(null)
           setModal(false)
+          updateGradingInCourse(form._id, form.grade, form.minPoints)
         } else {
           setError(
             'Error has occured during saving process. Please, try again.'
           )
         }
+      }).catch(error => {
+        console.log(error)
       })
     }
   }
 
   const submitDelete = () => {
     setLoading(true)
-    deleteCourseGrading(grading['_id']).unwrap().then(response => {
+    deleteCourseGrading(grading._id).unwrap().then(response => {
       setLoading(false)
-      if (response.status) {
+      if (response) {
         store.dispatch(removeCourseInstanceGrading(grading))
         setError(null)
         setModal(false)
@@ -153,10 +257,17 @@ function CriteriaModal(props) {
           'Error has occured during removing process. Please, try again.'
         )
       }
+    }).catch(error => {
+      console.log(error)
     })
+    deleteGradingFromCourse(grading._id)
   }
 
+
+  
+
   return (
+    
     <>
       <Button
         color={grading ? 'link' : 'primary'}
@@ -181,7 +292,7 @@ function CriteriaModal(props) {
                 type="text"
                 name="grade"
                 id="grade"
-                placeholder="e.g. A, B, C, ..."
+                placeholder="e.g. A, B, C, ..., E"
                 value={form.grade}
                 onChange={e => {
                   setForm({ ...form, grade: e.target.value })
@@ -205,7 +316,12 @@ function CriteriaModal(props) {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="secondary" onClick={toggle}>
+          <Button color="secondary" 
+          onClick={() => {
+              toggle()
+              setError(null)
+              setLoading(false)
+            }}>
             Cancel
           </Button>
           {grading ? (
@@ -222,7 +338,8 @@ function CriteriaModal(props) {
           </Button>
         </ModalFooter>
       </Modal>
-    </>
+      </>
+    
   )
 }
 
