@@ -239,6 +239,51 @@ export const resultApi = createApi({
             transformResponse: (response, meta, arg) => response.ResultType,
             invalidatesTags: ['Result'],
         }),
+        getCourseHasGrading: builder.query({
+          
+          query: (id) => ({
+            document: gql`
+              query {
+                  courses_CourseInstance${id ? getSelectById(id) : ""} {
+                      _id
+                      courses_hasGrading{
+                        _id
+                        courses_minPoints
+                        courses_grade
+                      }
+                    }
+                  }
+            `,
+          }),
+          transformResponse: (response, meta, arg) => response.CourseInstance,
+          providesTags: ['Result'],
+        }),
+        getCourseHasResultType: builder.query({
+          
+          query: (id) => ({
+            document: gql`
+              query {
+                courses_CourseInstance${id ? getSelectById(id) : ""} {
+                    _id
+                    courses_hasResultType{
+                      _id
+                      courses_name
+                      courses_minPoints
+                      courses_description
+                      courses_correctionFor {
+                        courses_createdAt
+                        courses_minPoints
+                        _type
+                        courses_name
+                      }
+                    }
+                  }
+                }
+            `,
+          }),
+          transformResponse: (response, meta, arg) => response.CourseInstance,
+          providesTags: ['Result'],
+        })
     })
 })
 
@@ -256,4 +301,7 @@ export const {
     useDeleteResultMutation,
     useDeleteResultTypeMutation,
     useDeleteCourseGradingMutation,
+    useGetCourseHasGradingQuery,
+    useLazyGetCourseHasGradingQuery,
+    useLazyGetCourseHasResultTypeQuery
 } = resultApi
