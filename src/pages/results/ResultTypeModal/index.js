@@ -74,18 +74,62 @@ function ResultTypeModal(props) {
     })
   }
 
-  const addResultTypeToCourse = (iri) => {
+  const addResultTypeToCourse = (id) => {
     const resultTypes = []
-    for(let i = 0; i < courseInstance.hasResultType.length; i++) {
-      resultTypes.push(courseInstance.hasResultType[i]['_id'])
+    for(let i = 0; i < props.resultTypesList.length; i++) {
+      resultTypes.push(props.resultTypesList[i]['_id'])
     }
-    resultTypes.push(iri)
+    resultTypes.push(id)
     updateCourseInstance({
       id: courseInstance['_id'],
       body: {hasResultType: resultTypes}
     }).unwrap().then(response => {
-      if(response.status) {
-        getDetail(getShortID(iri), 'add')
+      if(response) {
+        getDetail(getShortID(id), 'add')
+        props.updateResultTypes()
+      } else {
+        setLoading(false)
+        setError(
+          'Error has occured during saving process. Please, try again.'
+        )
+      }
+    })
+  }
+
+  const updateResultTypeInCourse = () => {
+    const resultTypes = []
+    for(let i = 0; i < props.resultTypesList.length; i++) {
+      resultTypes.push(props.resultTypesList[i]['_id'])
+    }
+    updateCourseInstance({
+      id: courseInstance['_id'],
+      body: {hasResultType: resultTypes}
+    }).unwrap().then(response => {
+      if(response) {
+        props.updateResultTypes()
+      } else {
+        setLoading(false)
+        setError(
+          'Error has occured during saving process. Please, try again.'
+        )
+      }
+    })
+  }
+
+
+  const deleteResultTypeFromCourse = (id) => {
+    const resultTypes = []
+    for(let i = 0; i < props.resultTypesList.length; i++) {
+      if (props.resultTypesList[i]['_id'] != id){
+        resultTypes.push(props.resultTypesList[i]['_id'])
+      }
+    }
+    updateCourseInstance({
+      id: courseInstance['_id'],
+      body: {hasResultType: resultTypes}
+    }).unwrap().then(response => {
+      if(response) {
+        props.updateResultTypes()
       } else {
         setLoading(false)
         setError(
@@ -102,8 +146,9 @@ function ResultTypeModal(props) {
         delete form.correctionFor
       }
       newResultType(form).unwrap().then(response => {
-        if(response.status) {
-          addResultTypeToCourse(response.resource.iri)
+        if(response) {
+          addResultTypeToCourse(response[0]._id)
+          setModal(false)
         } else {
           setLoading(false)
           setError(
@@ -122,13 +167,14 @@ function ResultTypeModal(props) {
         body: form
       }).unwrap().then(response => {
         setLoading(false)
-        if(response.status) {
+        if(response) {
           const newResultType = {
             ...resultType,
             ...form,
           }
-          store.dispatch(updateCourseInstanceResultType(newResultType))
+          //store.dispatch(updateCourseInstanceResultType(newResultType))
           setError(null)
+          updateResultTypeInCourse()
           setModal(false)
         } else {
           setError(
@@ -141,9 +187,9 @@ function ResultTypeModal(props) {
 
   const submitDelete = () => {
     setLoading(true)
-    deleteResultType(resultType['_id']).unwrap().then(response => {
+    deleteResultType(resultType._id).unwrap().then(response => {
       setLoading(false)
-        if(response.status) {
+        if(response){
           store.dispatch(removeCourseInstanceResultType(resultType))
           setError(null)
           setModal(false)
@@ -153,27 +199,28 @@ function ResultTypeModal(props) {
           )
         }
     })
+    deleteResultTypeFromCourse(resultType._id)
   }
 
   const options = []
   options.push(
-    <option value="" key="empty-select">
+    <option value={null} key="empty-select">
       Without correction
     </option>
   )
-  if(courseInstance && courseInstance.hasResultType) {
-    for(let i = 0; i < courseInstance.hasResultType.length; i++) {
+  if(props.resultTypesList) {
+    for(let i = 0; i < props.resultTypesList.length; i++) {
       if(
         !resultType ||
         (resultType &&
-          resultType['_id'] !== courseInstance.hasResultType[i]['_id'])
+          resultType['_id'] !== props.resultTypesList[i]['_id'])
       ) {
         options.push(
           <option
-            value={ courseInstance.hasResultType[i]['_id'] }
-            key={ courseInstance.hasResultType[i]['_id'] }
+            value={ props.resultTypesList[i]['_id'] }
+            key={ props.resultTypesList[i]['_id'] }
           >
-            { courseInstance.hasResultType[i].name }
+            { props.resultTypesList[i].name }
           </option>
         )
       }
