@@ -108,7 +108,7 @@ export const resultApi = createApi({
               document: gql`
                 mutation {
                     update_courses_ResultType (
-                        _id: ${id}
+                        _id: "${id}"
                         ${body.correctionFor ? `courses_correctionFor: "${body.correctionFor}"` : ""}
                         ${body.description ? `courses_description: "${body.description}"` : ""}
                         ${body.name ? `courses_name: "${body.name}"` : ""}
@@ -127,7 +127,7 @@ export const resultApi = createApi({
               document: gql`
                 mutation {
                     update_courses_CourseGrading (
-                        _id: ${id}
+                        _id: "${id}"
                         ${body.minPoints ? `courses_minPoints: ${body.minPoints}` : ""}
                         ${body.grade ? `courses_grade: "${body.grade}"` : ""}
                     ){
