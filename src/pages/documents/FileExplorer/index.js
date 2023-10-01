@@ -243,7 +243,7 @@ function FileExplorer({
 
   const filterToBeCut = files => {
     if (isRelocator && clipboard.beingCut) {
-      return files.filter(file => file['@id'] !== clipboard.beingCut['@id'])
+      return files.filter(file => file['_id'] !== clipboard.beingCut['_id'])
     }
     return files
   }
@@ -305,14 +305,14 @@ function FileExplorer({
             />
             <TableBody>
               {prepareFiles(files).map((file, i) => {
-                const labelId = `enhanced-table-${file['@id']}`
+                const labelId = `enhanced-table-${file['_id']}`
                 const entityName = getShortType(file['@type'])
 
                 return (
                   <CustomTableRow
                     hover
                     onClick={event => handleClick(event, file)}
-                    key={file['@id']}
+                    key={file['_id']}
                   >
                     <TableCell
                       component="th"

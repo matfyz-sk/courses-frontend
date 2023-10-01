@@ -142,7 +142,7 @@ function RevisionsSidebar({
         )}
         {versions.map((v, i) => {
           return (
-            <ListGroupItem className={style.sidebarRow} key={v["@id"]}>
+            <ListGroupItem className={style.sidebarRow} key={v["_id"]}>
               <div
                 style={{
                   display: 'flex',
@@ -261,7 +261,7 @@ function DocumentHistory({
 
   const createOriginDummyVersion = firstVersion => {
     const dummy = {
-      "@id": `dummy-version-${firstVersion["@id"]}`,
+      "_id": `dummy-version-${firstVersion["_id"]}`,
       name: '',
       createdAt: firstVersion.createdAt,
       restoredFrom: '',
@@ -313,7 +313,7 @@ function DocumentHistory({
         return
       }
       const data = getResponseBody(response)
-      if (folder["@id"] !== parentFolderId)
+      if (folder["_id"] !== parentFolderId)
         fetchFolder(parentFolderId)
       setEntityName(getShortType(data[0]['@type']))
       const paddedData = [

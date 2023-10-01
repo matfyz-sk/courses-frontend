@@ -16,7 +16,7 @@ function DocumentsNavigation({ match, courseInstance }) {
   const courseId = match.params.course_id
 
   useEffect(() => {
-    if (courseInstance && getShortID(courseInstance["@id"]) === courseId) {
+    if (courseInstance && getShortID(courseInstance["_id"]) === courseId) {
       setLoading(false)
     }
     else {
@@ -40,7 +40,7 @@ function DocumentsNavigation({ match, courseInstance }) {
             { key: 'course_id', value: courseId },
             {
               key: 'folder_id',
-              value: getShortID(courseInstance.fileExplorerRoot[0]['@id']),
+              value: getShortID(courseInstance.fileExplorerRoot[0]['_id']),
             },
           ])}
         />

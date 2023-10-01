@@ -80,7 +80,7 @@ function CourseDocumentManager(props) {
       getDeletedDocuments(courseId).then(deleted => {
         setLoading(false)
         setFsObjects(deleted)
-        setFsPath([{ name: 'Deleted documents', "@id": 'deleted' }])
+        setFsPath([{ name: 'Deleted documents', "_id": 'deleted' }])
       })
       return
     }
@@ -96,7 +96,7 @@ function CourseDocumentManager(props) {
       }
       const data = getResponseBody(response)
 
-      if (getShortID(data[0].courseInstance[0]["@id"]) !== courseId) {
+      if (getShortID(data[0].courseInstance[0]["_id"]) !== courseId) {
         props.history.push(ROUTES.ACCESS_DENIED)
         return
       }
@@ -128,7 +128,7 @@ function CourseDocumentManager(props) {
       history.push(
         redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
           { key: 'course_id', value: courseId },
-          { key: 'folder_id', value: getShortID(fsObject['@id']) },
+          { key: 'folder_id', value: getShortID(fsObject['_id']) },
         ])
       )
       return
@@ -136,8 +136,8 @@ function CourseDocumentManager(props) {
     history.push(
       redirect(ROUTES.EDIT_DOCUMENT, [{ key: 'course_id', value: courseId }]),
       {
-        documentId: getShortID(fsObject['@id']),
-        parentFolderId: getShortID(folder["@id"]),
+        documentId: getShortID(fsObject['_id']),
+        parentFolderId: getShortID(folder["_id"]),
       }
     )
   }
@@ -146,13 +146,13 @@ function CourseDocumentManager(props) {
     let data = {
       name: folderName,
       isDeleted: false,
-      courseInstance: courseInstance['@id'],
+      courseInstance: courseInstance['_id'],
     }
     toggleFolderDialog()
     if (fsPath.length) {
       data = {
         ...data,
-        parent: fsPath[fsPath.length - 1]['@id'],
+        parent: fsPath[fsPath.length - 1]['_id'],
       }
     }
 
@@ -168,7 +168,7 @@ function CourseDocumentManager(props) {
     if (newFolderId) {
       const entityUrl = `folder/${folderId}`
       data = {
-        content: [...fsObjects.map(doc => doc['@id']), newFolderId],
+        content: [...fsObjects.map(doc => doc['_id']), newFolderId],
         lastChanged: new Date(),
       }
 
@@ -191,7 +191,7 @@ function CourseDocumentManager(props) {
   const beginFolderEdit = folder => {
     toggleFolderDialog()
     setFolderName(folder.name)
-    setEditFolderId(getShortID(folder['@id']))
+    setEditFolderId(getShortID(folder['_id']))
     setIsFolderEdit(true)
   }
 
@@ -238,8 +238,8 @@ function CourseDocumentManager(props) {
     setLoading(true)
     changeParent(
       clipboard.beingCut,
-      pastingToFolder['@id'],
-      clipboard.oldParent["@id"]
+      pastingToFolder['_id'],
+      clipboard.oldParent["_id"]
     ).then(() => {
       setIsRelocateDialogOpen(false)
       setLoading(false)

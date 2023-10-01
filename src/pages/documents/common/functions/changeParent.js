@@ -13,19 +13,19 @@ export async function changeParent(fsObject, newParentFullId, oldParentFullId) {
     const toUpdate = {
       parent: newParentFullId,
     }
-    await axiosUpdateEntity(toUpdate, `folder/${getShortID(fsObject['@id'])}`)
+    await axiosUpdateEntity(toUpdate, `folder/${getShortID(fsObject['_id'])}`)
   }
   await axiosPartialEntityUpdate(
     { lastChanged: new Date() },
     `folder/${getShortID(oldParentFullId)}`
   )
   await axiosDeleteAttributeValueOfEntity(
-    { value: fsObject['@id'] },
+    { value: fsObject['_id'] },
     `folder/${getShortID(oldParentFullId)}/content`
   )
 
   await axiosPartialEntityUpdate(
-    { content: [fsObject['@id']], lastChanged: new Date() },
+    { content: [fsObject['_id']], lastChanged: new Date() },
     `folder/${getShortID(newParentFullId)}`
   )
 }
