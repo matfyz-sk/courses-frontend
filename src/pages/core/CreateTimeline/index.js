@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import {
   Button,
   Card,
@@ -14,9 +14,7 @@ import {
 import { connect } from 'react-redux'
 import Scroll from 'react-scroll'
 import EventForm from '../EventForm'
-import {
-  INITIAL_EVENT_STATE,
-} from '../constants'
+import { INITIAL_EVENT_STATE } from '../constants'
 import {
   getEvents,
   getNestedEvents,
@@ -25,7 +23,10 @@ import {
   addDays,
 } from '../Timeline/timeline-helper'
 import { BlockMenuToggle } from '../Events'
-import { useNewTimelineBlockMutation, useLazyGetTimelineEventsQuery } from 'services/event'
+import {
+  useNewTimelineBlockMutation,
+  useLazyGetTimelineEventsQuery,
+} from 'services/event'
 import { getFullID } from 'helperFunctions'
 
 const ScrollLink = Scroll.Link
@@ -43,19 +44,25 @@ function CreateTimeline(props) {
   const [getEventRequest] = useLazyGetTimelineEventsQuery()
   const [newTimelineBlock, result] = useNewTimelineBlockMutation()
 
-  if(timelineBlocks.length == 0 && nestedEvents.length == 0 && courseId !== '') {
-    console.log("dads")
-    getEventRequest({courseInstanceId: getFullID(courseId, "courseInstance")}).unwrap().then(data => {
-      const dataArray = Object.values(data)
-      if (dataArray.length > 0) {
-        const events = getEvents(dataArray).sort(sortEventsFunction)
-        const timelineBlocks = getTimelineBlocks(events)
-        const nestedEvents = getNestedEvents(events, timelineBlocks)
+  if (
+    timelineBlocks.length == 0 &&
+    nestedEvents.length == 0 &&
+    courseId !== ''
+  ) {
+    console.log('dads')
+    getEventRequest({ courseInstanceId: getFullID(courseId, 'courseInstance') })
+      .unwrap()
+      .then(data => {
+        const dataArray = Object.values(data)
+        if (dataArray.length > 0) {
+          const events = getEvents(dataArray).sort(sortEventsFunction)
+          const timelineBlocks = getTimelineBlocks(events)
+          const nestedEvents = getNestedEvents(events, timelineBlocks)
 
-        setTimelineBlocks(timelineBlocks)
-        setNestedEvents(nestedEvents)
-      }
-    })
+          setTimelineBlocks(timelineBlocks)
+          setNestedEvents(nestedEvents)
+        }
+      })
   }
 
   const postWeeklyBlocks = () => {
@@ -69,11 +76,15 @@ function CreateTimeline(props) {
       for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i]
         block.courseInstance = course['_id']
-        
-        newTimelineBlock({...block}).unwrap().catch(error => {
-          console.log(error)
-          errors.push(`There was a problem with server while posting ${block.name}`)
-        })
+
+        newTimelineBlock({ ...block })
+          .unwrap()
+          .catch(error => {
+            console.log(error)
+            errors.push(
+              `There was a problem with server while posting ${block.name}`
+            )
+          })
       }
       if (errors.length > 0) {
         errors.log(errors)
@@ -97,7 +108,7 @@ function CreateTimeline(props) {
       setSaved(true)
     }
   }
-/*
+  /*
   if (isLoading) {
     return (
       <Alert color="secondary" className="empty-message">
@@ -128,7 +139,7 @@ function CreateTimeline(props) {
                 disabled={disabled}
                 onClick={postWeeklyBlocks}
               >
-                {disabled ? 'Generatating...' : 'Generate Weekly Blocks'}
+                {disabled ? 'Generating...' : 'Generate Weekly Blocks'}
               </Button>
             )}
             <Button
@@ -175,7 +186,7 @@ function CreateTimeline(props) {
       </Container>
     </div>
   )
-} 
+}
 
 const BlockMenu = ({ courseEvents, onClick, activeEvent }) => (
   <ListGroup className="block-menu block-menu-non-toggle">
@@ -197,7 +208,7 @@ const BlockMenu = ({ courseEvents, onClick, activeEvent }) => (
   </ListGroup>
 )
 
-const generateWeeklyBlocks = (course) => {
+const generateWeeklyBlocks = course => {
   const blocks = []
 
   if (course) {
