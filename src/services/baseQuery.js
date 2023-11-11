@@ -1,4 +1,6 @@
 import { request, ClientError } from 'graphql-request'
+import { capitalizeFirstLetter, decapitalizeFirstLetter } from "../helperFunctions";
+import { ONTOLOGY_PREFIX } from "../constants/ontology";
 
 export const graphqlBaseQuery =
   ({ url }) =>
@@ -29,4 +31,8 @@ export const getSelectById = (id) => {
 
 export const getOrderBy = () => {
   return `(order: ASC)`
+}
+
+export const getArrayFormat = (array) => {
+  return JSON.stringify(array)
 }

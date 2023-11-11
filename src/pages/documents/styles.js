@@ -91,4 +91,38 @@ const usePdfRendererStyles = makeStyles({
   },
 })
 
-export { customTheme, useFileExplorerStyles, usePdfRendererStyles }
+const useTopicStyles = makeStyles((theme) => ({
+  root: {
+    backgroundColor: theme.palette.background.paper,
+    padding: 2,
+  },
+  iconButton: {
+    outline: "none"
+  },
+  nested: {
+    paddingLeft: theme.spacing(3),
+  },
+  listAdd: {
+    borderTop: `1px solid #dadada`,
+    borderBottom: `1px solid #dadada`,
+  },
+  listAddButton: {
+    fontSize: '145%',
+    display: 'block',
+    margin: 'auto',
+  },
+  removeButton: {
+    fontSize: '85%',
+    outline: 'none',
+  },
+  listItemIcon: {
+    marginRight: '0.5em',
+  },
+  selectedTopic: {
+    padding: 2,
+    backgroundColor: "lightgray"
+  },
+}));
+
+
+export { customTheme, useFileExplorerStyles, usePdfRendererStyles, useTopicStyles }
