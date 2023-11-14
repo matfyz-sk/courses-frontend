@@ -120,7 +120,8 @@ export const getShortID = (fullID) => {
 }
 
 export const getFullID = (shortID, type) => {
-  return DATA_PREFIX + type + "/" + shortID
+  const normalizedType = type.substring(0, 1).toLowerCase() + type.substring(1)
+  return DATA_PREFIX + normalizedType + "/" + shortID
 }
 
 export const getIRIFromAddResponse = (response) => {

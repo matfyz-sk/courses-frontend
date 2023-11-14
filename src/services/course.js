@@ -54,6 +54,7 @@ export const courseApi = createApi({
             query {
                 courses_CourseInstance${id ? getSelectById(id) : ""} {
                     _id
+                    _type
                     courses_location
                     courses_createdAt
                     courses_startDate
