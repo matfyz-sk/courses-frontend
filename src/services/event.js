@@ -17,7 +17,7 @@ export const eventApi = createApi({
     tagTypes: ['Event'],
     endpoints: (builder) => ({
         getEvent: builder.query({
-            query: ({id, type, courseInstanceId}) => ({
+            query: ({id, courseInstanceId}) => ({
               document: gql`
                 query { 
                     courses_Event${id ? getSelectById(id) : ""} {

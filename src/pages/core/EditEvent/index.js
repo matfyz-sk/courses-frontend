@@ -5,13 +5,17 @@ import { INITIAL_EVENT_STATE } from '../constants'
 import { getShortId } from '../Helper'
 import { Redirect } from 'react-router-dom'
 import { NOT_FOUND } from '../../../constants/routes'
-import { useGetEventQuery } from 'services/event'
+import { useGetEventByTypeQuery } from 'services/event'
 import { getFullID } from 'helperFunctions'
+import { useGetCourseInstanceQuery } from 'services/course'
 
 function EditEvent(props) {
   const { match: { params } } = props
-  console.log(getFullID(params.event_id, "courseInstance"))
-  const { data, isSuccess, isLoading } = useGetEventQuery({id: getFullID(params.event_id, "courseInstance")})
+  const isEvent = params.event_id.includes('-')
+  const { data, isSuccess, isLoading } = isEvent ? 
+    useGetEventByTypeQuery({id: getFullID(getId(params.event_id), getType(params.event_id)), type: getType(params.event_id)}) :
+    useGetCourseInstanceQuery({id: getFullID(params.event_id, "courseInstance")})
+                        
   const [redirectTo, setRedirectTo] = useState(null)
 
   const setRedirect = id => {
@@ -42,21 +46,21 @@ function EditEvent(props) {
         fullId: eventData['_id'],
         name: eventData.name,
         description: eventData.description ? eventData.description : '',
-        startDate: new Date(eventData.startDate),
-        endDate: new Date(eventData.endDate),
+        startDate: new Date(eventData.startDate.millis),
+        endDate: new Date(eventData.endDate.millis),
         place: eventData.location ? eventData.location : '',
         type:
-          typeof eventData['@type'] === 'string'
-            ? eventData['@type'].split('#')[1]
+          typeof eventData['_type'] === 'string'
+            ? eventData['_type'].split('#')[1]
             : '',
-        uses: eventData.uses.map(material => {
+        uses: eventData?.uses.map(material => {
           return {
             id: getShortId(material['_id']),
             fullId: material['_id'],
             name: material.name,
           }
         }),
-        recommends: eventData.recommends.map(material => {
+        recommends: eventData?.recommends.map(material => {
           return {
             id: getShortId(material['_id']),
             fullId: material['_id'],
@@ -64,8 +68,8 @@ function EditEvent(props) {
           }
         }),
         documentReference: eventData.documentReference,
-        courseInstance: eventData.courseInstance[0]
-          ? eventData.courseInstance[0]['_id']
+        courseInstance: eventData.courseInstance
+          ? eventData.courseInstance['_id']
           : '',
         instructors: eventData.hasInstructor
           ? eventData.hasInstructor.map(instructor => {
@@ -84,6 +88,7 @@ function EditEvent(props) {
   } else {
     setRedirectTo(NOT_FOUND)
   }
+  
 
   return (
     <div>
@@ -102,6 +107,16 @@ function EditEvent(props) {
       </Container>
     </div>
   )
+}
+
+const getId = (typeWithId) => {
+  const index = typeWithId.indexOf('-')
+  return typeWithId.substring(index + 1)
+}
+
+const getType = (typeWithId) => {
+  const index = typeWithId.indexOf('-')
+  return typeWithId.substring(0, index)
 }
 
 export default EditEvent
