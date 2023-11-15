@@ -3,118 +3,67 @@ import { Alert, Table } from 'reactstrap'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import CriteriaModal from '../CriteriaModal'
-import {
-  useLazyGetCourseHasGradingQuery,
-} from "services/result"
-
-
-
+import { useGetAllGradingsQuery } from 'services/result'
 
 const CourseGrading = props => {
   const { courseInstanceReducer } = props
   const { courseInstance } = courseInstanceReducer
-  const [isReady, setIsReady] = useState(false);
-  const [ getCourseGrading ] = useLazyGetCourseHasGradingQuery()
-  const [ gradings, setGradings ] = useState([])
-  const [ modalUpdate, setModalUpdate ] = useState(false)
-  const gradingsList = [] 
-  const renderGradings = []
-
-  useEffect(() => {
-    if (courseInstance && courseInstance.hasGrading) {
-      setIsReady(true);
-      getCourseGrading(courseInstance._id).unwrap().then( response => {
-        setGradings(response[0].hasGrading)
-      }
-      ).catch(e => {
-        console.log(e)
-      })
-    }
-  }, [courseInstance, gradings, modalUpdate]);
-
-
-  function updateGrading(){
-    setModalUpdate(!modalUpdate)
-  }
- 
-  
-  if (!isReady){
-    return (
-    <>
-    <h2 className="mb-4 mt-4">Course grading</h2>
-    <div>Loading...</div>
-    </>
-    )
-  }
-
-  
-  if (gradings.length > 0){
-      for (let i = 0; i < gradings.length; i++) {
-          const item = gradings[i]
-          gradingsList.push(item)
-      }
-  }
- 
-
-  const sortedGrading = gradingsList.sort(function(a, b) {
-      return b.minPoints - a.minPoints})
-
-
-  if (gradings.length > 0) {
-    for (let i = 0; i < sortedGrading.length; i++) {
-        let item = sortedGrading[i]
-        let compareString = <th> </th>
-        if (i === 0) {
-          compareString = (
-            <>
-              <td>{item.minPoints}</td>
-              <td>-</td>
-              <td>{String.fromCharCode(8734)}</td>
-            </>
-          )
-        } else {
-          compareString = (
-            <>
-              <td>{item.minPoints}</td>
-              <td>-</td>
-              <td>{gradingsList[i - 1].minPoints - 1}</td>
-            </>
-          )
-        }
-        renderGradings.push(
-          <tr className="border-bottom" key={`grading-list-${item._id}`}>
-            
-            <th>{item.grade}</th>
-            {compareString}
-            <td className="text-right">
-              <CriteriaModal list={gradings} grading={item} updateGrading={updateGrading}/>
-            </td>
-          </tr>
-        )
-      }
-    }
-  
+  const courseInstanceId = !courseInstance ? "" : courseInstance._id
+  const { data } = useGetAllGradingsQuery(courseInstanceId, {
+    skip: !courseInstance,
+  })
+  const sortedGradings = !data ? [] 
+  : [...data[0]?.hasGrading].sort((a, b) => b.minPoints - a.minPoints)
 
   return (
     <>
       <h2 className="mb-4 mt-4">Course grading</h2>
-      <CriteriaModal list={gradings}  updateGrading={updateGrading}/>
+      <CriteriaModal />
       <Table hover size="sm" responsive>
-      <thead>
-          <tr className="border-bottom">
-            <th>Grade</th>
-            <th colSpan={5}>Points range</th>
-          </tr>
-        </thead>
         <tbody>
-          {gradings.length === 0 ? (
+          {courseInstance && courseInstance.hasGrading.length === 0 ? (
             <tr>
               <td>
                 <Alert color="info">No gradings was set</Alert>
               </td>
             </tr>
           ) : (
-            <>{renderGradings}</>
+            <>
+              {
+                !data ? 
+                <tr>
+                  <td>
+                    <Alert color="info">Loading...</Alert>
+                  </td>
+                </tr>
+                :
+                sortedGradings.map((grading, i) =>
+                i == 0 ? 
+                <tr className="border-bottom" key={`grading-list-${grading['_id']}`}>
+                  <>
+                    <th>{grading.minPoints}</th>
+                    <th>-</th>
+                    <th>{String.fromCharCode(8734)}</th>
+                  </>
+                  <th>{grading.grade}</th>
+                  <td className="text-right">
+                    <CriteriaModal grading={grading} />
+                  </td>
+                </tr>
+                :
+                <tr className="border-bottom" key={`grading-list-${sortedGradings[i]['_id']}`}>
+                <>
+                  <th>{sortedGradings[i].minPoints}</th>
+                  <th>-</th>
+                  <th>{sortedGradings[i - 1].minPoints - 1}</th>
+                </>
+                <th>{sortedGradings[i].grade}</th>
+                <td className="text-right">
+                  <CriteriaModal grading={sortedGradings[i]} />
+                </td>
+                </tr>)
+              }
+            </>
           )}
         </tbody>
       </Table>

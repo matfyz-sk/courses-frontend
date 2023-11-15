@@ -46,10 +46,11 @@ export const resultApi = createApi({
             providesTags: ['Result'],
         }),
         getResultType: builder.query({
-            query: (id) => ({
+            query: ({id, courseInstanceId}) => ({
               document: gql`
                 query {
-                    courses_ResultType${id ? getSelectById(id) : ""} {
+                  courses_CourseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
+                    courses_hasResultType${id ? getSelectById(id) : ""} {
                         _id
                         courses_createdAt
                         courses_minPoints
@@ -59,27 +60,71 @@ export const resultApi = createApi({
                             _id
                         }
                     }
+                  }
+                    
                 }
               `,
             }),
-            transformResponse: (response, meta, arg) => response.ResultType,
+            transformResponse: (response, meta, arg) => response.CourseInstance,
             providesTags: ['Result'],
+        }),
+        getAllResultTypes: builder.query({
+          query: (id) => ({
+            document: gql`
+            query {
+              courses_CourseInstance${id ? getSelectById(id) : ""} {
+                courses_hasResultType {
+                  _id
+                  courses_createdAt
+                  courses_minPoints
+                  courses_name
+                  courses_description
+                  courses_correctionFor {
+                      _id
+                  }
+                }
+              }
+            }
+            `,
+          }),
+          transformResponse: (response, meta, arg) => response.CourseInstance,
+          providesTags: ['Result'],
         }),
         getCourseGrading: builder.query({
             query: (id) => ({
               document: gql`
                 query {
-                    courses_CourseGrading${id ? getSelectById(id) : ""} {
+                  courses_CourseInstance {
+                    courses_hasGrading${id ? getSelectById(id) : ""} {
                         _id
                         courses_createdAt
                         courses_minPoints
                         courses_grade
                     }
+                  }
                 }
               `,
             }),
             transformResponse: (response, meta, arg) => response.CourseGrading,
             providesTags: ['Result'],
+        }),
+        getAllGradings: builder.query({
+          query: (id) => ({
+            document: gql`
+            query {
+              courses_CourseInstance${id ? getSelectById(id) : ""} {
+                courses_hasGrading {
+                  _id
+                  courses_createdAt
+                  courses_minPoints
+                  courses_grade
+                }
+              }
+            }
+            `,
+          }),
+          transformResponse: (response, meta, arg) => response.CourseInstance,
+          providesTags: ['Result'],
         }),
         updateResult: builder.mutation({
             query: ({id, body}) => ({ 
@@ -128,7 +173,7 @@ export const resultApi = createApi({
                 mutation {
                     update_courses_CourseGrading (
                         _id: "${id}"
-                        ${body.minPoints ? `courses_minPoints: ${body.minPoints}` : ""}
+                        ${body.minPoints ? `courses_minPoints: "${body.minPoints}"` : ""}
                         ${body.grade ? `courses_grade: "${body.grade}"` : ""}
                     ){
                         _id
@@ -236,54 +281,26 @@ export const resultApi = createApi({
                 }
               `,
             }),
-            transformResponse: (response, meta, arg) => response.ResultType,
             invalidatesTags: ['Result'],
         }),
-        getCourseHasGrading: builder.query({
-          
-          query: (id) => ({
+        updateCourseInstance: builder.mutation({
+          query: ({id, body}) => ({ 
             document: gql`
-              query {
-                  courses_CourseInstance${id ? getSelectById(id) : ""} {
-                      _id
-                      courses_hasGrading{
-                        _id
-                        courses_minPoints
-                        courses_grade
-                      }
-                    }
-                  }
-            `,
-          }),
-          transformResponse: (response, meta, arg) => response.CourseInstance,
-          providesTags: ['Result'],
-        }),
-        getCourseHasResultType: builder.query({
-          
-          query: (id) => ({
-            document: gql`
-              query {
-                courses_CourseInstance${id ? getSelectById(id) : ""} {
-                    _id
-                    courses_hasResultType{
-                      _id
-                      courses_name
-                      courses_minPoints
-                      courses_description
-                      courses_correctionFor {
-                        courses_createdAt
-                        courses_minPoints
-                        _type
-                        courses_name
-                      }
-                    }
-                  }
+              mutation {
+                update_courses_CourseInstance(
+                  _id: "${id}"
+                  ${body.fileExplorerRoot ? `courses_fileExplorerRoot: "${body.fileExplorerRoot}"` : ""}
+                  ${body.hasResultType ? `courses_hasResultType: ${JSON.stringify(body.hasResultType)}` : ""}
+                  ${body.hasPersonalSettings ? `courses_hasPersonalSettings: ${body.hasPersonalSettings}` : ""}
+                  ${body.hasGrading ? `courses_hasGrading: ${JSON.stringify(body.hasGrading)}` : ""}
+                ) {
+                  _id
                 }
+              }
             `,
           }),
-          transformResponse: (response, meta, arg) => response.CourseInstance,
-          providesTags: ['Result'],
-        })
+          invalidatesTags: ['Result'],
+        }),
     })
 })
 
@@ -291,7 +308,12 @@ export const {
     useGetResultQuery,
     useGetResultTypeQuery,
     useLazyGetResultTypeQuery,
+    useGetAllResultTypesQuery,
+    useLazyGetAllResultTypesQuery,
     useGetCourseGradingQuery,
+    useLazyGetCourseGradingQuery,
+    useGetAllGradingsQuery,
+    useLazyGetAllGradingsQuery,
     useUpdateResultMutation,
     useUpdateResultTypeMutation,
     useUpdateCourseGradingMutation,
@@ -301,7 +323,5 @@ export const {
     useDeleteResultMutation,
     useDeleteResultTypeMutation,
     useDeleteCourseGradingMutation,
-    useGetCourseHasGradingQuery,
-    useLazyGetCourseHasGradingQuery,
-    useLazyGetCourseHasResultTypeQuery
+    useUpdateCourseInstanceMutation,
 } = resultApi

@@ -2,23 +2,16 @@ import React, { useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Alert, Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, } from 'reactstrap'
-import { getShortID } from '../../../helperFunctions'
-import { store } from '../../../index'
-import {
-  addCourseInstanceResultType,
-  removeCourseInstanceResultType,
-  updateCourseInstanceResultType,
-} from '../../../redux/actions'
 import { 
-  useLazyGetResultTypeQuery, 
   useNewResultTypeMutation,
   useUpdateResultTypeMutation,
   useDeleteResultTypeMutation,
+  useUpdateCourseInstanceMutation,
 } from "services/result"
-import { useUpdateCourseInstanceMutation } from "services/course"
+
 
 function ResultTypeModal(props) {
-  const {resultType, courseInstance} = props
+  const {resultType, courseInstance, data} = props
   const [ modal, setModal ] = useState(false)
   const [ form, setForm ] = useState({
     name: resultType ? resultType.name : '',
@@ -32,7 +25,6 @@ function ResultTypeModal(props) {
   const [newResultType, newResultTypeResult] = useNewResultTypeMutation()
   const [updateResultType, updateResultTypeResult] = useUpdateResultTypeMutation()
   const [deleteResultType, deleteResultTypeResult] = useDeleteResultTypeMutation()
-  const [getResultType] = useLazyGetResultTypeQuery()
   const toggle = () => setModal(!modal)
 
   const validate = () => {
@@ -51,91 +43,25 @@ function ResultTypeModal(props) {
     return true
   }
 
-  const getDetail = (id, action = null) => {
-    getResultType(id).unwrap().then(data => { 
-      setLoading(false)
-      setError(null)
-      if(data && data.length > 0) {
-        const result = data[0]
-        switch(action) {
-          case 'add':
-            store.dispatch(addCourseInstanceResultType(result))
-            setError(null)
-            setModal(false)
-            break
-          default:
-            break
-        }
-      }
+  const addResultTypeToCourse = (id) => {
+    const resultTypes = []
+    for(let i = 0; i < courseInstance.hasResultType.length; i++) {
+      resultTypes.push(courseInstance.hasResultType[i]['_id'])
+    }
+    resultTypes.push(id)
+    console.log(resultTypes)
+    updateCourseInstance({
+      id: courseInstance['_id'],
+      body: {hasResultType: resultTypes}
+    }).unwrap().then(response => {
+        console.log(response)
+        setLoading(false)
+        setModal(false)
     }).catch(e => {
+      setLoading(false)
       setError(
         'Error has occured during saving process. Please, try again.'
       )
-    })
-  }
-
-  const addResultTypeToCourse = (id) => {
-    const resultTypes = []
-    for(let i = 0; i < props.resultTypesList.length; i++) {
-      resultTypes.push(props.resultTypesList[i]['_id'])
-    }
-    resultTypes.push(id)
-    updateCourseInstance({
-      id: courseInstance['_id'],
-      body: {hasResultType: resultTypes}
-    }).unwrap().then(response => {
-      if(response) {
-        getDetail(getShortID(id), 'add')
-        props.updateResultTypes()
-      } else {
-        setLoading(false)
-        setError(
-          'Error has occured during saving process. Please, try again.'
-        )
-      }
-    })
-  }
-
-  const updateResultTypeInCourse = () => {
-    const resultTypes = []
-    for(let i = 0; i < props.resultTypesList.length; i++) {
-      resultTypes.push(props.resultTypesList[i]['_id'])
-    }
-    updateCourseInstance({
-      id: courseInstance['_id'],
-      body: {hasResultType: resultTypes}
-    }).unwrap().then(response => {
-      if(response) {
-        props.updateResultTypes()
-      } else {
-        setLoading(false)
-        setError(
-          'Error has occured during saving process. Please, try again.'
-        )
-      }
-    })
-  }
-
-
-  const deleteResultTypeFromCourse = (id) => {
-    const resultTypes = []
-    for(let i = 0; i < props.resultTypesList.length; i++) {
-      if (props.resultTypesList[i]['_id'] != id){
-        resultTypes.push(props.resultTypesList[i]['_id'])
-      }
-    }
-    updateCourseInstance({
-      id: courseInstance['_id'],
-      body: {hasResultType: resultTypes}
-    }).unwrap().then(response => {
-      if(response) {
-        props.updateResultTypes()
-      } else {
-        setLoading(false)
-        setError(
-          'Error has occured during saving process. Please, try again.'
-        )
-      }
     })
   }
 
@@ -146,16 +72,13 @@ function ResultTypeModal(props) {
         delete form.correctionFor
       }
       newResultType(form).unwrap().then(response => {
-        if(response) {
-          addResultTypeToCourse(response[0]._id)
-          setModal(false)
-        } else {
-          setLoading(false)
-          setError(
-            'Error has occured during saving process. Please, try again.'
-          )
-        }
-      })
+        setLoading(false)
+        addResultTypeToCourse(response[0]._id)
+      }).catch(e => {
+        setLoading(false)
+        setError(
+          'Error has occured during saving process. Please, try again.'
+        )})
     }
   }
 
@@ -167,66 +90,52 @@ function ResultTypeModal(props) {
         body: form
       }).unwrap().then(response => {
         setLoading(false)
-        if(response) {
-          const newResultType = {
-            ...resultType,
-            ...form,
-          }
-          //store.dispatch(updateCourseInstanceResultType(newResultType))
-          setError(null)
-          updateResultTypeInCourse()
-          setModal(false)
-        } else {
-          setError(
+        setError(null)
+        setModal(false)
+      }).catch(e => {
+        setLoading(false)
+        setError(
             'Error has occured during saving process. Please, try again.'
           )
-        }
       })
     }
   }
 
   const submitDelete = () => {
     setLoading(true)
-    deleteResultType(resultType._id).unwrap().then(response => {
+    deleteResultType(resultType['_id']).unwrap().then(response => {
       setLoading(false)
-        if(response){
-          store.dispatch(removeCourseInstanceResultType(resultType))
-          setError(null)
-          setModal(false)
-        } else {
-          setError(
-            'Error has occured during removing process. Please, try again.'
-          )
-        }
+      setError(null)
+      setModal(false)
     })
-    deleteResultTypeFromCourse(resultType._id)
+    .catch((e) => {
+      setError(
+        'Error has occured during removing process. Please, try again.'
+      )
+    })
   }
 
   const options = []
   options.push(
-    <option value={null} key="empty-select">
+    <option value="" key="empty-select">
       Without correction
     </option>
   )
-  if(props.resultTypesList) {
-    for(let i = 0; i < props.resultTypesList.length; i++) {
-      if(
-        !resultType ||
-        (resultType &&
-          resultType['_id'] !== props.resultTypesList[i]['_id'])
-      ) {
+  if (data && resultType) {
+    for(let i = 0; i < data[0].hasResultType.length; i++) {
+      if(resultType['_id'] !== data[0].hasResultType[i]['_id']) {
         options.push(
           <option
-            value={ props.resultTypesList[i]['_id'] }
-            key={ props.resultTypesList[i]['_id'] }
+            value={ data[0].hasResultType[i]['_id'] }
+            key={ data[0].hasResultType[i]['_id'] }
           >
-            { props.resultTypesList[i].name }
+            { data[0].hasResultType[i].name }
           </option>
         )
       }
     }
   }
-
+  
   return (
     <>
       <Button
@@ -265,7 +174,7 @@ function ResultTypeModal(props) {
                 type="textarea"
                 name="description"
                 id="description"
-                value={ form.description }
+                value={ form.description ? form.description : "" }
                 onChange={ e => {
                   setForm({...form, description: e.target.value})
                 } }
@@ -284,12 +193,12 @@ function ResultTypeModal(props) {
               />
             </FormGroup>
             <FormGroup>
-              <Label for="resultType">Result type is correction for</Label>
+              <Label for="correctionFor">Result type is correction for</Label>
               <Input
                 type="select"
                 name="correctionFor"
                 id="correctionFor"
-                value={ form.correctionFor }
+                value={ form.correctionFor ? form.correctionFor : "" }
                 onChange={ e => {
                   setForm({...form, correctionFor: e.target.value})
                 } }
