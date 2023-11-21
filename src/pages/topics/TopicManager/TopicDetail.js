@@ -76,9 +76,8 @@ function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange 
     const [updateTopic, { isError: isUpdateError }] = useUpdateTopicMutation()
     const [topicDelete, { isError: isDeleteError }] = useDeleteTopicMutation()
 
-    const topic = allTopics.filter(t => t._id === topicId)[0] ?? {}
+    const topic = allTopics?.filter(t => t._id === topicId)[0] ?? {}
 
-    // should be replaced by topic.subtopics
     const subtopics = allTopics?.filter(a => a.subtopicOf.map(b => b._id).includes(topic._id)) ?? []
 
     const onAddSubtopicSubmit = async newName => {

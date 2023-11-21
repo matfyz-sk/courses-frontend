@@ -11,7 +11,7 @@ function TopicManager() {
     const [newTopic] = useNewTopicMutation()
     const [selectedTopicId, setSelectedTopicId] = useState(null)
     const [isEdit, setIsEdit] = useState(false)
-    const topLevelTopics = allTopics?.filter(topic => topic.subtopicOf.length === 0)
+    const topLevelTopics = allTopics?.filter(topic => topic.subtopicOf.length === 0) ?? []
 
     const handleIsEditChange = bool => {
         setIsEdit(bool)

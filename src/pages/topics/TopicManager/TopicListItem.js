@@ -9,7 +9,7 @@ function TopicListItem({ topic, selectedTopicId, setSelectedTopicId }) {
     const classes = useTopicStyles()
     const [open, setOpen] = useState(false)
     const { data: allTopics } = useGetTopicsQuery()
-    const subtopics = allTopics?.filter(a => a.subtopicOf.map(b => b._id).includes(topic._id))
+    const subtopics = allTopics?.filter(a => a.subtopicOf.map(b => b._id).includes(topic._id)) ?? []
 
     const selectTopic = _ => {
         setOpen(prev => !prev)
