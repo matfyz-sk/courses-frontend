@@ -22,7 +22,7 @@ import { getEvents, greater, greaterEqual, sortEventsFunction, } from '../Timeli
 import { connect } from 'react-redux'
 import { getFullID, getIRIFromAddResponse } from 'helperFunctions'
 import DocumentReferencer from 'pages/documents/common/DocumentsReferencer'
-import { useLazyGetEventQuery, useNewEventByTypeMutation } from 'services/event'
+import { useLazyGetTimelineEventsQuery, useNewEventByTypeMutation } from 'services/event'
 import { useDeleteEventByTypeMutation, useUpdateEventByTypeMutation } from 'services/event'
 import { useUpdateCourseInstanceMutation } from 'services/course'
 import { useNewCourseInstanceMutation } from 'services/courseTmp'
@@ -41,22 +41,22 @@ function EventForm(props) {
   } = props
   const courseId = params.course_id
   //Event state
-  const [id, setId] = useState('')
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [startDate, setStartDate] = useState(new Date())
-  const [endDate, setEndDate] = useState(new Date())
-  const [place, setPlace] = useState('')
+  const [id, setId] = useState(props.id)
+  const [name, setName] = useState(props.name)
+  const [description, setDescription] = useState(props.description)
+  const [startDate, setStartDate] = useState(props.startDate)
+  const [endDate, setEndDate] = useState(props.endDate)
+  const [place, setPlace] = useState(props.place)
   const [type, setType] = useState(options[0])
-  const [instructors, setInstructors] = useState([])
-  const [uses, setUses] = useState([])
-  const [recommends, setRecommends] = useState([])
-  const [documentReference, setDocumentReference] = useState([])
+  const [instructors, setInstructors] = useState(props.instructors)
+  const [uses, setUses] = useState(props.uses)
+  const [recommends, setRecommends] = useState(props.recommends)
+  const [documentReference, setDocumentReference] = useState(props.documentReference)
 
   const [errors, setErrors] = useState([])
   const [tasks, setTasks] = useState([])
   const [sessions, setSessions] = useState([])
-  const [getEventRequest] = useLazyGetEventQuery()
+  const [getEventRequest] = useLazyGetTimelineEventsQuery()
   const {data: usersData, isSuccess: usersIsSuccess} = useGetUserQuery({})
   const {data: materialsData, isSuccess: materialsIsSuccess} = useGetMaterialsQuery()
   const [newEvent, newEventResult] = useNewEventByTypeMutation()
@@ -95,11 +95,27 @@ function EventForm(props) {
     getSubEvents()
   }, [])
 
+
+  useEffect(() => {
+    setId(props.id)
+    setName(props.name)
+    setDescription(props.description)
+    setStartDate(props.startDate)
+    setEndDate(props.endDate)
+    setPlace(props.place)
+    setType(options[0])
+    setInstructors(props.instructors)
+    setUses(props.uses)
+    setRecommends(props.recommends)
+    setDocumentReference(props.documentReference)
+  }, [props])
+
   const getSubEvents = () => {
     if (courseId !== '') {
       getEventRequest({courseInstanceId: getFullID(courseId, "courseInstance")}).unwrap().then(subEventsData => {
-        if(subEventsData && subEventsData !== []) {
-          const events = getEvents(subEventsData).sort(sortEventsFunction)
+        const dataArray = Object.values(subEventsData)
+        if (dataArray.length > 0) {
+          const events = getEvents(dataArray).sort(sortEventsFunction)
           const newTasks = []
           const newSessions = []
   
@@ -175,8 +191,8 @@ function EventForm(props) {
       data.courseInstance = courseInstanceFullId
       
       newEvent({type, body: data}).unwrap().then(response => {
-        const newEventId = response["_id"]
-        callBack(newEventId)
+        const newEventId = getShortId(response[type][0]["_id"])
+        callBack(type + "-" + newEventId)
       }).catch(error => {
         console.log(error)
         newErrors.push('There was a problem with server while sending your form. Try again later.')
@@ -204,12 +220,12 @@ function EventForm(props) {
       })
     } else {
       updateEventByType({
-        id,
-        type: typeLowerCase,
+        id: getFullID(id, type),
+        type: type,
         body: data
       }).unwrap().then(response => {
         if (typeOfForm === 'Edit') {
-          callBack(id)
+          callBack(type + "-" + id)
         } else {
           const newEventId = response[type]["_id"]
           callBack(newEventId)
@@ -222,9 +238,7 @@ function EventForm(props) {
   }
 
   const deleteEvent = () => {
-    console.log("FAF")
-    const typeLowerCase = lowerFirstLetter(type)
-    deleteEventByType({id: id, type: typeLowerCase}).unwrap().then(response => {
+    deleteEventByType({id: getFullID(id, type), type: type}).unwrap().then(response => {
       callBack(null)
     }).catch(error => {
       const newErrors = []

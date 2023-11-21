@@ -13,6 +13,7 @@ import { NOT_FOUND } from 'constants/routes'
 import DocumentViewer from '../../documents/DocumentViewer'
 import { EventCard } from './EventCard'
 import { useGetEventByTypeQuery } from 'services/event'
+import { useGetCourseInstanceQuery } from 'services/course'
 import { getFullID } from 'helperFunctions'
 
 function Event(props) {
@@ -21,15 +22,17 @@ function Event(props) {
     user,
     courseInstance,
   } = props
+  const isEvent = params.event_id.includes('-')
   const parsedEvent = params.event_id.split("-")
-  const eventType = parsedEvent[0].charAt(0).toLowerCase() + parsedEvent[0].slice(1)
+  const eventType = parsedEvent[0]
   const eventId = parsedEvent[1]
   const [redirectTo, setRedirectTo] = useState(null)
   const [viewingDocument, setViewingDocument] = useState(null)
-  const {data, isSuccess, isLoading} = useGetEventByTypeQuery({id: getFullID(eventId, eventType), type: parsedEvent[0]})
+  const { data, isSuccess, isLoading } = isEvent ? 
+    useGetEventByTypeQuery({id: getFullID(eventId, eventType), type: eventType}) :
+    useGetCourseInstanceQuery({id: getFullID(params.event_id, "courseInstance")})
   const hasAccess = courseInstance && user && getInstructorRights(user, courseInstance)
 
-  console.log(getFullID(eventId, eventType))
   if (redirectTo) {
     return <Redirect to={redirectTo} />
   }
@@ -43,7 +46,6 @@ function Event(props) {
   }
 
   let event = INITIAL_EVENT_STATE
-  console.log(data)
   if(isSuccess && data && data !== []) {
     event = data.map(eventData => {
       return {

@@ -6,7 +6,6 @@ export const graphqlBaseQuery =
   ({ url }) =>
   async ({ document }) => {
     try {
-      console.log(document)
       const result = await request(url, document)
       return { data: result }
     } catch (error) {
