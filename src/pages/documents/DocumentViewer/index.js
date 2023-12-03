@@ -34,7 +34,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
   // event listener doesn't work when I change page with buttons so this is a fix...
   const focusHackRef = useRef()
 
-  const payloadId = getShortID(document.payload[0]['@id'])
+  const payloadId = getShortID(document.payload[0]['_id'])
 
   const [numPages, setNumPages] = useState(null)
   const [pageNumber, setPageNumber] = useState(1)

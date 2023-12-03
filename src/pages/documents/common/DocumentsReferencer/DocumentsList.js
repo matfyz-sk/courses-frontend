@@ -79,7 +79,7 @@ export default function DocumentsList({
             <MdAdd className={classes.listAddButton} />
           </ListItem>
           {documents.map(document => (
-            <ListItem dense button key={document['@id']}>
+            <ListItem dense button key={document['_id']}>
               <ListItemIcon className={classes.listItemIcon}>
                 <FileIcon file={document} />
               </ListItemIcon>

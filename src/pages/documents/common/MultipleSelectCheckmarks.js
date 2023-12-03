@@ -20,7 +20,7 @@ export default function MultipleSelectCheckmarks({
         id={label}
         options={allItems}
         getOptionLabel={item => item.name}
-        getOptionSelected={(option, value) => option['@id'] === value['@id']}
+        getOptionSelected={(option, value) => option['_id'] === value['_id']}
         onChange={handleChange}
         value={items}
         style={{ width: '95%', border: '0', padding: '0', margin: 'auto' }}

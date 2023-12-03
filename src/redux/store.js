@@ -13,6 +13,7 @@ import { assignmentApi } from 'services/assignments'
 import { assignmentGraphApi } from 'services/assignmentsGraph'
 import { teamGraphApi } from 'services/teamGraph'
 import { courseTmpApi } from 'services/courseTmp'
+import { topicApi } from "../services/topic";
 
 const reducers = combineReducers({
   ...allReducers,
@@ -27,6 +28,7 @@ const reducers = combineReducers({
   [assignmentGraphApi.reducerPath]: assignmentGraphApi.reducer,
   [teamGraphApi.reducerPath]: teamGraphApi.reducer,
   [courseTmpApi.reducerPath]: courseTmpApi.reducer,
+  [topicApi.reducerPath]: topicApi.reducer,
 })
 
 const composeEnhancers =
@@ -40,10 +42,10 @@ const composeEnhancers =
 
 const enhancers = composeEnhancers(compose(
   applyMiddleware(
-    ReduxThunk, 
-    userApi.middleware, 
-    courseApi.middleware, 
-    eventApi.middleware, 
+    ReduxThunk,
+    userApi.middleware,
+    courseApi.middleware,
+    eventApi.middleware,
     resultApi.middleware,
     teamApi.middleware,
     documentsApi.middleware,
@@ -52,6 +54,7 @@ const enhancers = composeEnhancers(compose(
     assignmentGraphApi.middleware,
     teamGraphApi.middleware,
     courseTmpApi.middleware,
+    topicApi.middleware,
   )
 ))
 

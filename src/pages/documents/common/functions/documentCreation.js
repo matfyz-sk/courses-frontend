@@ -20,7 +20,7 @@ const canCreatePayload = entityName => {
 const createNewVersionData = async (newDocument, oldDocument, props) => {
   // destructuring previous version
   const {
-    '@id': previousVersionFullId,
+    '_id': previousVersionFullId,
     '@type': type,
     createdAt,
     createdBy,
@@ -50,13 +50,13 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
   let newVersion = {
     ...properties,
     // TODO add material attrs
-    // ...props.materialAttrs.map(attr => ({attr: attr.map(ref => ref['@id'])})),
-    // refersTo: props.materialAttrs.refersTo.map(ref => ref["@id"]),
+    // ...props.materialAttrs.map(attr => ({attr: attr.map(ref => ref['_id'])})),
+    // refersTo: props.materialAttrs.refersTo.map(ref => ref["_id"]),
     _type: entityName, // TODO should be multiple
     name,
     isDeleted,
     restoredFrom,
-    courseInstance: [props.courseInstance['@id']],
+    courseInstance: [props.courseInstance['_id']],
   }
 
   // add additional params
@@ -93,7 +93,7 @@ const createNewVersionData = async (newDocument, oldDocument, props) => {
       previousVersion: previousVersionFullId,
       historicVersion: [
         previousVersionFullId,
-        ...oldDocument.historicVersion.map(doc => doc['@id']),
+        ...oldDocument.historicVersion.map(doc => doc['_id']),
       ],
     }
   }
@@ -122,17 +122,17 @@ const setSuccessorOfOldVersion = async (successorFullId, oldVersionFullId, entit
 }
 
 const updateDocumentReferences = async (newVersionFullId, oldVersionFullId, courseInstance) => {
-  const entitiesUrl = `documentReference?courseInstance=${getShortID(courseInstance["@id"])}`
+  const entitiesUrl = `documentReference?courseInstance=${getShortID(courseInstance["_id"])}`
   const response = await axiosGetEntities(entitiesUrl)
   if (response.failed) {
     console.error(response.error)
     return
   }
   const docRefs = getResponseBody(response).filter(
-    ref => ref.hasDocument[0]['@id'] === oldVersionFullId
+    ref => ref.hasDocument[0]['_id'] === oldVersionFullId
   )
   for (const ref of docRefs) {
-    const entityUrl = `documentReference/${getShortID(ref['@id'])}`
+    const entityUrl = `documentReference/${getShortID(ref['_id'])}`
     const data = {
       hasDocument: newVersionFullId,
     }
@@ -148,13 +148,13 @@ const replaceInParentFolder = async (newVersionFullId, oldVersionFullId, parent)
     content: [
       newVersionFullId,
       ...parent.content
-        .map(fsObj => fsObj['@id'])
+        .map(fsObj => fsObj['_id'])
         .filter(id => id !== oldVersionFullId),
     ],
     lastChanged: new Date(),
   }
 
-  const entityUrl = `folder/${getShortID(parent["@id"])}`
+  const entityUrl = `folder/${getShortID(parent["_id"])}`
 
   const response = await axiosUpdateEntity(parentContent, entityUrl)
   if (response.failed) {
@@ -167,12 +167,12 @@ const replaceInCurrentDocuments = async (newVersionFullId, oldVersionFullId, pro
     hasDocument: [
       newVersionFullId,
       ...props.courseInstance.hasDocument
-        .map(doc => doc['@id'])
+        .map(doc => doc['_id'])
         .filter(id => id !== oldVersionFullId),
     ],
   }
 
-  const entityUrl = `courseInstance/${getShortID(props.courseInstance["@id"])}`
+  const entityUrl = `courseInstance/${getShortID(props.courseInstance["_id"])}`
 
   const response = await axiosUpdateEntity(currentDocuments, entityUrl)
   if (response.failed) {
@@ -181,7 +181,7 @@ const replaceInCurrentDocuments = async (newVersionFullId, oldVersionFullId, pro
   }
   // because if I don't reload page courseInstance is not fetched again, but I need it up to date
   props.setCurrentDocumentsOfCourseInstance(
-    currentDocuments.hasDocument.map(doc => ({ '@id': doc }))
+    currentDocuments.hasDocument.map(doc => ({ '_id': doc }))
   )
 }
 
@@ -200,12 +200,12 @@ const editDocument = async (newDocument, oldDocument, props) => {
   //   createMaterial(newVersionFullId, props.materialAttrs)
   // }
   if (props.isInEditingMode) {
-    setSuccessorOfOldVersion(newVersionFullId, oldDocument['@id'], newDocument.entityName) // no need for await
-    updateDocumentReferences(newVersionFullId, oldDocument['@id'], props.courseInstance) // no need for await
+    setSuccessorOfOldVersion(newVersionFullId, oldDocument['_id'], newDocument.entityName) // no need for await
+    updateDocumentReferences(newVersionFullId, oldDocument['_id'], props.courseInstance) // no need for await
   }
 
-  await replaceInCurrentDocuments(newVersionFullId, oldDocument['@id'], props)
-  await replaceInParentFolder(newVersionFullId, oldDocument['@id'], newDocument.parent)
+  await replaceInCurrentDocuments(newVersionFullId, oldDocument['_id'], props)
+  await replaceInParentFolder(newVersionFullId, oldDocument['_id'], newDocument.parent)
   return getShortID(newVersionFullId)
 }
 

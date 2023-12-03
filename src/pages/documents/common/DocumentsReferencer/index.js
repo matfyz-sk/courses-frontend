@@ -95,26 +95,26 @@ function DocumentReferencer({
   const addToDocuments = async document => {
     const documentRefId = await getReferenceOfDocument(document, courseInstance)
     onDocumentReferencesChange([
-      ...documentReferences.filter(ref => ref['@id'] !== documentRefId),
-      { '@id': documentRefId, hasDocument: document['@id'], courseInstance },
+      ...documentReferences.filter(ref => ref['_id'] !== documentRefId),
+      { '_id': documentRefId, hasDocument: document['_id'], courseInstance },
     ])
     setDocuments([
-      ...documents.filter(doc => doc['@id'] !== document['@id']),
+      ...documents.filter(doc => doc['_id'] !== document['_id']),
       document,
     ])
   }
 
   const removeFromDocuments = document => {
     onDocumentReferencesChange(
-      documentReferences.filter(ref => ref.hasDocument !== document['@id'])
+      documentReferences.filter(ref => ref.hasDocument !== document['_id'])
     )
-    setDocuments(documents.filter(doc => doc['@id'] !== document['@id']))
+    setDocuments(documents.filter(doc => doc['_id'] !== document['_id']))
   }
 
   const onFsObjectRowClick = (_, fsObject) => {
     const fileEntity = getShortType(fsObject['@type'])
     if (DocumentEnums.folder.entityName === fileEntity) {
-      setFolderId(getShortID(fsObject['@id']))
+      setFolderId(getShortID(fsObject['_id']))
       dialogRef.current.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }

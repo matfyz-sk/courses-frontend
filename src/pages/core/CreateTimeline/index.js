@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {
   Button,
   Card,
@@ -40,36 +40,39 @@ function CreateTimeline(props) {
   const [nestedEvents, setNestedEvents] = useState([])
   const [saved, setSaved] = useState(false)
   const [disabled, setDisabled] = useState(false)
-  const [getEventRequest] = useLazyGetTimelineEventsQuery()
+  const [getTimelineEventRequest] = useLazyGetTimelineEventsQuery()
   const [newTimelineBlock, result] = useNewTimelineBlockMutation()
 
-  if(timelineBlocks.length == 0 && nestedEvents.length == 0 && courseId !== '') {
-    console.log("dads")
-    getEventRequest({courseInstanceId: getFullID(courseId, "courseInstance")}).unwrap().then(data => {
-      const dataArray = Object.values(data)
-      if (dataArray.length > 0) {
-        const events = getEvents(dataArray).sort(sortEventsFunction)
-        const timelineBlocks = getTimelineBlocks(events)
-        const nestedEvents = getNestedEvents(events, timelineBlocks)
+  useEffect(() => {
+    getEvents()
+  }, [])
 
-        setTimelineBlocks(timelineBlocks)
-        setNestedEvents(nestedEvents)
-      }
-    })
+  const getEvents = () => {
+    if(timelineBlocks.length == 0 && nestedEvents.length == 0 && courseId !== '') {
+      getTimelineEventRequest({courseInstanceId: getFullID(courseId, "courseInstance")}).unwrap().then(data => {
+        const dataArray = Object.values(data)
+        if (dataArray.length > 0) {
+          const events = getEvents(dataArray).sort(sortEventsFunction)
+          const timelineBlocks = getTimelineBlocks(events)
+          const nestedEvents = getNestedEvents(events, timelineBlocks)
+  
+          setTimelineBlocks(timelineBlocks)
+          setNestedEvents(nestedEvents)
+        }
+      })
+    }
   }
 
   const postWeeklyBlocks = () => {
     setDisabled(true)
     const { course } = props
     const errors = []
-
     if (course) {
       const blocks = generateWeeklyBlocks(course)
 
       for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i]
         block.courseInstance = course['_id']
-        
         newTimelineBlock({...block}).unwrap().catch(error => {
           console.log(error)
           errors.push(`There was a problem with server while posting ${block.name}`)

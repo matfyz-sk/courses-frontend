@@ -13,10 +13,10 @@ const removeDocumentReference = async (documentId, courseId) => {
     return
   }
   const wantedRef = getResponseBody(response).filter(
-    ref => getShortID(ref.hasDocument[0]['@id']) === documentId
+    ref => getShortID(ref.hasDocument[0]['_id']) === documentId
   )
   if (wantedRef.length > 0) {
-    axiosDeleteEntity(`documentReference/${getShortID(wantedRef[0]['@id'])}`)
+    axiosDeleteEntity(`documentReference/${getShortID(wantedRef[0]['_id'])}`)
   }
 }
 

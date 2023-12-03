@@ -33,7 +33,7 @@ async function copyFolder(folderId, parentId, courseInstanceId) {
       if (!fsObject.isDeleted) {
         folderNewContent.push(
           await copyFolder(
-            getShortID(fsObject['@id']),
+            getShortID(fsObject['_id']),
             newFolderId,
             courseInstanceId
           )
@@ -44,7 +44,7 @@ async function copyFolder(folderId, parentId, courseInstanceId) {
     const fsObjectUpdate = {
       courseInstance: [
         ...oldFolder.courseInstance
-          .map(ci => ci['@id'])
+          .map(ci => ci['_id'])
           .filter(ciId => ciId !== courseInstanceId),
         courseInstanceId,
       ],
@@ -52,9 +52,9 @@ async function copyFolder(folderId, parentId, courseInstanceId) {
     const entityName = getShortType(fsObject['@type'])
     axiosUpdateEntity(
       fsObjectUpdate,
-      `${entityName}/${getShortID(fsObject['@id'])}`
+      `${entityName}/${getShortID(fsObject['_id'])}`
     )
-    folderNewContent.push(fsObject['@id'])
+    folderNewContent.push(fsObject['_id'])
   }
   axiosUpdateEntity(
     { content: folderNewContent },
@@ -68,7 +68,7 @@ export default async function copyFileSystem(
   courseInstanceId
 ) {
   const newRootFolderId = await copyFolder(
-    getShortID(fileExplorerRoot['@id']),
+    getShortID(fileExplorerRoot['_id']),
     null,
     courseInstanceId
   )
