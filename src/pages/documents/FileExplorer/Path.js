@@ -2,7 +2,7 @@ import React from 'react'
 import { Breadcrumbs, Typography } from '@material-ui/core'
 import { Link } from 'react-router-dom'
 import { getShortID } from '../../../helperFunctions'
-import { makeStyles } from '@material-ui/styles' 
+import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles({
   root: {
@@ -20,17 +20,17 @@ function Path({ fsPath, onPathFolderClickHandler }) {
         {fsPath.map((folder, i) =>
           i !== fsPath.length - 1 ? (
             <Link
-              key={folder['@id']}
+              key={folder['_id']}
               className={classes.root}
               onClick={() =>
-                onPathFolderClickHandler(getShortID(folder['@id']))
+                onPathFolderClickHandler(getShortID(folder['_id']))
               }
               to={{}}
             >
               {folder.name}
             </Link>
           ) : (
-            <Typography key={folder['@id']} color="textPrimary">
+            <Typography key={folder['_id']} color="textPrimary">
               {folder.name}
             </Typography>
           )

@@ -52,7 +52,7 @@ function RelocateDialog({
 
   useEffect(() => {
     if (courseInstance) {
-      setFolderId(getShortID(courseInstance.fileExplorerRoot[0]['@id']))
+      setFolderId(getShortID(courseInstance.fileExplorerRoot[0]['_id']))
       setFsObjects([])
       setFsPath([])
     }
@@ -84,7 +84,7 @@ function RelocateDialog({
   const onFsObjectRowClick = (_, fsObject) => {
     const fileEntity = getShortType(fsObject['@type'])
     if (DocumentEnums.folder.entityName === fileEntity) {
-      setFolderId(getShortID(fsObject['@id']))
+      setFolderId(getShortID(fsObject['_id']))
       dialogRef.current.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }

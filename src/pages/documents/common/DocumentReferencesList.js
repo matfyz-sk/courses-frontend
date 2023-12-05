@@ -45,7 +45,7 @@ function DocumentReferencesList({ onViewableDocumentClick, documentReference }) 
   }, [documentReference])
 
   const loadFile = doc => {
-    const entityUrl = `payload/${getShortID(doc.payload[0]['@id'])}`
+    const entityUrl = `payload/${getShortID(doc.payload[0]['_id'])}`
     axiosGetEntities(entityUrl)
       .then(response => getResponseBody(response)[0].content)
       .then(base64data =>
@@ -87,7 +87,7 @@ function DocumentReferencesList({ onViewableDocumentClick, documentReference }) 
             break
         }
         return (
-          <div key={doc["@id"]}>
+          <div key={doc["_id"]}>
             <ListItem
               button={true}
               className={classes.listItemRoot}

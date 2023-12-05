@@ -31,14 +31,18 @@ import StudentOverview from '../results/StudentOverview'
 import ResultsTypeDetail from '../results/ResultsTypeDetail'
 import Dashboard from './Dashboard'
 import ResultDetail from '../results/ResultDetail'
+import TopicManager from '../topics/TopicManager'
 
 const CoreRoutes = [
   <RouteWrapper
     key={ROUTES.DASHBOARD}
     path={ROUTES.DASHBOARD}
-    component={LandingPage}
-    layout={CourseLayout}
     auth
+  />,
+  <RouteWrapper
+      key={ROUTES.TOPICS}
+      path={ROUTES.TOPICS}
+      component={TopicManager}
   />,
   <StudentRoute
     key={ROUTES.TIMELINE}

@@ -8,8 +8,8 @@ import {
 
 async function createReferenceOfDocument(document, courseInstance) {
   const referenceData = {
-    hasDocument: document['@id'],
-    courseInstance: courseInstance['@id'],
+    hasDocument: document['_id'],
+    courseInstance: courseInstance['_id'],
   }
   const response = await axiosAddEntity(referenceData, 'documentReference')
   if (response.failed) {
@@ -20,7 +20,7 @@ async function createReferenceOfDocument(document, courseInstance) {
 }
 
 export default async function getReferenceOfDocument(document, courseInstance) {
-  const courseId = getShortID(courseInstance['@id'])
+  const courseId = getShortID(courseInstance['_id'])
   const referenceUrl = `documentReference?courseInstance=${courseId}`
   const response = await axiosGetEntities(referenceUrl)
   if (response.failed) {
@@ -28,10 +28,10 @@ export default async function getReferenceOfDocument(document, courseInstance) {
     return
   }
   const wantedRef = getResponseBody(response).filter(
-    ref => ref.hasDocument[0]['@id'] === document['@id']
+    ref => ref.hasDocument[0]['_id'] === document['_id']
   )
   if (wantedRef.length > 0) {
-    return wantedRef[0]['@id']
+    return wantedRef[0]['_id']
   }
   return await createReferenceOfDocument(document, courseInstance)
 }

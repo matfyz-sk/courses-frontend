@@ -113,7 +113,7 @@ function DocumentForm({
       setName(responseDocument.name)
       setIsDeleted(responseDocument.isDeleted)
       setIsReadOnly(responseDocument.isDeleted)
-      if (getShortID(folder["@id"]) !== location.state.parentFolderId)
+      if (getShortID(folder["_id"]) !== location.state.parentFolderId)
         fetchFolder(location.state.parentFolderId)
       switch (responseDocument['@type']) {
         case DocumentEnums.internalDocument.id:
@@ -216,7 +216,7 @@ function DocumentForm({
     history.push(
       redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
         { key: 'course_id', value: courseId },
-        { key: 'folder_id', value: getShortID(folder["@id"]) },
+        { key: 'folder_id', value: getShortID(folder["_id"]) },
       ])
     )
   }
@@ -309,7 +309,7 @@ function DocumentForm({
                       },
                     ]),
                     {
-                      documentId: getShortID(document['@id']),
+                      documentId: getShortID(document['_id']),
                       parentFolderId,
                     }
                   )

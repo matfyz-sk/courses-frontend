@@ -20,6 +20,7 @@ export const QUIZ = coursePrefix('/quiz')
 export const INFO_PAGE = '/info/:course_id'
 export const ACCESS_DENIED = '/accessdenied'
 export const NOT_FOUND = '/notfound'
+export const TOPICS = '/topics'
 
 export const DOCUMENTS = coursePrefix('/documents')
 export const DOCUMENTS_IN_FOLDER = coursePrefix('/documents/folder/:folder_id')
