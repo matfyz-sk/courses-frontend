@@ -77,7 +77,6 @@ function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange 
     const [topicDelete, { isError: isDeleteError }] = useDeleteTopicMutation()
 
     const topic = allTopics?.filter(t => t._id === topicId)[0] ?? {}
-
     const subtopics = allTopics?.filter(a => a.subtopicOf.map(b => b._id).includes(topic._id)) ?? []
 
     const onAddSubtopicSubmit = async newName => {
@@ -119,7 +118,7 @@ function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange 
         }
     }
 
-    // Todo handleIsEditChange code smell ?
+    // Todo handleIsEditChange code smell ? and general cleanup needed here
     return (
         <div>
             <div>
@@ -155,7 +154,7 @@ function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange 
                 handleNewItemSubmit={onAddSubtopicSubmit}
             />
             <ExpandingListWithSimpleCreate
-                items={topic.topicPrerequisite}
+                items={topic.topicPrerequisite ?? []}
                 title="Prerequisites"
                 isEdit={isEdit}
                 handleNewItemSubmit={onAddPrerequisiteSubmit}
