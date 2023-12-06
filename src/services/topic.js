@@ -27,10 +27,6 @@ export const topicApi = createApi({
                             _id
                             courses_name
                         }
-                        courses_subtopics {
-                            _id
-                            courses_name
-                        }
                     }
                 }
               `,
@@ -55,10 +51,6 @@ export const topicApi = createApi({
                                 _id
                                 courses_name
                             }
-                            courses_subtopics {
-                                _id
-                                courses_name
-                            }
                         }
                     }
                 `,
@@ -74,7 +66,6 @@ export const topicApi = createApi({
                     courses_name: "${body.name}"
                     ${body.description ? `courses_description: "${body.description}"` : ""}
                     ${body.subtopicOf ? `courses_subtopicOf: ${getArrayFormat(body.subtopicOf)}` : ""}
-                    ${body.subtopics ? `courses_subtopics: ${getArrayFormat(body.subtopics)}` : ""}
                     ${
                         body.topicPrerequisite
                             ? `courses_topicPrerequisite: ${getArrayFormat(body.topicPrerequisite)}`
@@ -98,7 +89,6 @@ export const topicApi = createApi({
                         courses_name: "${body.name}",
                         ${body.description ? `courses_description: "${body.description}"` : ""}
                         ${body.subtopicOf ? `courses_subtopicOf: ${getArrayFormat(body.subtopicOf)}` : ""}
-                        ${body.subtopics ? `courses_subtopics: ${getArrayFormat(body.subtopics)}` : ""}
                         ${
                             body.topicPrerequisite
                                 ? `courses_topicPrerequisite: ${getArrayFormat(body.topicPrerequisite)}`
