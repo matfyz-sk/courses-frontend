@@ -8,7 +8,7 @@ import {RESULT_DETAIL, RESULT_TYPE} from '../../../constants/routes';
 import { formatDate } from '../../../functions/global'
 import { showUserName } from '../../../components/Auth/userFunction'
 import { getUser } from '../../../components/Auth'
-import { getShortID } from '../../../helperFunctions'
+import { getShortID, getFullID } from '../../../helperFunctions'
 import { useGetResultQuery, useUpdateResultMutation, useNewResultMutation } from 'services/result'
 import { useGetUserQuery } from 'services/user'
 
@@ -24,7 +24,7 @@ function ResultsTypeDetail(props) {
   const {
     data: usersData, 
     isSuccess: usersIsSuccess
-  } = useGetUserQuery({studentOfId: course_id})
+  } = useGetUserQuery({studentOfId: getFullID(course_id, "courseInstance")})
   const {
     data: resultData, 
     isSuccess: resultIsSuccess
@@ -129,10 +129,10 @@ function ResultsTypeDetail(props) {
 
   useEffect(() => {
     getUsers()
-  }, [])
+  }, [usersIsSuccess])
 
   let correctionHref = ''
-  if (resultType.correctionFor.length > 0) {
+  if (resultType.correctionFor) {
     correctionHref = (
       <>
         Correction for
@@ -145,11 +145,11 @@ function ResultsTypeDetail(props) {
             },
             {
               key: 'result_type_id',
-              value: getShortID(resultType.correctionFor[0]['_id']),
+              value: getShortID(resultType.correctionFor['_id']),
             },
           ])}
         >
-          {resultType.correctionFor[0].name}
+          {resultType.correctionFor.name}
         </Link>
       </>
     )
@@ -254,16 +254,22 @@ function ResultsTypeDetail(props) {
     }
   }
 
+  /*{`
+        This type of result has been created by instructor ${resultType.createdBy.firstName} ${resultType.createdBy.lastName}
+        on ${formatDate(resultType.createdAt)}.
+        ${resultType.minPoints > 0 ? ` You need to earn at least ${resultType.minPoints} points to pass.` : ''}
+        `}
+  */
+
   return (
     <Container>
       <h1 className="mb-2">{resultType.name}</h1>
       <h3 className="text-muted mb-4">{correctionHref}</h3>
       {resultType.description ? <p>{resultType.description}</p> : ''}
       <Alert color="info" className="mt-3 mb-0">
+        {/**/}
         {`
-        This type of result has been created by instructor ${resultType.createdBy.firstName} ${resultType.createdBy.lastName}
-        on ${formatDate(resultType.createdAt)}.
-        ${resultType.minPoints > 0 ? ` You need earn at least ${resultType.minPoints} points to pass.` : ''}
+        ${resultType.minPoints > 0 ? ` You need to earn at least ${resultType.minPoints} points to pass.` : ''}
         `}
       </Alert>
       {msg ? <Alert color="success" className="mt-3">{msg}</Alert> : null}

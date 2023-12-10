@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Col, Container, Row } from 'reactstrap'
 // eslint-disable-next-line import/no-cycle
 import StudentsPreview from '../InstructorBlocks/StudentsPreview'
@@ -7,11 +7,13 @@ import ResultTypes from '../InstructorBlocks/ResultTypes'
 import CourseGrading from '../InstructorBlocks/CourseGrading'
 import { connect } from 'react-redux'
 import instructorOnly from '../instructorOnly'
+import DetailedStudentList from '../InstructorBlocks/DetailedStudentList'
 
 const ResultsInstructor = props => {
-  return (
-    <Container>
-      <h1 className="mb-5">Course results</h1>
+  const [ viewDetails, setViewDetails ] = useState(false)
+  const toggle = () => {setViewDetails(!viewDetails)}
+  const preview = (
+  <>
       <Row>
         <Col
           lg={7}
@@ -26,6 +28,14 @@ const ResultsInstructor = props => {
           <CourseGrading />
         </Col>
       </Row>
+  </>)
+
+
+  return (
+    <Container>
+      <h1 className="mb-5">Course results</h1>
+      <button onClick={toggle}>{viewDetails? "View preview" : "View details"}</button>
+      {viewDetails? <DetailedStudentList/> : preview}
     </Container>
   )
 }

@@ -2,63 +2,115 @@ import React, { useState, useEffect } from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Col, Container, Row, Table, Alert } from 'reactstrap'
-import { getShortID } from '../../../helperFunctions'
+import { getShortID, getFullID } from '../../../helperFunctions'
 import { formatDate } from '../../../functions/global'
 import { redirect } from '../../../constants/redirect'
 import { RESULT_DETAIL, RESULT_TYPE } from '../../../constants/routes'
 import { getUserID } from '../../../components/Auth'
 import { showUserName } from '../../../components/Auth/userFunction'
+import ResultModal from '../ResultModal'
+import StudentViewResultDetail from '../StudentViewResultDetail'
 import { useGetUserQuery } from 'services/user'
-import { useGetResultQuery, useGetResultTypeQuery } from 'services/result'
+import { useGetResultQuery,useGetAllResultTypesQuery  } from 'services/result'
+import DetailedStudentList from '../InstructorBlocks/DetailedStudentList'
 
 function StudentOverview(props) {
-  const { courseInstance, privileges, match } = props
-  const { course_id, user_id } = match.params
-  const userId = user_id ? user_id : getUserID()
-  const [user, setUser] = useState(null)
-  const [results, setResults] = useState(null)
-  const { 
-    data: userInCourseData, 
-    isSuccess: userInCourseIsSuccess 
-  } = useGetUserQuery({id: userId, studentOfId: course_id})
-  const { 
-    data: allUserResultsData, 
-    isSuccess: allUserResultsIsSuccess 
-  } = useGetResultQuery({userId: userId})
+  const {courseInstance, privileges, match } = props
+  const courseInstanceId = !(courseInstance && courseInstance._id)? "" : courseInstance._id
+  const userId = match.params && match.params.user_id ? getFullID(match.params.user_id, "user") : getUserID()
+  const [ updateFromModal, setUpdateFromModal ] = useState(false)
+  const [ showAllStudents, setShowAllStudents ] = useState(false)
 
-  if (userInCourseIsSuccess && userInCourseData && userInCourseData.length > 0) {
-    setUser(userInCourseData[0])
-    if (allUserResultsIsSuccess && allUserResultsData) {
-      const resultArr = allUserResultsData
-      for (let i = 0; i < resultArr.length; i++) {
-        if (resultArr[i].correctionFor) {
-          const { data, isSuccess } = useGetResultTypeQuery(resultArr.correctionFor)
-          if (isSuccess && data && data.length > 0) {
-            resultArr[i] = {
-              ...resultArr[i],
-              correction: data[0],
-            }
-          } else {
-            resultArr[i] = { ...resultArr[i], correction: null }
-          }
-        } else {
-          resultArr[i] = { ...resultArr[i], correction: null }
-        }
-      }
-      setResults(resultArr)
-    }
+
+  const { 
+    data: resultTypeData, 
+    isSuccess: isResultTypeSuccess, 
+    error: resultTypeError} = useGetAllResultTypesQuery(courseInstanceId,{skip: !courseInstance})
+
+  const { 
+    data: resultData, 
+    isSuccess: isResultSuccess, 
+    error: resultError} = useGetResultQuery({
+    courseInstanceId: courseInstanceId,
+    userId: userId,
+  },{skip: !courseInstance})
+
+  const {
+    data: userData,
+    isSuccess: isUserSuccess,
+    error: userError
+  } = useGetUserQuery({
+    id: userId
+  },{skip: !userId})
+
+
+
+  const toggleTable = () => {
+    setShowAllStudents(!showAllStudents)
   }
+
+  
+  
+
+if (!(isResultSuccess && isResultTypeSuccess && isUserSuccess)){
+  return <p>Loading...</p>
+}
+
+const resultTypes = resultTypeData
+const results = resultData
+const user = userData[0]
+
+
 
   let grading = null
   let pointsUpper = null
   let isBottom = false
   const renderResult = []
   let total_result = null
-  if (results) {
+  let resultsWaitingForCorrection = []
+  let type = null
+
+  if (results && resultTypes.length>0){
+    resultsWaitingForCorrection = []
+
+    for (let result=0; result<results.length; result++){
+      resultsWaitingForCorrection.push([results[result].type.name, results[result].points])
+    }
+
+
+    for (let type=0; type<resultTypes[0].hasResultType.length; type++){
+
+      if (resultTypes[0].hasResultType[type].correctionFor != null){
+        let correctedResults = []
+
+        for (let toCorrect=0; toCorrect<resultsWaitingForCorrection.length; toCorrect++){
+          let shouldReplace = false
+          for (let s=0; s<resultsWaitingForCorrection.length; s++){
+              if (resultsWaitingForCorrection[s][0] == resultTypes[0].hasResultType[type].name){
+                shouldReplace = true
+              }
+          }
+          if ((resultsWaitingForCorrection[toCorrect][0] != resultTypes[0].hasResultType[type].correctionFor.name) || !shouldReplace){
+            correctedResults.push(resultsWaitingForCorrection[toCorrect])
+          }
+        }
+        resultsWaitingForCorrection = correctedResults
+      }
+    }
+
+    
+  }
+
+  if (results && resultTypes.length > 0) {
     total_result = 0
     for (let i = 0; i < results.length; i++) {
       const result = results[i]
-      total_result += result.points
+      for (let t=0; t<resultTypes[0].hasResultType.length; t++){
+        if (result.type && resultTypes[0].hasResultType[t].name == result.type.name){
+          type = resultTypes[0].hasResultType[t]
+        }
+      }
+    
       renderResult.push(
         <tr
           key={result['_id']}
@@ -71,7 +123,7 @@ function StudentOverview(props) {
           }
         >
           <td>
-            {result.type && result.type.length > 0 ? (
+            {result.type && result.type.name ? (
               <Link
                 to={redirect(RESULT_TYPE, [
                   {
@@ -80,18 +132,18 @@ function StudentOverview(props) {
                   },
                   {
                     key: 'result_type_id',
-                    value: getShortID(result.type[0]['_id']),
+                    value: getShortID(result.type['_id']),
                   },
                 ])}
               >
-                {result.type[0].name}
+                {result.type.name}
               </Link>
             ) : (
               '-'
             )}
           </td>
           <td>
-            {result.correction ? (
+            {type && type.correctionFor ? (
               <Link
                 to={redirect(RESULT_TYPE, [
                   {
@@ -100,11 +152,11 @@ function StudentOverview(props) {
                   },
                   {
                     key: 'result_type_id',
-                    value: getShortID(result.correction['_id']),
+                    value: getShortID(type.correctionFor['name']),
                   },
                 ])}
               >
-                {result.correction.name}
+                {type.correctionFor.name}
               </Link>
             ) : (
               '-'
@@ -112,10 +164,10 @@ function StudentOverview(props) {
           </td>
           <td>
             {result.awardedBy
-              ? `${result.awardedBy[0].lastName}`
+              ? result.awardedBy.lastName
               : '-'}
           </td>
-          <td>{result.description ? 'Yes' : 'No'}</td>
+          <td>{result.description ? result.description: '-'}</td>
           <td>
             {result.reference ? (
               'Yes'
@@ -135,23 +187,15 @@ function StudentOverview(props) {
           </th>
           <td>{formatDate(result.createdAt)}</td>
           <td className="text-right">
-            <Link
-              to={redirect(RESULT_DETAIL, [
-                {
-                  key: 'course_id',
-                  value: course_id,
-                },
-                {
-                  key: 'result_id',
-                  value: getShortID(result['_id']),
-                },
-              ])}
-            >
-              Detail
-            </Link>
-          </td>
+              {privileges.inCourseInstance == 'visitor'? <StudentViewResultDetail result={result} />
+                :<ResultModal result={result}/>}
+            </td>
         </tr>
       )
+    }
+
+    for (let res=0; res<resultsWaitingForCorrection.length; res++){
+      total_result = total_result + resultsWaitingForCorrection[res][1]
     }
     renderResult.push(
       <tr key="total-results" style={{ fontSize: '1.2rem' }} className="text-right">
@@ -161,13 +205,19 @@ function StudentOverview(props) {
     )
 
     if (courseInstance && courseInstance.hasGrading.length > 0) {
-      const sortedGrading = courseInstance.hasGrading.sort(function(a, b) {
+
+      let newHasGradingArray = []
+      for (let i=0; i<courseInstance.hasGrading.length; i++){
+        newHasGradingArray.push(courseInstance.hasGrading[i])
+      }
+
+      const sortedGrading = newHasGradingArray.sort(function(a, b) {
         return a.minPoints - b.minPoints
       })
       for (let g = 0; g < sortedGrading.length; g++) {
         if (sortedGrading[g].minPoints <= total_result) {
           grading = sortedGrading[g].grade
-          isBottom = g === 0
+          isBottom = g == 0
           if (g + 1 < sortedGrading.length && (sortedGrading[g + 1].minPoints - total_result) >= 0) {
             pointsUpper = `${
               sortedGrading[g + 1].minPoints - total_result
@@ -182,7 +232,13 @@ function StudentOverview(props) {
 
   const renderGradings = []
   if (courseInstance && courseInstance.hasGrading.length > 0) {
-    const sortedGrading = courseInstance.hasGrading.sort(function(a, b) {
+    let newHasGradingArray = []
+    
+    for (let i=0; i<courseInstance.hasGrading.length; i++){
+      newHasGradingArray.push(courseInstance.hasGrading[i])
+    }
+
+    const sortedGrading = newHasGradingArray.sort(function(a, b) {
       return b.minPoints - a.minPoints
     })
     for (let i = 0; i < sortedGrading.length; i++) {
@@ -214,14 +270,20 @@ function StudentOverview(props) {
     }
   }
 
-  return (
-    <Container>
+
+
+  return (<>
+  <Container>
+    <button onClick={toggleTable}>{showAllStudents? "Show detail" : "Show all students"}</button>
+    {showAllStudents? (<DetailedStudentList/>) : 
+      (
+        <>
       {user ? (
         <h1 className="mb-5">{getUserID() === userId ? 'My results' : `Results of ${showUserName(user, privileges, courseInstance)}`}</h1>
       ) : null}
       <Row>
         <Col lg={9} md={8} sm={12} className="order-md-1 order-sm-2  mt-md-0 mt-4">
-          <h2 className="mb-4">Points preview</h2>
+          <h2 className="mb-4 mt-4">Points preview</h2>
           <Table hover size="sm" responsive>
             <thead>
               <tr>
@@ -267,7 +329,12 @@ function StudentOverview(props) {
           </Table>
         </Col>
       </Row>
-    </Container>
+    </>
+      )
+    }
+  </Container>
+  </>
+    
   )
 }
 

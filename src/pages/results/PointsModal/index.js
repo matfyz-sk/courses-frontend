@@ -15,9 +15,8 @@ import {
   InputGroupAddon,
   InputGroupText,
 } from 'reactstrap'
-import { getShortID } from '../../../helperFunctions'
 import { getUser } from '../../../components/Auth'
-import { useGetResultQuery, useUpdateResultMutation, useNewResultMutation } from 'services/result'
+import { useGetResultQuery, useUpdateResultMutation, useNewResultMutation} from 'services/result'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 function PointsModal(props) {
@@ -25,6 +24,7 @@ function PointsModal(props) {
   const [modal, setModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
+    id: '',
     type: '',
     points: 0,
     description: '',
@@ -33,12 +33,14 @@ function PointsModal(props) {
     before: 0,
   })
   const [typeId, setTypeId] = useState(skipToken)
-  const {data, isSuccess} = useGetResultQuery({
-    userId: user['_id'],
-    typeId: typeId
-  })
+  const {data, isSuccess, err} = useGetResultQuery({
+    userId: user._id,
+    courseInstanceId: courseInstance._id,
+  },{skip: !courseInstance})
+
   const [updateResult, updateResultResult] = useUpdateResultMutation()
   const [newUserResult, newUserResultResult] = useNewResultMutation()
+
 
   if (isSuccess && typeId !== skipToken) {
     if (data && data.length > 0) {
@@ -48,24 +50,40 @@ function PointsModal(props) {
         points: data[0].points,
         description: data[0].description,
         reference: data[0].reference,
-        update: data[0],
+        update: null,
         before: data[0].points,
       })
+
     } else {
       setForm({ ...form, type: typeId, update: null, before: 0 })
     }
     setLoading(false)
   }
 
-  const changeType = (e) => {
-    const typeID = e.target.value !== '' ? e.target.value : null
+
+  const changeType = (value) => {
+    const typeID = value !== '' ? value : null
     if (typeID && typeID !== '') {
       setLoading(true)
-      setTypeId(typeId)
+      //setTypeId(typeID)
+      let oldResultWasFound = false
+      for (let i=0; i<data.length; i++){
+          const result = data[i]
+          if (typeID == result.type._id){
+            oldResultWasFound = true
+            setForm({ ...form, type: value, update: null, before: result.points, id: result._id })
+          }
+      }
+      if (!oldResultWasFound){
+        setForm({ ...form, type: value, update: null, before: 0 })
+      }
     } else {
-      setForm({ ...form, type: e.target.value, update: null, before: 0 })
+      setForm({ ...form, type: value, update: null, before: 0 })
     }
+    setLoading(false)
   }
+
+
 
   const toggle = () => setModal(!modal)
 
@@ -77,24 +95,19 @@ function PointsModal(props) {
 
   const saveChanges = () => {
     if (form.update) {
-      const body = {
-        points: form.points,
-        description: form.description,
-        reference: form.reference,
-      }
-      updateResult({
-        id: getShortID(form.update['_id']),
-        body
-      }).unwrap().then(response => {
-        setLoading(false)
-        modifyResultsIfNecessary()
-        toggle()
-      })
+      updateStudentPoints()
+      toggle()
     } else {
-      setLoading(true)
+      addStudentPoints()
+      toggle()
+    }
+  }
+
+  const addStudentPoints = () => {
+    setLoading(true)
       const post = {
-        courseInstance: courseInstance['_id'],
-        hasUser: user['_id'],
+        courseInstance: courseInstance._id,
+        hasUser: user._id,
         awardedBy: getUser().fullURI,
         type: form.type === '' ? null : form.type,
         points: form.points,
@@ -103,10 +116,26 @@ function PointsModal(props) {
       }
       newUserResult(post).unwrap().then(response => {
         setLoading(false)
-        modifyResultsIfNecessary()
+        //modifyResultsIfNecessary()
         toggle()
       })
+  }
+
+  const updateStudentPoints = () => {
+    const body = {
+      points: form.points,
+      description: form.description,
+      reference: form.reference,
     }
+    updateResult({
+      id: form.id,
+      body
+    }).unwrap().then(response => {
+      setLoading(false)
+      //modifyResultsIfNecessary()
+      toggle()
+    })
+
   }
 
   const options = []
@@ -115,14 +144,17 @@ function PointsModal(props) {
       Without result type
     </option>
   )
-  if (courseInstance) {
-    for (let i = 0; i < courseInstance.hasResultType.length; i++) {
+
+  if (props.resultTypes && props.resultTypes[0]!=undefined) {
+
+    for (let i = 0; i < props.resultTypes[0].hasResultType.length; i++) {
+
       options.push(
         <option
-          value={courseInstance.hasResultType[i]['_id']}
-          key={courseInstance.hasResultType[i]['_id']}
+          value={props.resultTypes[0].hasResultType[i]._id}
+          key={props.resultTypes[0].hasResultType[i]._id}
         >
-          {courseInstance.hasResultType[i].name}
+          {props.resultTypes[0].hasResultType[i].name}
         </option>
       )
     }
@@ -147,7 +179,10 @@ function PointsModal(props) {
                 id="resultType"
                 value={form.type}
                 disabled={loading}
-                onChange={changeType}
+                onChange={e => {
+                  const value = e.target.value
+                  changeType(value)
+                }}
               >
                 {options}
               </Input>

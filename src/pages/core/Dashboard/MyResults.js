@@ -15,22 +15,27 @@ const MyResults = props => {
     return null
   }
   
-  const orderedData = data.sort(function(a, b) {
+  let tempData = []
+  for (let i=0; i<data.length; i++ ){
+    tempData.push(data[i])
+  }
+  const orderedData = tempData.sort(function(a, b) {
     return new Date(b.createdAt) - new Date(a.createdAt)
   })
 
   const renderList = []
   orderedData.forEach(item => {
+    console.log("ITEM: " + JSON.stringify(item))
     const course_link = (
       <Link
         to={ redirect(TIMELINE, [
           {
             key: 'course_id',
-            value: getShortID(item.courseInstance[0]['_id']),
+            value: getShortID(item.courseInstance._id),
           },
         ]) }
       >
-        { item.courseInstance[0].name }
+        { item.courseInstance.name}
       </Link>
     )
 
@@ -43,11 +48,11 @@ const MyResults = props => {
         to={ redirect(RESULT_DETAIL, [
           {
             key: 'course_id',
-            value: getShortID(item.courseInstance[0]['_id']),
+            value: getShortID(item.courseInstance._id),
           },
           {
             key: 'result_id',
-            value: getShortID(item['_id']),
+            value: getShortID(item._id),
           },
         ]) }
         className="btn btn-sm btn-link float-right text-primary"

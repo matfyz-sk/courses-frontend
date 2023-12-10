@@ -6,41 +6,66 @@ import PointsModal from '../PointsModal'
 import { redirect } from '../../../constants/redirect'
 import { RESULT_USER } from '../../../constants/routes'
 // eslint-disable-next-line import/no-cycle
-import { getShortID } from '../../../helperFunctions'
+import { getShortID, getFullID } from '../../../helperFunctions'
 import { showUserName } from '../../../components/Auth/userFunction'
-import { useGetUserQuery } from 'services/user'
-import { useGetResultQuery } from 'services/result'
+import { 
+  useGetUserQuery
+ } from 'services/user'
+import {
+  useGetCourseHasGradingQuery,
+  useGetResultQuery,
+  useGetAllResultTypesQuery
+} from 'services/result'
 
 const StudentsPreview = props => {
   const { match, courseInstanceReducer, privilegesReducer } = props
   const { courseInstance } = courseInstanceReducer
-  const privileges = privilegesReducer
   const { course_id } = match.params
-  const [users, setUsers] = useState([])
-  const { data, isSuccess } = useGetUserQuery({studentOfId: getShortID(course_id)})
+  const privileges = privilegesReducer
+  const courseInstanceId = !courseInstance ? "" : courseInstance._id
 
-  const getUsers = () => {
-    if (isSuccess && data) {
-      const { data: resultsData, isSuccess: resultsIsSuccess } = useGetResultQuery({courseInstanceId: course_id}) // why not getShortID(course_id)
-      if (resultsIsSuccess && resultsData) {
-        const userList = []
-        for (let i = 0; i < data.length; i++) {
-          const user = {
-            user: data[i],
-            result: 0,
-          }
-          for (let r = 0; r < resultsData.length; r++) {
-            if (user.user['_id'] === resultsData[r].hasUser[0]['_id']) {
-              user.result = user.result + resultsData[r].points
-            }
-          }
-          userList.push(user)
-        }
-        setUsers(userList)
-      }
-    }
+  const { 
+    data: userData, 
+    isSuccess: isUserSuccess, 
+    error: userError} = useGetUserQuery({
+    studentOfId: courseInstanceId,
+  },{skip: !courseInstance})
+
+  const { 
+    data: resultData, 
+    isSuccess: isResultSuccess, 
+    error: resultError} = useGetResultQuery({
+    courseInstanceId: courseInstanceId,
+  },{skip: !courseInstance})
+
+  const { 
+    data: gradingData, 
+    isSuccess: isGradingSuccess, 
+    error: gradingError} = useGetCourseHasGradingQuery(courseInstanceId,{skip: !courseInstance})
+
+  const { 
+    data: resultTypeData, 
+    isSuccess: isResultTypeSuccess, 
+    error: resultTypeError} = useGetAllResultTypesQuery(courseInstanceId,{skip: !courseInstance})
+
+  const gradingList = []
+  const renderUsers = []
+
+  if (!(isUserSuccess && isResultSuccess && isGradingSuccess && isResultTypeSuccess)){
+    return (
+      <>
+        <p>Loading...</p>
+      </>
+    )
   }
 
+  const users = userData
+  const resultTypes = resultTypeData
+  const gradings = gradingData
+  const results = resultData
+  
+
+  
   const resultModifier = (user_index, oldVal, newVal) => {
     const newUser = [...users]
     newUser[user_index].result =
@@ -48,56 +73,110 @@ const StudentsPreview = props => {
     setUsers(newUser)
   }
 
-  useEffect(() => {
-    getUsers()
-  }, [])
 
-  const renderUsers = []
-  for (let i = 0; i < users.length; i++) {
-    let grading = ''
-    if (courseInstance && courseInstance.hasGrading.length > 0) {
-      const sortedGrading = courseInstance.hasGrading.sort(function(a, b) {
-        return a.minPoints - b.minPoints
-      })
+  
+  if (gradings.length > 0){
+    for (let i=0; i<gradings[0].hasGrading.length; i++){
+      gradingList.push(gradings[0].hasGrading[i])
+    }
+  }
+
+  const sortedGrading = gradingList.sort(function(a, b) {
+    return a.minPoints - b.minPoints
+  })
+
+
+  if (users && users.length > 0){
+
+    for (let i=0; i<users.length; i++){
+      const user = {
+        user: users[i],
+        result: 0,
+      }
+
+      let resultsWaitingForCorrection = []
+
+      if (results){
+        for (let r=0; r<results.length; r++){
+          
+          if (results[r].hasUser._id == user.user._id){
+            for (let type=0; type<resultTypes[0].hasResultType.length; type++){
+              if (resultTypes[0].hasResultType[type]._id == results[r].type._id){
+                resultsWaitingForCorrection.push([resultTypes[0].hasResultType[type].name, results[r].points])
+              }
+            }
+          }
+        }
+      }
+
+      for (let type=0; type<resultTypes[0].hasResultType.length; type++){
+
+        if (resultTypes[0].hasResultType[type].correctionFor != null){
+          let correctedResults = []
+
+          for (let toCorrect=0; toCorrect<resultsWaitingForCorrection.length; toCorrect++){
+            let shouldReplace = false
+            for (let s=0; s<resultsWaitingForCorrection.length; s++){
+                if (resultsWaitingForCorrection[s][0] == resultTypes[0].hasResultType[type].name){
+                  shouldReplace = true
+                }
+            }
+            if ((resultsWaitingForCorrection[toCorrect][0] != resultTypes[0].hasResultType[type].correctionFor.name) || !shouldReplace){
+              correctedResults.push(resultsWaitingForCorrection[toCorrect])
+            }
+          }
+          resultsWaitingForCorrection = correctedResults
+        }
+      }
+
+      for (let res=0; res<resultsWaitingForCorrection.length; res++){
+        user.result = user.result + resultsWaitingForCorrection[res][1]
+      }
+      
+
+      let grading = ''
       for (let g = 0; g < sortedGrading.length; g++) {
-        if (sortedGrading[g].minPoints <= users[i].result) {
+        if (sortedGrading[g].minPoints <= user.result) {
           grading = sortedGrading[g].grade
-        } else {
+        }else{
           break
         }
       }
+      
+
+      renderUsers.push(
+        <tr key={`user-list-${i}`}>
+          <td>{showUserName(users[i], privileges, courseInstance)} </td>
+          <td>{user.result}</td>
+          <td>{grading!='' ? grading : 'Fx'}</td>
+          <td className="text-right">
+            <PointsModal
+              user={users[i]}
+              userIndex={i}
+              resultModifier={resultModifier}
+              resultTypes={resultTypes}
+            />
+            <Link
+              to={redirect(RESULT_USER, [
+                {
+                  key: 'course_id',
+                  value: course_id,
+                },
+                { key: 'user_id', value: getShortID(users[i]['_id']) },
+              ])}
+              className="btn btn-sm btn-link ml-2"
+            >
+              Profile
+            </Link>
+          </td>
+        </tr>
+      )
     }
-    renderUsers.push(
-      <tr key={`user-list-${i}`}>
-        <td>{showUserName(users[i].user, privileges, courseInstance)} </td>
-        <td>{users[i].result}</td>
-        <td>{grading}</td>
-        <td className="text-right">
-          <PointsModal
-            user={users[i].user}
-            userIndex={i}
-            resultModifier={resultModifier}
-          />
-          <Link
-            to={redirect(RESULT_USER, [
-              {
-                key: 'course_id',
-                value: course_id,
-              },
-              { key: 'user_id', value: getShortID(users[i].user['_id']) },
-            ])}
-            className="btn btn-sm btn-link ml-2"
-          >
-            Profile
-          </Link>
-        </td>
-      </tr>
-    )
   }
 
   return (
     <>
-      <h2 className="mb-4">Students preview</h2>
+      <h2 className="mb-4 mt-4">Students preview</h2>
       <Table hover size="sm" responsive>
         <thead>
           <tr>
