@@ -26,7 +26,6 @@ function TopicManager() {
                 subtopicOf: [],
                 topicPrerequisite: [],
             }).unwrap()
-            console.log({result})
             if (result._id) {
                 setSelectedTopicId(result._id)
                 setIsEdit(true)

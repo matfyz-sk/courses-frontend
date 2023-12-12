@@ -100,7 +100,7 @@ function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange 
                 id: topic._id,
                 body: {
                     ...topic,
-                    topicPrerequisite: [result._id],
+                    topicPrerequisite: [...topic.topicPrerequisite.map(t => t._id), result._id],
                 },
             })
         } catch {
@@ -132,14 +132,14 @@ function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange 
                 ) : (
                     <>
                         <div style={{ display: "flex", width: "100%" }}>
-                            <h2 style={{ width: "40%" }}>{topic.name}</h2>
+                            <h2 style={{ width: "70%" }}>{topic.name}</h2>
                             <IconButton
-                                style={{ marginLeft: "auto", outline: "none" }}
+                                style={{ alignSelf: "center", marginLeft: "auto", outline: "none" }}
                                 onClick={_ => handleIsEditChange(true)}
                             >
                                 <MdEdit />
                             </IconButton>
-                            <IconButton style={{ outline: "none" }}>
+                            <IconButton style={{ alignSelf: "center", outline: "none" }}>
                                 <MdDeviceHub />
                             </IconButton>
                         </div>
