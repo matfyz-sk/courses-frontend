@@ -32,7 +32,9 @@ export const documentsGraphApi = createApi({
                             _id
                             _type
                             courses_name
-                            courses_isDeleted${getNonStringEquals(true)}
+                            # https://github.com/matfyz-sk/courses-backend/issues/39
+                            # courses_isDeleted${getNonStringEquals(true)}
+                            courses_isDeleted
                             courses_courseInstances${getSelectById(courseInstanceId)} {
                               _id
                             }
@@ -41,7 +43,9 @@ export const documentsGraphApi = createApi({
                             _id
                             _type
                             courses_name
-                            courses_isDeleted${getNonStringEquals(true)}
+                            # https://github.com/matfyz-sk/courses-backend/issues/39
+                            # courses_isDeleted${getNonStringEquals(true)}
+                            courses_isDeleted
                             courses_courseInstances${getSelectById(courseInstanceId)} {
                               _id
                             }
@@ -50,7 +54,9 @@ export const documentsGraphApi = createApi({
                             _id
                             _type
                             courses_name
-                            courses_isDeleted${getNonStringEquals(true)}
+                            # https://github.com/matfyz-sk/courses-backend/issues/39
+                            # courses_isDeleted${getNonStringEquals(true)}
+                            courses_isDeleted
                             courses_courseInstances${getSelectById(courseInstanceId)} {
                               _id
                             }
@@ -62,9 +68,9 @@ export const documentsGraphApi = createApi({
                 let documents = []
                 try {
                     documents = [
-                        ...response.Internaldocument ?? [],
-                        ...response.Externaldocument ?? [],
-                        ...response.File ?? []
+                        ...response.Internaldocument?.filter(entity => entity.isDeleted === true) ?? [],
+                        ...response.Externaldocument?.filter(entity => entity.isDeleted === true) ?? [],
+                        ...response.File?.filter(entity => entity.isDeleted === true) ?? []
                     ]
                 } catch {
                     return []
@@ -86,7 +92,9 @@ export const documentsGraphApi = createApi({
                                 _id
                                 _type
                                 courses_name
-                                courses_isDeleted${typeof deletedContent === "boolean" ? getNonStringEquals(deletedContent) : ""}
+                                # https://github.com/matfyz-sk/courses-backend/issues/39
+                                # courses_isDeleted${typeof deletedContent === "boolean" ? getNonStringEquals(deletedContent) : ""}
+                                courses_isDeleted
                               }
                             }
                           }`,
@@ -94,13 +102,13 @@ export const documentsGraphApi = createApi({
             },
             transformResponse: (response, meta, arg) => {
                 // TODO there has to be a better way, but might need a change on the BE
-                const folder = response.Folder[0]
-                return (
-                    {
+                const folder = response?.Folder[0]
+                return {
                         ...folder,
-                        folderContent: syncIdAndTypeOfEntities(folder.folderContent),
-                    } ?? {}
-                )
+                        folderContent: syncIdAndTypeOfEntities(folder?.folderContent).filter(
+                            entity => entity.isDeleted !== true
+                        ),
+                } ?? {}
             },
             providesTags: ["Folder"],
         }),
@@ -288,7 +296,7 @@ export const documentsGraphApi = createApi({
                 mutation {
                   insert_courses_Folder(
                     courses_name: "${body.name}"
-                    courses_courseInstance: ${body.courseInstance}
+                    courses_courseInstance: "${body.courseInstance}"
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.parent ? `courses_parent: "${body.parent}"` : ""}
                     ${body.folderContent ? `courses_folderContent: ${getArrayFormat(body.folderContent)}` : ""}
@@ -307,7 +315,7 @@ export const documentsGraphApi = createApi({
                 mutation {
                   insert_courses_DocumentReference(
                     courses_document: "${body.document}"
-                    courses_courseInstance: ${getArrayFormat(body.courseInstance)}
+                    courses_courseInstance: "${body.courseInstance}"
                   ) {
                   _id
                   }
@@ -387,7 +395,7 @@ export const documentsGraphApi = createApi({
                     _id: "${id}"
                     ${body.name ? `courses_name: "${body.name}"` : ""}
                     ${body.parent ? `courses_parent: "${body.parent}"` : ""}
-                    ${body.courseInstance ? `courses_courseInstance: ${body.courseInstance}` : ""}
+                    ${body.courseInstance ? `courses_courseInstance: "${body.courseInstance}"` : ""}
                     ${body.folderContent ? `courses_folderContent: ${getArrayFormat(body.folderContent)}` : ""}
                     ${body.lastChanged ? `courses_lastChanged: "${body.lastChanged}"` : ""}
                   ) {

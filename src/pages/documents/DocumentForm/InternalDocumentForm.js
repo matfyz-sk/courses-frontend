@@ -24,7 +24,7 @@ import { redirect } from "../../../constants/redirect"
 import * as ROUTES from "../../../constants/routes"
 import CustomEditor from "../CustomEditor"
 
-function InternalDocumentForm({ match, handleEdit }) {
+function InternalDocumentForm({ match, history, handleEdit }) {
     const { course_id: courseId, document_id: documentId } = match.params
     const documentFullId = `${DATA_PREFIX}${DocumentEnums.internalDocument.entityName}/${documentId}`
 
