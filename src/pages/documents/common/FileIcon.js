@@ -15,7 +15,7 @@ const entityToIcon = {
 
 const FileIcon = ({ file }) => {
   const classes = useFileExplorerStyles()
-  const entityName = getShortType(file['@type'])
+  const entityName = getShortType(file['_type'])
   const isMobile = useMediaQuery('(max-width: 600px)')
 
 

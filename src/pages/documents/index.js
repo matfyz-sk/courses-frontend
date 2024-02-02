@@ -1,32 +1,26 @@
 import React, { useEffect, useState } from 'react'
 import { Redirect, Route, Switch, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { Alert } from 'reactstrap'
 import DocumentHistory from './DocumentHistory'
 import DocumentForm from './DocumentForm'
-import { DocumentEnums } from './common/enums/document-enums'
 import * as ROUTES from '../../constants/routes'
 import { redirect } from '../../constants/redirect'
 import Page404 from '../errors/Page404'
 import { getShortID } from '../../helperFunctions'
 import CourseDocumentManager from './CourseDocumentsManager'
+import { Alert } from "@material-ui/lab";
+import { useGetCourseInstanceQuery } from "../../services/course";
+import { DATA_PREFIX } from "../../constants/ontology";
 
-function DocumentsNavigation({ match, courseInstance }) {
-  const [loading, setLoading] = useState(true)
+function DocumentsNavigation({ match }) {
   const courseId = match.params.course_id
+  const courseInstanceFullId = `${DATA_PREFIX}courseInstance/${courseId}`
+  const { data: courseInstanceData, isFetching } = useGetCourseInstanceQuery({ id: courseInstanceFullId }, { skip: !courseId })
+  const courseInstance = courseInstanceData?.[0] ?? {}
 
-  useEffect(() => {
-    if (courseInstance && getShortID(courseInstance["_id"]) === courseId) {
-      setLoading(false)
-    }
-    else {
-      setLoading(true)
-    }
-  }, [courseInstance, courseId])
-
-  if (loading) {
+  if (isFetching) {
     return (
-      <Alert color="secondary" className="empty-message">
+      <Alert color="success" className="empty-message">
         Loading...
       </Alert>
     )
@@ -40,7 +34,7 @@ function DocumentsNavigation({ match, courseInstance }) {
             { key: 'course_id', value: courseId },
             {
               key: 'folder_id',
-              value: getShortID(courseInstance.fileExplorerRoot[0]['_id']),
+              value: getShortID(courseInstance.fileExplorerRoot['_id']),
             },
           ])}
         />
@@ -62,25 +56,6 @@ function DocumentsNavigation({ match, courseInstance }) {
       />
       <Route
         exact
-        path={ROUTES.CREATE_INTERNAL_DOCUMENT}
-        render={() => (
-          <DocumentForm creating={DocumentEnums.internalDocument.entityName} />
-        )}
-      />
-      <Route
-        exact
-        path={ROUTES.CREATE_EXTERNAL_DOCUMENT}
-        render={() => (
-          <DocumentForm creating={DocumentEnums.externalDocument.entityName} />
-        )}
-      />
-      <Route
-        exact
-        path={ROUTES.CREATE_FILE_DOCUMENT}
-        render={() => <DocumentForm creating={DocumentEnums.file.entityName} />}
-      />
-      <Route
-        exact
         path={ROUTES.DOCUMENT_HISTORY}
         render={() => <DocumentHistory />}
       />
@@ -89,12 +64,4 @@ function DocumentsNavigation({ match, courseInstance }) {
   )
 }
 
-const mapStateToProps = ({ courseInstanceReducer }) => {
-  return {
-    courseInstance: courseInstanceReducer.courseInstance,
-  }
-}
-
-export default withRouter(
-  connect(mapStateToProps, {})(DocumentsNavigation)
-)
+export default withRouter(DocumentsNavigation)

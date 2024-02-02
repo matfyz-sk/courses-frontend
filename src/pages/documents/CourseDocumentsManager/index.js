@@ -1,384 +1,281 @@
-import React, { useEffect, useState } from 'react'
-import { withRouter } from 'react-router-dom'
-import { connect } from 'react-redux'
-import { Alert } from '@material-ui/lab'
+import React, { useState } from "react"
+import { withRouter } from "react-router-dom"
+import { connect } from "react-redux"
+import { Alert } from "@material-ui/lab"
+import { Button, IconButton, LinearProgress, TextField, ThemeProvider, useMediaQuery } from "@material-ui/core"
+import { getShortID, getShortType } from "../../../helperFunctions"
+import { redirect } from "../../../constants/redirect"
+import * as ROUTES from "../../../constants/routes"
+import { DATA_PREFIX } from "../../../constants/ontology"
+import { setClipboardBeingCut, setClipboardOldParent, setFolder } from "../../../redux/actions"
+import FileExplorer from "../FileExplorer"
+import { DocumentEnums } from "../common/enums/document-enums"
+import { customTheme } from "../styles"
+import FolderDialog from "./FolderDialog"
+import CreateDocumentMenu from "./CreateDocumentMenu"
+import { MdDelete } from "react-icons/md"
+import { TiArrowBack } from "react-icons/ti"
 import {
-  Button, IconButton,
-  LinearProgress,
-  TextField,
-  ThemeProvider,
-  useMediaQuery,
-} from '@material-ui/core'
-import {
-  axiosAddEntity,
-  axiosGetEntities,
-  axiosUpdateEntity,
-  getIRIFromAddResponse,
-  getResponseBody,
-  getShortID,
-  getShortType,
-} from '../../../helperFunctions'
-import { redirect } from '../../../constants/redirect'
-import * as ROUTES from '../../../constants/routes'
-import Page404 from '../../errors/Page404'
-import {
-  setClipboardBeingCut,
-  setClipboardOldParent,
-  setFolder,
-} from '../../../redux/actions'
-import FileExplorer from '../FileExplorer'
-import { DocumentEnums } from '../common/enums/document-enums'
-import { customTheme } from '../styles'
-import FolderDialog from './FolderDialog'
-import CreateDocumentMenu from './CreateDocumentMenu'
-import { MdDelete } from 'react-icons/md'
-import { TiArrowBack } from 'react-icons/ti'
-import getDeletedDocuments from '../common/functions/getDeletedDocuments'
-import RelocateDialog from '../common/RelocateDialog'
-import { changeParent } from "../common/functions/changeParent";
+    useAddFolderMutation,
+    useGetDeletedDocumentsQuery,
+    useGetFolderQuery,
+    useUpdateFolderMutation,
+} from "../../../services/documentsGraph"
+import { useGetFolderParentChainQuery } from "../../../services/documents"
 
 function CourseDocumentManager(props) {
-  const {
-    courseInstance,
-    folder,
-    match,
-    showingDeleted,
-    setFolder,
-    history,
-    user,
-    setClipboardBeingCut,
-    setClipboardOldParent,
-    clipboard
-  } = props
-  const [renderHack, setRenderHack] = useState(0)
-  const isMobile = useMediaQuery('(max-width:600px)')
+    const {
+        match,
+        showingDeleted,
+        // setFolder,
+        history,
+        user,
+        setClipboardBeingCut,
+        setClipboardOldParent,
+        clipboard,
+    } = props
+    const isMobile = useMediaQuery("(max-width:600px)")
 
-  const folderId = match.params.folder_id
-  const courseId = match.params.course_id
+    const { course_id: courseId, folder_id: folderId } = match.params
 
-  // folder create and edit
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [folderName, setFolderName] = useState('')
-  const [isFolderEdit, setIsFolderEdit] = useState(false)
-  const [editFolderId, setEditFolderId] = useState(null)
+    // folder create and edit
+    const [dialogOpen, setDialogOpen] = useState(false)
+    const [folderName, setFolderName] = useState("")
+    const [isFolderEdit, setIsFolderEdit] = useState(false)
+    const [editFolderId, setEditFolderId] = useState(null)
 
-  const [fsPath, setFsPath] = useState([])
-  const [fsObjects, setFsObjects] = useState([])
-
-  const [search, setSearch] = useState('')
-  const [status, setStatus] = useState(200)
-  const [loading, setLoading] = useState(true)
-
-  // for relocate function
-  const [isRelocateDialogOpen, setIsRelocateDialogOpen] = useState(false)
-
-  useEffect(() => {
-    setLoading(true)
-    setSearch('')
-    setFsObjects([])
-    if (showingDeleted) {
-      getDeletedDocuments(courseId).then(deleted => {
-        setLoading(false)
-        setFsObjects(deleted)
-        setFsPath([{ name: 'Deleted documents', "_id": 'deleted' }])
-      })
-      return
-    }
-
-    const entitiesUrl = `folder/${folderId}?_join=content`
-
-    axiosGetEntities(entitiesUrl).then(response => {
-      if (response.failed) {
-        console.error("Couldn't fetch files, try again")
-        setLoading(false)
-        setStatus(response.response ? response.response.status : 500)
-        return
-      }
-      const data = getResponseBody(response)
-
-      if (getShortID(data[0].courseInstance[0]["_id"]) !== courseId) {
-        props.history.push(ROUTES.ACCESS_DENIED)
-        return
-      }
-      const fsObjects = data[0].content
-      setFsObjects(
-        fsObjects.filter(doc => doc.isDeleted === false)
-      )
-      setLoading(false)
-      setFolder(data[0])
-    })
-
-    const pathUrl = `folder/${folderId}?_chain=parent`
-    axiosGetEntities(pathUrl).then(response => {
-      if (response.failed) {
-        console.error("Couldn't fetch files, try again")
-        setLoading(false)
-        setStatus(response.response ? response.response.status : 500)
-        return
-      }
-      const data = getResponseBody(response)
-      setFsPath(data.slice().reverse())
-    })
-
-  }, [courseId, folderId, showingDeleted, renderHack])
-
-  const onFsObjectRowClick = (_, fsObject) => {
-    if (DocumentEnums.folder.entityName === getShortType(fsObject['@type'])) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      history.push(
-        redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
-          { key: 'course_id', value: courseId },
-          { key: 'folder_id', value: getShortID(fsObject['_id']) },
-        ])
-      )
-      return
-    }
-    history.push(
-      redirect(ROUTES.EDIT_DOCUMENT, [{ key: 'course_id', value: courseId }]),
-      {
-        documentId: getShortID(fsObject['_id']),
-        parentFolderId: getShortID(folder["_id"]),
-      }
+    // Graph API
+    const { data: fsPath = [], isError: isPathError } = useGetFolderParentChainQuery(folderId, { skip: !folderId })
+    const {
+        data: deletedDocuments,
+        isLoading: isDeletedLoading,
+        isError: isDeletedError,
+    } = useGetDeletedDocumentsQuery(
+        { courseInstanceId: `${DATA_PREFIX}courseInstance/${courseId}` },
+        { skip: !courseId }
     )
-  }
+    const { data: folder, isFetching: isFolderFetching, isError: isFolderError } = useGetFolderQuery(
+        { id: `${DATA_PREFIX}folder/${folderId}`, deletedContent: false },
+        { skip: !folderId }
+    )
 
-  const createFolder = async () => {
-    let data = {
-      name: folderName,
-      isDeleted: false,
-      courseInstance: courseInstance['_id'],
-    }
-    toggleFolderDialog()
-    if (fsPath.length) {
-      data = {
-        ...data,
-        parent: fsPath[fsPath.length - 1]['_id'],
-      }
-    }
+    const [addFolder, { isError: isAddError }] = useAddFolderMutation()
+    const [updateFolder, { isError: isUpdateError }] = useUpdateFolderMutation()
 
-    const newFolderId = await axiosAddEntity(data, 'folder').then(response => {
-      if (response.failed) {
-        console.error('Folder creation failed: ', response.error)
-        setStatus(response.response ? response.response.status : 500)
-        return
-      }
-      return getIRIFromAddResponse(response)
-    })
+    const isLoading = isFolderFetching || isDeletedLoading
+    const isError = isFolderError || isDeletedError || isAddError || isUpdateError || isPathError
+    const fsObjects = (showingDeleted ? deletedDocuments : folder?.folderContent) ?? []
 
-    if (newFolderId) {
-      const entityUrl = `folder/${folderId}`
-      data = {
-        content: [...fsObjects.map(doc => doc['_id']), newFolderId],
-        lastChanged: new Date(),
-      }
+    const [search, setSearch] = useState("")
 
-      axiosUpdateEntity(data, entityUrl).then(response => {
-        if (response.failed) {
-          console.error('Folder creation failed: ', response.error)
-          setStatus(response.response ? response.response.status : 500)
-          return
+    // for relocate function
+    // const [isRelocateDialogOpen, setIsRelocateDialogOpen] = useState(false)
+
+    const onFsObjectRowClick = (_, fsObject) => {
+        if (DocumentEnums.folder.entityName === getShortType(fsObject._type)) {
+            window.scrollTo({ top: 0, behavior: "smooth" })
+            history.push(
+                redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
+                    { key: "course_id", value: courseId },
+                    { key: "folder_id", value: getShortID(fsObject._id) },
+                ])
+            )
+            return
         }
-        setRenderHack(x => x + 1)
-      })
+        history.push(
+            redirect(ROUTES.EDIT_DOCUMENT, [
+                { key: "course_id", value: courseId },
+                { key: "document_id", value: getShortID(fsObject._id) },
+            ]),
+            { data: { folderId: getShortID(folder._id) } }
+        )
     }
-  }
 
-  const handleFolderCreate = () => {
-    toggleFolderDialog()
-    setIsFolderEdit(false)
-  }
+    const createFolder = async () => {
+        toggleFolderDialog()
+        let data = {
+            name: folderName,
+            isDeleted: false,
+            courseInstance: `${DATA_PREFIX}courseInstance/${courseId}`,
+        }
+        if (fsPath.length) {
+            data = {
+                ...data,
+                parent: fsPath.at(-1)._id,
+            }
+        }
 
-  const beginFolderEdit = folder => {
-    toggleFolderDialog()
-    setFolderName(folder.name)
-    setEditFolderId(getShortID(folder['_id']))
-    setIsFolderEdit(true)
-  }
+        const addResponse = await addFolder(data).unwrap()
+        try {
+            const updateData = {
+                folderContent: [...fsObjects.map(doc => doc._id), addResponse._id],
+                lastChanged: new Date().getMilliseconds(),
+            }
+            await updateFolder({ id: `${DATA_PREFIX}folder/${folderId}`, body: updateData }).unwrap()
+        } catch {
+            console.log("error")
+        }
+    }
 
-  const editFolder = () => {
-    const folderUrl = `folder/${editFolderId}`
-    const data = { name: folderName, lastChanged: new Date() }
-    toggleFolderDialog()
-    axiosUpdateEntity(data, folderUrl).then(response => {
-      if (response.failed) {
-        console.error('Folder edit failed: ', response.error)
-        setStatus(response.response ? response.response.status : 500)
-        return
-      }
-      axiosUpdateEntity({ lastChanged: new Date() }, `folder/${folderId}`)
-      setRenderHack(x => x + 1)
-    })
-  }
+    const handleFolderCreate = () => {
+        toggleFolderDialog()
+        setIsFolderEdit(false)
+    }
 
-  if (status === 404) {
-    return <Page404 />
-  }
+    const beginFolderEdit = folder => {
+        toggleFolderDialog()
+        setFolderName(folder.name)
+        setEditFolderId(getShortID(folder._id))
+        setIsFolderEdit(true)
+    }
 
-  const toggleFolderDialog = () => {
-    setDialogOpen(prev => !prev)
-    setFolderName('')
-  }
+    const editFolder = async () => {
+        toggleFolderDialog()
+        const data = { name: folderName, lastChanged: new Date().getMilliseconds() }
+        const parentFolderData = { lastChanged: new Date().getMilliseconds() }
+        updateFolder({ id: `${DATA_PREFIX}folder/${editFolderId}`, body: data })
+        updateFolder({ id: `${DATA_PREFIX}folder/${folderId}`, body: parentFolderData })
+    }
+    const toggleFolderDialog = () => {
+        setDialogOpen(prev => !prev)
+        setFolderName("")
+    }
 
-  const onPathFolderClick = folderId => {
-    history.push(
-      redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
-        { key: 'course_id', value: match.params.course_id },
-        { key: 'folder_id', value: folderId },
-      ])
-    )
-  }
+    const onPathFolderClick = folderId => {
+        history.push(
+            redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
+                { key: "course_id", value: courseId },
+                { key: "folder_id", value: folderId },
+            ])
+        )
+    }
 
-  const handleFsObjectCut = fsObject => {
-    setClipboardBeingCut(fsObject)
-    setClipboardOldParent(folder)
-    setIsRelocateDialogOpen(true)
-  }
+    // const handleFsObjectCut = fsObject => {
+    //   setClipboardBeingCut(fsObject)
+    //   setClipboardOldParent(folder)
+    //   setIsRelocateDialogOpen(true)
+    // }
 
-  const handlePaste = (pastingToFolder) => {
-    setLoading(true)
-    changeParent(
-      clipboard.beingCut,
-      pastingToFolder['_id'],
-      clipboard.oldParent["_id"]
-    ).then(() => {
-      setIsRelocateDialogOpen(false)
-      setLoading(false)
-      setRenderHack(prev => prev + 1)
-    })
-  }
+    // const handlePaste = (pastingToFolder) => {
+    //   setLoading(true)
+    //   changeParent(
+    //     clipboard.beingCut,
+    //     pastingToFolder._id,
+    //     clipboard.oldParent._id
+    //   ).then(() => {
+    //     setIsRelocateDialogOpen(false)
+    //     setLoading(false)
+    //   })
+    // }
 
-  return (
-    <ThemeProvider theme={customTheme}>
-      <div style={{ maxWidth: 1000, margin: 'auto', padding: 20 }}>
-        <br />
-        {status !== 200 && (
-          <>
-            <Alert severity="warning">
-              There has been a server error, try again please!
-            </Alert>
-            <br />
-          </>
-        )}
-        {!showingDeleted && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <CreateDocumentMenu
-              style={{ display: 'inline-block', float: 'left' }}
-              onFolderCreate={handleFolderCreate}
-              loading={loading}
+    return (
+        <ThemeProvider theme={customTheme}>
+            <div style={{ maxWidth: 1000, margin: "auto", padding: 20 }}>
+                <br />
+                {isError && (
+                    <>
+                        <Alert severity="warning">There has been a server error, try again please!</Alert>
+                        <br />
+                    </>
+                )}
+                {!showingDeleted && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <CreateDocumentMenu
+                            style={{ display: "inline-block", float: "left" }}
+                            onFolderCreate={handleFolderCreate}
+                            loading={isLoading}
+                        />
+                        <Button
+                            style={{ outline: "none", float: "right" }}
+                            variant="contained"
+                            disabled={isLoading}
+                            onClick={() =>
+                                history.push(
+                                    redirect(ROUTES.DELETED_DOCUMENTS, [{ key: "course_id", value: courseId }])
+                                )
+                            }
+                            startIcon={<MdDelete />}
+                        >
+                            Deleted documents
+                        </Button>
+                    </div>
+                )}
+                <br />
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <TextField
+                        style={{ width: isMobile ? "100%" : "35%" }}
+                        id="search-textfield"
+                        label="Search in course"
+                        type="text"
+                        variant="outlined"
+                        size="small"
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                    />
+                    {showingDeleted && (
+                        <IconButton
+                            style={{
+                                marginLeft: "auto",
+                                outline: "none",
+                            }}
+                            variant="contained"
+                            onClick={() =>
+                                history.push(
+                                    redirect(ROUTES.DOCUMENTS, [
+                                        {
+                                            key: "course_id",
+                                            value: courseId,
+                                        },
+                                    ])
+                                )
+                            }
+                        >
+                            <TiArrowBack />
+                        </IconButton>
+                    )}
+                </div>
+                <br />
+                <br />
+                <LinearProgress style={{ visibility: isLoading ? "visible" : "hidden" }} />
+                <FileExplorer
+                    files={fsObjects}
+                    search={search}
+                    fsPath={fsPath}
+                    onRowClickHandler={onFsObjectRowClick}
+                    onPathFolderClickHandler={onPathFolderClick}
+                    onCut={() => {}}
+                    loading={isLoading}
+                    editFolder={beginFolderEdit}
+                    hasActionColumn={!showingDeleted}
+                />
+            </div>
+            <FolderDialog
+                open={dialogOpen}
+                handleClose={toggleFolderDialog}
+                folderName={folderName}
+                setFolderName={setFolderName}
+                onCreate={createFolder}
+                onEdit={editFolder}
+                isEdit={isFolderEdit}
             />
-            <Button
-              style={{ outline: 'none', float: 'right' }}
-              variant="contained"
-              disabled={loading}
-              onClick={() =>
-                history.push(
-                  redirect(ROUTES.DELETED_DOCUMENTS, [
-                    { key: 'course_id', value: courseId },
-                  ])
-                )
-              }
-              startIcon={<MdDelete />}
-            >
-              Deleted documents
-            </Button>
-          </div>
-        )}
-        <br />
-
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <TextField
-            style={{ width: isMobile ? '100%' : '35%' }}
-            id="search-textfield"
-            label="search"
-            type="text"
-            variant="outlined"
-            size="small"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-          {showingDeleted && (
-            <IconButton
-              style={{
-                marginLeft: "auto",
-                outline: "none"
-              }}
-              variant="contained"
-              onClick={() =>
-                history.push(
-                  redirect(ROUTES.DOCUMENTS, [
-                    { key: 'course_id', value: courseId },
-                  ])
-                )
-              }
-            >
-              <TiArrowBack/>
-            </IconButton>
-          )}
-        </div>
-        <br />
-        <br />
-        <LinearProgress
-          style={{ visibility: loading ? 'visible' : 'hidden' }}
-        />
-        <FileExplorer
-          files={fsObjects}
-          search={search}
-          fsPath={fsPath}
-          onRowClickHandler={onFsObjectRowClick}
-          onPathFolderClickHandler={onPathFolderClick}
-          onCut={handleFsObjectCut}
-          loading={loading}
-          editFolder={beginFolderEdit}
-          hasActionColumn={!showingDeleted}
-        />
-      </div>
-      <FolderDialog
-        open={dialogOpen}
-        handleClose={toggleFolderDialog}
-        folderName={folderName}
-        setFolderName={setFolderName}
-        onCreate={createFolder}
-        onEdit={editFolder}
-        isEdit={isFolderEdit}
-      />
-      <RelocateDialog
-        isOpen={isRelocateDialogOpen}
-        onIsOpenChanged={setIsRelocateDialogOpen}
-        label={'Move to'}
-        onPaste={handlePaste}
-      />
-    </ThemeProvider>
-  )
+            {/*<RelocateDialog*/}
+            {/*  isOpen={isRelocateDialogOpen}*/}
+            {/*  onIsOpenChanged={setIsRelocateDialogOpen}*/}
+            {/*  label={'Move to'}*/}
+            {/*  onPaste={handlePaste}*/}
+            {/*/>*/}
+        </ThemeProvider>
+    )
 }
 
-const mapStateToProps = ({
-  courseInstanceReducer,
-  folderReducer,
-  authReducer,
-  clipboardReducer,
-}) => {
-  return {
-    courseInstance: courseInstanceReducer.courseInstance,
-    folder: { ...folderReducer },
-    clipboard: { ...clipboardReducer },
-    user: authReducer.user,
-  }
+const mapStateToProps = ({ authReducer, clipboardReducer }) => {
+    return {
+        clipboard: { ...clipboardReducer },
+        user: authReducer.user,
+    }
 }
 
 export default withRouter(
-  connect(mapStateToProps, {setFolder, setClipboardBeingCut, setClipboardOldParent})(
-    CourseDocumentManager
-  )
+    connect(mapStateToProps, { setFolder, setClipboardBeingCut, setClipboardOldParent })(CourseDocumentManager)
 )

@@ -41,9 +41,9 @@ const CustomTableRow = withStyles({
 })(TableRow)
 
 function descendingComparator(a, b, orderBy) {
-  if (orderBy === '@type') {
-    const aEntityName = getShortType(a['@type'])
-    const bEntityName = getShortType(b['@type'])
+  if (orderBy === '_type') {
+    const aEntityName = getShortType(a['_type'])
+    const bEntityName = getShortType(b['_type'])
     if (
       bEntityName !== DocumentEnums.folder.entityName &&
       aEntityName === DocumentEnums.folder.entityName
@@ -254,7 +254,7 @@ function FileExplorer({
         filterSearched(lastChangedSwap(filterToBeCut(files))),
         getComparator(order, orderBy)
       ),
-      getComparator('desc', '@type')
+      getComparator('desc', '_type')
     )
   }
 
@@ -263,10 +263,6 @@ function FileExplorer({
       <Paper elevation={4} className={classes.paper}>
         <TableContainer>
           <Toolbar>
-            <Path
-              fsPath={fsPath}
-              onPathFolderClickHandler={onPathFolderClickHandler}
-            />
             {isRelocator && (
               <IconButton
                 aria-label={'show options'}
@@ -306,7 +302,7 @@ function FileExplorer({
             <TableBody>
               {prepareFiles(files).map((file, i) => {
                 const labelId = `enhanced-table-${file['_id']}`
-                const entityName = getShortType(file['@type'])
+                const entityName = getShortType(file['_type'])
 
                 return (
                   <CustomTableRow

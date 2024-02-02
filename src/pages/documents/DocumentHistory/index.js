@@ -206,7 +206,7 @@ function RevisionsSidebar({
                   {!firstVersion.isDeleted && !v.isDeleted && (
                     <a
                       style={{ color: customTheme.palette.primary.light }}
-                      href="src/pages/documents/DocumentHistory/DocumentHistory#index.js"
+                      href=""
                       onClick={e => handleRestore(e, v)}
                     >
                       restore
