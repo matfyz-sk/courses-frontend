@@ -3,18 +3,20 @@ import { withRouter } from "react-router-dom"
 import ExternalDocumentForm from "./ExternalDocumentForm"
 import { DocumentEnums, getEntityName } from "../common/enums/document-enums"
 import {
-    useGetDocumentQuery, useGetDocumentReferenceQuery, useGetFolderQuery,
+    useGetDocumentQuery,
+    useGetDocumentReferenceQuery,
+    useGetFolderQuery,
     useUpdateDocumentReferenceMutation,
-    useUpdateFolderMutation
+    useUpdateFolderMutation,
 } from "../../../services/documentsGraph"
-import { useGetCourseInstanceQuery, useUpdateCourseInstanceMutation } from "../../../services/course";
-import { DATA_PREFIX } from "../../../constants/ontology";
-import { redirect } from "../../../constants/redirect";
-import * as ROUTES from "../../../constants/routes";
-import FileForm from "./FileForm";
-import InternalDocumentForm from "./InternalDocumentForm";
-import { ThemeProvider } from "@material-ui/core";
-import { customTheme } from "../styles";
+import { useGetCourseInstanceQuery, useUpdateCourseInstanceMutation } from "../../../services/course"
+import { DATA_PREFIX } from "../../../constants/ontology"
+import { redirect } from "../../../constants/redirect"
+import * as ROUTES from "../../../constants/routes"
+import FileForm from "./FileForm"
+import InternalDocumentForm from "./InternalDocumentForm"
+import { ThemeProvider } from "@material-ui/core"
+import { customTheme } from "../styles"
 
 function DocumentForm({ match, history }) {
     const documentId = match.params.document_id
@@ -31,10 +33,13 @@ function DocumentForm({ match, history }) {
 
     const entityName = getEntityName(document?._type)
     const documentFullId = `${DATA_PREFIX}${entityName}/${documentId}`
-    const { data: documentReference } = useGetDocumentReferenceQuery({
-        courseInstanceId: courseInstanceFullId,
-        documentId: documentFullId,
-    }, {skip: !document?._id})
+    const { data: documentReference } = useGetDocumentReferenceQuery(
+        {
+            courseInstanceId: courseInstanceFullId,
+            documentId: documentFullId,
+        },
+        { skip: !document?._id }
+    )
 
     const [updateCourseInstance] = useUpdateCourseInstanceMutation()
     const [updateFolder] = useUpdateFolderMutation()
@@ -72,12 +77,14 @@ function DocumentForm({ match, history }) {
 
     return (
         <ThemeProvider theme={customTheme}>
-            <div style={{maxWidth: "1100px", margin: "20px auto", padding: 10}}>
-                {entityName === DocumentEnums.externalDocument.entityName &&
-                    <ExternalDocumentForm handleEdit={onEdit}/>}
-                {entityName === DocumentEnums.internalDocument.entityName &&
-                    <InternalDocumentForm handleEdit={onEdit}/>}
-                {entityName === DocumentEnums.file.entityName && <FileForm handleEdit={onEdit}/>}
+            <div style={{ maxWidth: "1100px", margin: "20px auto", padding: 10 }}>
+                {entityName === DocumentEnums.externalDocument.entityName && (
+                    <ExternalDocumentForm handleEdit={onEdit} />
+                )}
+                {entityName === DocumentEnums.internalDocument.entityName && (
+                    <InternalDocumentForm handleEdit={onEdit} />
+                )}
+                {entityName === DocumentEnums.file.entityName && <FileForm handleEdit={onEdit} />}
             </div>
         </ThemeProvider>
     )

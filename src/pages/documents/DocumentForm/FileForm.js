@@ -179,7 +179,7 @@ function FileForm({ match, history, handleEdit }) {
                     {filename.length === 0 ? "A file has to be chosen" : ""}
                 </FormHelperText>
             ) : (
-                <Link style={{ marginLeft: "1.5em"}} id="file-download" to={{}} onClick={onDownloadFile}>
+                <Link style={{ marginLeft: "1.5em" }} id="file-download" to={{}} onClick={onDownloadFile}>
                     {mimeType.startsWith("image") ? (
                         <img
                             style={{ display: "inline", maxWidth: "150px" }}
