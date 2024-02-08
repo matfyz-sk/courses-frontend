@@ -5,9 +5,9 @@ import { MdAdd, MdClear, MdDone, MdExpandLess, MdExpandMore } from "react-icons/
 import TextField from "@material-ui/core/TextField"
 import { useTopicStyles } from "../../documents/styles"
 
-function ExpandingListWithSimpleCreate(props) {
+function ExpandingListWithSimpleCreate({ items, title, isEdit, handleNewItemSubmit }) {
+    // TODO should be able to add from THE existing items... i forgor :(
     const classes = useTopicStyles()
-    const { items, title, isEdit, handleNewItemSubmit } = props
     const [isExpanded, setIsExpanded] = useState(false)
     const [isAddingNewItem, setIsAddingNewItem] = useState(false)
     const [newItemValue, setNewItemValue] = useState("")
@@ -16,6 +16,10 @@ function ExpandingListWithSimpleCreate(props) {
         handleNewItemSubmit(newItemValue)
         setIsAddingNewItem(prev => !prev)
         setNewItemValue("")
+    }
+
+    if (!isEdit && items.length === 0) {
+        return null
     }
 
     return (

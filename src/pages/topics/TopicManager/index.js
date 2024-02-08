@@ -7,6 +7,7 @@ import TopicListItem from "./TopicListItem"
 import TopicDetail from "./TopicDetail"
 
 function TopicManager() {
+    // TODO make UI show error
     const { data: allTopics } = useGetTopicsQuery()
     const [newTopic] = useNewTopicMutation()
     const [selectedTopicId, setSelectedTopicId] = useState(null)
@@ -25,9 +26,10 @@ function TopicManager() {
                 subtopicOf: [],
                 topicPrerequisite: [],
             }).unwrap()
-            console.log(result)
-            setSelectedTopicId(result._id)
-            setIsEdit(true)
+            if (result._id) {
+                setSelectedTopicId(result._id)
+                setIsEdit(true)
+            }
         } catch {
             console.log("error")
         }
