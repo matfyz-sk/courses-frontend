@@ -102,7 +102,7 @@ function RelocateDialog({ label, match, isOpen, onIsOpenChanged, courseInstance,
                 </div>
                 <FileExplorer
                     files={fsObjects}
-                    fsPath={fsPath}
+                    // fsPath={fsPath}
                     onRowClickHandler={onFsObjectRowClick}
                     onPathFolderClickHandler={onPathFolderClick}
                     onPaste={handlePaste}

@@ -51,6 +51,10 @@ const useStyles = makeStyles(() => ({
 export default function DocumentsList({ documents, onRemoveHandler, toggleSelection, title, isReadOnly }) {
     const classes = useStyles()
 
+    if (!documents) {
+        return null
+    }
+
     return (
         <Accordion>
             <AccordionSummary expandIcon={<MdExpandMore />} aria-controls="panel1a-content" id="panel1a-header">
@@ -69,7 +73,7 @@ export default function DocumentsList({ documents, onRemoveHandler, toggleSelect
                         <MdAdd className={classes.listAddButton} />
                     </ListItem>
                     {documents.map(document => (
-                        <ListItem dense button key={document["_id"]}>
+                        <ListItem dense button key={document._id}>
                             <ListItemIcon className={classes.listItemIcon}>
                                 <FileIcon file={document} />
                             </ListItemIcon>

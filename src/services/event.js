@@ -41,6 +41,9 @@ export const eventApi = createApi({
                         }
                         courses_documentReference {
                             _id
+                            courses_document {
+                                _id
+                            }
                         }
                         courses_covers {
                             _id
@@ -81,6 +84,9 @@ export const eventApi = createApi({
                       }
                       courses_documentReference {
                           _id
+                          courses_document {
+                            _id
+                          }
                       }
                       courses_covers {
                           _id
@@ -95,7 +101,7 @@ export const eventApi = createApi({
           transformResponse: (response, meta, arg) => {
             return (
             new Array().concat(
-              response.Event, 
+              response.Event,
               response.Block,
               response.Lab,
               response.Session,
@@ -136,6 +142,9 @@ export const eventApi = createApi({
                       }
                       courses_documentReference {
                           _id
+                          courses_document {
+                            _id
+                          }
                       }
                       courses_covers {
                           _id
@@ -172,6 +181,9 @@ export const eventApi = createApi({
                     }
                     courses_documentReference {
                         _id
+                        courses_document {
+                            _id
+                        }
                     }
                     courses_covers {
                         _id
@@ -208,6 +220,9 @@ export const eventApi = createApi({
                     }
                     courses_documentReference {
                         _id
+                        courses_document {
+                            _id
+                        }
                     }
                     courses_covers {
                         _id
@@ -244,6 +259,9 @@ export const eventApi = createApi({
                     }
                     courses_documentReference {
                         _id
+                        courses_document {
+                            _id
+                        }
                     }
                     courses_covers {
                         _id
@@ -280,6 +298,9 @@ export const eventApi = createApi({
                     }
                     courses_documentReference {
                         _id
+                        courses_document {
+                            _id
+                        }
                     }
                     courses_covers {
                         _id
@@ -294,7 +315,7 @@ export const eventApi = createApi({
           transformResponse: (response, meta, arg) => {
             return (
             new Array().concat(
-              response.Event, 
+              response.Event,
               response.Block,
               response.Lab,
               response.Session,
@@ -302,9 +323,9 @@ export const eventApi = createApi({
             ).filter(e => e !== undefined)
           )},
           providesTags: ['Event'],
-        }),  
+        }),
         newTimelineBlock: builder.mutation({
-            query: (body) => ({ 
+            query: (body) => ({
               document: gql`
                 mutation {
                   insert_courses_Block(
@@ -323,7 +344,7 @@ export const eventApi = createApi({
             invalidatesTags: ['Event'],
         }),
         newEventByType: builder.mutation({
-            query: ({type, body}) => ({ 
+            query: ({type, body}) => ({
               document: gql`
                 mutation {
                   ${getEventHeaderByType("insert", type)}(
@@ -346,7 +367,7 @@ export const eventApi = createApi({
             invalidatesTags: ['Event'],
         }),
         updateEventByType: builder.mutation({
-            query: ({id, type, body}) => ({ 
+            query: ({id, type, body}) => ({
               document: gql`
                 mutation {
                   ${getEventHeaderByType("update", type)}(
@@ -369,7 +390,7 @@ export const eventApi = createApi({
             invalidatesTags: ['Event'],
         }),
         deleteEventByType: builder.mutation({
-            query: ({id, type}) => ({ 
+            query: ({id, type}) => ({
               document: gql`
                 mutation {
                   ${getEventHeaderByType("delete", type)}(

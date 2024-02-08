@@ -19,9 +19,7 @@ import { ThemeProvider } from "@material-ui/core"
 import { customTheme } from "../styles"
 
 function DocumentForm({ match, history }) {
-    const documentId = match.params.document_id
-    const folderId = history.location.state?.data?.folderId
-    const courseId = match.params.course_id
+    const { documentId, folderId, courseId } = match.params
     const folderFullId = `${DATA_PREFIX}folder/${folderId}`
     const courseInstanceFullId = `${DATA_PREFIX}courseInstance/${courseId}`
 
@@ -71,7 +69,12 @@ function DocumentForm({ match, history }) {
                 ],
             },
         })
-        history.push(redirect(ROUTES.DOCUMENTS, [{ key: "course_id", value: courseId }]))
+        history.push(
+            redirect(
+                ROUTES.DOCUMENTS_IN_FOLDER,
+                [{ key: "course_id", value: courseId }, { key: "folder_id", value: folderId}]
+            )
+        )
     }
     if (isFetching) return <div></div>
 

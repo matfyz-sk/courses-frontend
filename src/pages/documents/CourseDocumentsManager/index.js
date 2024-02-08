@@ -44,8 +44,6 @@ function CourseDocumentManager(props) {
     const [isFolderEdit, setIsFolderEdit] = useState(false)
     const [editFolderId, setEditFolderId] = useState(null)
 
-    // Graph API
-    const { data: fsPath = [], isError: isPathError } = useGetFolderParentChainQuery(folderId, { skip: !folderId })
     const {
         data: deletedDocuments,
         isLoading: isDeletedLoading,
@@ -63,7 +61,7 @@ function CourseDocumentManager(props) {
     const [updateFolder, { isError: isUpdateError }] = useUpdateFolderMutation()
 
     const isLoading = isFolderFetching || isDeletedLoading
-    const isError = isFolderError || isDeletedError || isAddError || isUpdateError || isPathError
+    const isError = isFolderError || isDeletedError || isAddError || isUpdateError
     const fsObjects = (showingDeleted ? deletedDocuments : folder?.folderContent) ?? []
 
     const [search, setSearch] = useState("")
@@ -97,12 +95,7 @@ function CourseDocumentManager(props) {
             name: folderName,
             isDeleted: false,
             courseInstance: `${DATA_PREFIX}courseInstance/${courseId}`,
-        }
-        if (fsPath.length) {
-            data = {
-                ...data,
-                parent: fsPath.at(-1)._id,
-            }
+            parent: folder?._id
         }
 
         const addResponse = await addFolder(data).unwrap()
@@ -241,7 +234,7 @@ function CourseDocumentManager(props) {
                 <FileExplorer
                     files={fsObjects}
                     search={search}
-                    fsPath={fsPath}
+                    folder={folder}
                     onRowClickHandler={onFsObjectRowClick}
                     onPathFolderClickHandler={onPathFolderClick}
                     onCut={() => {}}

@@ -17,6 +17,7 @@ import { HiDownload } from "react-icons/hi"
 import { customTheme, usePdfRendererStyles } from "../styles"
 import downloadBase64File from "../common/functions/downloadBase64File"
 import useEventListener from "@use-it/event-listener"
+import { useGetContentOfDocumentQuery } from "../../../services/documentsGraph";
 
 function DocumentViewer({ document, onViewingDocumentChange }) {
     const classes = usePdfRendererStyles()
@@ -24,24 +25,13 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
     // event listener doesn't work when I change page with buttons so this is a fix...
     const focusHackRef = useRef()
 
-    const payloadId = getShortID(document.payload[0]["_id"])
+    const {data: documentContent} = useGetContentOfDocumentQuery({id: document._id})
+
 
     const [numPages, setNumPages] = useState(null)
     const [pageNumber, setPageNumber] = useState(1)
-    const [payloadContent, setPayloadContent] = useState("")
-    const entityName = getShortType(document["@type"])
+    const entityName = getShortType(document._type)
 
-    useEffect(() => {
-        const payloadUrl = `payload/${payloadId}`
-        axiosGetEntities(payloadUrl).then(response => {
-            if (response.failed) {
-                console.error("Couldn't fetch document content")
-                return
-            }
-            const payload = getResponseBody(response)[0]
-            setPayloadContent(payload.content)
-        })
-    }, [payloadId])
 
     const changePage = offset => {
         setPageNumber(prevPageNumber => prevPageNumber + offset)
@@ -83,6 +73,8 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
     }
 
     useEventListener("keydown", onKeyDown)
+
+    if (!documentContent) return null
 
     return (
         <ThemeProvider theme={customTheme}>
@@ -136,7 +128,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
                         <IconButton
                             aria-label="download pdf"
                             onClick={() =>
-                                downloadBase64File(payloadContent, document.filename, document.mimeType, window)
+                                downloadBase64File(documentContent, document.filename, document.mimeType, window)
                             }
                             style={{
                                 fontSize: "150%",
@@ -172,7 +164,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
                                         setPageNumber={setPageNumber}
                                         numPages={numPages}
                                         setNumPages={setNumPages}
-                                        pdf={payloadContent}
+                                        pdf={documentContent}
                                     />
                                 )}
                             {entityName === DocumentEnums.internalDocument.entityName && (
@@ -180,7 +172,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
                                     style={{ boxSizing: "border-box", width: "100%" }}
                                     pageNumber={pageNumber}
                                     setNumPages={setNumPages}
-                                    payloadContent={payloadContent}
+                                    payloadContent={documentContent}
                                     mimeType={document.mimeType}
                                 />
                             )}

@@ -1,9 +1,9 @@
 import { createApi } from "@reduxjs/toolkit/query/react"
 import { BACKEND_URL } from "../constants"
 import { gql } from "graphql-request"
-import { getArrayFormat, getNonStringEquals, getSelectById, graphqlBaseQuery, } from "./baseQuery"
+import { getArrayFormat, getNonStringEquals, getSelectById, graphqlBaseQuery } from "./baseQuery"
 import { DocumentEnums, getIdByEntityName } from "../pages/documents/common/enums/document-enums"
-import { DATA_PREFIX } from "../constants/ontology";
+import { DATA_PREFIX } from "../constants/ontology"
 
 // This is a workaround for the fact that UltraGraphQL ignores actual _type field data and instead uses the targetType from schema
 export const syncIdAndTypeOfEntities = entities => {
@@ -68,14 +68,76 @@ export const documentsGraphApi = createApi({
                 let documents = []
                 try {
                     documents = [
-                        ...response.Internaldocument?.filter(entity => entity.isDeleted === true) ?? [],
-                        ...response.Externaldocument?.filter(entity => entity.isDeleted === true) ?? [],
-                        ...response.File?.filter(entity => entity.isDeleted === true) ?? []
+                        ...(response.Internaldocument ?? []),
+                        ...(response.Externaldocument ?? []),
+                        ...(response.File ?? []),
                     ]
                 } catch {
                     return []
                 }
-                return syncIdAndTypeOfEntities(documents)
+                return syncIdAndTypeOfEntities(documents?.filter(entity => entity.isDeleted === true))
+            },
+            providesTags: ["Externaldocument", "Internaldocument", "File"],
+        }),
+        getDocuments: builder.query({
+            query: ({ documentIds }) => {
+                console.log({ documentIds })
+                const internalDocIds = documentIds.filter(id => id.includes(DocumentEnums.internalDocument.entityName))
+                const externalDocIds = documentIds.filter(id => id.includes(DocumentEnums.externalDocument.entityName))
+                const fileDocIds = documentIds.filter(id => id.includes(DocumentEnums.file.entityName))
+
+                return {
+                    document: gql`
+                        query {
+                          courses_Internaldocument(
+                            _id: ${internalDocIds.length > 0 ? getArrayFormat(internalDocIds) : `[null]`}
+                          ) {
+                            _id
+                            _type
+                            courses_name
+                            # https://github.com/matfyz-sk/courses-backend/issues/39
+                            # courses_isDeleted${getNonStringEquals(true)}
+                            courses_isDeleted
+                            courses_mimeType
+                          }
+                          courses_Externaldocument(
+                            _id: ${externalDocIds.length > 0 ? getArrayFormat(externalDocIds) : `[null]`}
+                          ) {
+                            _id
+                            _type
+                            courses_name
+                            courses_uri
+                            # https://github.com/matfyz-sk/courses-backend/issues/39
+                            # courses_isDeleted${getNonStringEquals(true)}
+                            courses_isDeleted
+                          }
+                          courses_File(
+                            _id: ${fileDocIds.length > 0 ? getArrayFormat(fileDocIds) : `[null]`}
+                          ) {
+                            _id
+                            _type
+                            courses_name
+                            courses_filename
+                            # https://github.com/matfyz-sk/courses-backend/issues/39
+                            # courses_isDeleted${getNonStringEquals(true)}
+                            courses_isDeleted
+                            courses_mimeType
+                          }
+                        }`,
+                }
+            },
+            transformResponse: (response, meta, arg) => {
+                try {
+                    const documents = [
+                        ...(response.Internaldocument ?? []),
+                        ...(response.Externaldocument ?? []),
+                        ...(response.File ?? []),
+                    ]
+
+                    return syncIdAndTypeOfEntities(documents.filter(entity => entity.isDeleted !== true))
+                } catch (e) {
+                    return []
+                }
             },
             providesTags: ["Externaldocument", "Internaldocument", "File"],
         }),
@@ -88,12 +150,18 @@ export const documentsGraphApi = createApi({
                               _id
                               _type
                               courses_name
+                              courses_parent {
+                                _id
+                                courses_name
+                              }
                               courses_folderContent {
                                 _id
                                 _type
                                 courses_name
                                 # https://github.com/matfyz-sk/courses-backend/issues/39
-                                # courses_isDeleted${typeof deletedContent === "boolean" ? getNonStringEquals(deletedContent) : ""}
+                                # courses_isDeleted ${
+                                    typeof deletedContent === "boolean" ? getNonStringEquals(deletedContent) : ""
+                                }
                                 courses_isDeleted
                               }
                             }
@@ -103,12 +171,14 @@ export const documentsGraphApi = createApi({
             transformResponse: (response, meta, arg) => {
                 // TODO there has to be a better way, but might need a change on the BE
                 const folder = response?.Folder[0]
-                return {
+                return (
+                    {
                         ...folder,
                         folderContent: syncIdAndTypeOfEntities(folder?.folderContent).filter(
                             entity => entity.isDeleted !== true
                         ),
-                } ?? {}
+                    } ?? {}
+                )
             },
             providesTags: ["Folder"],
         }),
@@ -129,6 +199,24 @@ export const documentsGraphApi = createApi({
                    }`,
             }),
             transformResponse: (response, meta, arg) => response.DocumentReference[0],
+            providesTags: ["DocumentReference"],
+        }),
+        getDocumentReferences: builder.query({
+            query: ({ documentIds, courseInstanceId }) => ({
+                document: gql`
+                    query {
+                      courses_DocumentReference {
+                        _id
+                        courses_document(_id: ${getArrayFormat(documentIds)}) {
+                            _id
+                        }
+                        courses_courseInstance${getSelectById(courseInstanceId)} {
+                            _id
+                        }
+                      }
+                   }`,
+            }),
+            transformResponse: (response, meta, arg) => response.DocumentReference,
             providesTags: ["DocumentReference"],
         }),
         getDocument: builder.query({
@@ -174,6 +262,24 @@ export const documentsGraphApi = createApi({
                 return response.Internaldocument?.[0] ?? response.Externaldocument?.[0] ?? response.File?.[0]
             },
             providesTags: ["Externaldocument", "Internaldocument", "File"],
+        }),
+        getContentOfDocument: builder.query({
+            query: ({ id }) => ({
+                document: gql`
+                    query {
+                      courses_File${getSelectById(id)} {
+                        _id
+                        courses_rawContent
+                      }
+                      courses_Internaldocument${getSelectById(id)} {
+                        _id
+                        courses_editorContent
+                      }
+                    }`,
+            }),
+            transformResponse: (response, meta, arg) =>
+                response?.File?.[0]?.rawContent ?? response?.Internaldocument?.[0]?.editorContent,
+            providesTags: ["File", "Internaldocument"],
         }),
         getExternalDocument: builder.query({
             query: ({ id }) => ({
@@ -490,10 +596,15 @@ export const documentsGraphApi = createApi({
         }),
     }),
 })
-
 export const {
+    useGetContentOfDocumentQuery,
+    useLazyGetContentOfDocumentQuery,
+    useGetDocumentsQuery,
     useGetFolderQuery,
+    useLazyGetFolderQuery,
     useGetDocumentReferenceQuery,
+    useLazyGetDocumentReferenceQuery,
+    useGetDocumentReferencesQuery,
     useGetDocumentQuery,
     useGetExternalDocumentQuery,
     useGetInternalDocumentQuery,

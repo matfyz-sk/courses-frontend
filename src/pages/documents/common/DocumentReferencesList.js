@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react"
 import "../../core/Events/Events.css"
 import { getIcon } from "../../core/Helper"
-import { axiosGetEntities, getResponseBody, getShortID, getShortType } from "../../../helperFunctions"
 import { Link } from "react-router-dom"
-import { DocumentEnums } from "./enums/document-enums"
+import { DocumentEnums, getEntityName } from "./enums/document-enums"
 import downloadBase64File from "./functions/downloadBase64File"
 import { Divider, List, ListItem, ListItemIcon, ListItemText, useMediaQuery } from "@material-ui/core"
 import { makeStyles } from "@material-ui/styles"
 import { customTheme } from "../styles"
+import { useGetDocumentsQuery, useLazyGetContentOfDocumentQuery, } from "../../../services/documentsGraph";
 
 const useStyles = makeStyles(() => ({
     listItemRoot: {
@@ -15,34 +15,30 @@ const useStyles = makeStyles(() => ({
     },
 }))
 
-function DocumentReferencesList({ onViewableDocumentClick, documentReference }) {
+function DocumentReferencesList({ onViewableDocumentClick, documentReferences }) {
     const classes = useStyles()
     const isMobile = useMediaQuery("(max-width:600px)")
-    const [documents, setDocuments] = useState([])
+    const { data: documents } = useGetDocumentsQuery(
+        { documentIds: documentReferences.map(ref => ref.document._id) },
+        { skip: !documentReferences }
+    )
+    console.log({ documentReferences })
+    console.log({ documents })
 
-    useEffect(() => {
-        const docsPromises = []
-        for (const docRef of documentReference) {
-            const entityUrl = `document/${getShortID(docRef.hasDocument)}`
-            docsPromises.push(axiosGetEntities(entityUrl))
-        }
-        Promise.all(docsPromises).then(responses => {
-            const documents = responses.map(response => getResponseBody(response)[0])
-            setDocuments(documents.filter(doc => !doc.isDeleted))
-        })
-    }, [documentReference])
+    const [getBase64] = useLazyGetContentOfDocumentQuery()
+
 
     const loadFile = doc => {
-        const entityUrl = `payload/${getShortID(doc.payload[0]["_id"])}`
-        axiosGetEntities(entityUrl)
-            .then(response => getResponseBody(response)[0].content)
-            .then(base64data => downloadBase64File(base64data, doc.filename, doc.mimeType, window))
+        getBase64({ id: doc._id })
+            .unwrap()
+            .then(base64 => downloadBase64File(base64, doc.filename, doc.mimeType, window))
     }
 
     return (
         <List className="event-documents-list" dense>
-            {documents.map((doc, i) => {
-                const entityName = getShortType(doc["@type"])
+            {documents && documents.map((doc, i) => {
+                const entityName = getEntityName(doc._type)
+                console.log({ entityName })
                 let navProps
                 switch (entityName) {
                     case DocumentEnums.externalDocument.entityName:
@@ -70,7 +66,7 @@ function DocumentReferencesList({ onViewableDocumentClick, documentReference }) 
                         break
                 }
                 return (
-                    <div key={doc["_id"]}>
+                    <div key={doc._id}>
                         <ListItem
                             button={true}
                             className={classes.listItemRoot}

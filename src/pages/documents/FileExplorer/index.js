@@ -22,6 +22,8 @@ import { DocumentEnums } from "../common/enums/document-enums"
 import { customTheme, useFileExplorerStyles } from "../styles"
 import FileIcon from "../common/FileIcon"
 import { connect } from "react-redux"
+import EnhancedTableHead from "./EnhancedTableHead"
+import Path from "./Path";
 
 const CustomTableRow = withStyles({
     root: {
@@ -33,6 +35,13 @@ const CustomTableRow = withStyles({
     selected: {},
     hover: {},
 })(TableRow)
+
+const CustomListItemIcon = withStyles({
+    root: {
+        minWidth: "30px",
+        color: customTheme.palette.primary.main,
+    },
+})(ListItemIcon)
 
 function descendingComparator(a, b, orderBy) {
     if (orderBy === "_type") {
@@ -71,89 +80,17 @@ function stableSort(array, comparator) {
     return stabilizedThis.map(el => el[0])
 }
 
-const headCells = [
-    {
-        id: "type",
-        disableSort: true,
-        numeric: false,
-        disablePadding: true,
-        label: "",
-    },
-    {
-        id: "name",
-        numeric: false,
-        disablePadding: false,
-        label: "Name",
-    },
-    {
-        id: "createdAt",
-        numeric: true,
-        disablePadding: false,
-        label: "Last changed",
-    },
-    {
-        id: "actionsButton",
-        disableSort: true,
-        numeric: true,
-        disablePadding: false,
-        label: "Actions",
-    },
-]
 
-function EnhancedTableHead({ classes, order, orderBy, onRequestSort, hasActionColumn }) {
-    const createSortHandler = property => event => {
-        onRequestSort(event, property)
-    }
 
-    const prepareHeadCells = headCells => {
-        if (!hasActionColumn) return headCells.slice(0, -1)
-        return headCells
-    }
 
-    return (
-        <TableHead style={{ position: "static" }}>
-            <TableRow style={{ position: "static" }}>
-                {prepareHeadCells(headCells).map(headCell => (
-                    <TableCell
-                        key={headCell.id}
-                        align={headCell.numeric ? "right" : "left"}
-                        padding={headCell.disablePadding ? "none" : "default"}
-                        sortDirection={orderBy === headCell.id ? order : false}
-                    >
-                        {!headCell.disableSort ? (
-                            <TableSortLabel
-                                active={orderBy === headCell.id}
-                                direction={orderBy === headCell.id ? order : "asc"}
-                                onClick={createSortHandler(headCell.id)}
-                            >
-                                {headCell.label}
-                                {orderBy === headCell.id ? (
-                                    <span className={classes.visuallyHidden}>
-                                        {order === "desc" ? "sorted descending" : "sorted ascending"}
-                                    </span>
-                                ) : null}
-                            </TableSortLabel>
-                        ) : (
-                            headCell.label
-                        )}
-                    </TableCell>
-                ))}
-            </TableRow>
-        </TableHead>
-    )
-}
 
-const CustomListItemIcon = withStyles({
-    root: {
-        minWidth: "30px",
-        color: customTheme.palette.primary.main,
-    },
-})(ListItemIcon)
+
 
 function FileExplorer({
     files,
     search,
-    fsPath,
+    folder,
+    // fsPath,
     onRowClickHandler,
     onPathFolderClickHandler,
     onPaste,
@@ -164,10 +101,11 @@ function FileExplorer({
     hasActionColumn,
 }) {
     const classes = useFileExplorerStyles()
-    const currentFolder = fsPath?.[fsPath?.length - 1] ?? {}
     const [anchorEls, setAnchorEls] = React.useState([])
     const [order, setOrder] = useState("desc")
     const [orderBy, setOrderBy] = useState("createdAt")
+
+
 
     const handleOptionsClick = (event, i) => {
         let newAnchorEls = anchorEls.slice()
@@ -234,11 +172,16 @@ function FileExplorer({
             <Paper elevation={4} className={classes.paper}>
                 <TableContainer>
                     <Toolbar>
+                        <Path
+                            // fsPath={fsPath}
+                            folder={folder}
+                            onPathFolderClickHandler={onPathFolderClickHandler}
+                        />
                         {isRelocator && (
                             <IconButton
                                 aria-label={"show options"}
                                 aria-haspopup={true}
-                                onClick={e => onPaste(e, currentFolder)}
+                                onClick={e => onPaste(e, folder)}
                                 size="small"
                                 style={{ fontSize: "90%", outline: "none", marginLeft: "auto" }}
                             >
@@ -323,12 +266,14 @@ function FileExplorer({
                                                         horizontal: "center",
                                                     }}
                                                 >
-                                                    <MenuItem onClick={e => handleOptionsClose(e, i, file, "relocate")}>
-                                                        <CustomListItemIcon>
-                                                            <MdContentCut />
-                                                        </CustomListItemIcon>
-                                                        Cut
-                                                    </MenuItem>
+                                                    {/*<MenuItem*/}
+                                                    {/*    // onClick={e => handleOptionsClose(e, i, file, "relocate")}*/}
+                                                    {/*>*/}
+                                                    {/*    <CustomListItemIcon>*/}
+                                                    {/*        <MdContentCut />*/}
+                                                    {/*    </CustomListItemIcon>*/}
+                                                    {/*    Cut*/}
+                                                    {/*</MenuItem>*/}
                                                     {entityName === DocumentEnums.folder.entityName && (
                                                         <div key={labelId}>
                                                             <MenuItem

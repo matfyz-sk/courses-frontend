@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import FileExplorer from "../../FileExplorer"
-import { DocumentEnums } from "../enums/document-enums"
+import { DocumentEnums, getEntityName } from "../enums/document-enums"
 import { axiosGetEntities, getResponseBody, getShortID, getShortType } from "../../../../helperFunctions"
 import { connect } from "react-redux"
 import { withRouter } from "react-router"
@@ -11,6 +11,16 @@ import { makeStyles } from "@material-ui/styles"
 import { customTheme } from "../../styles"
 import getReferenceOfDocument from "../functions/documentReferenceCreation"
 import { setFolder } from "../../../../redux/actions"
+import { useGetCourseInstanceQuery } from "../../../../services/course"
+import {
+    useGetFolderQuery,
+    useGetDocumentReferencesQuery,
+    useLazyGetFolderQuery,
+    useGetDocumentsQuery,
+    useGetDocumentReferenceQuery,
+    useLazyGetDocumentReferenceQuery,
+} from "../../../../services/documentsGraph"
+import { DATA_PREFIX } from "../../../../constants/ontology"
 
 // dialog's intended behaviour is to reset the styling theme so this is a workaround for the progress bar
 const useStyles = makeStyles(() => ({
@@ -24,97 +34,72 @@ const useStyles = makeStyles(() => ({
     },
 }))
 
+// kinda tightly coupled 🥲
 function DocumentReferencer({
     label,
     documentReferences,
     onDocumentReferencesChange,
     match,
-    courseInstance,
     isReadOnly,
 }) {
     const classes = useStyles()
+    const courseId = match.params.course_id
+    const courseInstanceFullId = `${DATA_PREFIX}courseInstance/${courseId}`
 
-    const [documents, setDocuments] = useState([])
+    const [getFolder, { data: folder, isUninitialized: folderForExplorerIsUninitialized }] = useLazyGetFolderQuery()
+    const fsObjects = folder?.folderContent ?? []
+    const { data: courseInstanceData } = useGetCourseInstanceQuery({ id: courseInstanceFullId })
+    const courseInstance = courseInstanceData?.[0]
 
     const [fsPath, setFsPath] = useState([])
-    const [fsObjects, setFsObjects] = useState([])
-    const courseId = match.params.course_id
-    const [folderId, setFolderId] = useState("")
     const [status, setStatus] = useState(200)
     const [loading, setLoading] = useState(false)
 
     const [open, setOpen] = useState(false)
     const dialogRef = useRef()
 
+
+    const { data: chosenDocuments } = useGetDocumentsQuery({
+        documentIds: documentReferences.map(ref => ref.document._id),
+    })
+    console.log({ documentReferences })
+    console.log({ chosenDocuments })
+    const [getLazyDocRef] = useLazyGetDocumentReferenceQuery()
+
+
     useEffect(() => {
-        // folder gets set and document references find their corresponding docs
         if (courseInstance) {
-            if (!courseInstance.fileExplorerRoot) {
-                console.error("File system not initialized")
-                return
-            }
-            setFolderId(getShortID(courseInstance.fileExplorerRoot["_id"]))
-
-            const docsPromises = []
-            for (const docRef of documentReferences) {
-                const entityUrl = `document/${getShortID(docRef.hasDocument)}`
-                docsPromises.push(axiosGetEntities(entityUrl))
-            }
-            Promise.all(docsPromises).then(responses => {
-                const documents = responses.map(response => getResponseBody(response)[0])
-                setDocuments(documents.filter(doc => !doc.isDeleted))
-            })
+            getFolder({ id: courseInstance.fileExplorerRoot._id})
         }
-    }, [courseInstance, documentReferences])
-
-    useEffect(() => {
-        if (folderId === "") return
-        setLoading(true)
-        const entitiesUrl = `folder/${folderId}?_chain=parent&_join=content`
-
-        axiosGetEntities(entitiesUrl).then(response => {
-            setStatus(response.response ? response.response.status : 500)
-            if (response.failed) {
-                console.error("Couldn't fetch files, try again")
-                setLoading(false)
-                return
-            }
-            const data = getResponseBody(response)
-
-            const fsObjects = data[0].content
-            setFsObjects(fsObjects.filter(doc => doc.isDeleted === false))
-            setLoading(false)
-            setFsPath(data.slice().reverse())
-        })
-    }, [courseId, folderId, open])
+    }, [folderForExplorerIsUninitialized, courseInstance])
 
     const addToDocuments = async document => {
-        const documentRefId = await getReferenceOfDocument(document, courseInstance)
+        console.log({add: documentReferences})
+        console.log({addDoc: document})
+        const documentRef = await getLazyDocRef({
+            documentId: document._id,
+            courseInstanceId: courseInstance._id,
+        }).unwrap()
         onDocumentReferencesChange([
-            ...documentReferences.filter(ref => ref["_id"] !== documentRefId),
-            { _id: documentRefId, hasDocument: document["_id"], courseInstance },
+            ...documentReferences.filter(ref => ref._id !== documentRef._id),
+            { _id: documentRef._id, document, courseInstance },
         ])
-        setDocuments([...documents.filter(doc => doc["_id"] !== document["_id"]), document])
     }
 
     const removeFromDocuments = document => {
-        onDocumentReferencesChange(documentReferences.filter(ref => ref.hasDocument !== document["_id"]))
-        setDocuments(documents.filter(doc => doc["_id"] !== document["_id"]))
+        console.log({ documentReferences })
+        console.log({ rmDoc: document })
+        console.log({ rm: documentReferences.filter(docRef => docRef.document._id !== document._id)})
+        onDocumentReferencesChange(documentReferences.filter(docRef => docRef.document._id !== document._id))
     }
 
     const onFsObjectRowClick = (_, fsObject) => {
-        const fileEntity = getShortType(fsObject["@type"])
-        if (DocumentEnums.folder.entityName === fileEntity) {
-            setFolderId(getShortID(fsObject["_id"]))
+        if (DocumentEnums.folder.entityName === getEntityName(fsObject._type)) {
+            getFolder({ id: fsObject._id })
             dialogRef.current.scrollTo({ top: 0, behavior: "smooth" })
             return
         }
-        addToDocuments(fsObject)
-        setOpen(false)
-    }
-
-    const onPathFolderClick = folderId => {
-        setFolderId(folderId)
+        addToDocuments(fsObject).then(() => setOpen(false))        
     }
 
     return (
@@ -122,7 +107,7 @@ function DocumentReferencer({
             <DocumentsList
                 title={label}
                 toggleSelection={() => setOpen(true)}
-                documents={documents}
+                documents={chosenDocuments}
                 onRemoveHandler={removeFromDocuments}
                 isReadOnly={isReadOnly}
             />
@@ -153,9 +138,9 @@ function DocumentReferencer({
                     </div>
                     <FileExplorer
                         files={fsObjects}
-                        fsPath={fsPath}
+                        // fsPath={fsPath}
                         onRowClickHandler={onFsObjectRowClick}
-                        onPathFolderClickHandler={onPathFolderClick}
+                        onPathFolderClickHandler={folderId => getFolder({ id: folderId })}
                     />
                 </DialogContent>
             </Dialog>
@@ -163,10 +148,4 @@ function DocumentReferencer({
     )
 }
 
-const mapStateToProps = ({ courseInstanceReducer }) => {
-    return {
-        courseInstance: courseInstanceReducer.courseInstance,
-    }
-}
-
-export default withRouter(connect(mapStateToProps, { setFolder })(DocumentReferencer))
+export default withRouter(DocumentReferencer)
