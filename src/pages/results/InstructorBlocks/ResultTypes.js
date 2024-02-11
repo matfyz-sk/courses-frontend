@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, Table } from 'reactstrap'
+import { Alert, Table, Row, Col } from 'reactstrap'
 import { Link, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import ResultTypeModal from '../ResultTypeModal'
@@ -18,8 +18,15 @@ const ResultTypes = props => {
 
   return (
     <>
-      <h2 className="mb-4">Result types</h2>
-      <ResultTypeModal />
+    <Row>
+      <Col xs="auto"><h2 className="mb-4 mt-4">Result types</h2>
+      </Col>
+      <Col className="mb-4 mt-4"><ResultTypeModal  data={data}/>
+      </Col>
+      
+      
+    </Row>
+      
       <Table hover size="sm" responsive>
         <thead>
           <tr className="border-bottom">
@@ -29,7 +36,7 @@ const ResultTypes = props => {
           </tr>
         </thead>
         <tbody>
-          {courseInstance && courseInstance.hasResultType.length === 0 ? (
+          {data && data[0].hasResultType.length === 0 ? (
             <tr>
               <td colSpan={4}>
                 <Alert color="info">No result type was set</Alert>

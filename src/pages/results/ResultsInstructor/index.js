@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Col, Container, Row } from 'reactstrap'
+import { Col, Container, Row, Button } from 'reactstrap'
 // eslint-disable-next-line import/no-cycle
 import StudentsPreview from '../InstructorBlocks/StudentsPreview'
 // eslint-disable-next-line import/no-cycle
@@ -34,7 +34,7 @@ const ResultsInstructor = props => {
   return (
     <Container>
       <h1 className="mb-5">Course results</h1>
-      <button onClick={toggle}>{viewDetails? "View preview" : "View details"}</button>
+      <Button onClick={toggle}>{viewDetails? "View preview" : "View details"}</Button>
       {viewDetails? <DetailedStudentList/> : preview}
     </Container>
   )

@@ -8,6 +8,7 @@ import { RESULT_USER } from '../../../constants/routes'
 // eslint-disable-next-line import/no-cycle
 import { getShortID, getFullID } from '../../../helperFunctions'
 import { showUserName } from '../../../components/Auth/userFunction'
+import { aggregateResults } from '../StudentOverview'
 import { 
   useGetUserQuery
  } from 'services/user'
@@ -93,6 +94,7 @@ const StudentsPreview = props => {
         user: users[i],
         result: 0,
       }
+      let myResults = []
 
       let resultsWaitingForCorrection = []
 
@@ -100,8 +102,9 @@ const StudentsPreview = props => {
         for (let r=0; r<results.length; r++){
           
           if (results[r].hasUser._id == user.user._id){
+            myResults.push(results[r])
             for (let type=0; type<resultTypes[0].hasResultType.length; type++){
-              if (resultTypes[0].hasResultType[type]._id == results[r].type._id){
+              if (resultTypes[0].hasResultType[type]!=null && results[r].type && resultTypes[0].hasResultType[type]._id == results[r].type._id){
                 resultsWaitingForCorrection.push([resultTypes[0].hasResultType[type].name, results[r].points])
               }
             }
@@ -132,23 +135,27 @@ const StudentsPreview = props => {
       for (let res=0; res<resultsWaitingForCorrection.length; res++){
         user.result = user.result + resultsWaitingForCorrection[res][1]
       }
-      
+      let totalAfterAggregation = 0
+      for (let i=0; i<resultTypes[0].hasResultType.length; i++){
+        totalAfterAggregation += aggregateResults(resultTypes[0].hasResultType[i], resultTypes[0].hasResultType, myResults)
+      }
 
       let grading = ''
       for (let g = 0; g < sortedGrading.length; g++) {
-        if (sortedGrading[g].minPoints <= user.result) {
+        if (sortedGrading[g].minPoints <= totalAfterAggregation) {
           grading = sortedGrading[g].grade
         }else{
           break
         }
       }
       
+      
 
       renderUsers.push(
         <tr key={`user-list-${i}`}>
           <td>{showUserName(users[i], privileges, courseInstance)} </td>
-          <td>{user.result}</td>
-          <td>{grading!='' ? grading : 'Fx'}</td>
+          <td>{totalAfterAggregation? totalAfterAggregation : 0}</td>
+          <td>{grading!='' ? grading : 'No grade'}</td>
           <td className="text-right">
             <PointsModal
               user={users[i]}

@@ -12,7 +12,7 @@ import { useGetUserQuery } from 'services/user'
 import { useGetCourseHasGradingQuery,
   useGetResultQuery,
   useGetAllResultTypesQuery } from 'services/result'
-import userReducer from 'redux/reducers/userReducer'
+  import { aggregateResults } from '../StudentOverview'
 
 const DetailedStudentList = props => {
     const { match, courseInstanceReducer, privilegesReducer } = props
@@ -51,7 +51,7 @@ const DetailedStudentList = props => {
     if (!(isUserSuccess && isResultSuccess && isGradingSuccess && isResultTypeSuccess)){
       return (
         <>
-          <p>Loadingg...</p>
+          <p>Loading...</p>
         </>
       )
     }
@@ -81,18 +81,22 @@ const DetailedStudentList = props => {
             user: users[i],
             result: 0,
           }
+          let myResults = []
           let renderGrades = []
           let resultsWaitingForCorrection = []
-    
-          if (results && resultTypes.length > 0){
+
+          if (resultTypes.length > 0){
             
             for (let type=0; type<resultTypes[0].hasResultType.length; type++){
                 let toBePushed = 0
-                for (let r=0; r<results.length; r++){  
-                    if (results[r].hasUser._id == user.user._id && results[r].type._id == resultTypes[0].hasResultType[type]._id){
+                if (results){
+                  for (let r=0; r<results.length; r++){  
+                    if (results[r].hasUser._id == user.user._id && results[r].type && results[r].type._id == resultTypes[0].hasResultType[type]._id){
                         resultsWaitingForCorrection.push([resultTypes[0].hasResultType[type].name, results[r].points])
                         toBePushed += results[r].points
+                        myResults.push(results[r])
                     }
+                  }
                 }
                 renderGrades.push(<td>{toBePushed}</td>)
             }
@@ -122,20 +126,24 @@ const DetailedStudentList = props => {
           }
 
           
-    
+          let totalAfterAggregation = 0
+          for (let i=0; i<resultTypes[0].hasResultType.length; i++){
+            totalAfterAggregation += aggregateResults(resultTypes[0].hasResultType[i], resultTypes[0].hasResultType, myResults)
+          }
           let grading = ''
 
           for (let g = 0; g < sortedGrading.length; g++) {
-            if (sortedGrading[g].minPoints <= user.result) {
+            if (sortedGrading[g].minPoints <= totalAfterAggregation) {
               grading = sortedGrading[g].grade
             }else{
               break
             }
           }
+
           
           renderUsers.push(
             <tr key={`user-list-${i}`}>
-              <Link
+              <td><Link
                 to={redirect(RESULT_USER, [
                   {
                     key: 'course_id',
@@ -147,9 +155,10 @@ const DetailedStudentList = props => {
               >
                 {user.user._id == props.userReducer.user.fullURI? user.user.firstName + " " + user.user.lastName : showUserName(users[i], privileges, courseInstance)}
               </Link>
+              </td>
               {renderGrades}
-              <td>{user.result}</td>
-              <td>{grading!='' ? grading : 'Fx'}</td>
+              <td>{totalAfterAggregation}</td>
+              <td>{grading!='' ? grading : 'No grade'}</td>
               <td className="text-right">
               </td>
             </tr>
@@ -171,7 +180,7 @@ const DetailedStudentList = props => {
 
     return (
         <>
-        <h2 className="mb-4 mt-4">Detailed table</h2>
+        <h2 className="mb-4 mt-4">List of all students</h2>
         <Table hover size="sm" responsive>
         <thead>
           <tr>

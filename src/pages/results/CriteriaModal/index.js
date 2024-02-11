@@ -124,7 +124,7 @@ function CriteriaModal(props) {
       <Button
         color={grading ? 'link' : 'primary'}
         size="sm"
-        className={grading ? 'text-right' : 'float-right mb-3'}
+        className={grading ? 'text-right' : 'float-right mt-1'}
         onClick={() => toggle()}
       >
         {grading ? 'Detail' : 'New grading'}

@@ -32,6 +32,7 @@ function PointsModal(props) {
     update: null,
     before: 0,
   })
+  //const [partsForm, setPartsForm] = useState([])
   const [typeId, setTypeId] = useState(skipToken)
   const {data, isSuccess, err} = useGetResultQuery({
     userId: user._id,
@@ -67,16 +68,20 @@ function PointsModal(props) {
       setLoading(true)
       //setTypeId(typeID)
       let oldResultWasFound = false
-      for (let i=0; i<data.length; i++){
+      if (data){
+        for (let i=0; i<data.length; i++){
           const result = data[i]
-          if (typeID == result.type._id){
+          if (result.type && typeID == result.type._id){
             oldResultWasFound = true
             setForm({ ...form, type: value, update: null, before: result.points, id: result._id })
           }
+        }
       }
+      
       if (!oldResultWasFound){
         setForm({ ...form, type: value, update: null, before: 0 })
       }
+      
     } else {
       setForm({ ...form, type: value, update: null, before: 0 })
     }
@@ -135,9 +140,30 @@ function PointsModal(props) {
       //modifyResultsIfNecessary()
       toggle()
     })
-
   }
 
+  /*
+  const updatePartsForm = (part) => {
+    const oldPart = partsForm[part.partNumber]
+    let updatedPart = {
+      partNumber: part.partNumber,
+      points: oldPart && oldPart.points? oldPart.points : 0,
+      description: oldPart && oldPart.description? oldPart.description : "",
+    }
+    if (part.points!=null){
+      updatedPart.points = part.points
+    }
+    if (part.description!=null){
+      updatedPart.description = part.description
+    }
+    let newPartsForm = [...partsForm]
+    newPartsForm[part.partNumber] = updatedPart
+    setPartsForm(newPartsForm)
+  }
+*/
+
+  //const resultPartsRender = []
+  //const resultParts = []
   const options = []
   options.push(
     <option value="" key="empty-select">
@@ -157,6 +183,45 @@ function PointsModal(props) {
           {props.resultTypes[0].hasResultType[i].name}
         </option>
       )
+
+      /*
+      if (form.type && props.resultTypes[0].hasResultType[i]._id == form.type){
+        const resultType = props.resultTypes[0].hasResultType[i]
+        
+        if (resultType.numberOfParts != null && resultType.numberOfParts > 0){
+          for (let part=0; part < resultType.numberOfParts; part++){
+            resultParts.push("")
+            resultPartsRender.push(
+              <FormGroup>
+                <p className='bold'>{"Part "+(part+1)}</p>
+
+              <Label for={"part"+(part+1)+"points"}>How many points?</Label>
+              <Input
+                type="text"
+                name={"part"+(part+1)+"points"}
+                id={"part"+(part+1)+"points"}
+                placeholder="e.g. 12"
+                value={partsForm[part] && partsForm[part].points ? partsForm[part].points : 0}
+                onChange={e => {
+                  updatePartsForm({partNumber: part, points: e.target.value})
+                }}
+              />
+              <Label for={"part"+(part+1)+"description"}>Description</Label>
+              <Input
+                type="textarea"
+                name={"part"+(part+1)+"description"}
+                id={"part"+(part+1)+"description"}
+                value={partsForm[part] && partsForm[part].description? partsForm[part].description : ""}
+                onChange={e => {
+                  updatePartsForm({partNumber: part, description: e.target.value})
+                }}
+              />
+            </FormGroup>
+            )
+          }
+        }
+      }
+      */
     }
   }
 
@@ -220,6 +285,7 @@ function PointsModal(props) {
                 }
               />
             </FormGroup>
+            
             <FormGroup>
               <Label for="reference">Reference</Label>
               <InputGroup>

@@ -7,17 +7,25 @@ import {
   useUpdateResultTypeMutation,
   useDeleteResultTypeMutation,
   useUpdateCourseInstanceMutation,
+  useGetAllResultTypesQuery
 } from "services/result"
+import { Checkbox } from '@material-ui/core'
 
 
 function ResultTypeModal(props) {
   const {resultType, courseInstance, data} = props
+  const courseInstanceId = !courseInstance ? "" : courseInstance._id
   const [ modal, setModal ] = useState(false)
   const [ form, setForm ] = useState({
     name: resultType ? resultType.name : '',
     minPoints: resultType ? resultType.minPoints : 0,
     description: resultType ? resultType.description : '',
     correctionFor: resultType ? resultType.correctionFor : '',
+    //numberOfParts: resultType ? resultType.numberOfParts : 0,
+    //hasFixedParts: resultType && resultType.hasFixedParts!=null ? resultType.hasFixedParts : true,
+    aggregationType: resultType && resultType.aggregationType!=null ? resultType.aggregationType : "",
+    numberOfAggregatedResults: resultType && resultType.numberOfAggregatedResults!=null ? resultType.numberOfAggregatedResults : 0,
+    //isPartOf: resultType ? resultType.isPartOf : '',
   })
   const [ error, setError ] = useState(null)
   const [ loading, setLoading ] = useState(false)
@@ -26,6 +34,14 @@ function ResultTypeModal(props) {
   const [updateResultType, updateResultTypeResult] = useUpdateResultTypeMutation()
   const [deleteResultType, deleteResultTypeResult] = useDeleteResultTypeMutation()
   const toggle = () => setModal(!modal)
+
+  const { data: resultTypesData, isSuccess: isResultTypesSuccess, error: resultTypesError } = useGetAllResultTypesQuery(courseInstanceId, {
+    skip: !courseInstance,
+  }) 
+
+  if (!resultTypesData){
+    return <></>
+  }
 
   const validate = () => {
     if(form.name.length === 0) {
@@ -45,16 +61,15 @@ function ResultTypeModal(props) {
 
   const addResultTypeToCourse = (id) => {
     const resultTypes = []
-    for(let i = 0; i < courseInstance.hasResultType.length; i++) {
-      resultTypes.push(courseInstance.hasResultType[i]['_id'])
+    for(let i = 0; i < resultTypesData[0].hasResultType.length; i++) {
+      resultTypes.push(resultTypesData[0].hasResultType[i]['_id'])
     }
     resultTypes.push(id)
-    console.log(resultTypes)
     updateCourseInstance({
       id: courseInstance['_id'],
       body: {hasResultType: resultTypes}
     }).unwrap().then(response => {
-        console.log(response)
+      console.log("RESPONSE: " + JSON.stringify(response))
         setLoading(false)
         setModal(false)
     }).catch(e => {
@@ -116,14 +131,22 @@ function ResultTypeModal(props) {
   }
 
   const options = []
+  //const isPartOfOptions = []
   options.push(
     <option value="" key="empty-select">
       Without correction
     </option>
   )
-  if (data && resultType) {
+  /*
+  isPartOfOptions.push(
+    <option value="" key="empty-isPartOf-select">
+      Not a part of another result type
+    </option>
+  )
+  */
+  if (data) {
     for(let i = 0; i < data[0].hasResultType.length; i++) {
-      if(resultType['_id'] !== data[0].hasResultType[i]['_id']) {
+      if(!resultType || resultType['_id'] !== data[0].hasResultType[i]['_id']) {
         options.push(
           <option
             value={ data[0].hasResultType[i]['_id'] }
@@ -132,16 +155,46 @@ function ResultTypeModal(props) {
             { data[0].hasResultType[i].name }
           </option>
         )
+        /*
+        isPartOfOptions.push(
+          <option
+            value={ data[0].hasResultType[i]['_id'] }
+            key={ data[0].hasResultType[i]['_id'] }
+          >
+            { data[0].hasResultType[i].name }
+          </option>
+        )
+        */
       }
     }
   }
+
+
+  const aggregationOptions = []
+
+  const aggregationTypes = ["SUM", "MAX", "AVG", "SUM OF N LATEST", "SUM OF N BEST"]
+
   
+    for(let i = 0; i < aggregationTypes.length; i++) {
+        aggregationOptions.push(
+          <option
+            value={ aggregationTypes[i] }
+            key={ aggregationTypes[i] }
+          >
+            {aggregationTypes[i]=="SUM" ? "SUM OF ALL" : aggregationTypes[i].toUpperCase() }
+          </option>
+        )
+      }
+    
+  
+
+
   return (
     <>
       <Button
         color={ resultType ? 'link' : 'primary' }
         size="sm"
-        className={ resultType ? 'text-right' : 'float-right mb-3' }
+        className={ resultType ? 'text-right' : 'float-right mt-1' }
         onClick={ () => toggle() }
       >
         { resultType ? 'Detail' : 'New result type' }
@@ -162,7 +215,7 @@ function ResultTypeModal(props) {
                 name="name"
                 id="name"
                 placeholder="e.g. Midterm"
-                value={ form.name }
+                value={ form.name ? form.name : "" }
                 onChange={ e => {
                   setForm({...form, name: e.target.value})
                 } }
@@ -186,12 +239,84 @@ function ResultTypeModal(props) {
                 type="number"
                 name="text"
                 id="minPoints"
-                value={ form.minPoints }
+                value={ form.minPoints ? form.minPoints : ""}
                 onChange={ e => {
                   setForm({...form, minPoints: e.target.value})
                 } }
               />
             </FormGroup>
+
+            {/*<FormGroup>
+              <Label for="isPartOf">This type is a part of another type</Label>
+              <Input
+                type="select"
+                name="isPartOf"
+                id="isPartOf"
+                value={ form.isPartOf ? form.isPartOf : "" }
+                onChange={ e => {
+                  setForm({...form, isPartOf: e.target.value})
+                } }
+              >
+                { isPartOfOptions }
+              </Input>
+              </FormGroup>*/}
+
+            <FormGroup>
+              <Label for="aggregationType">Type of aggregation</Label>
+              <Input
+                type="select"
+                name="aggregationType"
+                id="aggregationType"
+                value={form.aggregationType ? form.aggregationType : ""}
+                onChange={ e => {
+                  setForm({...form, aggregationType: e.target.value})
+                } }
+              >
+                {aggregationOptions}
+              </Input>
+            </FormGroup>
+{form.aggregationType && form.aggregationType=="SUM OF N BEST" || form.aggregationType=="SUM OF N LATEST"? 
+            <FormGroup>
+              <Label for="numberOfAggregatedResults">Number of aggregated results</Label>
+              <Input
+                type="number"
+                name="numberOfAggregatedResults"
+                id="numberOfAggregatedResults"
+                value={ form.numberOfAggregatedResults ? form.numberOfAggregatedResults : 0}
+                onChange={ e => {
+                  setForm({...form, numberOfAggregatedResults: e.target.value})
+                } }
+              />
+            </FormGroup>: ""}
+
+{/*
+            <FormGroup>
+              <Label for="numberOfParts">Number of parts</Label>
+              <Input
+                type="number"
+                name="numberOfParts"
+                id="numberOfParts"
+                value={ form.numberOfParts ? form.numberOfParts : 0 }
+                onChange={ e => {
+                  setForm({...form, numberOfParts: e.target.value})
+                } }
+              />
+            </FormGroup>
+
+            <FormGroup>
+                <Input
+                className="ml-1"
+                 type = "checkbox"
+                 name="hasFixedParts"
+                 id="hasFixedParts"
+                 checked = {form.hasFixedParts}
+                 onChange={ e => {
+                  setForm({...form, hasFixedParts: !form.hasFixedParts})
+                 }}
+                />
+                <Label className="ml-4" for="hasFixedParts">Number of parts is fixed</Label>
+            </FormGroup>
+                */}
             <FormGroup>
               <Label for="correctionFor">Result type is correction for</Label>
               <Input

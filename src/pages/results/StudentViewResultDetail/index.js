@@ -39,7 +39,7 @@ function StudentViewResultDetail(props) {
           </Button>
           <Modal isOpen={modal} toggle={toggle}>
             <ModalHeader toggle={toggle}>
-              {`Edit details of ${form.type.name}?`}
+              {`Details${form.type? " of " + form.type.name : ""}`}
             </ModalHeader>
             <ModalBody>
               <Form>

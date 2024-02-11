@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Alert, Table } from 'reactstrap'
+import { Alert, Table, Row, Col } from 'reactstrap'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import CriteriaModal from '../CriteriaModal'
@@ -17,8 +17,15 @@ const CourseGrading = props => {
 
   return (
     <>
-      <h2 className="mb-4 mt-4">Course grading</h2>
-      <CriteriaModal />
+      <Row>
+        <Col xs="auto">
+          <h2 className="mb-4 mt-4">Course grading</h2>
+        </Col>
+        <Col className="mb-4 mt-4">
+          <CriteriaModal />
+        </Col>
+      </Row>
+      
       <Table hover size="sm" responsive>
         <tbody>
           {courseInstance && courseInstance.hasGrading.length === 0 ? (

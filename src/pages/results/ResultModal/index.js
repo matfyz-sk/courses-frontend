@@ -15,7 +15,7 @@ import {
   InputGroupAddon,
   InputGroupText,
 } from 'reactstrap'
-import { useDeleteResultMutation, useUpdateResultMutation } from 'services/result'
+import { useDeleteResultMutation, useUpdateResultMutation} from 'services/result'
 
 
 function ResultModal(props) {
@@ -24,6 +24,7 @@ function ResultModal(props) {
     const [loading, setLoading] = useState(false)
     const [updateResult, updateResultInfo] = useUpdateResultMutation()
     const [deleteResult, deleteResultInfo] = useDeleteResultMutation()
+    //const [createResultPart, createResultPartInfo] = useNewResultPartMutation()
     const [form, setForm] = useState({
       id: result? result._id : "",
       type: result? result.type : "",
@@ -78,7 +79,7 @@ function ResultModal(props) {
           </Button>
           <Modal isOpen={modal} toggle={toggle}>
             <ModalHeader toggle={toggle}>
-              {`Edit details of ${form.type.name}?`}
+              {`Edit details of ${form.type ? form.type.name : "this result"}?`}
             </ModalHeader>
             <ModalBody>
               <Form>

@@ -58,6 +58,8 @@ export const resultApi = createApi({
                         courses_minPoints
                         courses_name
                         courses_description
+                        courses_aggregationType
+                        courses_numberOfAggregatedResults
                         courses_correctionFor {
                             _id
                             courses_name
@@ -117,6 +119,8 @@ export const resultApi = createApi({
                         ${body.description ? `courses_description: "${body.description}"` : ""}
                         ${body.name ? `courses_name: "${body.name}"` : ""}
                         ${body.minPoints ? `courses_minPoints: ${body.minPoints}` : ""}
+                        ${body.aggregationType != undefined ? `courses_aggregationType: "${body.aggregationType}"` : ""}
+                        ${body.numberOfAggregatedResults != undefined ? `courses_numberOfAggregatedResults: ${body.numberOfAggregatedResults}` : 0}
                     ){
                         _id
                     }
@@ -152,7 +156,7 @@ export const resultApi = createApi({
                     insert_courses_Result (
                         ${body.points ? `courses_points: ${body.points}` : ""}
                         ${body.courseInstance ? `courses_courseInstance: "${body.courseInstance}"` : ""}
-                        ${body.description ? `courses_description: "${body.description}"` : ""}
+                        ${body.description ? `courses_description: """${body.description}"""` : ""}
                         ${body.hasUser ? `courses_hasUser: "${body.hasUser}"` : ""}
                         ${body.reference ? `courses_reference: "${body.reference}"` : ""}
                         ${body.type ? `courses_type: "${body.type}"` : ""}
@@ -175,6 +179,8 @@ export const resultApi = createApi({
                         ${body.description ? `courses_description: "${body.description}"` : ""}
                         ${body.name ? `courses_name: "${body.name}"` : ""}
                         ${body.minPoints ? `courses_minPoints: ${body.minPoints}` : ""}
+                        ${body.aggregationType != undefined ? `courses_aggregationType: "${body.aggregationType}"` : ""}
+                        ${body.numberOfAggregatedResults != undefined ? `courses_numberOfAggregatedResults: ${body.numberOfAggregatedResults}` : ""}
                     ){
                         _id
                     }
@@ -301,6 +307,8 @@ export const resultApi = createApi({
                   courses_minPoints
                   courses_name
                   courses_description
+                  courses_aggregationType
+                  courses_numberOfAggregatedResults
                   courses_correctionFor {
                       _id
                       courses_name
@@ -430,5 +438,6 @@ export const {
     useUpdateCourseInstanceMutation,
     
     useGetUserQuery,
+
     
 } = resultApi

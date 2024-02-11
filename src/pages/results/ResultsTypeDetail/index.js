@@ -13,7 +13,7 @@ import { useGetResultQuery, useUpdateResultMutation, useNewResultMutation } from
 import { useGetUserQuery } from 'services/user'
 
 function ResultsTypeDetail(props) {
-  const { canEdit, resultType, course_id, result_type_id, privileges, instance } = props
+  const { canEdit, resultType, course_id, result_type_id, privileges, instance} = props
   const [users, setUsers] = useState(null)
   const [performUser, setPerformUser] = useState(null)
   const [msg, setMsg] = useState(null)
@@ -24,11 +24,11 @@ function ResultsTypeDetail(props) {
   const {
     data: usersData, 
     isSuccess: usersIsSuccess
-  } = useGetUserQuery({studentOfId: getFullID(course_id, "courseInstance")})
+  } = useGetUserQuery({studentOfId: getFullID(course_id, "courseInstance")}, {skip: !course_id})
   const {
     data: resultData, 
     isSuccess: resultIsSuccess
-  } = useGetResultQuery({typeId: result_type_id})
+  } = useGetResultQuery({typeId: getFullID(result_type_id, "resulttype")}, {skip: !result_type_id})
 
   const getResultsData = (type_id, userList) => {
     if (resultIsSuccess && resultData) {
@@ -37,7 +37,7 @@ function ResultsTypeDetail(props) {
       for (let i = 0; i < userList.length; i++) {
         let result = null
         for (let j = 0; j < resultList.length; j++) {
-          if (resultList[j].hasUser[0]['_id'] === userList[i]['_id']) {
+          if (resultList[j].hasUser['_id'] === userList[i]['_id']) {
             result = resultList[j]
             break
           }
@@ -129,7 +129,7 @@ function ResultsTypeDetail(props) {
 
   useEffect(() => {
     getUsers()
-  }, [usersIsSuccess])
+  }, [usersIsSuccess, resultIsSuccess])
 
   let correctionHref = ''
   if (resultType.correctionFor) {
@@ -201,7 +201,7 @@ function ResultsTypeDetail(props) {
                     placeholder="set reference"
                     bsSize="sm"
                     disabled={users[i].result.points === ''}
-                    value={users[i].result.reference}
+                    value={users[i].result.reference ? users[i].result.reference : ""}
                     onChange={e => {
                       const cUsers = [...users]
                       cUsers[i].result.reference = e.target.value
@@ -242,6 +242,10 @@ function ResultsTypeDetail(props) {
                   {
                     key: 'result_id',
                     value: getShortID(users[i].result['_id']),
+                  },
+                  {
+                    key: 'user_id',
+                    value: getShortID(users[i].user['_id']),
                   },
                 ])}
               >
