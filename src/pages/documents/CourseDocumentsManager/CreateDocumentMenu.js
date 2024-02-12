@@ -27,7 +27,6 @@ const CustomListItemIcon = withStyles({
 })(ListItemIcon)
 
 function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
-    // TODO format
     const [anchorEl, setAnchorEl] = useState(null)
     const courseId = match.params.course_id
     const folderId = match.params.folder_id
@@ -40,12 +39,12 @@ function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
     const courseInstance = courseInstanceData?.[0]
     const { data: folder } = useGetFolderQuery({ id: folderFullId }, { skip: !folderId })
 
-    const [addInternalDocument, { isError: id }] = useAddInternalDocumentMutation()
-    const [addExternalDocument, { isError: ed }] = useAddExternalDocumentMutation()
-    const [addFile, { isError: ef }] = useAddFileMutation()
-    const [addDocumentReference, { isError: dr }] = useAddDocumentReferenceMutation()
-    const [updateFolder, { isError: f }] = useUpdateFolderMutation()
-    const [updateCourseInstance, { isError: ci }] = useUpdateCourseInstanceMutation()
+    const [addInternalDocument] = useAddInternalDocumentMutation()
+    const [addExternalDocument] = useAddExternalDocumentMutation()
+    const [addFile] = useAddFileMutation()
+    const [addDocumentReference] = useAddDocumentReferenceMutation()
+    const [updateFolder] = useUpdateFolderMutation()
+    const [updateCourseInstance] = useUpdateCourseInstanceMutation()
 
     const handleClick = event => {
         setAnchorEl(event.currentTarget)
@@ -97,10 +96,12 @@ function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
                 ]),
                 { data: { folderId } }
             )
-        } catch (e) {
-            console.log(e)
+        } catch (err) {
+            console.log(err)
         }
     }
+
+    if (isFetching) return null
 
     return (
         <ThemeProvider theme={customTheme}>

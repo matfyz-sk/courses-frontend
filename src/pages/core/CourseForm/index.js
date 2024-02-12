@@ -79,7 +79,6 @@ function CourseForm(props) {
         setRedirectTo(newUrl)
       } else {
         newCourse(body).unwrap().then(response => {
-          console.log("xd: " + response)
           const newCourseId = getShortID(response[0]["_id"])
           newUrl = {
             pathname: `/newcourseinstance/${newCourseId}`,

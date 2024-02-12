@@ -22,8 +22,6 @@ function DocumentReferencesList({ onViewableDocumentClick, documentReferences })
         { documentIds: documentReferences.filter(ref => !ref.document?.isDeleted ).map(ref => ref.document._id) },
         { skip: !documentReferences }
     )
-    console.log({ documentReferences })
-    console.log({ documents })
 
     const [getBase64] = useLazyGetContentOfDocumentQuery()
 
@@ -38,7 +36,6 @@ function DocumentReferencesList({ onViewableDocumentClick, documentReferences })
         <List className="event-documents-list" dense>
             {documents && documents.map((doc, i) => {
                 const entityName = getEntityName(doc._type)
-                console.log({ entityName })
                 let navProps
                 switch (entityName) {
                     case DocumentEnums.externalDocument.entityName:

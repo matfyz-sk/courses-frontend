@@ -105,8 +105,8 @@ function CourseDocumentManager(props) {
                 lastChanged: new Date().getMilliseconds(),
             }
             await updateFolder({ id: `${DATA_PREFIX}folder/${folderId}`, body: updateData }).unwrap()
-        } catch {
-            console.log("error")
+        } catch (err) {
+            console.log(err)
         }
     }
 

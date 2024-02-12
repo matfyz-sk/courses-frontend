@@ -62,8 +62,6 @@ function DocumentReferencer({
     const { data: chosenDocuments } = useGetDocumentsQuery({
         documentIds: documentReferences.map(ref => ref.document._id),
     })
-    console.log({ documentReferences })
-    console.log({ chosenDocuments })
     const [getLazyDocRef] = useLazyGetDocumentReferenceQuery()
 
 
@@ -74,8 +72,6 @@ function DocumentReferencer({
     }, [folderForExplorerIsUninitialized, courseInstance])
 
     const addToDocuments = async document => {
-        console.log({add: documentReferences})
-        console.log({addDoc: document})
         const documentRef = await getLazyDocRef({
             documentId: document._id,
             courseInstanceId: courseInstance._id,
@@ -87,9 +83,6 @@ function DocumentReferencer({
     }
 
     const removeFromDocuments = document => {
-        console.log({ documentReferences })
-        console.log({ rmDoc: document })
-        console.log({ rm: documentReferences.filter(docRef => docRef.document._id !== document._id)})
         onDocumentReferencesChange(documentReferences.filter(docRef => docRef.document._id !== document._id))
     }
 

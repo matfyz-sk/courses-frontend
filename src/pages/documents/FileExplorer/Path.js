@@ -21,7 +21,6 @@ function Path({ folder, onPathFolderClickHandler }) {
     const [pathToRootFolder, setPathToRootFolder] = useState([])
 
     const fetchFolderToRootPath = useCallback(async () => {
-        console.log("starting from", folderId)
         if (!folderId) return
 
         let path = []
@@ -37,7 +36,6 @@ function Path({ folder, onPathFolderClickHandler }) {
         if (path.length >= LOOP_ARBITRARY_LIMIT) {
             console.error("Path is too long")
         }
-        console.log({path})
         setPathToRootFolder(path.reverse())
 
     }, [folderId])
