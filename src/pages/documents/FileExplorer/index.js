@@ -49,12 +49,13 @@ function descendingComparator(a, b, orderBy) {
         const bEntityName = getShortType(b["_type"])
         if (bEntityName !== DocumentEnums.folder.entityName && aEntityName === DocumentEnums.folder.entityName)
             return -1
-        if (bEntityName === DocumentEnums.folder.entityName && aEntityName !== DocumentEnums.folder.entityName) return 1
+        if (bEntityName === DocumentEnums.folder.entityName && aEntityName !== DocumentEnums.folder.entityName)
+            return 1
         return 0
     }
 
-    const x = orderBy === "createdAt" ? new Date(b[orderBy]) : b[orderBy]
-    const y = orderBy === "createdAt" ? new Date(a[orderBy]) : a[orderBy]
+    const x = orderBy === "createdAt" ? new Date(b.createdAt) : b.name
+    const y = orderBy === "createdAt" ? new Date(a.createdAt) : a.name
     if (x < y) {
         return -1
     }
@@ -79,12 +80,6 @@ function stableSort(array, comparator) {
     })
     return stabilizedThis.map(el => el[0])
 }
-
-
-
-
-
-
 
 function FileExplorer({
     files,
@@ -143,8 +138,9 @@ function FileExplorer({
         return toBeSearched.filter(f => f.name.includes(search) || timestampToString2(f.createdAt).includes(search))
     }
 
-    const lastChangedSwap = files => {
-        // folder specific because createdAt attr updated in db
+    const prepareFolders = files => {
+        // weird workaround, basically to see when the folder was changed I use lastChanged parameter
+        // but with documents I always use createdAt since I always create a new version of the document (and that's because of history versioning)
         return files.map(file => {
             if (file.lastChanged) {
                 return { ...file, createdAt: file.lastChanged }
@@ -160,9 +156,23 @@ function FileExplorer({
         return files
     }
 
-    const prepareFiles = files => {
+    const normalizeCreatedAtParameter = fsObjects => {
+        // Only reason for this is because documents of type File are created still through REST API and
+        // createdAt is not in the right format as with UGQL created entities
+        return fsObjects.map(fsObject => {
+            return {
+                ...fsObject,
+                createdAt: fsObject.createdAt?.representation
+                    ? fsObject.createdAt.representation
+                    : fsObject.createdAt,
+            }
+        })
+    }
+
+    const prepareFsObjects = fsObjects => {
+        let filteredFsObjects = filterSearched(filterToBeCut(prepareFolders(normalizeCreatedAtParameter(fsObjects))))
         return stableSort(
-            stableSort(filterSearched(lastChangedSwap(filterToBeCut(files))), getComparator(order, orderBy)),
+            stableSort(filteredFsObjects, getComparator(order, orderBy)),
             getComparator("desc", "_type")
         )
     }
@@ -214,9 +224,10 @@ function FileExplorer({
                             hasActionColumn={hasActionColumn}
                         />
                         <TableBody>
-                            {prepareFiles(files).map((file, i) => {
+                            {prepareFsObjects(files).map((file, i) => {
                                 const labelId = `enhanced-table-${file["_id"]}`
                                 const entityName = getShortType(file["_type"])
+                                const fileCreatedAt = file.createdAt ? timestampToString2(file.createdAt) : ""
 
                                 return (
                                     <CustomTableRow hover onClick={event => handleClick(event, file)} key={file["_id"]}>
@@ -238,7 +249,7 @@ function FileExplorer({
                                         >
                                             {file.name}
                                         </TableCell>
-                                        <TableCell align="right">{timestampToString2(file.createdAt)}</TableCell>
+                                        <TableCell align="right">{fileCreatedAt}</TableCell>
                                         {hasActionColumn && (
                                             <TableCell onClick={e => e.stopPropagation()} align="right">
                                                 <IconButton
