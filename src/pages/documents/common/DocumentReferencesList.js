@@ -19,7 +19,7 @@ function DocumentReferencesList({ onViewableDocumentClick, documentReferences })
     const classes = useStyles()
     const isMobile = useMediaQuery("(max-width:600px)")
     const { data: documents } = useGetDocumentsQuery(
-        { documentIds: documentReferences.map(ref => ref.document._id) },
+        { documentIds: documentReferences.filter(ref => !ref.document?.isDeleted ).map(ref => ref.document._id) },
         { skip: !documentReferences }
     )
     console.log({ documentReferences })

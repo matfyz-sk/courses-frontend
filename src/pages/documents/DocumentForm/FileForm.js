@@ -35,7 +35,7 @@ function FileForm({ match, history, handleEdit }) {
     const isReadOnly = false
 
     useEffect(() => {
-        if (file) {
+        if (!isFetching && file) {
             setName(file.name ?? "")
             setFilename(file.filename ?? "")
             setMimeType(file.mimeType ?? "")
