@@ -15,7 +15,7 @@ import { DocumentEnums } from "../common/enums/document-enums"
 import * as ROUTES from "../../../constants/routes"
 import { redirect } from "../../../constants/redirect"
 
-function ExternalDocumentForm({ match, history, handleEdit }) {
+function ExternalDocumentForm({ match, history, handleEdit, parentFolderId }) {
     const { course_id: courseId, document_id: documentId } = match.params
     const documentFullId = `${DATA_PREFIX}${DocumentEnums.externalDocument.entityName}/${documentId}`
 
@@ -31,11 +31,10 @@ function ExternalDocumentForm({ match, history, handleEdit }) {
     const [uri, setUri] = useState(externalDocument?.uri ?? "")
     // const [isMaterial, setIsMaterial] = useState(false)
 
-    // TODO restoration and the related readonly
-    const isReadOnly = false
+    const isReadOnly = isDeleted
 
     useEffect(() => {
-        if (!isFetching && externalDocument) {
+        if (externalDocument) {
             setName(externalDocument.name)
             setUri(externalDocument.uri)
             setIsDeleted(externalDocument.isDeleted)
@@ -52,13 +51,12 @@ function ExternalDocumentForm({ match, history, handleEdit }) {
             historicVersion: [...externalDocument.historicVersion.map(item => item._id), externalDocument._id],
         }
 
-        // TODO error handling
         try {
             const newExternalDocument = await addExternalDocument(body).unwrap()
-            updateExternalDocument({
+            await updateExternalDocument({
                 id: externalDocument._id,
                 body: { nextVersion: newExternalDocument._id },
-            })
+            }).unwrap()
             await handleEdit(newExternalDocument._id)
         } catch (e) {
             console.error(e)
@@ -66,8 +64,12 @@ function ExternalDocumentForm({ match, history, handleEdit }) {
     }
 
     const onInvertIsDeleted = async _ => {
-        updateExternalDocument({ id: externalDocument._id, body: { isDeleted: !isDeleted } })
-        history.push(redirect(ROUTES.DOCUMENTS, [{ key: "course_id", value: courseId }]))
+        try {
+            await updateExternalDocument({ id: externalDocument._id, body: { isDeleted: !isDeleted } }).unwrap()
+            history.push(redirect(ROUTES.DOCUMENTS, [{ key: "course_id", value: courseId }]))
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     if (isFetching) {
@@ -90,34 +92,23 @@ function ExternalDocumentForm({ match, history, handleEdit }) {
                     }}
                 >
                     <IconButton
-                    // aria-label="history"
-                    // style={{
-                    //     outline: "none",
-                    //     color: customTheme.palette.primary.main,
-                    // }}
-                    // // onClick={() =>
-                    // //     history.push(
-                    // //         redirect(ROUTES.DOCUMENT_HISTORY, [
-                    // //             {
-                    // //                 key: "course_id",
-                    // //                 value: courseId,
-                    // //             },
-                    // //         ]),
-                    // //         {
-                    // //             documentId: getShortID(document["_id"]),
-                    // //             parentFolderId,
-                    // //         }
-                    // //     )
-                    // // }
+                        color="primary"
+                        aria-label="history"
+                        style={{ outline: "None" }}
+                        disabled={isReadOnly || !externalDocument?.previousVersion}
+                        onClick={() =>
+                            history.push(redirect(ROUTES.DOCUMENT_HISTORY, [{ key: "course_id", value: courseId }]), {
+                                documentId,
+                                parentFolderId,
+                            })
+                        }
                     >
                         <MdHistory />
                     </IconButton>
                     <IconButton
+                        color="primary"
+                        style={{ outline: "None" }}
                         aria-label={isDeleted ? "restore" : "delete"}
-                        style={{
-                            outline: "none",
-                            color: customTheme.palette.primary.main,
-                        }}
                         onClick={onInvertIsDeleted}
                     >
                         {isDeleted ? <MdRestorePage /> : <MdDelete />}

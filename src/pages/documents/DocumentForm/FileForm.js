@@ -11,12 +11,12 @@ import { redirect } from "../../../constants/redirect"
 import * as ROUTES from "../../../constants/routes"
 import { useAddFileMutation, useGetFileQuery, useUpdateFileMutation } from "../../../services/documents"
 
-function FileForm({ match, history, handleEdit }) {
+function FileForm({ match, history, parentFolderId, handleEdit }) {
     const { course_id: courseId, document_id: documentId } = match.params
 
-    const [updateFile, {}] = useUpdateFileMutation()
+    const [updateFile] = useUpdateFileMutation()
     // GraphQL would not suffice for base64 conversions because of it's 1MB limit, so I had to use REST with limit 8MB
-    const [addFile, {}] = useAddFileMutation()
+    const [addFile] = useAddFileMutation()
     const { data: fileData, isFetching } = useGetFileQuery(documentId, { skip: !documentId })
     const file = fileData?.[0]
 
@@ -24,22 +24,22 @@ function FileForm({ match, history, handleEdit }) {
     const [filename, setFilename] = useState(file?.filename ?? "")
     const [mimeType, setMimeType] = useState(file?.mimeType ?? "")
     const [rawContent, setRawContent] = useState(file?.rawContent ?? "")
+    const [isDeleted, setIsDeleted] = useState(file?.isDeleted ?? false)
 
     const [filePath, setFilePath] = useState("")
 
     // const [isMaterial, setIsMaterial] = useState(false)
 
-    // TODO restoration and the related readonly
     const isInEditingMode = documentId !== undefined
-    const isDeleted = file?.isDeleted ?? false
-    const isReadOnly = false
+    const isReadOnly = isDeleted
 
     useEffect(() => {
-        if (!isFetching && file) {
+        if (file) {
             setName(file.name ?? "")
             setFilename(file.filename ?? "")
             setMimeType(file.mimeType ?? "")
             setRawContent(file.rawContent ?? "")
+            setIsDeleted(file.isDeleted ?? false)
         }
     }, [isFetching])
 
@@ -58,7 +58,6 @@ function FileForm({ match, history, handleEdit }) {
     }
 
     const onEdit = async _ => {
-        // TODO payload probably in the class
         const body = {
             name,
             filename,
@@ -71,10 +70,10 @@ function FileForm({ match, history, handleEdit }) {
         }
         try {
             const newDocumentId = await addFile(body).unwrap()
-            updateFile({
+            await updateFile({
                 id: getShortID(file["@id"]),
                 body: { nextVersion: newDocumentId },
-            })
+            }).unwrap()
             await handleEdit(newDocumentId)
         } catch (e) {
             console.error(e)
@@ -82,8 +81,12 @@ function FileForm({ match, history, handleEdit }) {
     }
 
     const onInvertIsDeleted = async _ => {
-        updateFile({ id: file._id, body: { isDeleted: !isDeleted } })
-        history.push(redirect(ROUTES.DOCUMENTS, [{ key: "course_id", value: courseId }]))
+        try {
+            await updateFile({ id: getShortID(file["@id"]), body: { isDeleted: !isDeleted } }).unwrap()
+            history.push(redirect(ROUTES.DOCUMENTS, [{ key: "course_id", value: courseId }]))
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     if (isFetching) {
@@ -107,34 +110,26 @@ function FileForm({ match, history, handleEdit }) {
                         }}
                     >
                         <IconButton
-                        // aria-label="history"
-                        // style={{
-                        //     outline: "none",
-                        //     color: customTheme.palette.primary.main,
-                        // }}
-                        // onClick={() =>
-                        //     history.push(
-                        //         redirect(ROUTES.DOCUMENT_HISTORY, [
-                        //             {
-                        //                 key: "course_id",
-                        //                 value: courseId,
-                        //             },
-                        //         ]),
-                        //         {
-                        //             documentId: getShortID(file["@id"]),
-                        //             parentFolderId,
-                        //         }
-                        //     )
-                        // }
+                            color="primary"
+                            aria-label="history"
+                            style={{ outline: "None" }}
+                            disabled={isReadOnly || !file?.previousVersion}
+                            onClick={() =>
+                                history.push(
+                                    redirect(ROUTES.DOCUMENT_HISTORY, [{ key: "course_id", value: courseId }]),
+                                    {
+                                        documentId,
+                                        parentFolderId,
+                                    }
+                                )
+                            }
                         >
                             <MdHistory />
                         </IconButton>
                         <IconButton
+                            color="primary"
+                            style={{ outline: "None" }}
                             aria-label={isDeleted ? "restore" : "delete"}
-                            style={{
-                                outline: "none",
-                                color: customTheme.palette.primary.main,
-                            }}
                             onClick={onInvertIsDeleted}
                         >
                             {isDeleted ? <MdRestorePage /> : <MdDelete />}
@@ -196,6 +191,7 @@ function FileForm({ match, history, handleEdit }) {
                     )}
                 </Link>
             )}
+            <br />
             <br />
             <div
                 style={{

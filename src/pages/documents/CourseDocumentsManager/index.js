@@ -62,7 +62,7 @@ function CourseDocumentManager(props) {
 
     const isLoading = isFolderFetching || isDeletedLoading
     const isError = isFolderError || isDeletedError || isAddError || isUpdateError
-    const fsObjects = (showingDeleted ? deletedDocuments : folder?.folderContent) ?? []
+    const fsObjects = (showingDeleted ? deletedDocuments : folder?.folderContent?.filter(item => !item.isDeleted)) ?? []
 
     const [search, setSearch] = useState("")
 
@@ -134,11 +134,11 @@ function CourseDocumentManager(props) {
         setFolderName("")
     }
 
-    const onPathFolderClick = folderId => {
+    const onPathFolderClick = folderFullId => {
         history.push(
             redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
                 { key: "course_id", value: courseId },
-                { key: "folder_id", value: folderId },
+                { key: "folder_id", value: getShortID(folderFullId) },
             ])
         )
     }

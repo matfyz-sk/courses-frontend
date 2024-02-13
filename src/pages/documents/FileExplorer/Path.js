@@ -53,7 +53,7 @@ function Path({ folder, onPathFolderClickHandler }) {
                         <Link
                             key={folder._id}
                             className={classes.root}
-                            onClick={() => onPathFolderClickHandler(getShortID(folder._id))}
+                            onClick={() => onPathFolderClickHandler(folder._id)}
                             to={{}}
                         >
                             {folder.name}

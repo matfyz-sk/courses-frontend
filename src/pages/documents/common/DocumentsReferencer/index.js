@@ -131,9 +131,9 @@ function DocumentReferencer({
                     </div>
                     <FileExplorer
                         files={fsObjects}
-                        // fsPath={fsPath}
+                        folder={folder}
                         onRowClickHandler={onFsObjectRowClick}
-                        onPathFolderClickHandler={folderId => getFolder({ id: folderId })}
+                        onPathFolderClickHandler={folderFullId => getFolder({ id: folderFullId })}
                     />
                 </DialogContent>
             </Dialog>

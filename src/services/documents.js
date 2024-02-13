@@ -75,6 +75,11 @@ export const documentsApi = createApi({
           transformResponse: (response, meta, arg) => response["@graph"] ?? [],
           providesTags: ['Documents'],
         }),
+        getDocumentHistory: builder.query({
+            query: (id) => ({ url: `document/${id}?_chain=previousVersion` }),
+            transformResponse: (response, meta, arg) => response["@graph"] ?? [],
+            providesTags: ['Documents'],
+        })
     }),
 })
 
@@ -87,4 +92,5 @@ export const {
     useAddFileMutation,
     useUpdateFileMutation,
     useGetFolderParentChainQuery,
+    useGetDocumentHistoryQuery
 } = documentsApi

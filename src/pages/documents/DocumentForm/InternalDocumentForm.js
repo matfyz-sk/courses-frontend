@@ -24,7 +24,7 @@ import { redirect } from "../../../constants/redirect"
 import * as ROUTES from "../../../constants/routes"
 import CustomEditor from "../CustomEditor"
 
-function InternalDocumentForm({ match, history, handleEdit }) {
+function InternalDocumentForm({ match, history, parentFolderId, handleEdit }) {
     const { course_id: courseId, document_id: documentId } = match.params
     const documentFullId = `${DATA_PREFIX}${DocumentEnums.internalDocument.entityName}/${documentId}`
 
@@ -38,25 +38,22 @@ function InternalDocumentForm({ match, history, handleEdit }) {
     const [name, setName] = useState(internalDocument?.name ?? "")
     const [mimeType, setMimeType] = useState(internalDocument?.mimeType ?? "")
     const [editorContent, setEditorContent] = useState(internalDocument?.editorContent ?? "")
+    const [isDeleted, setIsDeleted] = useState(internalDocument?.isDeleted ?? false)
 
     // const [isMaterial, setIsMaterial] = useState(false)
 
-    // TODO restoration and the related readonly
-    const isBeforeMimeTypeChosen = mimeType === ""
-    const isDeleted = internalDocument?.isDeleted ?? false
-    const isReadOnly = false
+    const isReadOnly = isDeleted
 
     useEffect(() => {
         if (internalDocument) {
             setName(internalDocument?.name ?? "")
             setMimeType(internalDocument?.mimeType ?? "")
             setEditorContent(internalDocument?.editorContent ?? "")
+            setIsDeleted(internalDocument?.isDeleted ?? false)
         }
     }, [isFetching])
 
     const onEdit = async _ => {
-        // TODO payload probably in the class
-
         const body = {
             name,
             mimeType,
@@ -66,14 +63,12 @@ function InternalDocumentForm({ match, history, handleEdit }) {
             previousVersion: internalDocument._id,
             historicVersion: [...internalDocument.historicVersion.map(item => item._id), internalDocument._id],
         }
-
-        // TODO should i even use try catch
         try {
             const newDocument = await addInternalDocument(body).unwrap()
-            updateInternalDocument({
+            await updateInternalDocument({
                 id: internalDocument._id,
                 body: { nextVersion: newDocument._id },
-            })
+            }).unwrap()
             await handleEdit(newDocument._id)
         } catch (e) {
             console.error(e)
@@ -81,8 +76,12 @@ function InternalDocumentForm({ match, history, handleEdit }) {
     }
 
     const onInvertIsDeleted = async _ => {
-        updateInternalDocument({ id: internalDocument._id, body: { isDeleted: !isDeleted } })
-        history.push(redirect(ROUTES.DOCUMENTS, [{ key: "course_id", value: courseId }]))
+        try {
+            await updateInternalDocument({ id: internalDocument._id, body: { isDeleted: !isDeleted } }).unwrap()
+            history.push(redirect(ROUTES.DOCUMENTS, [{ key: "course_id", value: courseId }]))
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     if (isFetching) {
@@ -106,34 +105,23 @@ function InternalDocumentForm({ match, history, handleEdit }) {
                         }}
                     >
                         <IconButton
-                        // aria-label="history"
-                        // style={{
-                        //     outline: "none",
-                        //     color: customTheme.palette.primary.main,
-                        // }}
-                        // onClick={() =>
-                        //     history.push(
-                        //         redirect(ROUTES.DOCUMENT_HISTORY, [
-                        //             {
-                        //                 key: "course_id",
-                        //                 value: courseId,
-                        //             },
-                        //         ]),
-                        //         // {
-                        //         //     documentId: getShortID(document["_id"]),
-                        //         //     parentFolderId,
-                        //         // }
-                        //     )
-                        // }
-                        >
-                            <MdHistory />
+                            color="primary"
+                            aria-label="history"
+                            style={{ outline: "None" }}
+                            disabled={isReadOnly || !internalDocument?.previousVersion}
+                            onClick={() =>
+                                history.push(redirect(ROUTES.DOCUMENT_HISTORY, [{ key: "course_id", value: courseId }]), {
+                                    documentId,
+                                    parentFolderId,
+                                })
+                            }
+                            >
+                            <MdHistory disabled={true} />
                         </IconButton>
                         <IconButton
+                            color="primary"
+                            style={{ outline: "None" }}
                             aria-label={isDeleted ? "restore" : "delete"}
-                            style={{
-                                outline: "none",
-                                color: customTheme.palette.primary.main,
-                            }}
                             onClick={onInvertIsDeleted}
                         >
                             {isDeleted ? <MdRestorePage /> : <MdDelete />}

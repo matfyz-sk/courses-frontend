@@ -35,6 +35,8 @@ export const documentsGraphApi = createApi({
                             # https://github.com/matfyz-sk/courses-backend/issues/39
                             # courses_isDeleted${getNonStringEquals(true)}
                             courses_isDeleted
+                            courses_restoredFrom
+                            courses_createdAt
                             courses_courseInstances${getSelectById(courseInstanceId)} {
                               _id
                             }
@@ -46,6 +48,8 @@ export const documentsGraphApi = createApi({
                             # https://github.com/matfyz-sk/courses-backend/issues/39
                             # courses_isDeleted${getNonStringEquals(true)}
                             courses_isDeleted
+                            courses_restoredFrom
+                            courses_createdAt
                             courses_courseInstances${getSelectById(courseInstanceId)} {
                               _id
                             }
@@ -57,6 +61,8 @@ export const documentsGraphApi = createApi({
                             # https://github.com/matfyz-sk/courses-backend/issues/39
                             # courses_isDeleted${getNonStringEquals(true)}
                             courses_isDeleted
+                            courses_restoredFrom
+                            courses_createdAt
                             courses_courseInstances${getSelectById(courseInstanceId)} {
                               _id
                             }
@@ -99,6 +105,8 @@ export const documentsGraphApi = createApi({
                             # courses_isDeleted${getNonStringEquals(true)}
                             courses_isDeleted
                             courses_mimeType
+                            courses_restoredFrom
+                            courses_createdAt
                           }
                           courses_Externaldocument(
                             _id: ${externalDocIds.length > 0 ? getArrayFormat(externalDocIds) : `[null]`}
@@ -110,6 +118,8 @@ export const documentsGraphApi = createApi({
                             # https://github.com/matfyz-sk/courses-backend/issues/39
                             # courses_isDeleted${getNonStringEquals(true)}
                             courses_isDeleted
+                            courses_restoredFrom
+                            courses_createdAt
                           }
                           courses_File(
                             _id: ${fileDocIds.length > 0 ? getArrayFormat(fileDocIds) : `[null]`}
@@ -122,6 +132,8 @@ export const documentsGraphApi = createApi({
                             # courses_isDeleted${getNonStringEquals(true)}
                             courses_isDeleted
                             courses_mimeType
+                            courses_restoredFrom
+                            courses_createdAt
                           }
                         }`,
                 }
@@ -163,6 +175,7 @@ export const documentsGraphApi = createApi({
                                     typeof deletedContent === "boolean" ? getNonStringEquals(deletedContent) : ""
                                 }
                                 courses_isDeleted
+                                courses_createdAt
                               }
                             }
                           }`,
@@ -180,7 +193,7 @@ export const documentsGraphApi = createApi({
                     } ?? {}
                 )
             },
-            providesTags: ["Folder"],
+            providesTags: ["Folder", "Externaldocument", "Internaldocument", "File"],
         }),
         getDocumentReference: builder.query({
             query: ({ courseInstanceId, documentId }) => ({
@@ -198,7 +211,7 @@ export const documentsGraphApi = createApi({
                       }
                    }`,
             }),
-            transformResponse: (response, meta, arg) => response.DocumentReference[0],
+            transformResponse: (response, meta, arg) => response.DocumentReference?.[0],
             providesTags: ["DocumentReference"],
         }),
         getDocumentReferences: builder.query({
@@ -231,17 +244,42 @@ export const documentsGraphApi = createApi({
                             _id
                             _type
                             courses_name
+                            courses_mimeType
+                            courses_restoredFrom
+                            courses_createdAt
+                            courses_editorContent
+                            courses_isDeleted
                             courses_courseInstances {
                                 _id
                             }
-                            courses_mimeType
+                            courses_previousVersion {
+                                _id
+                            }
+                            courses_nextVersion {
+                                _id
+                            }
+                            courses_historicVersion {
+                                _id
+                            }
                           }
                           courses_Externaldocument${getSelectById(externalId)} {
                             _id
                             _type
                             courses_name
                             courses_uri
+                            courses_restoredFrom
+                            courses_createdAt
+                            courses_isDeleted
                             courses_courseInstances {
+                                _id
+                            }
+                            courses_previousVersion {
+                                _id
+                            }
+                            courses_nextVersion {
+                                _id
+                            }
+                            courses_historicVersion {
                                 _id
                             }
                           }
@@ -250,10 +288,23 @@ export const documentsGraphApi = createApi({
                             _type
                             courses_name
                             courses_filename
+                            courses_mimeType
+                            courses_restoredFrom
+                            courses_createdAt
+                            courses_rawContent
+                            courses_isDeleted
                             courses_courseInstances {
                                 _id
                             }
-                            courses_mimeType
+                            courses_previousVersion {
+                                _id
+                            }
+                            courses_nextVersion {
+                                _id
+                            }
+                            courses_historicVersion {
+                                _id
+                            }
                           }
                         }`,
                 }
@@ -291,6 +342,8 @@ export const documentsGraphApi = createApi({
                     courses_name
                     courses_uri
                     courses_isDeleted
+                    courses_restoredFrom
+                    courses_createdAt
                     courses_courseInstances {
                       _id
                     }
@@ -320,6 +373,8 @@ export const documentsGraphApi = createApi({
                     courses_isDeleted
                     courses_editorContent
                     courses_mimeType
+                    courses_restoredFrom
+                    courses_createdAt
                     courses_courseInstances {
                       _id
                     }
@@ -349,6 +404,8 @@ export const documentsGraphApi = createApi({
                     courses_filename
                     courses_rawContent
                     courses_mimeType
+                    courses_restoredFrom
+                    courses_createdAt
                     courses_courseInstances {
                       _id
                     }
@@ -376,7 +433,8 @@ export const documentsGraphApi = createApi({
                     _type
                     courses_name
                     courses_filename
-                    
+                    courses_restoredFrom
+                    courses_createdAt
                     courses_mimeType
                     courses_courseInstances {
                       _id
@@ -427,7 +485,7 @@ export const documentsGraphApi = createApi({
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.DocumentReference[0],
+            transformResponse: (response, meta, arg) => response.DocumentReference?.[0],
             invalidatesTags: ["DocumentReference"],
         }),
         addExternalDocument: builder.mutation({
@@ -438,6 +496,7 @@ export const documentsGraphApi = createApi({
                     courses_name: "${body.name}"
                     courses_uri: "${body.uri}"
                     courses_courseInstances: ${getArrayFormat(body.courseInstances)}
+                    ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.previousVersion ? `courses_previousVersion: "${body.previousVersion}"` : ""}
                     ${body.nextVersion ? `courses_nextVersion: "${body.nextVersion}"` : ""}
@@ -447,7 +506,7 @@ export const documentsGraphApi = createApi({
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.Externaldocument[0],
+            transformResponse: (response, meta, arg) => response.Externaldocument?.[0],
             invalidatesTags: ["Externaldocument"],
         }),
         addInternalDocument: builder.mutation({
@@ -459,6 +518,7 @@ export const documentsGraphApi = createApi({
                     courses_courseInstances: ${getArrayFormat(body.courseInstances)}
                     courses_mimeType: "${body.mimeType}"
                     ${body.editorContent ? `courses_editorContent: "${body.editorContent}"` : ""}
+                    ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.previousVersion ? `courses_previousVersion: "${body.previousVersion}"` : ""}
                     ${body.nextVersion ? `courses_nextVersion: "${body.nextVersion}"` : ""}
@@ -468,7 +528,7 @@ export const documentsGraphApi = createApi({
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.Internaldocument[0],
+            transformResponse: (response, meta, arg) => response.Internaldocument?.[0],
             invalidatesTags: ["Internaldocument"],
         }),
         addFile: builder.mutation({
@@ -478,6 +538,7 @@ export const documentsGraphApi = createApi({
                   insert_courses_File(
                     courses_name: "${body.name}"
                     courses_courseInstances: ${getArrayFormat(body.courseInstances)}
+                    ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.mimeType ? `courses_mimeType: "${body.mimeType}"` : ""}
                     ${body.filename ? `courses_filename: "${body.filename}"` : ""}
@@ -490,7 +551,7 @@ export const documentsGraphApi = createApi({
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.File[0],
+            transformResponse: (response, meta, arg) => response.File?.[0],
             invalidatesTags: ["File"],
         }),
         updateFolder: builder.mutation({
@@ -509,7 +570,7 @@ export const documentsGraphApi = createApi({
                   }
             }`,
             }),
-            transformResponse: (response, meta, arg) => response.Folder[0],
+            transformResponse: (response, meta, arg) => response.Folder?.[0],
             invalidatesTags: ["Folder"],
         }),
         updateDocumentReference: builder.mutation({
@@ -525,7 +586,7 @@ export const documentsGraphApi = createApi({
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.DocumentReference[0],
+            transformResponse: (response, meta, arg) => response.DocumentReference?.[0],
             invalidatesTags: ["DocumentReference"],
         }),
         updateExternalDocument: builder.mutation({
@@ -536,6 +597,7 @@ export const documentsGraphApi = createApi({
                     _id: "${id}"
                     ${body.name ? `courses_name: "${body.name}"` : ""}
                     ${body.uri ? `courses_uri: "${body.uri}"` : ""}
+                    ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${body.courseInstances ? `courses_courseInstances: ${getArrayFormat(body.courseInstances)}` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.previousVersion ? `courses_previousVersion: "${body.previousVersion}"` : ""}
@@ -546,7 +608,7 @@ export const documentsGraphApi = createApi({
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.Externaldocument[0],
+            transformResponse: (response, meta, arg) => response.Externaldocument?.[0],
             invalidatesTags: ["Externaldocument"],
         }),
         updateInternalDocument: builder.mutation({
@@ -558,6 +620,7 @@ export const documentsGraphApi = createApi({
                     ${body.name ? `courses_name: "${body.name}"` : ""}
                     ${body.mimeType ? `courses_mimeType: "${body.mimeType}"` : ""}
                     ${body.editorContent ? `courses_editorContent: "${body.editorContent}"` : ""}
+                    ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.courseInstances ? `courses_courseInstances: ${getArrayFormat(body.courseInstances)}` : ""}
                     ${body.previousVersion ? `courses_previousVersion: "${body.previousVersion}"` : ""}
@@ -568,7 +631,7 @@ export const documentsGraphApi = createApi({
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.Internaldocument[0],
+            transformResponse: (response, meta, arg) => response.Internaldocument?.[0],
             invalidatesTags: ["Internaldocument"],
         }),
         updateFile: builder.mutation({
@@ -581,6 +644,7 @@ export const documentsGraphApi = createApi({
                     ${body.filename ? `courses_filename: "${body.filename}"` : ""}
                     ${body.mimeType ? `courses_mimeType: "${body.mimeType}"` : ""}
                     ${body.rawContent ? `courses_rawContent: "${body.rawContent}"` : ""}
+                    ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.courseInstances ? `courses_courseInstances: ${getArrayFormat(body.courseInstances)}` : ""}
                     ${body.previousVersion ? `courses_previousVersion: "${body.previousVersion}"` : ""}
@@ -591,7 +655,7 @@ export const documentsGraphApi = createApi({
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.File[0],
+            transformResponse: (response, meta, arg) => response.File?.[0],
             invalidatesTags: ["File"],
         }),
     }),
@@ -606,6 +670,7 @@ export const {
     useLazyGetDocumentReferenceQuery,
     useGetDocumentReferencesQuery,
     useGetDocumentQuery,
+    useLazyGetDocumentQuery,
     useGetExternalDocumentQuery,
     useGetInternalDocumentQuery,
     useGetFileQuery,
