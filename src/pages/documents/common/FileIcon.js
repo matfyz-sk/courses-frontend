@@ -1,8 +1,7 @@
 import React from "react"
 import { useFileExplorerStyles } from "../styles"
 import { MdAttachFile, MdCode, MdFolder, MdLink } from "react-icons/md"
-import { DocumentEnums } from "./enums/document-enums"
-import { getShortType } from "../../../helperFunctions"
+import { DocumentEnums, getEntityName } from "./enums/document-enums"
 import { useMediaQuery } from "@material-ui/core"
 
 const entityToIcon = {
@@ -14,7 +13,7 @@ const entityToIcon = {
 
 const FileIcon = ({ file }) => {
     const classes = useFileExplorerStyles()
-    const entityName = getShortType(file["_type"])
+    const entityName = getEntityName(file._type)
     const isMobile = useMediaQuery("(max-width: 600px)")
 
     return (

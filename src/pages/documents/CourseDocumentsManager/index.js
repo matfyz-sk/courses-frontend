@@ -3,13 +3,13 @@ import { withRouter } from "react-router-dom"
 import { connect } from "react-redux"
 import { Alert } from "@material-ui/lab"
 import { Button, IconButton, LinearProgress, TextField, ThemeProvider, useMediaQuery } from "@material-ui/core"
-import { getShortID, getShortType } from "../../../helperFunctions"
+import { getShortID } from "../../../helperFunctions"
 import { redirect } from "../../../constants/redirect"
 import * as ROUTES from "../../../constants/routes"
 import { DATA_PREFIX } from "../../../constants/ontology"
 import { setClipboardBeingCut, setClipboardOldParent, setFolder } from "../../../redux/actions"
 import FileExplorer from "../FileExplorer"
-import { DocumentEnums } from "../common/enums/document-enums"
+import { DocumentEnums, getEntityName } from "../common/enums/document-enums"
 import { customTheme } from "../styles"
 import FolderDialog from "./FolderDialog"
 import CreateDocumentMenu from "./CreateDocumentMenu"
@@ -69,7 +69,7 @@ function CourseDocumentManager(props) {
     // const [isRelocateDialogOpen, setIsRelocateDialogOpen] = useState(false)
 
     const onFsObjectRowClick = (_, fsObject) => {
-        if (DocumentEnums.folder.entityName === getShortType(fsObject._type)) {
+        if (DocumentEnums.folder.entityName === getEntityName(fsObject._type)) {
             window.scrollTo({ top: 0, behavior: "smooth" })
             history.push(
                 redirect(ROUTES.DOCUMENTS_IN_FOLDER, [

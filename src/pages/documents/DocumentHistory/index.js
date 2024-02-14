@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { Alert } from "reactstrap"
 import { Redirect, withRouter } from "react-router"
-import { getShortID, getShortType } from "../../../helperFunctions"
+import { getShortID } from "../../../helperFunctions"
 import { redirect } from "../../../constants/redirect"
 import * as ROUTES from "../../../constants/routes"
 import "./diff.css"
@@ -25,7 +25,7 @@ import {
     useUpdateInternalDocumentMutation,
 } from "../../../services/documentsGraph"
 import { useGetCourseInstanceQuery, useUpdateCourseInstanceMutation } from "../../../services/course"
-import { DocumentEnums } from "../common/enums/document-enums"
+import { DocumentEnums, getEntityName } from "../common/enums/document-enums"
 import { DATA_PREFIX } from "../../../constants/ontology"
 
 const LOOP_ARBITRARY_LIMIT = 100
@@ -83,7 +83,7 @@ function DocumentHistory({ match, history, location }) {
     const [indexOfVersionBefore, setIndexOfVersionBefore] = useState(1)
     const [indexOfVersionAfter, setIndexOfVersionAfter] = useState(0)
 
-    const entityName = versions[0] ? getShortType(versions[0]._type) : ""
+    const entityName = versions[0] ? getEntityName(versions[0]._type) : ""
     const pickedVersionB = versions.length > 1 ? versions[indexOfVersionBefore] : {}
     const pickedVersionA = versions.length > 1 ? versions[indexOfVersionAfter] : {}
 
@@ -115,11 +115,11 @@ function DocumentHistory({ match, history, location }) {
         let current = await getDocument({ shortId: newestVersionId }).unwrap()
         while (current && fetchedVersions.length < LOOP_ARBITRARY_LIMIT) {
             fetchedVersions.push(current)
-            let previousVersion = null
-            if (current.previousVersion) {
-                previousVersion = await getDocument({ shortId: getShortID(current.previousVersion._id) }).unwrap()
+            let previousDocumentVersion = null
+            if (current.previousDocumentVersion) {
+                previousDocumentVersion = await getDocument({ shortId: getShortID(current.previousDocumentVersion._id) }).unwrap()
             }
-            current = previousVersion
+            current = previousDocumentVersion
         }
 
         const firstNotDeleted = fetchedVersions.findIndex(doc => !doc.isDeleted)
@@ -146,10 +146,10 @@ function DocumentHistory({ match, history, location }) {
         versionToRestore = {
             ...versionToRestore,
             courseInstances: versionToRestore.courseInstances.map(ci => ci._id),
-            nextVersion: null,
-            historicVersion: versions.map(v => v._id),
+            nextDocumentVersion: null,
+            historicDocumentVersions: versions.map(v => v._id),
             restoredFrom: versionToRestore.createdAt?.millis,
-            previousVersion: latestVersion._id,
+            previousDocumentVersion: latestVersion._id,
         }
 
         try {
@@ -159,21 +159,21 @@ function DocumentHistory({ match, history, location }) {
                 newVersionId = newVersionId._id
                 await updateInternalDocument({
                     id: latestVersion._id,
-                    body: { nextVersion: newVersionId },
+                    body: { nextDocumentVersion: newVersionId },
                 }).unwrap()
             } else if (entityName === DocumentEnums.externalDocument.entityName) {
                 newVersionId = await addExternalDocument(versionToRestore).unwrap()
                 newVersionId = newVersionId._id
                 await updateExternalDocument({
                     id: latestVersion._id,
-                    body: { nextVersion: newVersionId },
+                    body: { nextDocumentVersion: newVersionId },
                 }).unwrap()
             } else if (entityName === DocumentEnums.file.entityName) {
                 // REST API because of base64 issues
                 newVersionId = await addFile(versionToRestore).unwrap()
                 await updateFile({
                     id: getShortID(latestVersion._id),
-                    body: { nextVersion: newVersionId },
+                    body: { nextDocumentVersion: newVersionId },
                 }).unwrap()
             }
             await updateDocumentReference({

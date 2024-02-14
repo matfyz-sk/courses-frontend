@@ -60,14 +60,14 @@ function InternalDocumentForm({ match, history, parentFolderId, handleEdit }) {
             editorContent,
             isDeleted: false,
             courseInstances: internalDocument.courseInstances.map(item => item._id),
-            previousVersion: internalDocument._id,
-            historicVersion: [...internalDocument.historicVersion.map(item => item._id), internalDocument._id],
+            previousDocumentVersion: internalDocument._id,
+            historicDocumentVersions: [...internalDocument.historicDocumentVersions.map(item => item._id), internalDocument._id],
         }
         try {
             const newDocument = await addInternalDocument(body).unwrap()
             await updateInternalDocument({
                 id: internalDocument._id,
-                body: { nextVersion: newDocument._id },
+                body: { nextDocumentVersion: newDocument._id },
             }).unwrap()
             await handleEdit(newDocument._id)
         } catch (e) {
@@ -108,7 +108,7 @@ function InternalDocumentForm({ match, history, parentFolderId, handleEdit }) {
                             color="primary"
                             aria-label="history"
                             style={{ outline: "None" }}
-                            disabled={isReadOnly || !internalDocument?.previousVersion}
+                            disabled={isReadOnly || !internalDocument?.previousDocumentVersion}
                             onClick={() =>
                                 history.push(
                                     redirect(ROUTES.DOCUMENT_HISTORY, [{ key: "course_id", value: courseId }]),

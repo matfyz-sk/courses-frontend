@@ -46,15 +46,15 @@ function ExternalDocumentForm({ match, history, handleEdit, parentFolderId }) {
             uri,
             isDeleted: false,
             courseInstances: externalDocument.courseInstances.map(item => item._id),
-            previousVersion: externalDocument._id,
-            historicVersion: [...externalDocument.historicVersion.map(item => item._id), externalDocument._id],
+            previousDocumentVersion: externalDocument._id,
+            historicDocumentVersions: [...externalDocument.historicDocumentVersions.map(item => item._id), externalDocument._id],
         }
 
         try {
             const newExternalDocument = await addExternalDocument(body).unwrap()
             await updateExternalDocument({
                 id: externalDocument._id,
-                body: { nextVersion: newExternalDocument._id },
+                body: { nextDocumentVersion: newExternalDocument._id },
             }).unwrap()
             await handleEdit(newExternalDocument._id)
         } catch (e) {
@@ -94,7 +94,7 @@ function ExternalDocumentForm({ match, history, handleEdit, parentFolderId }) {
                         color="primary"
                         aria-label="history"
                         style={{ outline: "None" }}
-                        disabled={isReadOnly || !externalDocument?.previousVersion}
+                        disabled={isReadOnly || !externalDocument?.previousDocumentVersion}
                         onClick={() =>
                             history.push(redirect(ROUTES.DOCUMENT_HISTORY, [{ key: "course_id", value: courseId }]), {
                                 documentId,

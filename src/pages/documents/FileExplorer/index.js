@@ -13,10 +13,10 @@ import {
     Toolbar,
     withStyles,
 } from "@material-ui/core"
-import { getShortType, timestampToString2 } from "../../../helperFunctions"
+import { timestampToString2 } from "../../../helperFunctions"
 import { withRouter } from "react-router"
 import { MdContentPaste, MdEdit, MdMoreVert } from "react-icons/md"
-import { DocumentEnums } from "../common/enums/document-enums"
+import { DocumentEnums, getEntityName } from "../common/enums/document-enums"
 import { customTheme, useFileExplorerStyles } from "../styles"
 import FileIcon from "../common/FileIcon"
 import { connect } from "react-redux"
@@ -43,8 +43,8 @@ const CustomListItemIcon = withStyles({
 
 function descendingComparator(a, b, orderBy) {
     if (orderBy === "_type") {
-        const aEntityName = getShortType(a["_type"])
-        const bEntityName = getShortType(b["_type"])
+        const aEntityName = getEntityName(a["_type"])
+        const bEntityName = getEntityName(b["_type"])
         if (bEntityName !== DocumentEnums.folder.entityName && aEntityName === DocumentEnums.folder.entityName)
             return -1
         if (bEntityName === DocumentEnums.folder.entityName && aEntityName !== DocumentEnums.folder.entityName) return 1
@@ -216,7 +216,7 @@ function FileExplorer({
                         <TableBody>
                             {prepareFsObjects(files).map((file, i) => {
                                 const labelId = `enhanced-table-${file["_id"]}`
-                                const entityName = getShortType(file["_type"])
+                                const entityName = getEntityName(file["_type"])
                                 const fileCreatedAt = file.createdAt ? timestampToString2(file.createdAt) : ""
 
                                 return (

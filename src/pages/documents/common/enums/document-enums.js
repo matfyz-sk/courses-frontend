@@ -23,12 +23,12 @@ export const getIdByEntityName = entityName => {
 
 export const DocumentEnums = Object.freeze({
     internalDocument: {
-        id: `${ONTOLOGY_PREFIX}Internaldocument`,
+        id: `${ONTOLOGY_PREFIX}InternalDocument`,
         entityName: "internaldocument",
         name: "Internal Document",
     },
     externalDocument: {
-        id: `${ONTOLOGY_PREFIX}Externaldocument`,
+        id: `${ONTOLOGY_PREFIX}ExternalDocument`,
         entityName: "externaldocument",
         name: "External Document",
     },

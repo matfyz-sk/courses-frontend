@@ -21,14 +21,14 @@ export const documentsGraphApi = createApi({
     baseQuery: graphqlBaseQuery({
         url: `${BACKEND_URL}graphql`,
     }),
-    tagTypes: ["Folder", "Externaldocument", "Internaldocument", "File", "DocumentReference"],
+    tagTypes: ["Folder", "ExternalDocument", "InternalDocument", "File", "DocumentReference"],
     endpoints: builder => ({
         getDeletedDocuments: builder.query({
             query: ({ courseInstanceId }) => {
                 return {
                     document: gql`
                         query {
-                          courses_Internaldocument {
+                          courses_InternalDocument {
                             _id
                             _type
                             courses_name
@@ -41,7 +41,7 @@ export const documentsGraphApi = createApi({
                               _id
                             }
                           }
-                          courses_Externaldocument {
+                          courses_ExternalDocument {
                             _id
                             _type
                             courses_name
@@ -74,8 +74,8 @@ export const documentsGraphApi = createApi({
                 let documents = []
                 try {
                     documents = [
-                        ...(response.Internaldocument ?? []),
-                        ...(response.Externaldocument ?? []),
+                        ...(response.InternalDocument ?? []),
+                        ...(response.ExternalDocument ?? []),
                         ...(response.File ?? []),
                     ]
                 } catch {
@@ -83,7 +83,7 @@ export const documentsGraphApi = createApi({
                 }
                 return syncIdAndTypeOfEntities(documents?.filter(entity => entity.isDeleted === true))
             },
-            providesTags: ["Externaldocument", "Internaldocument", "File"],
+            providesTags: ["ExternalDocument", "InternalDocument", "File"],
         }),
         getDocuments: builder.query({
             query: ({ documentIds }) => {
@@ -95,7 +95,7 @@ export const documentsGraphApi = createApi({
                 return {
                     document: gql`
                         query {
-                          courses_Internaldocument(
+                          courses_InternalDocument(
                             _id: ${internalDocIds.length > 0 ? getArrayFormat(internalDocIds) : `[null]`}
                           ) {
                             _id
@@ -108,7 +108,7 @@ export const documentsGraphApi = createApi({
                             courses_restoredFrom
                             courses_createdAt
                           }
-                          courses_Externaldocument(
+                          courses_ExternalDocument(
                             _id: ${externalDocIds.length > 0 ? getArrayFormat(externalDocIds) : `[null]`}
                           ) {
                             _id
@@ -141,8 +141,8 @@ export const documentsGraphApi = createApi({
             transformResponse: (response, meta, arg) => {
                 try {
                     const documents = [
-                        ...(response.Internaldocument ?? []),
-                        ...(response.Externaldocument ?? []),
+                        ...(response.InternalDocument ?? []),
+                        ...(response.ExternalDocument ?? []),
                         ...(response.File ?? []),
                     ]
 
@@ -151,7 +151,7 @@ export const documentsGraphApi = createApi({
                     return []
                 }
             },
-            providesTags: ["Externaldocument", "Internaldocument", "File"],
+            providesTags: ["ExternalDocument", "InternalDocument", "File"],
         }),
         getFolder: builder.query({
             query: ({ id, deletedContent }) => {
@@ -193,7 +193,7 @@ export const documentsGraphApi = createApi({
                     } ?? {}
                 )
             },
-            providesTags: ["Folder", "Externaldocument", "Internaldocument", "File"],
+            providesTags: ["Folder", "ExternalDocument", "InternalDocument", "File"],
         }),
         getDocumentReference: builder.query({
             query: ({ courseInstanceId, documentId }) => ({
@@ -240,7 +240,7 @@ export const documentsGraphApi = createApi({
                 return {
                     document: gql`
                         query {
-                          courses_Internaldocument${getSelectById(internalId)} {
+                          courses_InternalDocument${getSelectById(internalId)} {
                             _id
                             _type
                             courses_name
@@ -252,17 +252,17 @@ export const documentsGraphApi = createApi({
                             courses_courseInstances {
                                 _id
                             }
-                            courses_previousVersion {
+                            courses_previousDocumentVersion {
                                 _id
                             }
-                            courses_nextVersion {
+                            courses_nextDocumentVersion {
                                 _id
                             }
-                            courses_historicVersion {
+                            courses_historicDocumentVersions {
                                 _id
                             }
                           }
-                          courses_Externaldocument${getSelectById(externalId)} {
+                          courses_ExternalDocument${getSelectById(externalId)} {
                             _id
                             _type
                             courses_name
@@ -273,13 +273,13 @@ export const documentsGraphApi = createApi({
                             courses_courseInstances {
                                 _id
                             }
-                            courses_previousVersion {
+                            courses_previousDocumentVersion {
                                 _id
                             }
-                            courses_nextVersion {
+                            courses_nextDocumentVersion {
                                 _id
                             }
-                            courses_historicVersion {
+                            courses_historicDocumentVersions {
                                 _id
                             }
                           }
@@ -296,13 +296,13 @@ export const documentsGraphApi = createApi({
                             courses_courseInstances {
                                 _id
                             }
-                            courses_previousVersion {
+                            courses_previousDocumentVersion {
                                 _id
                             }
-                            courses_nextVersion {
+                            courses_nextDocumentVersion {
                                 _id
                             }
-                            courses_historicVersion {
+                            courses_historicDocumentVersions {
                                 _id
                             }
                           }
@@ -310,9 +310,9 @@ export const documentsGraphApi = createApi({
                 }
             },
             transformResponse: (response, meta, arg) => {
-                return response.Internaldocument?.[0] ?? response.Externaldocument?.[0] ?? response.File?.[0]
+                return response.InternalDocument?.[0] ?? response.ExternalDocument?.[0] ?? response.File?.[0]
             },
-            providesTags: ["Externaldocument", "Internaldocument", "File"],
+            providesTags: ["ExternalDocument", "InternalDocument", "File"],
         }),
         getContentOfDocument: builder.query({
             query: ({ id }) => ({
@@ -322,21 +322,21 @@ export const documentsGraphApi = createApi({
                         _id
                         courses_rawContent
                       }
-                      courses_Internaldocument${getSelectById(id)} {
+                      courses_InternalDocument${getSelectById(id)} {
                         _id
                         courses_editorContent
                       }
                     }`,
             }),
             transformResponse: (response, meta, arg) =>
-                response?.File?.[0]?.rawContent ?? response?.Internaldocument?.[0]?.editorContent,
-            providesTags: ["File", "Internaldocument"],
+                response?.File?.[0]?.rawContent ?? response?.InternalDocument?.[0]?.editorContent,
+            providesTags: ["File", "InternalDocument"],
         }),
         getExternalDocument: builder.query({
             query: ({ id }) => ({
                 document: gql`
                 query {
-                  courses_Externaldocument${getSelectById(id)} {
+                  courses_ExternalDocument${getSelectById(id)} {
                     _id
                     _type
                     courses_name
@@ -347,26 +347,26 @@ export const documentsGraphApi = createApi({
                     courses_courseInstances {
                       _id
                     }
-                    courses_previousVersion {
+                    courses_previousDocumentVersion {
                       _id
                     }
-                    courses_nextVersion {
+                    courses_nextDocumentVersion {
                       _id
                     }
-                    courses_historicVersion {
+                    courses_historicDocumentVersions {
                       _id
                     }
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.Externaldocument[0],
-            providesTags: ["Externaldocument"],
+            transformResponse: (response, meta, arg) => response.ExternalDocument[0],
+            providesTags: ["ExternalDocument"],
         }),
         getInternalDocument: builder.query({
             query: ({ id }) => ({
                 document: gql`
                 query {
-                  courses_Internaldocument${getSelectById(id)} {
+                  courses_InternalDocument${getSelectById(id)} {
                     _id
                     _type
                     courses_name
@@ -378,20 +378,20 @@ export const documentsGraphApi = createApi({
                     courses_courseInstances {
                       _id
                     }
-                    courses_previousVersion {
+                    courses_previousDocumentVersion {
                       _id
                     }
-                    courses_nextVersion {
+                    courses_nextDocumentVersion {
                       _id
                     }
-                    courses_historicVersion {
+                    courses_historicDocumentVersions {
                       _id
                     }
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.Internaldocument[0],
-            providesTags: ["Internaldocument"],
+            transformResponse: (response, meta, arg) => response.InternalDocument[0],
+            providesTags: ["InternalDocument"],
         }),
         getFile: builder.query({
             query: ({ id }) => ({
@@ -409,13 +409,13 @@ export const documentsGraphApi = createApi({
                     courses_courseInstances {
                       _id
                     }
-                    courses_previousVersion {
+                    courses_previousDocumentVersion {
                       _id
                     }
-                    courses_nextVersion {
+                    courses_nextDocumentVersion {
                       _id
                     }
-                    courses_historicVersion {
+                    courses_historicDocumentVersions {
                       _id
                     }
                   }
@@ -439,13 +439,13 @@ export const documentsGraphApi = createApi({
                     courses_courseInstances {
                       _id
                     }
-                    courses_previousVersion {
+                    courses_previousDocumentVersion {
                       _id
                     }
-                    courses_nextVersion {
+                    courses_nextDocumentVersion {
                       _id
                     }
-                    courses_historicVersion {
+                    courses_historicDocumentVersions {
                       _id
                     }
                   }
@@ -492,44 +492,44 @@ export const documentsGraphApi = createApi({
             query: body => ({
                 document: gql`
                 mutation {
-                  insert_courses_Externaldocument(
+                  insert_courses_ExternalDocument(
                     courses_name: "${body.name}"
                     courses_uri: "${body.uri}"
                     courses_courseInstances: ${getArrayFormat(body.courseInstances)}
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
-                    ${body.previousVersion ? `courses_previousVersion: "${body.previousVersion}"` : ""}
-                    ${body.nextVersion ? `courses_nextVersion: "${body.nextVersion}"` : ""}
-                    ${body.historicVersion ? `courses_historicVersion: ${getArrayFormat(body.historicVersion)}` : ""}
+                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
+                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
                   ) {
                     _id
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.Externaldocument?.[0],
-            invalidatesTags: ["Externaldocument"],
+            transformResponse: (response, meta, arg) => response.ExternalDocument?.[0],
+            invalidatesTags: ["ExternalDocument"],
         }),
         addInternalDocument: builder.mutation({
             query: body => ({
                 document: gql`
                 mutation {
-                  insert_courses_Internaldocument(
+                  insert_courses_InternalDocument(
                     courses_name: "${body.name}"
                     courses_courseInstances: ${getArrayFormat(body.courseInstances)}
                     courses_mimeType: "${body.mimeType}"
                     ${body.editorContent ? `courses_editorContent: "${body.editorContent}"` : ""}
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
-                    ${body.previousVersion ? `courses_previousVersion: "${body.previousVersion}"` : ""}
-                    ${body.nextVersion ? `courses_nextVersion: "${body.nextVersion}"` : ""}
-                    ${body.historicVersion ? `courses_historicVersion: ${getArrayFormat(body.historicVersion)}` : ""}
+                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
+                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
                   ) {
                     _id
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.Internaldocument?.[0],
-            invalidatesTags: ["Internaldocument"],
+            transformResponse: (response, meta, arg) => response.InternalDocument?.[0],
+            invalidatesTags: ["InternalDocument"],
         }),
         addFile: builder.mutation({
             query: body => ({
@@ -543,9 +543,9 @@ export const documentsGraphApi = createApi({
                     ${body.mimeType ? `courses_mimeType: "${body.mimeType}"` : ""}
                     ${body.filename ? `courses_filename: "${body.filename}"` : ""}
                     ${body.rawContent ? `courses_rawContent: "${body.rawContent}"` : ""}
-                    ${body.previousVersion ? `courses_previousVersion: "${body.previousVersion}"` : ""}
-                    ${body.nextVersion ? `courses_nextVersion: "${body.nextVersion}"` : ""}
-                    ${body.historicVersion ? `courses_historicVersion: ${getArrayFormat(body.historicVersion)}` : ""}
+                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
+                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
                   ) {
                     _id
                   }
@@ -593,29 +593,29 @@ export const documentsGraphApi = createApi({
             query: ({ id, body }) => ({
                 document: gql`
                 mutation {
-                  update_courses_Externaldocument(
+                  update_courses_ExternalDocument(
                     _id: "${id}"
                     ${body.name ? `courses_name: "${body.name}"` : ""}
                     ${body.uri ? `courses_uri: "${body.uri}"` : ""}
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${body.courseInstances ? `courses_courseInstances: ${getArrayFormat(body.courseInstances)}` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
-                    ${body.previousVersion ? `courses_previousVersion: "${body.previousVersion}"` : ""}
-                    ${body.nextVersion ? `courses_nextVersion: "${body.nextVersion}"` : ""}
-                    ${body.historicVersion ? `courses_historicVersion: ${getArrayFormat(body.historicVersion)}` : ""}
+                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
+                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
                   ) {
                     _id
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.Externaldocument?.[0],
-            invalidatesTags: ["Externaldocument"],
+            transformResponse: (response, meta, arg) => response.ExternalDocument?.[0],
+            invalidatesTags: ["ExternalDocument"],
         }),
         updateInternalDocument: builder.mutation({
             query: ({ id, body }) => ({
                 document: gql`
                 mutation {
-                  update_courses_Internaldocument(
+                  update_courses_InternalDocument(
                     _id: "${id}"
                     ${body.name ? `courses_name: "${body.name}"` : ""}
                     ${body.mimeType ? `courses_mimeType: "${body.mimeType}"` : ""}
@@ -623,16 +623,16 @@ export const documentsGraphApi = createApi({
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.courseInstances ? `courses_courseInstances: ${getArrayFormat(body.courseInstances)}` : ""}
-                    ${body.previousVersion ? `courses_previousVersion: "${body.previousVersion}"` : ""}
-                    ${body.nextVersion ? `courses_nextVersion: "${body.nextVersion}"` : ""}
-                    ${body.historicVersion ? `courses_historicVersion: ${getArrayFormat(body.historicVersion)}` : ""}
+                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
+                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
                   ) {
                     _id
                   }
                 }`,
             }),
-            transformResponse: (response, meta, arg) => response.Internaldocument?.[0],
-            invalidatesTags: ["Internaldocument"],
+            transformResponse: (response, meta, arg) => response.InternalDocument?.[0],
+            invalidatesTags: ["InternalDocument"],
         }),
         updateFile: builder.mutation({
             query: ({ id, body }) => ({
@@ -647,9 +647,9 @@ export const documentsGraphApi = createApi({
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.courseInstances ? `courses_courseInstances: ${getArrayFormat(body.courseInstances)}` : ""}
-                    ${body.previousVersion ? `courses_previousVersion: "${body.previousVersion}"` : ""}
-                    ${body.nextVersion ? `courses_nextVersion: "${body.nextVersion}"` : ""}
-                    ${body.historicVersion ? `courses_historicVersion: ${getArrayFormat(body.historicVersion)}` : ""}
+                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
+                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
                   ) {
                     _id
                   }

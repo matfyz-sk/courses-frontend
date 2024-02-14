@@ -65,14 +65,14 @@ function FileForm({ match, history, parentFolderId, handleEdit }) {
             rawContent,
             isDeleted: false,
             courseInstances: file?.courseInstances?.map(item => item["@id"]) ?? [],
-            previousVersion: file["@id"],
-            historicVersion: [...file.historicVersion.map(item => item["@id"]), file["@id"]],
+            previousDocumentVersion: file["@id"],
+            historicDocumentVersions: [...file.historicDocumentVersions.map(item => item["@id"]), file["@id"]],
         }
         try {
             const newDocumentId = await addFile(body).unwrap()
             await updateFile({
                 id: getShortID(file["@id"]),
-                body: { nextVersion: newDocumentId },
+                body: { nextDocumentVersion: newDocumentId },
             }).unwrap()
             await handleEdit(newDocumentId)
         } catch (e) {
@@ -113,7 +113,7 @@ function FileForm({ match, history, parentFolderId, handleEdit }) {
                             color="primary"
                             aria-label="history"
                             style={{ outline: "None" }}
-                            disabled={isReadOnly || !file?.previousVersion}
+                            disabled={isReadOnly || !file?.previousDocumentVersion}
                             onClick={() =>
                                 history.push(
                                     redirect(ROUTES.DOCUMENT_HISTORY, [{ key: "course_id", value: courseId }]),

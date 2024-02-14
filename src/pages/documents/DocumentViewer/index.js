@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react"
-import { getShortType } from "../../../helperFunctions"
-import { DocumentEnums } from "../common/enums/document-enums"
+import { DocumentEnums, getEntityName } from "../common/enums/document-enums"
 import PdfRenderer from "./PdfRenderer"
 import InternalDocumentRenderer from "./InternalDocumentRenderer"
 import "./DocumentViewer.css"
@@ -29,7 +28,7 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
 
     const [numPages, setNumPages] = useState(null)
     const [pageNumber, setPageNumber] = useState(1)
-    const entityName = getShortType(document._type)
+    const entityName = getEntityName(document._type)
 
     const changePage = offset => {
         setPageNumber(prevPageNumber => prevPageNumber + offset)
