@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react"
-import { axiosGetEntities, getResponseBody, getShortID, getShortType } from "../../../helperFunctions"
+import React, { useRef, useState } from "react"
+import { getShortType } from "../../../helperFunctions"
 import { DocumentEnums } from "../common/enums/document-enums"
 import PdfRenderer from "./PdfRenderer"
 import InternalDocumentRenderer from "./InternalDocumentRenderer"
@@ -17,7 +17,7 @@ import { HiDownload } from "react-icons/hi"
 import { customTheme, usePdfRendererStyles } from "../styles"
 import downloadBase64File from "../common/functions/downloadBase64File"
 import useEventListener from "@use-it/event-listener"
-import { useGetContentOfDocumentQuery } from "../../../services/documentsGraph";
+import { useGetContentOfDocumentQuery } from "../../../services/documentsGraph"
 
 function DocumentViewer({ document, onViewingDocumentChange }) {
     const classes = usePdfRendererStyles()
@@ -25,13 +25,11 @@ function DocumentViewer({ document, onViewingDocumentChange }) {
     // event listener doesn't work when I change page with buttons so this is a fix...
     const focusHackRef = useRef()
 
-    const {data: documentContent} = useGetContentOfDocumentQuery({id: document._id})
-
+    const { data: documentContent } = useGetContentOfDocumentQuery({ id: document._id })
 
     const [numPages, setNumPages] = useState(null)
     const [pageNumber, setPageNumber] = useState(1)
     const entityName = getShortType(document._type)
-
 
     const changePage = offset => {
         setPageNumber(prevPageNumber => prevPageNumber + offset)

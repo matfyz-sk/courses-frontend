@@ -1,5 +1,5 @@
-import { MdChevronRight } from "react-icons/md";
-import React from "react";
+import { MdChevronRight } from "react-icons/md"
+import React from "react"
 import "./diff.css"
 
 export default function TextComparator({ textA, textB }) {

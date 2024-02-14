@@ -69,16 +69,6 @@ export const documentsApi = createApi({
             }),
             transformResponse: (response, meta, arg) => response.resource.iri,
             invalidatesTags: ['Documents'],
-        }),
-        getFolderParentChain: builder.query({
-          query: (id) => ({ url: `folder/${id}?_chain=parent&_join=parent` }),
-          transformResponse: (response, meta, arg) => response["@graph"] ?? [],
-          providesTags: ['Documents'],
-        }),
-        getDocumentHistory: builder.query({
-            query: (id) => ({ url: `document/${id}?_chain=previousVersion` }),
-            transformResponse: (response, meta, arg) => response["@graph"] ?? [],
-            providesTags: ['Documents'],
         })
     }),
 })
@@ -90,7 +80,5 @@ export const {
     useGetFileQuery,
     useNewFolderMutation,
     useAddFileMutation,
-    useUpdateFileMutation,
-    useGetFolderParentChainQuery,
-    useGetDocumentHistoryQuery
+    useUpdateFileMutation
 } = documentsApi

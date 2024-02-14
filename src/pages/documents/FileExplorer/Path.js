@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { Breadcrumbs, Typography } from "@material-ui/core"
 import { Link } from "react-router-dom"
-import { getShortID } from "../../../helperFunctions"
 import { makeStyles } from "@material-ui/styles"
-import { useLazyGetFolderQuery } from "../../../services/documentsGraph";
+import { useLazyGetFolderQuery } from "../../../services/documentsGraph"
 
 const LOOP_ARBITRARY_LIMIT = 50
 
@@ -37,13 +36,11 @@ function Path({ folder, onPathFolderClickHandler }) {
             console.error("Path is too long")
         }
         setPathToRootFolder(path.reverse())
-
     }, [folderId])
 
     useEffect(() => {
         fetchFolderToRootPath()
     }, [fetchFolderToRootPath])
-
 
     return (
         <div>

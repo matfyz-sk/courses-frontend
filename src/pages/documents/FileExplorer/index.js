@@ -9,21 +9,19 @@ import {
     TableBody,
     TableCell,
     TableContainer,
-    TableHead,
     TableRow,
-    TableSortLabel,
     Toolbar,
     withStyles,
 } from "@material-ui/core"
 import { getShortType, timestampToString2 } from "../../../helperFunctions"
 import { withRouter } from "react-router"
-import { MdContentCut, MdContentPaste, MdEdit, MdMoreVert } from "react-icons/md"
+import { MdContentPaste, MdEdit, MdMoreVert } from "react-icons/md"
 import { DocumentEnums } from "../common/enums/document-enums"
 import { customTheme, useFileExplorerStyles } from "../styles"
 import FileIcon from "../common/FileIcon"
 import { connect } from "react-redux"
 import EnhancedTableHead from "./EnhancedTableHead"
-import Path from "./Path";
+import Path from "./Path"
 
 const CustomTableRow = withStyles({
     root: {
@@ -49,8 +47,7 @@ function descendingComparator(a, b, orderBy) {
         const bEntityName = getShortType(b["_type"])
         if (bEntityName !== DocumentEnums.folder.entityName && aEntityName === DocumentEnums.folder.entityName)
             return -1
-        if (bEntityName === DocumentEnums.folder.entityName && aEntityName !== DocumentEnums.folder.entityName)
-            return 1
+        if (bEntityName === DocumentEnums.folder.entityName && aEntityName !== DocumentEnums.folder.entityName) return 1
         return 0
     }
 
@@ -99,8 +96,6 @@ function FileExplorer({
     const [anchorEls, setAnchorEls] = React.useState([])
     const [order, setOrder] = useState("desc")
     const [orderBy, setOrderBy] = useState("createdAt")
-
-
 
     const handleOptionsClick = (event, i) => {
         let newAnchorEls = anchorEls.slice()
@@ -162,19 +157,14 @@ function FileExplorer({
         return fsObjects.map(fsObject => {
             return {
                 ...fsObject,
-                createdAt: fsObject.createdAt?.representation
-                    ? fsObject.createdAt.representation
-                    : fsObject.createdAt,
+                createdAt: fsObject.createdAt?.representation ? fsObject.createdAt.representation : fsObject.createdAt,
             }
         })
     }
 
     const prepareFsObjects = fsObjects => {
         let filteredFsObjects = filterSearched(filterToBeCut(prepareFolders(normalizeCreatedAtParameter(fsObjects))))
-        return stableSort(
-            stableSort(filteredFsObjects, getComparator(order, orderBy)),
-            getComparator("desc", "_type")
-        )
+        return stableSort(stableSort(filteredFsObjects, getComparator(order, orderBy)), getComparator("desc", "_type"))
     }
 
     return (

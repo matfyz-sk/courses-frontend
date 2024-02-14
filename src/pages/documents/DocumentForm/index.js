@@ -26,7 +26,10 @@ function DocumentForm({ match, history }) {
 
     const { data: document, isFetching: isDocumentFetching } = useGetDocumentQuery({ shortId: documentId })
     const { data: folder, isFetching: isFolderFetching } = useGetFolderQuery({ id: folderFullId }, { skip: !folderId })
-    const { data: courseInstanceData, isFetching: isCourseInstanceFetching } = useGetCourseInstanceQuery({ id: courseInstanceFullId }, { skip: !courseId })
+    const { data: courseInstanceData, isFetching: isCourseInstanceFetching } = useGetCourseInstanceQuery(
+        { id: courseInstanceFullId },
+        { skip: !courseId }
+    )
 
     const courseInstance = courseInstanceData?.[0] ?? {}
 
@@ -50,7 +53,7 @@ function DocumentForm({ match, history }) {
             id: folderFullId,
             body: {
                 folderContent: [
-                    ...folder?.folderContent.map(item => item._id).filter(_id => _id !== documentFullId) ?? [],
+                    ...(folder?.folderContent.map(item => item._id).filter(_id => _id !== documentFullId) ?? []),
                     newDocumentId,
                 ],
             },
@@ -66,16 +69,16 @@ function DocumentForm({ match, history }) {
             id: courseInstanceFullId,
             body: {
                 hasDocument: [
-                    ...courseInstance?.hasDocument.map(item => item._id).filter(_id => _id !== documentFullId) ?? [],
+                    ...(courseInstance?.hasDocument.map(item => item._id).filter(_id => _id !== documentFullId) ?? []),
                     newDocumentId,
                 ],
             },
         })
         history.push(
-            redirect(
-                ROUTES.DOCUMENTS_IN_FOLDER,
-                [{ key: "course_id", value: courseId }, { key: "folder_id", value: folderId}]
-            )
+            redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
+                { key: "course_id", value: courseId },
+                { key: "folder_id", value: folderId },
+            ])
         )
     }
     if (isFetching) return <div></div>
@@ -89,7 +92,9 @@ function DocumentForm({ match, history }) {
                 {entityName === DocumentEnums.internalDocument.entityName && (
                     <InternalDocumentForm parentFolderId={folderId} handleEdit={onEdit} />
                 )}
-                {entityName === DocumentEnums.file.entityName && <FileForm parentFolderId={folderId} handleEdit={onEdit} />}
+                {entityName === DocumentEnums.file.entityName && (
+                    <FileForm parentFolderId={folderId} handleEdit={onEdit} />
+                )}
             </div>
         </ThemeProvider>
     )

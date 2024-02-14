@@ -1,24 +1,17 @@
 import React, { useEffect, useRef, useState } from "react"
 import FileExplorer from "../../FileExplorer"
 import { DocumentEnums, getEntityName } from "../enums/document-enums"
-import { axiosGetEntities, getResponseBody, getShortID, getShortType } from "../../../../helperFunctions"
-import { connect } from "react-redux"
 import { withRouter } from "react-router"
 import { Dialog, DialogContent, DialogTitle, LinearProgress } from "@material-ui/core"
 import { Alert } from "@material-ui/lab"
 import DocumentsList from "./DocumentsList"
 import { makeStyles } from "@material-ui/styles"
 import { customTheme } from "../../styles"
-import getReferenceOfDocument from "../functions/documentReferenceCreation"
-import { setFolder } from "../../../../redux/actions"
 import { useGetCourseInstanceQuery } from "../../../../services/course"
 import {
-    useGetFolderQuery,
-    useGetDocumentReferencesQuery,
-    useLazyGetFolderQuery,
     useGetDocumentsQuery,
-    useGetDocumentReferenceQuery,
     useLazyGetDocumentReferenceQuery,
+    useLazyGetFolderQuery,
 } from "../../../../services/documentsGraph"
 import { DATA_PREFIX } from "../../../../constants/ontology"
 
@@ -35,13 +28,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 // kinda tightly coupled 🥲
-function DocumentReferencer({
-    label,
-    documentReferences,
-    onDocumentReferencesChange,
-    match,
-    isReadOnly,
-}) {
+function DocumentReferencer({ label, documentReferences, onDocumentReferencesChange, match, isReadOnly }) {
     const classes = useStyles()
     const courseId = match.params.course_id
     const courseInstanceFullId = `${DATA_PREFIX}courseInstance/${courseId}`
@@ -58,16 +45,14 @@ function DocumentReferencer({
     const [open, setOpen] = useState(false)
     const dialogRef = useRef()
 
-
     const { data: chosenDocuments } = useGetDocumentsQuery({
         documentIds: documentReferences.map(ref => ref.document._id),
     })
     const [getLazyDocRef] = useLazyGetDocumentReferenceQuery()
 
-
     useEffect(() => {
         if (courseInstance) {
-            getFolder({ id: courseInstance.fileExplorerRoot._id})
+            getFolder({ id: courseInstance.fileExplorerRoot._id })
         }
     }, [folderForExplorerIsUninitialized, courseInstance])
 
@@ -92,7 +77,7 @@ function DocumentReferencer({
             dialogRef.current.scrollTo({ top: 0, behavior: "smooth" })
             return
         }
-        addToDocuments(fsObject).then(() => setOpen(false))        
+        addToDocuments(fsObject).then(() => setOpen(false))
     }
 
     return (

@@ -1,5 +1,4 @@
 import { Button, IconButton, TextField } from "@material-ui/core"
-import { customTheme } from "../styles"
 import { MdDelete, MdHistory, MdRestorePage } from "react-icons/md"
 import { isValidHttpUrl } from "../../../functions/validators"
 import { withRouter } from "react-router-dom"

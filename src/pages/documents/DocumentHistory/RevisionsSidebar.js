@@ -1,9 +1,9 @@
-import { makeStyles, Radio, useMediaQuery } from "@material-ui/core";
-import { MdChevronLeft } from "react-icons/md";
-import { timestampToString2 } from "../../../helperFunctions";
-import { customTheme } from "../styles";
-import React, { useState } from "react";
-import { ListGroup, ListGroupItem } from "reactstrap";
+import { makeStyles, Radio, useMediaQuery } from "@material-ui/core"
+import { MdChevronLeft } from "react-icons/md"
+import { timestampToString2 } from "../../../helperFunctions"
+import { customTheme } from "../styles"
+import React from "react"
+import { ListGroup, ListGroupItem } from "reactstrap"
 
 const useStyles = makeStyles({
     sidebar: {
@@ -20,7 +20,6 @@ const useStyles = makeStyles({
     },
 })
 
-
 export default function RevisionsSidebar({
     versions,
     indexOfVersionBefore,
@@ -33,7 +32,6 @@ export default function RevisionsSidebar({
     const style = useStyles()
     const isMobile = useMediaQuery("(max-width:760px)")
     const firstVersion = versions[0]
-
 
     const handleVersionAfterChange = e => {
         if (isMobile) {
@@ -63,7 +61,7 @@ export default function RevisionsSidebar({
                 )}
                 {versions.map((v, i) => {
                     return (
-                        <ListGroupItem key={v._id} className={style.sidebarRow} >
+                        <ListGroupItem key={v._id} className={style.sidebarRow}>
                             <div
                                 style={{
                                     display: "flex",
@@ -86,7 +84,9 @@ export default function RevisionsSidebar({
                                             value={i}
                                             name="before-revisions"
                                             inputProps={{
-                                                "aria-label": `before from ${timestampToString2(v.createdAt?.representation)}`,
+                                                "aria-label": `before from ${timestampToString2(
+                                                    v.createdAt?.representation
+                                                )}`,
                                             }}
                                         />
                                         <Radio

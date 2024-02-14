@@ -110,12 +110,15 @@ function InternalDocumentForm({ match, history, parentFolderId, handleEdit }) {
                             style={{ outline: "None" }}
                             disabled={isReadOnly || !internalDocument?.previousVersion}
                             onClick={() =>
-                                history.push(redirect(ROUTES.DOCUMENT_HISTORY, [{ key: "course_id", value: courseId }]), {
-                                    documentId,
-                                    parentFolderId,
-                                })
+                                history.push(
+                                    redirect(ROUTES.DOCUMENT_HISTORY, [{ key: "course_id", value: courseId }]),
+                                    {
+                                        documentId,
+                                        parentFolderId,
+                                    }
+                                )
                             }
-                            >
+                        >
                             <MdHistory disabled={true} />
                         </IconButton>
                         <IconButton

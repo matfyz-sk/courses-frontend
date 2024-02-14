@@ -21,7 +21,6 @@ import {
     useGetFolderQuery,
     useUpdateFolderMutation,
 } from "../../../services/documentsGraph"
-import { useGetFolderParentChainQuery } from "../../../services/documents"
 
 function CourseDocumentManager(props) {
     const {
@@ -95,7 +94,7 @@ function CourseDocumentManager(props) {
             name: folderName,
             isDeleted: false,
             courseInstance: `${DATA_PREFIX}courseInstance/${courseId}`,
-            parent: folder?._id
+            parent: folder?._id,
         }
 
         const addResponse = await addFolder(data).unwrap()

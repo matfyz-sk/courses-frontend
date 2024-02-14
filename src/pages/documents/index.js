@@ -22,7 +22,11 @@ function DocumentsNavigation({ match }) {
 
     if (isFetching) {
         return (
-            <Alert style={{ maxWidth: "1100px", margin: "20px auto", padding: 10 }} color="success" className="empty-message">
+            <Alert
+                style={{ maxWidth: "1100px", margin: "20px auto", padding: 10 }}
+                color="success"
+                className="empty-message"
+            >
                 Loading...
             </Alert>
         )

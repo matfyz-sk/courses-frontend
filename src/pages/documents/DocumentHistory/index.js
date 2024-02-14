@@ -1,11 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { Alert } from "reactstrap"
 import { Redirect, withRouter } from "react-router"
-import { connect } from "react-redux"
 import { getShortID, getShortType } from "../../../helperFunctions"
 import { redirect } from "../../../constants/redirect"
 import * as ROUTES from "../../../constants/routes"
-import { setCurrentDocumentsOfCourseInstance } from "../../../redux/actions"
 import "./diff.css"
 import "./mdStyling.css"
 import { IconButton, makeStyles, ThemeProvider, useMediaQuery } from "@material-ui/core"
@@ -14,17 +12,17 @@ import { customTheme } from "../styles"
 import TextComparator from "./TextComparator"
 import RevisionsSidebar from "./RevisionsSidebar"
 import EntityComparator from "./EntityComparator"
-import { useAddFileMutation, useGetDocumentHistoryQuery, useUpdateFileMutation } from "../../../services/documents"
+import { useAddFileMutation, useUpdateFileMutation } from "../../../services/documents"
 import {
     useAddExternalDocumentMutation,
     useAddInternalDocumentMutation,
     useGetDocumentReferenceQuery,
+    useGetFolderQuery,
+    useLazyGetDocumentQuery,
     useUpdateDocumentReferenceMutation,
     useUpdateExternalDocumentMutation,
     useUpdateFolderMutation,
     useUpdateInternalDocumentMutation,
-    useGetFolderQuery,
-    useLazyGetDocumentQuery,
 } from "../../../services/documentsGraph"
 import { useGetCourseInstanceQuery, useUpdateCourseInstanceMutation } from "../../../services/course"
 import { DocumentEnums } from "../common/enums/document-enums"
