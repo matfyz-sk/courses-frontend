@@ -17,6 +17,14 @@ export const USER_MANAGEMENT = coursePrefix('/usermanagement/')
 export const COURSE_MIGRATION = coursePrefix('/coursemigration/')
 export const ASSIGNMENTS = coursePrefix('/assignments')
 export const QUIZ = coursePrefix('/quiz')
+export const QUIZNEW = coursePrefix('/quiz-new')
+export const ADD_QUIZ_QUESTION_NEW = coursePrefix('/quiz-new/add-question')
+export const QUIZ_QUESTION_DETAIL_NEW = coursePrefix(
+  '/quiz-new/question/:question_id'
+)
+export const EDIT_QUESTION_NEW = coursePrefix(
+  '/quiz-new/question/:question_id/edit'
+)
 export const INFO_PAGE = '/info/:course_id'
 export const ACCESS_DENIED = '/accessdenied'
 export const NOT_FOUND = '/notfound'
@@ -27,8 +35,12 @@ export const DOCUMENTS_IN_FOLDER = coursePrefix('/documents/folder/:folder_id')
 export const DELETED_DOCUMENTS = coursePrefix('/documents/deleted')
 export const EDIT_DOCUMENT = coursePrefix('/documents/edit')
 export const DOCUMENT_HISTORY = coursePrefix('/documents/history')
-export const CREATE_INTERNAL_DOCUMENT = coursePrefix('/documents/createinternal')
-export const CREATE_EXTERNAL_DOCUMENT = coursePrefix('/documents/createexternal')
+export const CREATE_INTERNAL_DOCUMENT = coursePrefix(
+  '/documents/createinternal'
+)
+export const CREATE_EXTERNAL_DOCUMENT = coursePrefix(
+  '/documents/createexternal'
+)
 export const CREATE_FILE_DOCUMENT = coursePrefix('/documents/createfile')
 
 export const COURSE_TEAMS = coursePrefix('/teams')

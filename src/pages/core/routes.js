@@ -33,16 +33,15 @@ import Dashboard from './Dashboard'
 import ResultDetail from '../results/ResultDetail'
 import TopicManager from '../topics/TopicManager'
 
+import QuizNew from '../quiz-new'
+import AddQuestionForm from '../quiz-new/addQuestionForm'
+
 const CoreRoutes = [
+  <RouteWrapper key={ROUTES.DASHBOARD} path={ROUTES.DASHBOARD} auth />,
   <RouteWrapper
-    key={ROUTES.DASHBOARD}
-    path={ROUTES.DASHBOARD}
-    auth
-  />,
-  <RouteWrapper
-      key={ROUTES.TOPICS}
-      path={ROUTES.TOPICS}
-      component={TopicManager}
+    key={ROUTES.TOPICS}
+    path={ROUTES.TOPICS}
+    component={TopicManager}
   />,
   <StudentRoute
     key={ROUTES.TIMELINE}
@@ -50,6 +49,18 @@ const CoreRoutes = [
     component={Timeline}
     layout={CourseLayout}
     auth
+  />,
+  <RouteWrapper
+    key={ROUTES.QUIZNEW}
+    path={ROUTES.QUIZNEW}
+    component={QuizNew}
+    layout={CourseLayout}
+  />,
+  <RouteWrapper
+    key={ROUTES.ADD_QUIZ_QUESTION_NEW}
+    path={ROUTES.ADD_QUIZ_QUESTION_NEW}
+    component={AddQuestionForm}
+    layout={CourseLayout}
   />,
   <RouteWrapper
     key={ROUTES.COURSE_TEAM_CREATE}

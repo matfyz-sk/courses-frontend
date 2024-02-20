@@ -13,7 +13,8 @@ import { assignmentApi } from 'services/assignments'
 import { assignmentGraphApi } from 'services/assignmentsGraph'
 import { teamGraphApi } from 'services/teamGraph'
 import { courseTmpApi } from 'services/courseTmp'
-import { topicApi } from "../services/topic";
+import { topicApi } from '../services/topic'
+import { quizNewApi } from '../services/quiz-new'
 
 const reducers = combineReducers({
   ...allReducers,
@@ -29,6 +30,7 @@ const reducers = combineReducers({
   [teamGraphApi.reducerPath]: teamGraphApi.reducer,
   [courseTmpApi.reducerPath]: courseTmpApi.reducer,
   [topicApi.reducerPath]: topicApi.reducer,
+  [quizNewApi.reducerPath]: quizNewApi.reducer,
 })
 
 const composeEnhancers =
@@ -40,22 +42,25 @@ const composeEnhancers =
       })
     : compose
 
-const enhancers = composeEnhancers(compose(
-  applyMiddleware(
-    ReduxThunk,
-    userApi.middleware,
-    courseApi.middleware,
-    eventApi.middleware,
-    resultApi.middleware,
-    teamApi.middleware,
-    documentsApi.middleware,
-    authApi.middleware,
-    assignmentApi.middleware,
-    assignmentGraphApi.middleware,
-    teamGraphApi.middleware,
-    courseTmpApi.middleware,
-    topicApi.middleware,
+const enhancers = composeEnhancers(
+  compose(
+    applyMiddleware(
+      ReduxThunk,
+      userApi.middleware,
+      courseApi.middleware,
+      eventApi.middleware,
+      resultApi.middleware,
+      teamApi.middleware,
+      documentsApi.middleware,
+      authApi.middleware,
+      assignmentApi.middleware,
+      assignmentGraphApi.middleware,
+      teamGraphApi.middleware,
+      courseTmpApi.middleware,
+      topicApi.middleware,
+      quizNewApi.middleware
+    )
   )
-))
+)
 
 export default () => createStore(reducers, {}, enhancers)
