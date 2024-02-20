@@ -6,7 +6,7 @@ import PointsModal from '../PointsModal'
 import { redirect } from '../../../constants/redirect'
 import { RESULT_USER } from '../../../constants/routes'
 // eslint-disable-next-line import/no-cycle
-import { getShortID } from '../../../helperFunctions'
+import { getFullID, getShortID } from '../../../helperFunctions'
 import { showUserName } from '../../../components/Auth/userFunction'
 import { useGetUserQuery } from 'services/user'
 import { useGetResultQuery } from 'services/result'
@@ -17,7 +17,7 @@ const StudentsPreview = props => {
   const privileges = privilegesReducer
   const { course_id } = match.params
   const [users, setUsers] = useState([])
-  const { data, isSuccess } = useGetUserQuery({studentOfId: getShortID(course_id)})
+  const { data, isSuccess } = useGetUserQuery({studentOfId: getFullID(course_id, "courseInstance")})
 
   const getUsers = () => {
     if (isSuccess && data) {

@@ -21,8 +21,8 @@ function CourseMigration(props) {
       description: courseInstance.description
         ? courseInstance.description
         : '',
-      startDate: new Date(courseInstance.startDate),
-      endDate: new Date(courseInstance.endDate),
+      startDate: new Date(courseInstance.startDate.millis),
+      endDate: new Date(courseInstance.endDate.millis),
       instructors: courseInstance.hasInstructor
         ? courseInstance.hasInstructor.map(instructor => {
             return {

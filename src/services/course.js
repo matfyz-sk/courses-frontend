@@ -148,10 +148,12 @@ export const courseApi = createApi({
             mutation {
               update_courses_CourseInstance(
                 _id: "${id}"
+                ${body.startDate ? `courses_startDate: "${body.startDate.toISOString()}"` : ""}
+                ${body.endDate ? `courses_endDate: "${body.endDate.toISOString()}"` : ""}
                 ${body.fileExplorerRoot ? `courses_fileExplorerRoot: "${body.fileExplorerRoot}"` : ""}
-                ${body.hasResultType ? `courses_hasResultType: ${body.hasResultType}` : ""}
-                ${body.hasPersonalSettings ? `courses_hasPersonalSettings: ${body.hasPersonalSettings}` : ""}
-                ${body.hasGrading ? `courses_hasGrading: ${body.hasGrading}` : ""}
+                ${body.hasResultType ? `courses_hasResultType: ${getArrayFormat(body.hasResultType)}` : ""}
+                ${body.hasPersonalSettings ? `courses_hasPersonalSettings: ${getArrayFormat(body.hasPersonalSettings)}` : ""}
+                ${body.hasGrading ? `courses_hasGrading: ${getArrayFormat(body.hasGrading)}` : ""}
               ) {
                 _id
               }
