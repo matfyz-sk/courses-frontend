@@ -66,6 +66,13 @@ const useNewQuizStyles = makeStyles(theme => ({
     width: '90%',
     margin: 'auto',
   },
+  questionListItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '10px',
+    marginBottom: '10px',
+  },
   accordionContentLeft: {
     width: '50%',
   },

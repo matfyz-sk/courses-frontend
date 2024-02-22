@@ -19,10 +19,13 @@ import CommentComponent from './commentComponent'
 import { MdCheck, MdClose, MdSend } from 'react-icons/md'
 import { useGetQuestionByIdQuery } from '../../services/quiz-new'
 import { DATA_PREFIX } from '../../constants/ontology'
+import { Alert, AlertTitle } from '@material-ui/lab'
 import { getUserID } from '../../components/Auth'
 
-function QuestionDetail({ courseId, match }) {
+function QuestionDetailWithCheckAnswer({ courseId, match }) {
+  const [checkedAnswers, setCheckedAnswers] = useState([])
 
+  const [alertContent, setAlertContent] = useState(null)
 
   const classes = useNewQuizStyles()
   const questionId = match.params.question_id
@@ -43,28 +46,66 @@ function QuestionDetail({ courseId, match }) {
     questionId: longQuestionId,
   })
 
+  const onAnswerCheckChanged = answerId => {
+    let checkedAnswersNew
+    if (checkedAnswers.includes(answerId)) {
+      checkedAnswersNew = checkedAnswers.filter(answer => answer !== answerId)
+    } else {
+      checkedAnswersNew = [...checkedAnswers, answerId]
+    }
+    setCheckedAnswers(checkedAnswersNew)
+  }
+
+  function checkAnswer(checkedAnswers) {
+    let isCorrect = true
+    if (checkedAnswers.length === 0) {
+      isCorrect = false
+    }
+    questionData.hasPredefinedAnswer.forEach(answer => {
+      if (
+        (checkedAnswers.includes(answer._id) && answer.correct === false) ||
+        (!checkedAnswers.includes(answer._id) && answer.correct === true)
+      ) {
+        isCorrect = false
+      }
+    })
+    if (isCorrect) {
+      setAlertContent(
+        <Alert icon={<MdCheck />} severity="success">
+          <AlertTitle>Correct</AlertTitle>
+        </Alert>
+      )
+    } else {
+      setAlertContent(
+        <Alert icon={<MdClose />} severity="error">
+          <AlertTitle>Incorrect</AlertTitle>
+        </Alert>
+      )
+    }
+    return isCorrect
+  }
+
   let questionContent
   if (isLoading) {
     questionContent = <CircularProgress />
   } else if (isSuccess) {
     console.log(questionData)
     const renderedAnswers = questionData.hasPredefinedAnswer.map(answer => {
-      let icon
-      if (answer.correct) {
-        icon = <MdCheck style={{color: baseTheme.palette.primary.main}} />
-      } else {
-        icon = <MdClose style={{color: 'red'}} />
-      }
       return (
-        <div style={{display: 'flex', alignItems: 'center', columnGap: '10px', fontSize: '1.2em'}}>
-          {icon}
-          {answer.text}
-        </div>
+        <FormControlLabel
+          style={{ width: 'fit-content' }}
+          key={crypto.randomUUID()}
+          control={<GreenCheckbox />}
+          label={answer.text}
+          defaultChecked={false}
+          checked={checkedAnswers.includes(answer._id)}
+          onChange={() => onAnswerCheckChanged(answer._id)}
+        />
       )
     })
     questionContent = (
       <div>
-        <h3 style={{ margin: '10px 0' }}>
+        <h3 style={{ marginTop: '10px', marginBottom: '10px' }}>
           {questionData ? questionData.text : 'no question data'}
         </h3>
         <div className={classes.flexColumn}>{renderedAnswers}</div>
@@ -148,7 +189,17 @@ function QuestionDetail({ courseId, match }) {
         </Link>
       </div>
       {questionContent}
-      <h3 style={{marginTop: '20px'}}>Comments</h3>
+      <div style={{ display: 'flex' }}>
+        <Button
+          variant="contained"
+          startIcon={<MdCheck />}
+          onClick={() => checkAnswer(checkedAnswers)}
+        >
+          Check answer
+        </Button>
+        {alertContent}
+      </div>
+      <h3>Comments</h3>
       {comments}
       <div style={{ display: 'flex' }}>
         <CustomTextField
@@ -164,4 +215,4 @@ function QuestionDetail({ courseId, match }) {
   )
 }
 
-export default withRouter(QuestionDetail)
+export default withRouter(QuestionDetailWithCheckAnswer)
