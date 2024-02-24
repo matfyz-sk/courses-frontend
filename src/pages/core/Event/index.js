@@ -28,7 +28,7 @@ function Event(props) {
   const eventId = parsedEvent[1]
   const [redirectTo, setRedirectTo] = useState(null)
   const [viewingDocument, setViewingDocument] = useState(null)
-  const { data, isSuccess, isLoading } = isEvent ? 
+  const { data, isSuccess, isLoading } = isEvent ?
     useGetEventByTypeQuery({id: getFullID(eventId, eventType), type: eventType}) :
     useGetCourseInstanceQuery({id: getFullID(params.event_id, "courseInstance")})
   const hasAccess = courseInstance && user && getInstructorRights(user, courseInstance)
@@ -46,7 +46,7 @@ function Event(props) {
   }
 
   let event = INITIAL_EVENT_STATE
-  if(isSuccess && data && data !== []) {
+  if(isSuccess && data && data.length > 0) {
     event = data.map(eventData => {
       return {
         id: getShortId(eventData['_id']),

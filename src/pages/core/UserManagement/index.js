@@ -7,22 +7,22 @@ import { connect } from 'react-redux'
 import './UserManagement.css'
 import { getShortId } from '../Helper'
 import { useGetUserQuery, useUpdateUserInfoMutation } from 'services/user'
+import { getFullID } from "../../../helperFunctions";
 
 function UserManagement(props) {
-  const { course } = props
-  const courseId = getShortId(course['_id'])
+  const { courseInstance } = props
   const {
     data: userRequestData, 
     isSuccess: userRequestIsSuccess,
     isLoading: userRequestIsLoading,
     error: userRequestError
-  } = useGetUserQuery({requestId: courseId})
+  } = useGetUserQuery({requestId: courseInstance['_id']})
   const {
     data: userEnrolledData, 
     isSuccess: userEnrolledIsSuccess,
     isLoading: userEnrolledIsLoading,
     error: userEnrolledError
-  } = useGetUserQuery({studentOfId: courseId})
+  } = useGetUserQuery({studentOfId: courseInstance['_id']})
   const [updateUser, result] = useUpdateUserInfoMutation()
   
   if (userRequestIsLoading || userEnrolledIsLoading) {
@@ -76,7 +76,7 @@ function UserManagement(props) {
   }
 
   const changeStatusOfStudent = (userId, action) => {
-    const { courseFullId } = course['_id']
+    const courseFullId = courseInstance['_id']
 
     let index
     let user
@@ -129,7 +129,7 @@ function UserManagement(props) {
     }
     console.log(body)
 
-    updateUser({userId, body}).unwrap().catch(error => {
+    updateUser({id: getFullID(userId, "user"), body}).unwrap().catch(error => {
       console.log(error)
       throw new Error(error)
     })
@@ -254,7 +254,7 @@ const EnrolledUserList = ({ users, deleteUser }) => (
 
 const mapStateToProps = ({ courseInstanceReducer }) => {
   return {
-    course: courseInstanceReducer.courseInstance,
+    courseInstance: courseInstanceReducer.courseInstance,
   }
 }
 

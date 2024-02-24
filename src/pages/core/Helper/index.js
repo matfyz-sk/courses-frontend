@@ -85,7 +85,7 @@ export const getInstructorRights = (user, courseInstance) => {
         return true
       }
     }
-    const admins = courseInstance.instanceOf.hasAdmin
+    const admins = courseInstance.course.hasAdmin
     if (Array.isArray(admins)) {
       if (admins.includes(user.fullURI)) {
         return true
