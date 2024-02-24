@@ -359,6 +359,7 @@ export const eventApi = createApi({
                     ${body.uses ? `courses_uses: ${JSON.stringify(body.uses)}` : ""}
                     ${body.recommends ? `courses_recommends: ${JSON.stringify(body.recommends)}` : ""}
                     ${body.documentReference ? `courses_documentReference: ${JSON.stringify(body.documentReference)}` : ""}
+                    ${body.hasInstructor ? `courses_hasInstructor: ${JSON.stringify(body.hasInstructor)}` : ""}
                   ) {
                     _id
                   }
