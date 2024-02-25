@@ -40,6 +40,7 @@ const MainPage = props => {
   return (
     <Container>
       <h1 className="mb-5">Welcome to Matfyz.sk</h1>
+      <h2 className="mb-5">Obhajoba Richard Tóth</h2>
       <Row>
         { renderUsers }
       </Row>
