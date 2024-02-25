@@ -9,7 +9,7 @@ import {
 
 const initialState = {
   initialized: false,
-  instanceOf: [],
+  course: [],
   startDate: new Date(),
   endDate: new Date(),
   name: '',

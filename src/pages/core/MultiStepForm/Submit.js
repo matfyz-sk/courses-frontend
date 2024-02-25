@@ -27,12 +27,12 @@ function Submit(props) {
       description,
       startDate,
       endDate,
-      instanceOf,
+      course,
       instructors,
     } = courseMigrationState
     const courseInstance = props.courseInstance
 
-    const courseId = getShortId(instanceOf[0]['_id'])
+    const courseId = getShortId(course[0]['_id'])
     const courseFullId = [
       `${ DATA_PREFIX }${ COURSE_URL }/${ courseId }`,
     ]
