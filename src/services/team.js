@@ -20,7 +20,7 @@ export const teamApi = createApi({
     tagTypes: ['Team'],
     endpoints: (builder) => ({
         getTeamInstanceWithUsers: builder.query({
-            query: (id) => ({ url: `teamInstance?instanceOf=${id}&_join=hasUser` }),
+            query: (id) => ({ url: `teamInstance?team=${id}&_join=hasUser` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Team'],
         }),
@@ -30,7 +30,7 @@ export const teamApi = createApi({
             providesTags: ['Team'],
         }),
         getTeamInstanceWithApprovedUsers: builder.query({
-            query: (id) => ({ url: `teamInstance?instanceOf=${id}&approved=true&_join=hasUser` }),
+            query: (id) => ({ url: `teamInstance?team=${id}&approved=true&_join=hasUser` }),
             transformResponse: (response, meta, arg) => response["@graph"],
             providesTags: ['Team'],
         }),
