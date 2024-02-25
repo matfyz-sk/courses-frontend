@@ -574,6 +574,9 @@ export const aggregateResults = (resultType, resultTypes, allResults) => {
     }
   }
 
+  if (results.length==0){
+    return 0
+  }
 
   let resultsByPoints = [...results].sort((a,b) => b.points - a.points)
   let resultsByLatest = [...results].sort((a,b) => b.createdAt.millis - a.createdAt.millis)
