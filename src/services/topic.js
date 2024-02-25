@@ -55,7 +55,7 @@ export const topicApi = createApi({
                     }
                 `,
             }),
-            transformResponse: (response, meta, arg) => response.Topic,
+            transformResponse: (response, meta, arg) => response.Topic ?? [],
             providesTags: ["Topic"],
         }),
         newTopic: builder.mutation({
