@@ -56,7 +56,7 @@ export const fetchCourseInstance = (history, course_id, getCourseInstace) => {
           }
         }
         if (!hasPrivilege) {
-          dispatch(setCourseInstancePrivileges({ course_id }))
+          dispatch(setCourseInstancePrivileges({ course_id: getShortID(course_id) }))
         }
       } else {
         history.push(NOT_FOUND)

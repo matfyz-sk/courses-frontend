@@ -89,6 +89,8 @@ export const courseApi = createApi({
                     }
                     courses_hasGrading {
                       _id
+                      courses_grade
+                      courses_minPoints
                     }
                     courses_requires {
                       _id

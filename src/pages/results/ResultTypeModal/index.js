@@ -2,29 +2,30 @@ import React, { useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Alert, Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, } from 'reactstrap'
-import { getShortID } from '../../../helperFunctions'
-import { store } from '../../../index'
-import {
-  addCourseInstanceResultType,
-  removeCourseInstanceResultType,
-  updateCourseInstanceResultType,
-} from '../../../redux/actions'
 import { 
-  useLazyGetResultTypeQuery, 
   useNewResultTypeMutation,
   useUpdateResultTypeMutation,
   useDeleteResultTypeMutation,
+  useUpdateCourseInstanceMutation,
+  useGetAllResultTypesQuery
 } from "services/result"
-import { useUpdateCourseInstanceMutation } from "services/course"
+import { Checkbox } from '@material-ui/core'
+
 
 function ResultTypeModal(props) {
-  const {resultType, courseInstance} = props
+  const {resultType, courseInstance, data} = props
+  const courseInstanceId = !courseInstance ? "" : courseInstance._id
   const [ modal, setModal ] = useState(false)
   const [ form, setForm ] = useState({
     name: resultType ? resultType.name : '',
     minPoints: resultType ? resultType.minPoints : 0,
     description: resultType ? resultType.description : '',
     correctionFor: resultType ? resultType.correctionFor : '',
+    //numberOfParts: resultType ? resultType.numberOfParts : 0,
+    //hasFixedParts: resultType && resultType.hasFixedParts!=null ? resultType.hasFixedParts : true,
+    aggregationType: resultType && resultType.aggregationType!=null ? resultType.aggregationType : "",
+    numberOfAggregatedResults: resultType && resultType.numberOfAggregatedResults!=null ? resultType.numberOfAggregatedResults : 0,
+    //isPartOf: resultType ? resultType.isPartOf : '',
   })
   const [ error, setError ] = useState(null)
   const [ loading, setLoading ] = useState(false)
@@ -32,8 +33,15 @@ function ResultTypeModal(props) {
   const [newResultType, newResultTypeResult] = useNewResultTypeMutation()
   const [updateResultType, updateResultTypeResult] = useUpdateResultTypeMutation()
   const [deleteResultType, deleteResultTypeResult] = useDeleteResultTypeMutation()
-  const [getResultType] = useLazyGetResultTypeQuery()
   const toggle = () => setModal(!modal)
+
+  const { data: resultTypesData, isSuccess: isResultTypesSuccess, error: resultTypesError } = useGetAllResultTypesQuery(courseInstanceId, {
+    skip: !courseInstance,
+  }) 
+
+  if (!resultTypesData){
+    return <></>
+  }
 
   const validate = () => {
     if(form.name.length === 0) {
@@ -51,47 +59,24 @@ function ResultTypeModal(props) {
     return true
   }
 
-  const getDetail = (id, action = null) => {
-    getResultType(id).unwrap().then(data => { 
-      setLoading(false)
-      setError(null)
-      if(data && data.length > 0) {
-        const result = data[0]
-        switch(action) {
-          case 'add':
-            store.dispatch(addCourseInstanceResultType(result))
-            setError(null)
-            setModal(false)
-            break
-          default:
-            break
-        }
-      }
-    }).catch(e => {
-      setError(
-        'Error has occured during saving process. Please, try again.'
-      )
-    })
-  }
-
-  const addResultTypeToCourse = (iri) => {
+  const addResultTypeToCourse = (id) => {
     const resultTypes = []
-    for(let i = 0; i < courseInstance.hasResultType.length; i++) {
-      resultTypes.push(courseInstance.hasResultType[i]['_id'])
+    for(let i = 0; i < resultTypesData[0].hasResultType.length; i++) {
+      resultTypes.push(resultTypesData[0].hasResultType[i]['_id'])
     }
-    resultTypes.push(iri)
+    resultTypes.push(id)
     updateCourseInstance({
       id: courseInstance['_id'],
       body: {hasResultType: resultTypes}
     }).unwrap().then(response => {
-      if(response.status) {
-        getDetail(getShortID(iri), 'add')
-      } else {
+      console.log("RESPONSE: " + JSON.stringify(response))
         setLoading(false)
-        setError(
-          'Error has occured during saving process. Please, try again.'
-        )
-      }
+        setModal(false)
+    }).catch(e => {
+      setLoading(false)
+      setError(
+        'Error has occured during saving process. Please, try again.'
+      )
     })
   }
 
@@ -102,15 +87,13 @@ function ResultTypeModal(props) {
         delete form.correctionFor
       }
       newResultType(form).unwrap().then(response => {
-        if(response.status) {
-          addResultTypeToCourse(response.resource.iri)
-        } else {
-          setLoading(false)
-          setError(
-            'Error has occured during saving process. Please, try again.'
-          )
-        }
-      })
+        setLoading(false)
+        addResultTypeToCourse(response[0]._id)
+      }).catch(e => {
+        setLoading(false)
+        setError(
+          'Error has occured during saving process. Please, try again.'
+        )})
     }
   }
 
@@ -122,19 +105,13 @@ function ResultTypeModal(props) {
         body: form
       }).unwrap().then(response => {
         setLoading(false)
-        if(response.status) {
-          const newResultType = {
-            ...resultType,
-            ...form,
-          }
-          store.dispatch(updateCourseInstanceResultType(newResultType))
-          setError(null)
-          setModal(false)
-        } else {
-          setError(
+        setError(null)
+        setModal(false)
+      }).catch(e => {
+        setLoading(false)
+        setError(
             'Error has occured during saving process. Please, try again.'
           )
-        }
       })
     }
   }
@@ -143,49 +120,81 @@ function ResultTypeModal(props) {
     setLoading(true)
     deleteResultType(resultType['_id']).unwrap().then(response => {
       setLoading(false)
-        if(response.status) {
-          store.dispatch(removeCourseInstanceResultType(resultType))
-          setError(null)
-          setModal(false)
-        } else {
-          setError(
-            'Error has occured during removing process. Please, try again.'
-          )
-        }
+      setError(null)
+      setModal(false)
+    })
+    .catch((e) => {
+      setError(
+        'Error has occured during removing process. Please, try again.'
+      )
     })
   }
 
   const options = []
+  //const isPartOfOptions = []
   options.push(
     <option value="" key="empty-select">
       Without correction
     </option>
   )
-  if(courseInstance && courseInstance.hasResultType) {
-    for(let i = 0; i < courseInstance.hasResultType.length; i++) {
-      if(
-        !resultType ||
-        (resultType &&
-          resultType['_id'] !== courseInstance.hasResultType[i]['_id'])
-      ) {
+  /*
+  isPartOfOptions.push(
+    <option value="" key="empty-isPartOf-select">
+      Not a part of another result type
+    </option>
+  )
+  */
+  if (data) {
+    for(let i = 0; i < data[0].hasResultType.length; i++) {
+      if(!resultType || resultType['_id'] !== data[0].hasResultType[i]['_id']) {
         options.push(
           <option
-            value={ courseInstance.hasResultType[i]['_id'] }
-            key={ courseInstance.hasResultType[i]['_id'] }
+            value={ data[0].hasResultType[i]['_id'] }
+            key={ data[0].hasResultType[i]['_id'] }
           >
-            { courseInstance.hasResultType[i].name }
+            { data[0].hasResultType[i].name }
           </option>
         )
+        /*
+        isPartOfOptions.push(
+          <option
+            value={ data[0].hasResultType[i]['_id'] }
+            key={ data[0].hasResultType[i]['_id'] }
+          >
+            { data[0].hasResultType[i].name }
+          </option>
+        )
+        */
       }
     }
   }
+
+
+  const aggregationOptions = []
+
+  const aggregationTypes = ["SUM", "MAX", "AVG", "SUM OF N LATEST", "SUM OF N BEST"]
+
+  
+    for(let i = 0; i < aggregationTypes.length; i++) {
+        aggregationOptions.push(
+          <option
+            value={ aggregationTypes[i] }
+            key={ aggregationTypes[i] }
+          >
+            {aggregationTypes[i]=="SUM" ? "SUM OF ALL" : aggregationTypes[i].toUpperCase() }
+          </option>
+        )
+      }
+    
+  
+
 
   return (
     <>
       <Button
         color={ resultType ? 'link' : 'primary' }
         size="sm"
-        className={ resultType ? 'text-right' : 'float-right mb-3' }
+        className={ resultType ? 'text-right' : 'float-right mt-1' }
         onClick={ () => toggle() }
       >
         { resultType ? 'Detail' : 'New result type' }
@@ -206,7 +215,7 @@ function ResultTypeModal(props) {
                 name="name"
                 id="name"
                 placeholder="e.g. Midterm"
-                value={ form.name }
+                value={ form.name ? form.name : "" }
                 onChange={ e => {
                   setForm({...form, name: e.target.value})
                 } }
@@ -218,7 +227,7 @@ function ResultTypeModal(props) {
                 type="textarea"
                 name="description"
                 id="description"
-                value={ form.description }
+                value={ form.description ? form.description : "" }
                 onChange={ e => {
                   setForm({...form, description: e.target.value})
                 } }
@@ -230,19 +239,91 @@ function ResultTypeModal(props) {
                 type="number"
                 name="text"
                 id="minPoints"
-                value={ form.minPoints }
+                value={ form.minPoints ? form.minPoints : ""}
                 onChange={ e => {
                   setForm({...form, minPoints: e.target.value})
                 } }
               />
             </FormGroup>
+
+            {/*<FormGroup>
+              <Label for="isPartOf">This type is a part of another type</Label>
+              <Input
+                type="select"
+                name="isPartOf"
+                id="isPartOf"
+                value={ form.isPartOf ? form.isPartOf : "" }
+                onChange={ e => {
+                  setForm({...form, isPartOf: e.target.value})
+                } }
+              >
+                { isPartOfOptions }
+              </Input>
+              </FormGroup>*/}
+
             <FormGroup>
-              <Label for="resultType">Result type is correction for</Label>
+              <Label for="aggregationType">Type of aggregation</Label>
+              <Input
+                type="select"
+                name="aggregationType"
+                id="aggregationType"
+                value={form.aggregationType ? form.aggregationType : ""}
+                onChange={ e => {
+                  setForm({...form, aggregationType: e.target.value})
+                } }
+              >
+                {aggregationOptions}
+              </Input>
+            </FormGroup>
+{form.aggregationType && form.aggregationType=="SUM OF N BEST" || form.aggregationType=="SUM OF N LATEST"? 
+            <FormGroup>
+              <Label for="numberOfAggregatedResults">Number of aggregated results</Label>
+              <Input
+                type="number"
+                name="numberOfAggregatedResults"
+                id="numberOfAggregatedResults"
+                value={ form.numberOfAggregatedResults ? form.numberOfAggregatedResults : 0}
+                onChange={ e => {
+                  setForm({...form, numberOfAggregatedResults: e.target.value})
+                } }
+              />
+            </FormGroup>: ""}
+
+{/*
+            <FormGroup>
+              <Label for="numberOfParts">Number of parts</Label>
+              <Input
+                type="number"
+                name="numberOfParts"
+                id="numberOfParts"
+                value={ form.numberOfParts ? form.numberOfParts : 0 }
+                onChange={ e => {
+                  setForm({...form, numberOfParts: e.target.value})
+                } }
+              />
+            </FormGroup>
+
+            <FormGroup>
+                <Input
+                className="ml-1"
+                 type = "checkbox"
+                 name="hasFixedParts"
+                 id="hasFixedParts"
+                 checked = {form.hasFixedParts}
+                 onChange={ e => {
+                  setForm({...form, hasFixedParts: !form.hasFixedParts})
+                 }}
+                />
+                <Label className="ml-4" for="hasFixedParts">Number of parts is fixed</Label>
+            </FormGroup>
+                */}
+            <FormGroup>
+              <Label for="correctionFor">Result type is correction for</Label>
               <Input
                 type="select"
                 name="correctionFor"
                 id="correctionFor"
-                value={ form.correctionFor }
+                value={ form.correctionFor ? form.correctionFor : "" }
                 onChange={ e => {
                   setForm({...form, correctionFor: e.target.value})
                 } }

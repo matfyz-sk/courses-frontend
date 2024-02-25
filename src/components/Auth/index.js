@@ -163,7 +163,7 @@ export function getUserInCourseType(course_id) {
     return 'visitor'
   }
   for (let i = 0; i < user.studentOf.length; i++) {
-    if (getShortID(user.studentOf[i]['_id']) === course_id) {
+    if (getShortID(user.studentOf[i]['@id']) === course_id) {
       return 'student'
     }
   }

@@ -8,12 +8,12 @@ import {RESULT_DETAIL, RESULT_TYPE} from '../../../constants/routes';
 import { formatDate } from '../../../functions/global'
 import { showUserName } from '../../../components/Auth/userFunction'
 import { getUser } from '../../../components/Auth'
-import { getShortID } from '../../../helperFunctions'
+import { getShortID, getFullID } from '../../../helperFunctions'
 import { useGetResultQuery, useUpdateResultMutation, useNewResultMutation } from 'services/result'
 import { useGetUserQuery } from 'services/user'
 
 function ResultsTypeDetail(props) {
-  const { canEdit, resultType, course_id, result_type_id, privileges, instance } = props
+  const { canEdit, resultType, course_id, result_type_id, privileges, instance} = props
   const [users, setUsers] = useState(null)
   const [performUser, setPerformUser] = useState(null)
   const [msg, setMsg] = useState(null)
@@ -24,11 +24,11 @@ function ResultsTypeDetail(props) {
   const {
     data: usersData, 
     isSuccess: usersIsSuccess
-  } = useGetUserQuery({studentOfId: course_id})
+  } = useGetUserQuery({studentOfId: getFullID(course_id, "courseInstance")}, {skip: !course_id})
   const {
     data: resultData, 
     isSuccess: resultIsSuccess
-  } = useGetResultQuery({typeId: result_type_id})
+  } = useGetResultQuery({typeId: getFullID(result_type_id, "resulttype")}, {skip: !result_type_id})
 
   const getResultsData = (type_id, userList) => {
     if (resultIsSuccess && resultData) {
@@ -37,7 +37,7 @@ function ResultsTypeDetail(props) {
       for (let i = 0; i < userList.length; i++) {
         let result = null
         for (let j = 0; j < resultList.length; j++) {
-          if (resultList[j].hasUser[0]['_id'] === userList[i]['_id']) {
+          if (resultList[j].hasUser['_id'] === userList[i]['_id']) {
             result = resultList[j]
             break
           }
@@ -129,10 +129,10 @@ function ResultsTypeDetail(props) {
 
   useEffect(() => {
     getUsers()
-  }, [])
+  }, [usersIsSuccess, resultIsSuccess])
 
   let correctionHref = ''
-  if (resultType.correctionFor.length > 0) {
+  if (resultType.correctionFor) {
     correctionHref = (
       <>
         Correction for
@@ -145,11 +145,11 @@ function ResultsTypeDetail(props) {
             },
             {
               key: 'result_type_id',
-              value: getShortID(resultType.correctionFor[0]['_id']),
+              value: getShortID(resultType.correctionFor['_id']),
             },
           ])}
         >
-          {resultType.correctionFor[0].name}
+          {resultType.correctionFor.name}
         </Link>
       </>
     )
@@ -201,7 +201,7 @@ function ResultsTypeDetail(props) {
                     placeholder="set reference"
                     bsSize="sm"
                     disabled={users[i].result.points === ''}
-                    value={users[i].result.reference}
+                    value={users[i].result.reference ? users[i].result.reference : ""}
                     onChange={e => {
                       const cUsers = [...users]
                       cUsers[i].result.reference = e.target.value
@@ -243,6 +243,10 @@ function ResultsTypeDetail(props) {
                     key: 'result_id',
                     value: getShortID(users[i].result['_id']),
                   },
+                  {
+                    key: 'user_id',
+                    value: getShortID(users[i].user['_id']),
+                  },
                 ])}
               >
                 Detail
@@ -254,16 +258,22 @@ function ResultsTypeDetail(props) {
     }
   }
 
+  /*{`
+        This type of result has been created by instructor ${resultType.createdBy.firstName} ${resultType.createdBy.lastName}
+        on ${formatDate(resultType.createdAt)}.
+        ${resultType.minPoints > 0 ? ` You need to earn at least ${resultType.minPoints} points to pass.` : ''}
+        `}
+  */
+
   return (
     <Container>
       <h1 className="mb-2">{resultType.name}</h1>
       <h3 className="text-muted mb-4">{correctionHref}</h3>
       {resultType.description ? <p>{resultType.description}</p> : ''}
       <Alert color="info" className="mt-3 mb-0">
+        {/**/}
         {`
-        This type of result has been created by instructor ${resultType.createdBy.firstName} ${resultType.createdBy.lastName}
-        on ${formatDate(resultType.createdAt)}.
-        ${resultType.minPoints > 0 ? ` You need earn at least ${resultType.minPoints} points to pass.` : ''}
+        ${resultType.minPoints > 0 ? ` You need to earn at least ${resultType.minPoints} points to pass.` : ''}
         `}
       </Alert>
       {msg ? <Alert color="success" className="mt-3">{msg}</Alert> : null}

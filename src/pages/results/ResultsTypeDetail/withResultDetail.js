@@ -2,18 +2,24 @@ import React, { useEffect, useState } from 'react'
 import Page404 from '../../errors/Page404'
 // eslint-disable-next-line import/no-cycle
 import { useGetResultTypeQuery } from "services/result"
+import { getFullID } from 'helperFunctions'
 
 const withResultDetail = Component => props => {
   const { privileges, courseInstance } = props
   const { course_id, result_type_id } = props.match.params
   const [resultType, setResultType] = useState(null)
   const [resp, setResp] = useState(200)
-  const {data, isSuccess} = useGetResultTypeQuery(result_type_id)
+  const {
+    data: resultTypeData, 
+    isSuccess: isResultTypeSuccess,
+    error: resultTypeError
+  } = useGetResultTypeQuery(getFullID(result_type_id, "resulttype"), {skip: !result_type_id})
+
 
   function fetchResultType() {
-    if (isSuccess) {
-      if (data && data.length > 0) {
-        setResultType(data[0])
+    if (isResultTypeSuccess) {
+      if (resultTypeData && resultTypeData.length > 0) {
+        setResultType(resultTypeData[0])
       } else {
         setResp(404)
       }
@@ -22,7 +28,7 @@ const withResultDetail = Component => props => {
 
   useEffect(() => {
     fetchResultType(result_type_id)
-  }, [])
+  }, [isResultTypeSuccess])
 
   if (resp === 200 && resultType && privileges && courseInstance) {
     return (
