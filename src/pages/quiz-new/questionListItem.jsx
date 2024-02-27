@@ -4,7 +4,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   Button, Card,
-  Checkbox,
+  Checkbox, Chip,
   FormControlLabel,
   FormGroup,
   Input,
@@ -29,10 +29,13 @@ function QuestionListItem({
   questionId,
   questionText,
   questionAnswers,
+  isNewVersion
 }) {
   const classes = useNewQuizStyles()
 
   const questionShortId = questionId.slice(questionId.lastIndexOf('/') + 1)
+
+  const newVersionChip = <Chip label="New version" size="small" />
 
   const answers = questionAnswers.map(answer => {
     return (
@@ -71,16 +74,21 @@ function QuestionListItem({
       </AccordionDetails>*!/}
     </CustomAccordion>*/
     <Card variant="outlined" className={classes.questionListItem}>
-      {questionText}
+      <div style={{display: 'flex', columnGap: '5px', alignItems: 'center'}}>
+        {questionText}
+        {isNewVersion ? newVersionChip : ''}
+      </div>
+
       <Link
-        to={redirect(QUIZ_QUESTION_DETAIL_NEW, [
-          { key: 'course_id', value: courseId },
-          { key: 'question_id', value: questionShortId },
-        ])}
-        className="btn btn-outline-secondary"
+          to={redirect(QUIZ_QUESTION_DETAIL_NEW, [
+            { key: 'course_id', value: courseId },
+            { key: 'question_id', value: questionShortId },
+          ])}
+          style={{color: baseTheme.palette.primary.main}}
       >
         Details
       </Link>
+
     </Card>
   )
 }

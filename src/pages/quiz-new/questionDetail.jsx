@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
 import { redirect } from '../../constants/redirect'
-import { EDIT_QUESTION_NEW, QUIZNEW } from '../../constants/routes'
+import {
+  EDIT_QUESTION_NEW,
+  QUIZ_QUESTION_DETAIL_NEW,
+  QUIZNEW,
+} from '../../constants/routes'
 import { Link, withRouter } from 'react-router-dom'
 import {
   baseTheme,
@@ -20,10 +24,9 @@ import { MdCheck, MdClose, MdSend } from 'react-icons/md'
 import { useGetQuestionByIdQuery } from '../../services/quiz-new'
 import { DATA_PREFIX } from '../../constants/ontology'
 import { getUserID } from '../../components/Auth'
+import { getShortID } from '../../helperFunctions'
 
 function QuestionDetail({ courseId, match }) {
-
-
   const classes = useNewQuizStyles()
   const questionId = match.params.question_id
 
@@ -44,6 +47,7 @@ function QuestionDetail({ courseId, match }) {
   })
 
   let questionContent
+  let prevVersionButton = ''
   if (isLoading) {
     questionContent = <CircularProgress />
   } else if (isSuccess) {
@@ -51,12 +55,19 @@ function QuestionDetail({ courseId, match }) {
     const renderedAnswers = questionData.hasPredefinedAnswer.map(answer => {
       let icon
       if (answer.correct) {
-        icon = <MdCheck style={{color: baseTheme.palette.primary.main}} />
+        icon = <MdCheck style={{ color: baseTheme.palette.primary.main }} />
       } else {
-        icon = <MdClose style={{color: 'red'}} />
+        icon = <MdClose style={{ color: 'red' }} />
       }
       return (
-        <div style={{display: 'flex', alignItems: 'center', columnGap: '10px', fontSize: '1.2em'}}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            columnGap: '10px',
+            fontSize: '1.2em',
+          }}
+        >
           {icon}
           {answer.text}
         </div>
@@ -70,6 +81,24 @@ function QuestionDetail({ courseId, match }) {
         <div className={classes.flexColumn}>{renderedAnswers}</div>
       </div>
     )
+
+    if (questionData.previous) {
+      prevVersionButton = (
+        <Link
+          style={{ justifyContent: 'flex-end ' }}
+          to={redirect(QUIZ_QUESTION_DETAIL_NEW, [
+            { key: 'course_id', value: courseId },
+            {
+              key: 'question_id',
+              value: getShortID(questionData.previous._id),
+            },
+          ])}
+          className="btn btn-outline-success mb-2"
+        >
+          View previous version
+        </Link>
+      )
+    }
   } else if (isError) {
     questionContent = <div>There was an error while loading the question.</div>
   }
@@ -130,25 +159,35 @@ function QuestionDetail({ courseId, match }) {
 
   return (
     <div className={classes.container}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+        }}
+      >
         <Link
           to={redirect(QUIZNEW, [{ key: 'course_id', value: courseId }])}
           className="btn btn-outline-success mb-2"
         >
           Back
         </Link>
-        <Link
-          to={redirect(EDIT_QUESTION_NEW, [
-            { key: 'course_id', value: courseId },
-            { key: 'question_id', value: questionId },
-          ])}
-          className="btn btn-success mb-2"
-        >
-          Edit question
-        </Link>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <Link
+            to={redirect(EDIT_QUESTION_NEW, [
+              { key: 'course_id', value: courseId },
+              { key: 'question_id', value: questionId },
+            ])}
+            className="btn btn-success mb-2"
+          >
+            Edit question
+          </Link>
+          {prevVersionButton}
+        </div>
       </div>
+
       {questionContent}
-      <h3 style={{marginTop: '20px'}}>Comments</h3>
+      <h3 style={{ marginTop: '20px' }}>Comments</h3>
       {comments}
       <div style={{ display: 'flex' }}>
         <CustomTextField

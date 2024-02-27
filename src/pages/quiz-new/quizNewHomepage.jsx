@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { redirect } from '../../constants/redirect'
 import { ADD_QUIZ_QUESTION_NEW } from '../../constants/routes'
-import QuestionAccordionItem from './questionListItem'
+import QuestionListItem from './questionListItem'
 import { useNewQuizStyles } from './styles'
 import { withRouter } from 'react-router'
 import { useGetQuestionsQuery } from '../../services/quiz-new'
@@ -30,12 +30,13 @@ function QuizNewHomepage({ courseId }) {
     if (questions) {
       renderedContent = questions.map(question => {
         return (
-          <QuestionAccordionItem
+          <QuestionListItem
             key={crypto.randomUUID()}
             courseId={courseId}
             questionId={question._id}
             questionText={question.text}
             questionAnswers={question.hasPredefinedAnswer}
+            isNewVersion={question.previous}
           />
         )
       })

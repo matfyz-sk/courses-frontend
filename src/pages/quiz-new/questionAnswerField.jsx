@@ -42,7 +42,7 @@ function QuestionAnswerField({
         label={'Answer text'}
         variant="outlined"
         size="small"
-        value={defaultTextValue ?? ''}
+        value={defaultTextValue}
       />
       <IconButton onClick={onDeleteButtonClicked}>
         <MdDelete />

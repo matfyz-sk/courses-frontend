@@ -18,7 +18,6 @@ import { redirect } from '../../constants/redirect'
 import { getUser, getUserID } from '../../components/Auth' // TODO lepsi sposob ziskavania userID
 
 function EditQuestionForm({ match, courseId }) {
-  let randomId = crypto.randomUUID()
 
   const [questionText, setQuestionText] = useState('')
   const [answerFields, setAnswerFields] = useState([])
@@ -36,6 +35,10 @@ function EditQuestionForm({ match, courseId }) {
     courseInstanceId: longCourseId,
     questionId: longQuestionId,
   })
+
+  const [submitNewQuestionVersion, { isSubmitError, isSubmitSuccess }] =
+      useAddNewMultipleChoiceQuestionMutation()
+  const [addNewAnswer] = useAddNewMultipleChoiceAnswerMutation()
 
   if (isSuccess && !questionText) {
     setQuestionText(questionData.text)
@@ -137,10 +140,11 @@ function EditQuestionForm({ match, courseId }) {
     answerIdsStringified += ']'
     const questionToSubmit = {
       text: questionText,
-      courseInstance: `${DATA_PREFIX}courseInstance/${courseId}`,
+      courseInstance: longCourseId,
       hasPredefinedAnswer: answerIdsStringified,
+      previous: longQuestionId
     }
-    const result = await addNewQuestion({
+    const result = await submitNewQuestionVersion({
       body: questionToSubmit,
       userId: userId,
     })
@@ -202,7 +206,7 @@ function EditQuestionForm({ match, courseId }) {
   ))
 
   let alertContent
-  if (isSuccess) {
+  if (isSubmitSuccess) {
     alertContent = (
       <Alert style={{ width: 'fit-content' }} severity="success">
         Your question was submitted successfully.
@@ -226,7 +230,7 @@ function EditQuestionForm({ match, courseId }) {
         Your question must contain at least one answer.
       </Alert>
     )
-  } else if (isError) {
+  } else if (isSubmitError) {
     alertContent = (
       <Alert style={{ width: 'fit-content' }} severity="error">
         There was an error while submitting the question. Please try again.
@@ -236,7 +240,7 @@ function EditQuestionForm({ match, courseId }) {
 
   return (
     <section className={classes.container}>
-      <h2>Edit Question</h2>
+      <h2>New Question Version</h2>
       <CustomTextField
         error={errors.emptyQuestionText}
         helperText={
@@ -260,7 +264,7 @@ function EditQuestionForm({ match, courseId }) {
         </GreenButton>
       </div>
       <GreenButton style={{ marginBottom: '10px' }} onClick={validateForm}>
-        Submit Question
+        Submit New Version
       </GreenButton>
       {alertContent}
     </section>

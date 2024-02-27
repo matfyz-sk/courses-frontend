@@ -221,7 +221,6 @@ function AddQuestionForm({ match, courseId }) {
         helperText={
           errors.emptyQuestionText ? 'Question text cannot be empty' : false
         }
-        value={questionText}
         className={classes.questionTextField}
         label="Question text"
         variant="outlined"

@@ -32,6 +32,7 @@ export const quizNewApi = createApi({
               courses_text: "${body.text}"
               courses_courseInstance: "${body.courseInstance}"
               courses_hasPredefinedAnswer: ${body.hasPredefinedAnswer}
+              courses_previous: "${body.previous}"
               courses_questionSubmittedBy: "${userId}"
             )
             {
@@ -66,6 +67,9 @@ export const quizNewApi = createApi({
                 courses_text
                 courses_correct
               }
+              courses_previous {
+                _id
+              }
               courses_createdAt(order: DESC)
               courses_questionSubmittedBy {
                 _id
@@ -92,7 +96,9 @@ export const quizNewApi = createApi({
                 courses_text
                 courses_correct
               }
-
+              courses_previous {
+                _id
+              }
             }
           }
         `,
