@@ -154,12 +154,12 @@ function TeamsDetail(props) {
   let isMember = false
   if(users) {
     for(let i = 0; i < users.length; i++) {
-      if(getShortID(users[i].hasUser['_id']) === getUserID()) {
+      if(users[i].hasUser['_id'] === getUserID()) {
         isMember = true
       }
       if(
         users[i].approved &&
-        getShortID(users[i].hasUser['_id']) === getUserID()
+        users[i].hasUser['_id'] === getUserID()
       ) {
         canEdit = true
       }

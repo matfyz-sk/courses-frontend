@@ -49,7 +49,7 @@ export const fetchCourseInstance = (history, course_id, getCourseInstace) => {
         let hasPrivilege = false
         if (getUser() && course.hasInstructor) {
           for (let i = 0; i < course.hasInstructor.length; i++) {
-            if (getShortID(course.hasInstructor[i]['_id']) === getUserID()) {
+            if (course.hasInstructor[i]['_id'] === getUserID()) {
               dispatch(setCourseInstanceInstructor())
               hasPrivilege = true
             }
