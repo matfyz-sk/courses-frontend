@@ -88,15 +88,12 @@ function RegisterCompletion(props) {
       body[updatedAttrs[i]] = user[updatedAttrs[i]]
     }
 
-    updateUser({
-      id: getUserID(), 
-      patch: body
-    }).unwrap().then(response => {
+    updateUser({ id: getUserID(), body }).unwrap().then(response => {
       setUserProfile(body)
       document.getElementsByClassName('main-nav')[0].style.opacity = 1
       props.history.push('/dashboard')
     }).catch(error => {
-      throw new Error("Failed to execute PATCH request to update user information")
+      throw new Error("Failed to update user information")
     })
   }
 
