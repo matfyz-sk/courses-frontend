@@ -36,11 +36,11 @@ class StudentRoute extends React.Component {
       } else {
         const url = `${BASE_URL + COURSE_INSTANCE_URL}/${
           params.course_id
-        }?_join=instanceOf`
+        }?_join=course`
 
         axiosRequest('get', null, url).then(response => {
           const data = getData(response)
-          if (data != null && data !== []) {
+          if (data != null && data.length > 0) {
             const course = data.map(courseData => {
               return {
                 instructors: courseData.hasInstructor
@@ -48,12 +48,12 @@ class StudentRoute extends React.Component {
                       getShortId(instructor['@id'])
                     )
                   : [],
-                admins: Array.isArray(courseData.instanceOf[0].hasAdmin)
-                  ? courseData.instanceOf[0].hasAdmin.map(admin =>
+                admins: Array.isArray(courseData.course[0].hasAdmin)
+                  ? courseData.course[0].hasAdmin.map(admin =>
                       getShortId(admin)
                     )
-                  : courseData.instanceOf[0].hasAdmin
-                  ? [getShortId(courseData.instanceOf[0].hasAdmin)]
+                  : courseData.course[0].hasAdmin
+                  ? [getShortId(courseData.course[0].hasAdmin)]
                   : [],
               }
             })[0]

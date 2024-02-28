@@ -26,8 +26,8 @@ function TopicDetailEditing({ topic, handleEditCancel, handleTopicDelete }) {
                 id: topic._id,
                 body: { name, description },
             })
-        } catch {
-            console.log("error")
+        } catch (err) {
+            console.log(err)
         }
     }
 
@@ -103,8 +103,8 @@ function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange 
                     topicPrerequisite: [...topic.topicPrerequisite.map(t => t._id), result._id],
                 },
             })
-        } catch {
-            console.log("error")
+        } catch (err) {
+            console.log(err)
         }
     }
 
@@ -113,8 +113,8 @@ function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange 
             await topicDelete(topic._id)
             handleIsEditChange(false)
             handleTopicIdChange(null)
-        } catch {
-            console.log("error")
+        } catch (err) {
+            console.log(err)
         }
     }
 

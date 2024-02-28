@@ -30,6 +30,7 @@
     "react": "^16.13.1",
     "react-beautiful-dnd": "^12.2.0",
     "react-compound-slider": "^1.2.1",
+    "react-csv-reader": "^4.0.0",
     "react-datepicker": "^2.14.1",
     "react-dom": "^16.13.1",
     "react-github-login": "^1.0.3",

@@ -33,8 +33,9 @@ export const TOPICS = '/topics'
 export const DOCUMENTS = coursePrefix('/documents')
 export const DOCUMENTS_IN_FOLDER = coursePrefix('/documents/folder/:folder_id')
 export const DELETED_DOCUMENTS = coursePrefix('/documents/deleted')
-export const EDIT_DOCUMENT = coursePrefix('/documents/edit')
+export const EDIT_DOCUMENT = coursePrefix('/documents/edit/:document_id')
 export const DOCUMENT_HISTORY = coursePrefix('/documents/history')
+
 export const CREATE_INTERNAL_DOCUMENT = coursePrefix(
   '/documents/createinternal'
 )
@@ -42,6 +43,7 @@ export const CREATE_EXTERNAL_DOCUMENT = coursePrefix(
   '/documents/createexternal'
 )
 export const CREATE_FILE_DOCUMENT = coursePrefix('/documents/createfile')
+
 
 export const COURSE_TEAMS = coursePrefix('/teams')
 export const COURSE_TEAM_CREATE = coursePrefix('/team-create')
@@ -54,6 +56,6 @@ export const MY_RESULTS = coursePrefix('/my-results')
 export const RESULTS = coursePrefix('/results')
 export const RESULT_TYPE = coursePrefix('/results/type/:result_type_id')
 export const RESULT_USER = coursePrefix('/results/user/:user_id')
-export const RESULT_DETAIL = coursePrefix('/results/detail/:result_id')
+export const RESULT_DETAIL = coursePrefix('/results/detail/:result_id&:user_id')
 
 export const USER_DASHBOARD = '/dashboard'

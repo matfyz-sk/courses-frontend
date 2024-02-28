@@ -1,620 +1,285 @@
-import React, { useEffect, useState } from 'react'
-import { Alert, ListGroup, ListGroupItem } from 'reactstrap'
-import { Redirect, withRouter } from 'react-router'
-import { connect } from 'react-redux'
+import React, { useCallback, useEffect, useState } from "react"
+import { Alert } from "reactstrap"
+import { Redirect, withRouter } from "react-router"
+import { getShortID } from "../../../helperFunctions"
+import { redirect } from "../../../constants/redirect"
+import * as ROUTES from "../../../constants/routes"
+import "./diff.css"
+import "./mdStyling.css"
+import { IconButton, makeStyles, ThemeProvider, useMediaQuery } from "@material-ui/core"
+import { MdChevronRight } from "react-icons/md"
+import { customTheme } from "../styles"
+import TextComparator from "./TextComparator"
+import RevisionsSidebar from "./RevisionsSidebar"
+import EntityComparator from "./EntityComparator"
+import { useAddFileMutation, useUpdateFileMutation } from "../../../services/documents"
 import {
-  axiosGetEntities,
-  getResponseBody,
-  getShortType,
-  timestampToString2,
-} from '../../../helperFunctions'
-import { redirect } from '../../../constants/redirect'
-import * as ROUTES from '../../../constants/routes'
-import { Link } from 'react-router-dom'
-import {
-  fetchFolder,
-  setCurrentDocumentsOfCourseInstance,
-} from '../../../redux/actions'
-import diff from 'node-htmldiff'
-import { DocumentEnums } from '../common/enums/document-enums'
-import editDocument from '../common/functions/documentCreation'
-import './diff.css'
-import './mdStyling.css'
-import { marked } from 'marked'
-import {
-  IconButton,
-  makeStyles,
-  Radio,
-  ThemeProvider,
-  useMediaQuery,
-} from '@material-ui/core'
-import { MdChevronLeft, MdChevronRight } from 'react-icons/md'
-import { HiDownload } from 'react-icons/hi'
-import downloadBase64File from '../common/functions/downloadBase64File'
-import { customTheme } from '../styles'
-import Page404 from '../../errors/Page404'
+    useAddExternalDocumentMutation,
+    useAddInternalDocumentMutation,
+    useGetDocumentReferenceQuery,
+    useGetFolderQuery,
+    useLazyGetDocumentQuery,
+    useUpdateDocumentReferenceMutation,
+    useUpdateExternalDocumentMutation,
+    useUpdateFolderMutation,
+    useUpdateInternalDocumentMutation,
+} from "../../../services/documentsGraph"
+import { useGetCourseInstanceQuery, useUpdateCourseInstanceMutation } from "../../../services/course"
+import { DocumentEnums, getEntityName } from "../common/enums/document-enums"
+import { DATA_PREFIX } from "../../../constants/ontology"
 
-function TextComparator({ textA, textB }) {
-  if (textB.length === 0 || textA === textB) {
-    return <p>{textA}</p>
-  }
-
-  return (
-    <p>
-      <del
-        style={{ wordBreak: 'break-all', whiteSpace: 'normal' }}
-        className="revisions-diff"
-      >
-        {textB}
-      </del>
-      <MdChevronRight
-        size={28}
-        style={{
-          color: 'grey',
-          margin: '0 1em 0 1em',
-        }}
-      />
-      <ins
-        style={{ wordBreak: 'break-all', whiteSpace: 'normal' }}
-        className="revisions-diff"
-      >
-        {textA}
-      </ins>
-    </p>
-  )
-}
+const LOOP_ARBITRARY_LIMIT = 100
 
 const useStyles = makeStyles({
-  sidebar: {
-    overflow: 'scroll',
-    width: '20%',
-    float: 'left',
-    verticalAlign: 'top',
-    borderLeft: '2px solid lightgrey',
-    height: 'calc(100vh - 80px)',
-  },
-  sidebarRow: {
-    borderWidth: '0 0 1px',
-    padding: '10px',
-  },
-  mainPage: {
-    display: 'table',
-    width: '100%',
-  },
-  versionContentContainer: {
-    float: 'left',
-    width: '80%',
-    verticalAlign: 'top',
-    height: 'calc(100vh - 80px)',
-    overflow: 'scroll',
-  },
-  versionContent: {
-    width: '80%',
-    margin: '20px auto',
-  },
+    mainPage: {
+        display: "table",
+        width: "100%",
+    },
+    versionContentContainer: {
+        float: "left",
+        width: "80%",
+        verticalAlign: "top",
+        height: "calc(100vh - 80px)",
+        overflow: "scroll",
+    },
+    versionContent: {
+        width: "80%",
+        margin: "20px auto",
+    },
 })
 
-const getPayloadContent = version => version.payload[0].content
-const hasEmptyContent = version => version.payload[0].content.length === 0
+function DocumentHistory({ match, history, location }) {
+    const courseId = match.params.course_id
+    const courseInstanceFullId = `${DATA_PREFIX}courseInstance/${courseId}`
+    const style = useStyles()
+    const newestVersionId = location.state?.documentId
+    const parentFolderId = location.state?.parentFolderId
+    const parentFolderFullId = `${DATA_PREFIX}folder/${parentFolderId}`
+    const isMobile = useMediaQuery("(max-width:760px)")
+    const [showSidebar, setShowSidebar] = useState(false)
 
-function RevisionsSidebar({
-  versions,
-  setPickedVersionA,
-  setPickedVersionB,
-  selectedAfter,
-  selectedBefore,
-  setSelectedAfter,
-  setSelectedBefore,
-  handleRestore,
-  setShowSidebar,
-}) {
-  const style = useStyles()
-  const isMobile = useMediaQuery('(max-width:760px)')
-  const firstVersion = versions[0]
-
-  const handleChangeA = e => {
-    if (isMobile) {
-      setShowSidebar(false)
-    }
-    const vIndex = parseInt(e.target.value)
-    setPickedVersionA(versions[vIndex])
-    setSelectedAfter(vIndex)
-  }
-
-  const handleChangeB = e => {
-    if (isMobile) {
-      setShowSidebar(false)
-    }
-    const vIndex = parseInt(e.target.value)
-    setPickedVersionB(versions[vIndex])
-    setSelectedBefore(vIndex)
-  }
-
-  return (
-    <div style={{ width: isMobile && '100%' }} className={style.sidebar}>
-      <ListGroup flush>
-        {isMobile && (
-          <ListGroupItem onClick={() => setShowSidebar(false)}>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <MdChevronLeft style={{ fontSize: '200%', color: 'grey' }} />
-            </div>
-          </ListGroupItem>
-        )}
-        {versions.map((v, i) => {
-          return (
-            <ListGroupItem className={style.sidebarRow} key={v["_id"]}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                {timestampToString2(v.createdAt)}
-
-                {!v.isDeleted && (
-                  <>
-                    <Radio
-                      style={{
-                        visibility: selectedAfter < i ? 'visible' : 'hidden',
-                        marginLeft: 'auto',
-                        color: customTheme.palette.primary.light,
-                      }}
-                      checked={selectedBefore === i}
-                      onChange={handleChangeB}
-                      value={i}
-                      name="before-revisions"
-                      inputProps={{
-                        'aria-label': `before from ${timestampToString2(
-                          v.createdAt
-                        )}`,
-                      }}
-                    />
-                    <Radio
-                      style={{
-                        visibility: i < selectedBefore ? 'visible' : 'hidden',
-                        color: customTheme.palette.primary.light,
-                      }}
-                      checked={selectedAfter === i}
-                      onChange={handleChangeA}
-                      value={i}
-                      name="after-revisions"
-                      inputProps={{
-                        'aria-label': `after all revisions up to ${timestampToString2(
-                          v.createdAt
-                        )}`,
-                      }}
-                    />
-                  </>
-                )}
-              </div>
-              {i === 0 && (
-                <p style={{ color: 'grey', marginBottom: 0 }}>
-                  Current version
-                </p>
-              )}
-              {v.isDeleted && (
-                <p style={{ color: 'grey', marginBottom: 0 }}> Was deleted</p>
-              )}
-              {v.restoredFrom && (
-                <p style={{ color: 'grey', marginBottom: 0 }}>
-                  Restored from {timestampToString2(v.restoredFrom)}
-                </p>
-              )}
-              {i > 0 && i < versions.length - 1 && (
-                <>
-                  {!firstVersion.isDeleted && !v.isDeleted && (
-                    <a
-                      style={{ color: customTheme.palette.primary.light }}
-                      href="src/pages/documents/DocumentHistory/DocumentHistory#index.js"
-                      onClick={e => handleRestore(e, v)}
-                    >
-                      restore
-                    </a>
-                  )}
-                </>
-              )}
-            </ListGroupItem>
-          )
-        })}
-      </ListGroup>
-    </div>
-  )
-}
-
-const markedOptions = {
-  gfm: true,
-  breaks: true,
-  tables: true,
-  xhtml: true,
-  headerIds: false,
-}
-
-function DocumentHistory({
-  match,
-  history,
-  fetchFolder,
-  folder,
-  courseInstance,
-  setCurrentDocumentsOfCourseInstance,
-  location,
-}) {
-  const courseId = match.params.course_id
-
-  const style = useStyles()
-  const newestVersionId = location.state?.documentId
-  const parentFolderId = location.state?.parentFolderId
-  const isMobile = useMediaQuery('(max-width:760px)')
-  const [showSidebar, setShowSidebar] = useState(false)
-
-  const [status, setStatus] = useState(200)
-  const [entityName, setEntityName] = useState('')
-  const [versions, setVersions] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [loadingVersions, setLoadingVersions] = useState(true)
-  const [pickedVersionA, setPickedVersionA] = useState({})
-  const [pickedVersionB, setPickedVersionB] = useState({})
-  const [selectedBefore, setSelectedBefore] = useState(1)
-  const [selectedAfter, setSelectedAfter] = useState(0)
-
-  const latestVersion = () => versions[0]
-
-  const createOriginDummyVersion = firstVersion => {
-    const dummy = {
-      "_id": `dummy-version-${firstVersion["_id"]}`,
-      name: '',
-      createdAt: firstVersion.createdAt,
-      restoredFrom: '',
-    }
-    let subclassSpecificParams
-    switch (getShortType(firstVersion['@type'])) {
-      case DocumentEnums.internalDocument.entityName:
-        subclassSpecificParams = {
-          mimeType: '',
-          payload: [
-            {
-              content: '',
-            },
-          ],
-        }
-        break
-      case DocumentEnums.externalDocument.entityName:
-        subclassSpecificParams = { uri: '' }
-        break
-      case DocumentEnums.file.entityName:
-        subclassSpecificParams = {
-          filename: '',
-          mimeType: '',
-          payload: [
-            {
-              content: '',
-            },
-          ],
-        }
-        break
-      default:
-        break
-    }
-    return {
-      ...dummy,
-      ...subclassSpecificParams,
-    }
-  }
-
-  useEffect(() => {
-    setLoading(true)
-    setLoadingVersions(true)
-    const entitiesUrl = `document/${newestVersionId}?_join=payload&_chain=previousVersion`
-    axiosGetEntities(entitiesUrl).then(response => {
-      if (response.failed) {
-        console.error("There was a problem getting this document's history")
-        setLoading(false)
-        setStatus(response.response ? response.response.status : 500)
-        return
-      }
-      const data = getResponseBody(response)
-      if (folder["_id"] !== parentFolderId)
-        fetchFolder(parentFolderId)
-      setEntityName(getShortType(data[0]['@type']))
-      const paddedData = [
-        ...data,
-        createOriginDummyVersion(data[data.length - 1]),
-      ]
-      const firstNonDeleted = paddedData.findIndex(doc => !doc.isDeleted)
-      const secondNonDeleted = paddedData.findIndex(
-        (doc, i) => !doc.isDeleted && i !== firstNonDeleted
-      )
-      setSelectedAfter(firstNonDeleted)
-      setSelectedBefore(secondNonDeleted)
-      setPickedVersionA(paddedData[firstNonDeleted])
-      setPickedVersionB(paddedData[secondNonDeleted])
-      setVersions(paddedData)
-      setLoadingVersions(false)
+    const { data: folder, isError: isFolderError, isFetching: isFolderFetching } = useGetFolderQuery({
+        id: parentFolderFullId,
     })
-  }, [newestVersionId, courseId])
 
-  useEffect(() => {
-    if (!loadingVersions && !folder.loading) {
-      setLoading(false)
-    }
-  }, [loadingVersions, folder.loading])
+    const [getDocument] = useLazyGetDocumentQuery()
+    const [isFetchingHistory, setIsFetchingHistory] = useState(true)
 
-  const handleRestore = async (e, versionToRestore) => {
-    e.preventDefault()
-    const editProps = {
-      isInEditingMode: true,
-      courseInstance,
-      setCurrentDocumentsOfCourseInstance,
-    }
-    // if (isMaterial) {
-    //   console.log("implement")
-    //   editProps = {
-    //     ...editProps,
-    //     materialAttrs: {
-    //       covers: versionToRestore.material.covers,
-    //       mentions: versionToRestore.material.mentions,
-    //       requires: versionToRestore.material.requires,
-    //       assumes: versionToRestore.material.assumes,
-    //       isAlternativeTo: versionToRestore.material.isAlternativeTo,
-    //       refersTo: versionToRestore.material.refersTo,
-    //       generalizes: versionToRestore.material.generalizes,
-    //     }
-    //   }
-    // }
-    versionToRestore = {
-      ...versionToRestore,
-      restoredFrom: versionToRestore.createdAt,
-      entityName,
-      parent: folder
-    }
-    const newVersionId = await editDocument(
-      versionToRestore,
-      latestVersion(),
-      editProps
+    const [addInternalDocument] = useAddInternalDocumentMutation()
+    const [addExternalDocument] = useAddExternalDocumentMutation()
+    const [updateInternalDocument] = useUpdateInternalDocumentMutation()
+    const [updateExternalDocument] = useUpdateExternalDocumentMutation()
+    const [updateDocumentReference] = useUpdateDocumentReferenceMutation()
+    const [updateFolder] = useUpdateFolderMutation()
+    const [updateCourseInstance] = useUpdateCourseInstanceMutation()
+
+    // REST API
+    const [versions, setVersions] = useState([])
+    const [addFile] = useAddFileMutation()
+    const [updateFile] = useUpdateFileMutation()
+
+    const [error, setError] = useState(null)
+
+    const [indexOfVersionBefore, setIndexOfVersionBefore] = useState(1)
+    const [indexOfVersionAfter, setIndexOfVersionAfter] = useState(0)
+
+    const entityName = versions[0] ? getEntityName(versions[0]._type) : ""
+    const pickedVersionB = versions.length > 1 ? versions[indexOfVersionBefore] : {}
+    const pickedVersionA = versions.length > 1 ? versions[indexOfVersionAfter] : {}
+
+    const {
+        data: courseInstanceData,
+        isError: isCourseInstanceError,
+        isFetching: isCourseInstanceFetching,
+    } = useGetCourseInstanceQuery({
+        id: courseInstanceFullId,
+    })
+    const courseInstance = courseInstanceData?.[0]
+
+    const { data: documentReference, isError: isRefError, isFetching: isRefFetching } = useGetDocumentReferenceQuery(
+        {
+            courseInstanceId: courseInstanceFullId,
+            documentId: `${DATA_PREFIX}${entityName}/${newestVersionId}`,
+        },
+        { skip: !entityName }
     )
-    if (!newVersionId) return
-    history.push(
-      redirect(ROUTES.EDIT_DOCUMENT, [
-        { key: 'course_id', value: courseId },
-        { key: 'document_id', value: newVersionId },
-      ])
-    )
-  }
 
-  const diffPayloads = () => {
-    if (!pickedVersionA.payload || !pickedVersionB.payload) {
-      return
+    const isFetching = isFolderFetching || isRefFetching || isCourseInstanceFetching || isFetchingHistory
+    const isError = isFolderError || isRefError || isCourseInstanceError
+    const latestVersion = versions[0]
+
+    const fetchDocumentVersions = useCallback(async () => {
+        if (!newestVersionId) return
+
+        let fetchedVersions = []
+        let current = await getDocument({ shortId: newestVersionId }).unwrap()
+        while (current && fetchedVersions.length < LOOP_ARBITRARY_LIMIT) {
+            fetchedVersions.push(current)
+            let previousDocumentVersion = null
+            if (current.previousDocumentVersion) {
+                previousDocumentVersion = await getDocument({ shortId: getShortID(current.previousDocumentVersion._id) }).unwrap()
+            }
+            current = previousDocumentVersion
+        }
+
+        const firstNotDeleted = fetchedVersions.findIndex(doc => !doc.isDeleted)
+        const lastNotDeleted = fetchedVersions.findLastIndex(doc => !doc.isDeleted)
+        setIndexOfVersionBefore(lastNotDeleted)
+        setIndexOfVersionAfter(firstNotDeleted)
+        setVersions(fetchedVersions)
+        setIsFetchingHistory(false)
+    }, [newestVersionId])
+
+    useEffect(() => {
+        fetchDocumentVersions()
+    }, [fetchDocumentVersions])
+
+    useEffect(() => {
+        if (isError) {
+            setError(isError)
+        }
+    }, [isError])
+
+    const handleRestore = async (e, versionToRestore) => {
+        e.preventDefault()
+
+        versionToRestore = {
+            ...versionToRestore,
+            courseInstances: versionToRestore.courseInstances.map(ci => ci._id),
+            nextDocumentVersion: null,
+            historicDocumentVersions: versions.map(v => v._id),
+            restoredFrom: versionToRestore.createdAt?.millis,
+            previousDocumentVersion: latestVersion._id,
+        }
+
+        try {
+            let newVersionId
+            if (entityName === DocumentEnums.internalDocument.entityName) {
+                newVersionId = await addInternalDocument(versionToRestore).unwrap()
+                newVersionId = newVersionId._id
+                await updateInternalDocument({
+                    id: latestVersion._id,
+                    body: { nextDocumentVersion: newVersionId },
+                }).unwrap()
+            } else if (entityName === DocumentEnums.externalDocument.entityName) {
+                newVersionId = await addExternalDocument(versionToRestore).unwrap()
+                newVersionId = newVersionId._id
+                await updateExternalDocument({
+                    id: latestVersion._id,
+                    body: { nextDocumentVersion: newVersionId },
+                }).unwrap()
+            } else if (entityName === DocumentEnums.file.entityName) {
+                // REST API because of base64 issues
+                newVersionId = await addFile(versionToRestore).unwrap()
+                await updateFile({
+                    id: getShortID(latestVersion._id),
+                    body: { nextDocumentVersion: newVersionId },
+                }).unwrap()
+            }
+            await updateDocumentReference({
+                id: documentReference._id,
+                body: { document: newVersionId },
+            }).unwrap()
+            await updateFolder({
+                id: parentFolderFullId,
+                body: {
+                    folderContent: [
+                        ...folder.folderContent.map(item => item._id).filter(_id => _id !== latestVersion._id),
+                        newVersionId,
+                    ],
+                },
+            }).unwrap()
+            await updateCourseInstance({
+                id: courseInstanceFullId,
+                body: {
+                    hasDocument: [
+                        ...courseInstance.hasDocument.map(item => item._id).filter(_id => _id !== latestVersion._id),
+                        newVersionId,
+                    ],
+                },
+            }).unwrap()
+
+            history.push(
+                redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
+                    { key: "course_id", value: courseId },
+                    { key: "folder_id", value: parentFolderId },
+                ])
+            )
+        } catch (err) {
+            setError(err)
+            console.log(err)
+        }
     }
 
-    let before = getPayloadContent(pickedVersionB)
-    let after = getPayloadContent(pickedVersionA)
-    if (pickedVersionA.mimeType === 'text/markdown') {
-      before = marked.parse(before, markedOptions)
-      after = marked.parse(after, markedOptions)
+    if (!location.state) {
+        return <Redirect to={redirect(ROUTES.DOCUMENTS, [{ key: "course_id", value: courseId }])} />
     }
-    before = before.replaceAll('<hr>', '<hr>a</hr>')
-    after = after.replaceAll('<hr>', '<hr>a</hr>')
 
-    const documentsDiff = diff(before, after, 'revisions-diff')
-    let cleanedDiff = documentsDiff.replaceAll('<hr>a</hr>', '<hr>')
-    cleanedDiff = cleanedDiff.replaceAll(
-      /<hr data-diff-node="ins" data-operation-index="\d+"><ins data-operation-index="\d+" class="revisions-diff">a<\/ins><\/hr>/g,
-      '<hr data-diff-node="ins" class="revisions-diff">'
-    )
-    cleanedDiff = cleanedDiff.replaceAll(
-      /<hr data-diff-node="del" data-operation-index="\d+"><del data-operation-index="\d+" class="revisions-diff">a<\/del><\/hr>/g,
-      '<hr data-diff-node="del" class="revisions-diff">'
-    )
-    return cleanedDiff
-  }
+    if (isFetching) {
+        return (
+            <Alert color="secondary" className="empty-message">
+                Loading...
+            </Alert>
+        )
+    }
 
-  const onDownloadFile = (e, v) => {
-    e.preventDefault()
-    downloadBase64File(v.payload[0].content, v.filename, v.mimeType, window)
-  }
+    if (error) {
+        return <Alert color="warning"> There has been an error! </Alert>
+    }
 
-  if (!location.state) {
     return (
-      <Redirect
-        to={redirect(ROUTES.DOCUMENTS, [{ key: 'course_id', value: courseId }])}
-      />
-    )
-  }
-
-  if (status === 404) {
-    return <Page404 />
-  }
-
-  if (loading) {
-    return (
-      <Alert color="secondary" className="empty-message">
-        Loading...
-      </Alert>
-    )
-  }
-
-  return (
-    <ThemeProvider theme={customTheme}>
-      <div className={style.mainPage}>
-        {(!isMobile || !showSidebar) && (
-          <div
-            style={{ width: isMobile && '100%' }}
-            className={style.versionContentContainer}
-          >
-            <div
-              className="diffing"
-              style={{
-                width: isMobile ? '100%' : '70%',
-                margin: '10px auto',
-                padding: 10,
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'flex-start',
-                  alignItems: 'center',
-                }}
-              >
-                <h5>Name:</h5>
-                {isMobile && !showSidebar && (
-                  <IconButton
-                    style={{ marginLeft: 'auto', outline: 'none' }}
-                    onClick={() => setShowSidebar(true)}
-                  >
-                    <MdChevronRight />
-                  </IconButton>
-                )}
-              </div>
-              <TextComparator
-                textA={pickedVersionA.name}
-                textB={pickedVersionB.name}
-              />
-
-              {status !== 200 && (
-                <Alert color="warning">
-                  There has been a server error, try again please!
-                </Alert>
-              )}
-              {entityName === DocumentEnums.externalDocument.entityName && (
-                <>
-                  <h5>Url:</h5>
-                  {pickedVersionB.uri.length !== 0 &&
-                    pickedVersionB.uri !== pickedVersionA.uri && (
-                      <>
-                        <a href={pickedVersionB.uri}>{pickedVersionB.uri}</a>
-                        <MdChevronRight
-                          size={28}
-                          style={{
-                            color: 'grey',
-                            margin: '0 1em 0 1em',
-                          }}
-                        />
-                      </>
-                    )}
-                  <a href={pickedVersionA.uri}>{pickedVersionA.uri}</a>
-                </>
-              )}
-              {entityName === DocumentEnums.file.entityName && (
-                <>
-                  <h5>Filename:</h5>
-                  <TextComparator
-                    textA={pickedVersionA.filename}
-                    textB={pickedVersionB.filename}
-                  />
-
-                  <h5>File mime:</h5>
-                  <TextComparator
-                    textA={pickedVersionA.mimeType}
-                    textB={pickedVersionB.mimeType}
-                  />
-
-                  <h5>File:</h5>
-                  <>
-                    {!hasEmptyContent(pickedVersionB) &&
-                      getPayloadContent(pickedVersionB) !==
-                        getPayloadContent(pickedVersionA) && (
-                        <>
-                          <Link
-                            id="file-download"
-                            to={{ textDecoration: 'none' }}
-                            onClick={e => onDownloadFile(e, pickedVersionB)}
-                          >
-                            {pickedVersionB.mimeType.startsWith('image') ? (
-                              <img
-                                style={{ display: 'inline', maxWidth: '120px' }}
-                                src={getPayloadContent(pickedVersionB)}
-                                alt="image of the older document version"
-                              />
-                            ) : (
-                              <HiDownload
-                                style={{
-                                  color: customTheme.palette.primary.main,
-                                }}
-                                size={42}
-                              />
-                            )}
-                          </Link>
-                          <MdChevronRight
-                            size={42}
+        <ThemeProvider theme={customTheme}>
+            <div className={style.mainPage}>
+                {(!isMobile || !showSidebar) && (
+                    <div style={{ width: isMobile && "100%" }} className={style.versionContentContainer}>
+                        <div
+                            className="diffing"
                             style={{
-                              color: 'grey',
-                              margin: '0 2em 0 2em',
+                                width: isMobile ? "100%" : "70%",
+                                margin: "10px auto",
+                                padding: 10,
                             }}
-                          />
-                        </>
-                      )}
-                    <Link
-                      id="file-download"
-                      to={{ textDecoration: 'none' }}
-                      onClick={e => onDownloadFile(e, pickedVersionA)}
-                    >
-                      {pickedVersionA.mimeType.startsWith('image') ? (
-                        <img
-                          style={{ display: 'inline', maxWidth: '120px' }}
-                          src={getPayloadContent(pickedVersionA)}
-                          alt="image of the newer document version"
-                        />
-                      ) : (
-                        <HiDownload
-                          style={{
-                            color: customTheme.palette.primary.main,
-                          }}
-                          size={42}
-                        />
-                      )}
-                    </Link>
-                  </>
-                </>
-              )}
-              {entityName === DocumentEnums.internalDocument.entityName && (
-                <>
-                  {/*   want to use ckeditor styling but not its data processor */}
-                  <div className="ck ck-editor__main" role="presentation">
-                    <div
-                      className="ck-blurred ck ck-content ck-editor__editable ck-rounded-corners ck-editor__editable_inline ck-read-only"
-                      dir="ltr"
-                      role="textbox"
-                      aria-label="Rich Text Editor, main"
-                      lang="en"
-                      contentEditable={false}
-                      dangerouslySetInnerHTML={{ __html: diffPayloads() }}
+                        >
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "flex-start",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <h5>Name:</h5>
+                                {isMobile && !showSidebar && (
+                                    <IconButton
+                                        style={{ marginLeft: "auto", outline: "none" }}
+                                        onClick={() => setShowSidebar(true)}
+                                    >
+                                        <MdChevronRight />
+                                    </IconButton>
+                                )}
+                            </div>
+                            <TextComparator textA={pickedVersionA?.name ?? ""} textB={pickedVersionB?.name ?? ""} />
+                            <EntityComparator
+                                entityName={entityName}
+                                pickedVersionA={pickedVersionA}
+                                pickedVersionB={pickedVersionB}
+                            />
+                        </div>
+                    </div>
+                )}
+                {(!isMobile || showSidebar) && (
+                    <RevisionsSidebar
+                        versions={versions}
+                        indexOfVersionBefore={indexOfVersionBefore}
+                        indexOfVersionAfter={indexOfVersionAfter}
+                        setIndexOfVersionBefore={setIndexOfVersionBefore}
+                        setIndexOfVersionAfter={setIndexOfVersionAfter}
+                        handleRestore={handleRestore}
+                        setShowSidebar={setShowSidebar}
                     />
-                  </div>
-                </>
-              )}
+                )}
             </div>
-          </div>
-        )}
-        {(!isMobile || showSidebar) && (
-          <RevisionsSidebar
-            setPickedVersionA={setPickedVersionA}
-            setPickedVersionB={setPickedVersionB}
-            selectedAfter={selectedAfter}
-            selectedBefore={selectedBefore}
-            setSelectedAfter={setSelectedAfter}
-            setSelectedBefore={setSelectedBefore}
-            versions={versions}
-            handleRestore={handleRestore}
-            setShowSidebar={setShowSidebar}
-          />
-        )}
-      </div>
-    </ThemeProvider>
-  )
+        </ThemeProvider>
+    )
 }
 
-const mapStateToProps = ({
-                           authReducer,
-                           courseInstanceReducer,
-                           folderReducer,
-                         }) => {
-  return {
-    courseInstance: courseInstanceReducer.courseInstance,
-    folder: {...folderReducer},
-  }
-}
-
-export default withRouter(
-  connect(mapStateToProps, {fetchFolder, setCurrentDocumentsOfCourseInstance})(DocumentHistory)
-)
+export default withRouter(DocumentHistory)

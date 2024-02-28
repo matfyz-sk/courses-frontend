@@ -39,10 +39,15 @@ import AddQuestionForm from '../quiz-new/addQuestionForm'
 const CoreRoutes = [
   <RouteWrapper key={ROUTES.DASHBOARD} path={ROUTES.DASHBOARD} auth />,
   <RouteWrapper
-    key={ROUTES.TOPICS}
-    path={ROUTES.TOPICS}
-    component={TopicManager}
+    key={ROUTES.DASHBOARD}
+    path={ROUTES.DASHBOARD}
+    auth
   />,
+  // <RouteWrapper
+  //     key={ROUTES.TOPICS}
+  //     path={ROUTES.TOPICS}
+  //     component={TopicManager}
+  // />,
   <StudentRoute
     key={ROUTES.TIMELINE}
     path={ROUTES.TIMELINE}

@@ -18,13 +18,13 @@ import { getFullID } from 'helperFunctions'
 function CourseLayout(props) {
   const course_id = props.match.params.course_id ?? null
   const { course, privileges } = props
-  const [getCourseInstace] = useLazyGetCourseInstanceQuery()
+  const [getCourseInstance] = useLazyGetCourseInstanceQuery()
 
   useEffect(() =>{
     if (course_id) {
       if (!course || idFromURL(course['_id']) !== course_id) {
-        store.dispatch(setCourseInstancePrivileges({ course_id }))
-        props.fetchCourseInstance(props.history, getFullID(course_id, "courseInstance"), getCourseInstace)
+        props.setCourseInstancePrivileges({ course_id })
+        props.fetchCourseInstance(props.history, getFullID(course_id, "courseInstance"), getCourseInstance)
       }
     }
   },[])
@@ -35,8 +35,8 @@ function CourseLayout(props) {
         history = { props.history }
         match = { props.match }
         abbr={
-          course && course.instanceOf
-            ? course.instanceOf.abbreviation
+          course && course.course
+            ? course.course.abbreviation
             : '...'
         }
         courseId={course_id}
@@ -54,5 +54,5 @@ const mapStateToProps = ({ courseInstanceReducer, privilegesReducer }) => {
 }
 
 export default withRouter(
-  connect(mapStateToProps, { fetchCourseInstance })(CourseLayout)
+  connect(mapStateToProps, { fetchCourseInstance, setCourseInstancePrivileges })(CourseLayout)
 )

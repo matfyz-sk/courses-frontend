@@ -6,7 +6,8 @@ import {
   getNonStringEquals, 
   getOrderBy, 
   getSelectById, 
-  getStringEquals 
+  getStringEquals,
+  getArrayFormat
 } from './baseQuery';
 
 export const courseApi = createApi({
@@ -88,6 +89,8 @@ export const courseApi = createApi({
                     }
                     courses_hasGrading {
                       _id
+                      courses_grade
+                      courses_minPoints
                     }
                     courses_requires {
                       _id
@@ -154,6 +157,8 @@ export const courseApi = createApi({
                 ${body.hasResultType ? `courses_hasResultType: ${getArrayFormat(body.hasResultType)}` : ""}
                 ${body.hasPersonalSettings ? `courses_hasPersonalSettings: ${getArrayFormat(body.hasPersonalSettings)}` : ""}
                 ${body.hasGrading ? `courses_hasGrading: ${getArrayFormat(body.hasGrading)}` : ""}
+                ${body.documentReference ? `courses_documentReference: ${getArrayFormat(body.documentReference)}` : ""}
+                ${body.hasDocument ? `courses_hasDocument: ${getArrayFormat(body.hasDocument)}` : ""}
               ) {
                 _id
               }
@@ -214,7 +219,7 @@ export const courseApi = createApi({
                 ${body.uses ? `courses_uses: ${body.uses}` : ""}
                 ${body.recommends ? `courses_recommends: ${body.recommends}` : ""}
                 ${body.documentReference ? `courses_documentReference: ${body.documentReference}` : ""}
-                courses_hasDocument: "${body.hasDocument ? body.hasDocument : ""}"
+                ${body.hasDocument ? `courses_hasDocument: ${body.hasDocument}` : ""}
               ) {
                 _id
               }

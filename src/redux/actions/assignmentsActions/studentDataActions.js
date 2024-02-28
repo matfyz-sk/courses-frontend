@@ -3,8 +3,8 @@ import { getResponseBody, getShortID, axiosGetEntities } from '../../../helperFu
 
 export const assignmentsGetStudentTeams = (studentFullID, courseInstance) => {
    return (dispatch) => {
-     axiosGetEntities(`teamInstance?hasUser=${getShortID(studentFullID)}&approved=true&_join=instanceOf`).then((response)=>{
-       let teams = getResponseBody(response).map((teamInstance) => teamInstance.instanceOf[0] );
+     axiosGetEntities(`teamInstance?hasUser=${getShortID(studentFullID)}&approved=true&_join=team`).then((response)=>{
+       let teams = getResponseBody(response).map((teamInstance) => teamInstance.team[0] );
        teams = teams.filter((team)=> team.courseInstance === courseInstance );
        dispatch({ type: SET_ASIGNMENTS_STUDENT_TEAMS, teams });
      })

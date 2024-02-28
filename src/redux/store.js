@@ -13,8 +13,9 @@ import { assignmentApi } from 'services/assignments'
 import { assignmentGraphApi } from 'services/assignmentsGraph'
 import { teamGraphApi } from 'services/teamGraph'
 import { courseTmpApi } from 'services/courseTmp'
-import { topicApi } from '../services/topic'
 import { quizNewApi } from '../services/quiz-new'
+import { topicApi } from "../services/topic";
+import { documentsGraphApi } from "../services/documentsGraph";
 
 const reducers = combineReducers({
   ...allReducers,
@@ -31,6 +32,7 @@ const reducers = combineReducers({
   [courseTmpApi.reducerPath]: courseTmpApi.reducer,
   [topicApi.reducerPath]: topicApi.reducer,
   [quizNewApi.reducerPath]: quizNewApi.reducer,
+  [documentsGraphApi.reducerPath]: documentsGraphApi.reducer,
 })
 
 const composeEnhancers =
@@ -41,6 +43,7 @@ const composeEnhancers =
         // Specify extension’s options like name, actionsBlacklist, actionsCreators, serialize...
       })
     : compose
+
 
 const enhancers = composeEnhancers(
   compose(
@@ -58,7 +61,8 @@ const enhancers = composeEnhancers(
       teamGraphApi.middleware,
       courseTmpApi.middleware,
       topicApi.middleware,
-      quizNewApi.middleware
+      quizNewApi.middleware,
+      documentsGraphApi.middleware,
     )
   )
 )

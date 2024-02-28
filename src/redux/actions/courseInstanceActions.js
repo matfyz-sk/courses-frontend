@@ -51,22 +51,22 @@ export const fetchCourseInstance = (history, course_id, getCourseInstance) => {
             createRootFolder()
           }
 
-          let hasPrivilege = false
-          if (getUser() && course.hasInstructor) {
-            for (let i = 0; i < course.hasInstructor.length; i++) {
-              if (getShortID(course.hasInstructor[i]['_id']) === getUserID()) {
-                dispatch(setCourseInstanceInstructor())
-                hasPrivilege = true
-              }
+        let hasPrivilege = false
+        if (getUser() && course.hasInstructor) {
+          for (let i = 0; i < course.hasInstructor.length; i++) {
+            if (course.hasInstructor[i]['_id'] === getUserID()) {
+              dispatch(setCourseInstanceInstructor())
+              hasPrivilege = true
             }
           }
-          if (!hasPrivilege) {
-            dispatch(setCourseInstancePrivileges({ course_id }))
-          }
-        } else {
-          history.push(NOT_FOUND)
         }
-      })
+        if (!hasPrivilege) {
+          dispatch(setCourseInstancePrivileges({ course_id: getShortID(course_id) }))
+        }
+      } else {
+        history.push(NOT_FOUND)
+      }
+    })
   }
 }
 

@@ -22,10 +22,10 @@ function MyTeams(props) {
     if(requestedData[0].memberOf.length > 0) {
       const newData = []
       for (const detail of requestedData.memberOf) {
-        if (detail?.instanceOf && detail?.instanceOf.length > 0 && detail?.instanceOf.courseInstance.length > 0) {
+        if (detail?.team && detail?.team.length > 0 && detail?.team.courseInstance.length > 0) {
           newData.push({
             teamInstance: detail,
-            team: detail.instanceOf,
+            team: detail.team,
           })
         }
       }
