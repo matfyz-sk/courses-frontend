@@ -6,7 +6,7 @@ import * as ROUTES from '../../../constants/routes'
 import { getUser, getUserID } from '../../../components/Auth'
 import { redirect } from '../../../constants/redirect'
 import withTeamHandler from './TeamDetailHOC'
-import { getShortID } from '../../../helperFunctions'
+import { getFullID, getShortID } from '../../../helperFunctions'
 import { isVisibleUser, showUserName } from '../../../components/Auth/userFunction';
 import { CreateTeamForm } from './CreateTeamForm'
 import { useLazyGetUserQuery } from "services/user"
@@ -54,12 +54,12 @@ function TeamsDetail(props) {
   }
 
   const searchFetch = () => {
-    getUserRequest({email: search, studentOfId: course_id}).unwrap().then(userByEmailData => {
+    getUserRequest({email: search, studentOfId: getFullID(course_id, "courseInstance")}).unwrap().then(userByEmailData => {
       console.log(userByEmailData)
       if(userByEmailData) {
         appendUserToTeam(team['_id'], userByEmailData['_id'])
       } else {
-        getUserRequest({nickname: search, studentOfId: course_id}).unwrap().then(userByNicknameData => {
+        getUserRequest({nickname: search, studentOfId: getFullID(course_id, "courseInstance")}).unwrap().then(userByNicknameData => {
           console.log(userByNicknameData)
           if(userByNicknameData) {
             appendUserToTeam(team['_id'], userByNicknameData['_id'])

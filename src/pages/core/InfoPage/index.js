@@ -13,10 +13,11 @@ import { INITIAL_INFO_STATE } from '../constants'
 import { NOT_FOUND } from '../../../constants/routes'
 import { getDisplayDateTime } from '../Helper'
 import { useGetCourseInstanceQuery } from 'services/course'
+import { getFullID } from "../../../helperFunctions";
 
 function InfoPage(props) {
   const { match: { params } } = props
-  const { data, isSuccess, isLoading } = useGetCourseInstanceQuery({id: params.course_id})
+  const { data, isSuccess, isLoading } = useGetCourseInstanceQuery({id: getFullID(params.course_id, "courseInstance")})
   const [redirectTo, setRedirectTo] = useState(null)
 
   if (redirectTo) {
@@ -32,20 +33,21 @@ function InfoPage(props) {
   }
 
   let info = INITIAL_INFO_STATE
-  if (isSuccess && data && data !== []) {
+  if (isSuccess && data && data.length > 0) {
+    const courseInstance = data[0]
     info = {
-      name: data[0].course[0].name,
-      description: data[0].course[0].description,
-      abbreviation: data[0].course[0].abbreviation,
-      prerequisites: data[0].course[0].hasPrerequisite
-        ? data[0].course[0].hasPrerequisite.map(prerequisite => {
+      name: courseInstance.course.name,
+      description: courseInstance.course.description,
+      abbreviation: courseInstance.course.abbreviation,
+      prerequisites: courseInstance.course.hasPrerequisite
+        ? courseInstance.course.hasPrerequisite.map(prerequisite => {
             return { fullId: prerequisite['_id'], name: prerequisite.name }
           })
         : [],
-      startDate: new Date(data[0].startDate),
-      endDate: new Date(data[0].endDate),
-      instructors: data[0].hasInstructor
-        ? data[0].hasInstructor.map(i => {
+      startDate: new Date(courseInstance.startDate.millis),
+      endDate: new Date(courseInstance.endDate.millis),
+      instructors: courseInstance.hasInstructor
+        ? courseInstance.hasInstructor.map(i => {
             return {
               fullId: i['_id'],
               name: `${i.firstName} ${i.lastName}`,

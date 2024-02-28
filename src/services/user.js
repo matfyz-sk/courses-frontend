@@ -1,12 +1,13 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { BACKEND_URL } from "../constants";
 import { gql } from 'graphql-request'
-import { 
-  graphqlBaseQuery, 
-  getNonStringEquals, 
-  getOrderBy, 
-  getSelectById, 
-  getStringEquals 
+import {
+    graphqlBaseQuery,
+    getNonStringEquals,
+    getOrderBy,
+    getSelectById,
+    getStringEquals,
+    getArrayFormat
 } from './baseQuery';
 
 export const userApi = createApi({
@@ -103,9 +104,9 @@ export const userApi = createApi({
                 ${body.publicProfile ? `courses_publicProfile: ${body.publicProfile}` : ""}
                 ${body.showBadges ? `courses_showBadges: ${body.showBadges}` : ""}
                 ${body.showCourses ? `courses_showCourses: ${body.showCourses}` : ""}
-                ${body.studentOf ? `courses_studentOf: "${body.studentOf}"` : ""}
-                ${body.memberOf ? `courses_memberOf: "${body.memberOf}"` : ""}
-                ${body.requests ? `courses_requests: "${body.requests}"` : ""}
+                ${body.studentOf ? `courses_studentOf: ${getArrayFormat(body.studentOf)}` : ""}
+                ${body.memberOf ? `courses_memberOf: ${getArrayFormat(body.memberOf)}` : ""}
+                ${body.requests ? `courses_requests: ${getArrayFormat(body.requests)}` : ""}
               ) {
                 _id
               }

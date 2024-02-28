@@ -2,10 +2,10 @@ import { getDisplayDateTime, getShortId, mergeMaterials } from '../Helper'
 import { SESSIONS, TASKS_DEADLINES, TASKS_EXAMS } from '../constants'
 
 export const sortEventsFunction = (e1, e2) => {
-  if (new Date(e1.startDate) > new Date(e2.startDate)) {
+  if (new Date(e1.startDate.millis) > new Date(e2.startDate.millis)) {
     return 1
   }
-  if (new Date(e1.startDate) < new Date(e2.startDate)) {
+  if (new Date(e1.startDate.millis) < new Date(e2.startDate.millis)) {
     return -1
   }
   if (e1.type > e2.type) {

@@ -79,16 +79,16 @@ function CoursesPageBase(props) {
           course.admin === true
         ) {
           if (
-            new Date(course.startDate) <= new Date() &&
-            new Date(course.endDate) > new Date()
+            new Date(course.startDate.representation) <= new Date() &&
+            new Date(course.endDate.representation) > new Date()
           ) {
             myActiveCourses.push(course)
-          } else if (new Date(course.endDate) < new Date()) {
+          } else if (new Date(course.endDate.representation) < new Date()) {
             myArchivedCourses.push(course)
           }
         } else if (
-          new Date(course.startDate) <= new Date() &&
-          new Date(course.endDate) > new Date()
+          new Date(course.startDate.representation) <= new Date() &&
+          new Date(course.endDate.representation) > new Date()
         ) {
           activeCourses.push(course)
         }
@@ -129,8 +129,8 @@ function CoursesPageBase(props) {
       let activeCourses = []
       for (const course of courses) {
         if (
-          new Date(course.startDate) <= new Date() &&
-          new Date(course.endDate) > new Date()
+          new Date(course.startDate.representation) <= new Date() &&
+          new Date(course.endDate.representation) > new Date()
         ) {
           course.admin = false
           course.enrolled = false

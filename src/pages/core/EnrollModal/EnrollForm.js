@@ -29,8 +29,8 @@ function EnrollForm(props) {
           newRequests.push(courseInstance.fullId)
           
           updateUser({
-            id: user.id,
-            patch: {requests: newRequests},
+            id: user.fullURI,
+            body: {requests: newRequests},
           }).unwrap().then(response => {
             const newRequest = {'_id': courseInstance.fullId}
             user.requests.push(newRequest)
@@ -42,6 +42,7 @@ function EnrollForm(props) {
                 'There was a problem with server while sending your request. Try again later.'
             )
             setErrors(new_errors)
+            console.error(error)
           })
         }
     }
@@ -56,7 +57,7 @@ function EnrollForm(props) {
         personalSettings.push(iri)
 
         updateCourseInstance({
-            id: courseInstance.id,
+            id: courseInstance.fullId,
             body: {hasPersonalSettings: personalSettings},
         }).unwrap().then(response => {
             requestEnrollment()
@@ -66,19 +67,20 @@ function EnrollForm(props) {
                 'There was a problem with server while sending your request. Try again later.'
             )
             setErrors(new_errors)
+            console.error(error)
         })
     }
 
     const requestPrivacy = () => {
+        const { user } = props
         if(!globalPrivacy) {
           const post = {
-            hasUser: getUser().fullURI,
+            hasUser: user.fullURI,
             nickName: specificNickname,
           }
 
           newCoursePersonalSettings(post).unwrap().then(response => {
-            console.log(resposne)
-            const {_id} = response
+            const {_id} = response[0]
             assignPrivacyToCourse(_id)
           }).catch(error => {
             const new_errors = []
@@ -86,6 +88,7 @@ function EnrollForm(props) {
                 'There was a problem with server while sending your request. Try again later.'
             )
             setErrors(new_errors)
+            console.error(error)
           })
         } else {
           requestEnrollment()

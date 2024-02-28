@@ -27,7 +27,7 @@ function EditCourse(props) {
 
   let course = INITIAL_COURSE_STATE
   if(isSuccess && data) {
-    if(data !== []) {
+    if(data.length > 0) {
       course = data.map(courseData => {
         return {
           id: courseData['_id'].substring(courseData['_id'].length - 5),
