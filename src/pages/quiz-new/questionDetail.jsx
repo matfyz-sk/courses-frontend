@@ -48,6 +48,7 @@ function QuestionDetail({ courseId, match }) {
 
   let questionContent
   let prevVersionButton = ''
+  let editButton = ''
   if (isLoading) {
     questionContent = <CircularProgress />
   } else if (isSuccess) {
@@ -99,32 +100,37 @@ function QuestionDetail({ courseId, match }) {
         </Link>
       )
     }
+
+    if (
+      questionData.hasNewerVersion === false &&
+      userId === questionData.questionSubmittedBy._id
+    ) {
+      editButton = (
+        <Link
+          to={redirect(EDIT_QUESTION_NEW, [
+            { key: 'course_id', value: courseId },
+            { key: 'question_id', value: questionId },
+          ])}
+          className="btn btn-success mb-2"
+        >
+          Edit question
+        </Link>
+      )
+    }
   } else if (isError) {
     questionContent = <div>There was an error while loading the question.</div>
   }
 
   const testComments = [
     {
-      commentAuthor: 'Frog Lover',
-      commentText: 'Man I Love Frogs',
+      commentAuthor: 'John Doe',
+      commentText: 'i like this question',
       replies: [
         {
-          commentAuthor: 'Frog Hater',
-          commentText: 'No they are slippery and gross and weird ew >:(',
+          commentAuthor: 'Matt Smith',
+          commentText: 'thanks!',
         },
       ],
-    },
-    {
-      commentAuthor: 'Anne Shirley',
-      commentText:
-        'Isn’t it nice to think that tomorrow is a new day with no mistakes in it yet.',
-      replies: [],
-    },
-    {
-      commentAuthor: 'Gilbert Blythe',
-      commentText:
-        'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.',
-      replies: [],
     },
   ]
 
@@ -173,15 +179,7 @@ function QuestionDetail({ courseId, match }) {
           Back
         </Link>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <Link
-            to={redirect(EDIT_QUESTION_NEW, [
-              { key: 'course_id', value: courseId },
-              { key: 'question_id', value: questionId },
-            ])}
-            className="btn btn-success mb-2"
-          >
-            Edit question
-          </Link>
+          {editButton}
           {prevVersionButton}
         </div>
       </div>

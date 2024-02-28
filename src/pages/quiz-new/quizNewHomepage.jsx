@@ -28,7 +28,10 @@ function QuizNewHomepage({ courseId }) {
     renderedContent = <h3>Loading...</h3>
   } else if (isSuccess) {
     if (questions) {
-      renderedContent = questions.map(question => {
+      let questionsToShow = questions.filter(
+        question => question.hasNewerVersion === false
+      )
+      renderedContent = questionsToShow.map(question => {
         return (
           <QuestionListItem
             key={crypto.randomUUID()}
@@ -36,7 +39,6 @@ function QuizNewHomepage({ courseId }) {
             questionId={question._id}
             questionText={question.text}
             questionAnswers={question.hasPredefinedAnswer}
-            isNewVersion={question.previous}
           />
         )
       })

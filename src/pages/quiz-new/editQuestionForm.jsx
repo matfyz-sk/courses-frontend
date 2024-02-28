@@ -8,6 +8,7 @@ import QuestionAnswerField from './questionAnswerField'
 import {
   useAddNewMultipleChoiceAnswerMutation,
   useAddNewMultipleChoiceQuestionMutation,
+  useSetHasNewerVersionMutation,
   useGetQuestionByIdQuery,
 } from '../../services/quiz-new'
 import { CustomTextField, GreenButton, useNewQuizStyles } from './styles'
@@ -18,7 +19,6 @@ import { redirect } from '../../constants/redirect'
 import { getUser, getUserID } from '../../components/Auth' // TODO lepsi sposob ziskavania userID
 
 function EditQuestionForm({ match, courseId }) {
-
   const [questionText, setQuestionText] = useState('')
   const [answerFields, setAnswerFields] = useState([])
 
@@ -37,8 +37,9 @@ function EditQuestionForm({ match, courseId }) {
   })
 
   const [submitNewQuestionVersion, { isSubmitError, isSubmitSuccess }] =
-      useAddNewMultipleChoiceQuestionMutation()
+    useAddNewMultipleChoiceQuestionMutation()
   const [addNewAnswer] = useAddNewMultipleChoiceAnswerMutation()
+  const [setHasNewerVersion] = useSetHasNewerVersionMutation()
 
   if (isSuccess && !questionText) {
     setQuestionText(questionData.text)
@@ -142,13 +143,14 @@ function EditQuestionForm({ match, courseId }) {
       text: questionText,
       courseInstance: longCourseId,
       hasPredefinedAnswer: answerIdsStringified,
-      previous: longQuestionId
+      previous: longQuestionId,
     }
     const result = await submitNewQuestionVersion({
       body: questionToSubmit,
       userId: userId,
     })
     if (!result.error) {
+      setHasNewerVersion(longQuestionId)
       setTimeout(
         () =>
           history.push(
