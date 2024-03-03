@@ -39,11 +39,11 @@ const CoreRoutes = [
     path={ROUTES.DASHBOARD}
     auth
   />,
-  // <RouteWrapper
-  //     key={ROUTES.TOPICS}
-  //     path={ROUTES.TOPICS}
-  //     component={TopicManager}
-  // />,
+  <RouteWrapper
+      key={ROUTES.TOPICS}
+      path={ROUTES.TOPICS}
+      component={TopicManager}
+  />,
   <StudentRoute
     key={ROUTES.TIMELINE}
     path={ROUTES.TIMELINE}

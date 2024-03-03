@@ -1,18 +1,18 @@
 import React, { useState } from "react"
 import { withRouter } from "react-router-dom"
-import { Button, Divider, List, ThemeProvider } from "@material-ui/core"
+import { Box, Divider, Grid, ThemeProvider } from "@material-ui/core"
 import { customTheme } from "../../documents/styles"
-import { useGetTopicsQuery, useNewTopicMutation } from "../../../services/topic"
-import TopicListItem from "./TopicListItem"
-import TopicDetail from "./TopicDetail"
+import { useNewTopicMutation } from "../../../services/topic"
+import TopicManagerSidebar from "./TopicManagerSidebar"
+import TopicManagerContent from "./TopicManagerContent"
+import { Alert, AlertTitle } from "@material-ui/lab"
 
 function TopicManager() {
-    // TODO make UI show error
-    const { data: allTopics } = useGetTopicsQuery()
-    const [newTopic] = useNewTopicMutation()
+    const [newTopic, {error: newTopicError}] = useNewTopicMutation()
     const [selectedTopicId, setSelectedTopicId] = useState(null)
     const [isEdit, setIsEdit] = useState(false)
-    const topLevelTopics = allTopics?.filter(topic => topic.subtopicOf.length === 0) ?? []
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    const error = newTopicError
 
     const handleIsEditChange = bool => {
         setIsEdit(bool)
@@ -37,44 +37,44 @@ function TopicManager() {
 
     return (
         <ThemeProvider theme={customTheme}>
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    maxWidth: 1300,
-                    margin: "auto",
-                    padding: 20,
-                }}
-            >
-                <div style={{ width: "30%" }}>
-                    <Button style={{ width: "100%", outline: "none" }} variant="outlined" onClick={addTopic}>
-                        Add Topic
-                    </Button>
-                    <List dense>
-                        {topLevelTopics?.map(topic => (
-                            <TopicListItem
-                                key={topic._id}
-                                topic={topic}
-                                setSelectedTopicId={setSelectedTopicId}
+            <Box margin="auto" alignItems="space-between" maxWidth={1300} padding={5}>
+                <Grid item container spacing={2}>
+                    <Grid item xs={12}>
+                        {error && (
+                            <Alert severity="error">
+                                <AlertTitle>HTTP Error {error.status}</AlertTitle>
+                                {error.message}
+                            </Alert>
+                        )}
+                    </Grid>
+                    <Grid item container xs={12}>
+                        {isSidebarOpen && (
+                            <>
+                                <Grid item xs={3}>
+                                    <TopicManagerSidebar
+                                        addTopic={addTopic}
+                                        courseInstanceId={null}
+                                        setSelectedTopicId={setSelectedTopicId}
+                                        open={isSidebarOpen}
+                                        setOpen={setIsSidebarOpen}
+                                    />
+                                </Grid>
+                                <Grid item xs={1}>
+                                    <Divider style={{margin: "auto"}} orientation="vertical"/>
+                                </Grid>
+                            </>
+                        )}
+                        <Grid item xs={8}>
+                            <TopicManagerContent
                                 selectedTopicId={selectedTopicId}
+                                setSelectedTopicId={setSelectedTopicId}
+                                isEdit={isEdit}
+                                handleIsEditChange={handleIsEditChange}
                             />
-                        ))}
-                    </List>
-                </div>
-                <Divider orientation="vertical" flexItem />
-                <div style={{ width: "65%" }}>
-                    {selectedTopicId ? (
-                        <TopicDetail
-                            topicId={selectedTopicId}
-                            handleTopicIdChange={setSelectedTopicId}
-                            isEdit={isEdit}
-                            handleIsEditChange={handleIsEditChange}
-                        />
-                    ) : (
-                        <h1>Select a topic to browse</h1>
-                    )}
-                </div>
-            </div>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Box>
         </ThemeProvider>
     )
 }
