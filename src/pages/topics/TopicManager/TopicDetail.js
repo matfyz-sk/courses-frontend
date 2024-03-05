@@ -139,9 +139,6 @@ function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange 
                             >
                                 <MdEdit />
                             </IconButton>
-                            <IconButton style={{ alignSelf: "center", outline: "none" }}>
-                                <MdDeviceHub />
-                            </IconButton>
                         </div>
                         <p>{topic.description}</p>
                     </>
