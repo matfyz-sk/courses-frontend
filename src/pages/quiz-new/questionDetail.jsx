@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
+import { connect } from 'react-redux'
 import { redirect } from '../../constants/redirect'
 import {
   EDIT_QUESTION_NEW,
   QUIZ_QUESTION_DETAIL_NEW,
   QUIZNEW,
 } from '../../constants/routes'
-import { Link, withRouter } from 'react-router-dom'
+import { Link, withRouter, useLocation } from 'react-router-dom'
 import {
   baseTheme,
   CustomTextField,
@@ -26,9 +27,12 @@ import { DATA_PREFIX } from '../../constants/ontology'
 import { getUserID } from '../../components/Auth'
 import { getShortID } from '../../helperFunctions'
 
-function QuestionDetail({ courseId, match }) {
+function QuestionDetail({ courseId, match, isTeacher }) {
   const classes = useNewQuizStyles()
   const questionId = match.params.question_id
+
+  const location = useLocation()
+  const hasNewerVersion = location.state ? location.state.hasNewerVersion : true
 
   const userId = getUserID()
   console.log(userId)
@@ -87,13 +91,18 @@ function QuestionDetail({ courseId, match }) {
       prevVersionButton = (
         <Link
           style={{ justifyContent: 'flex-end ' }}
-          to={redirect(QUIZ_QUESTION_DETAIL_NEW, [
-            { key: 'course_id', value: courseId },
-            {
-              key: 'question_id',
-              value: getShortID(questionData.previous._id),
+          to={{
+            pathname: redirect(QUIZ_QUESTION_DETAIL_NEW, [
+              { key: 'course_id', value: courseId },
+              {
+                key: 'question_id',
+                value: getShortID(questionData.previous._id),
+              },
+            ]),
+            state: {
+              hasNewerVersion: true,
             },
-          ])}
+          }}
           className="btn btn-outline-success mb-2"
         >
           View previous version
@@ -102,8 +111,8 @@ function QuestionDetail({ courseId, match }) {
     }
 
     if (
-      questionData.hasNewerVersion === false &&
-      userId === questionData.questionSubmittedBy._id
+      !hasNewerVersion &&
+      (userId === questionData.questionSubmittedBy._id || isTeacher)
     ) {
       editButton = (
         <Link
@@ -201,4 +210,9 @@ function QuestionDetail({ courseId, match }) {
   )
 }
 
-export default withRouter(QuestionDetail)
+const mapStateToProps = state => {
+  return {
+    isTeacher: state.privilegesReducer.inCourseInstance === 'instructor',
+  }
+}
+export default connect(mapStateToProps)(withRouter(QuestionDetail))

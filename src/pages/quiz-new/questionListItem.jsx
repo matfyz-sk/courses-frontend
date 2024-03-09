@@ -78,10 +78,15 @@ function QuestionListItem({
       </div>
 
       <Link
-        to={redirect(QUIZ_QUESTION_DETAIL_NEW, [
-          { key: 'course_id', value: courseId },
-          { key: 'question_id', value: questionShortId },
-        ])}
+        to={{
+          pathname: redirect(QUIZ_QUESTION_DETAIL_NEW, [
+            { key: 'course_id', value: courseId },
+            { key: 'question_id', value: questionShortId },
+          ]),
+          state: {
+            hasNewerVersion: false,
+          },
+        }}
         style={{ color: baseTheme.palette.primary.main }}
       >
         Details
