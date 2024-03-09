@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, { useState } from 'react'
 import {
   Button,
   Card,
@@ -12,7 +12,6 @@ import {
   Alert,
 } from 'reactstrap'
 import { connect } from 'react-redux'
-import Scroll from 'react-scroll'
 import EventForm from '../EventForm'
 import {
   INITIAL_EVENT_STATE,
@@ -25,10 +24,9 @@ import {
   addDays,
 } from '../Timeline/timeline-helper'
 import { BlockMenuToggle } from '../Events'
-import { useNewTimelineBlockMutation, useLazyGetTimelineEventsQuery } from 'services/event'
+import { useNewTimelineBlockMutation, useGetTimelineEventsQuery } from 'services/event'
 import { getFullID } from 'helperFunctions'
 
-const ScrollLink = Scroll.Link
 
 function CreateTimeline(props) {
   const {
@@ -36,31 +34,19 @@ function CreateTimeline(props) {
   } = props
   const courseId = params.course_id
   const [event, setEvent] = useState(null)
-  const [timelineBlocks, setTimelineBlocks] = useState([])
-  const [nestedEvents, setNestedEvents] = useState([])
   const [saved, setSaved] = useState(false)
   const [disabled, setDisabled] = useState(false)
-  const [getTimelineEventRequest] = useLazyGetTimelineEventsQuery()
+  const { data: eventsData, isLoading } = useGetTimelineEventsQuery(
+    { courseInstanceId: getFullID(courseId, 'courseInstance') },
+    { skip: !courseId }
+  )
   const [newTimelineBlock, result] = useNewTimelineBlockMutation()
-
-  useEffect(() => {
-    getEvents()
-  }, [])
-
-  const getEvents = () => {
-    if(timelineBlocks.length == 0 && nestedEvents.length == 0 && courseId !== '') {
-      getTimelineEventRequest({courseInstanceId: getFullID(courseId, "courseInstance")}).unwrap().then(data => {
-        const dataArray = Object.values(data)
-        if (dataArray.length > 0) {
-          const events = getEvents(dataArray).sort(sortEventsFunction)
-          const timelineBlocks = getTimelineBlocks(events)
-          const nestedEvents = getNestedEvents(events, timelineBlocks)
-  
-          setTimelineBlocks(timelineBlocks)
-          setNestedEvents(nestedEvents)
-        }
-      })
-    }
+  const dataArray = Object.values(eventsData ?? {})
+  let [events, timelineBlocks, nestedEvents] = [[],[],[]]
+  if (dataArray.length > 0) {
+    events = getEvents(dataArray).sort(sortEventsFunction)
+    timelineBlocks = getTimelineBlocks(events)
+    nestedEvents = getNestedEvents(events, timelineBlocks)
   }
 
   const postWeeklyBlocks = () => {
@@ -100,14 +86,14 @@ function CreateTimeline(props) {
       setSaved(true)
     }
   }
-/*
+
   if (isLoading) {
     return (
       <Alert color="secondary" className="empty-message">
         Loading...
       </Alert>
     )
-  }*/
+  }
 
   return (
     <div>

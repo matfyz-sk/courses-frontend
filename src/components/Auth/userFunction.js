@@ -19,7 +19,7 @@ export function showUserName(user, privilege, courseInstance = null) {
   }
 
   if (
-    getShortID(user['_id']) === getUserID() ||
+    user['_id'] === getUserID() ||
     (!user.useNickName && !specificNickName)
   ) {
     return `${user.firstName} ${user.lastName}`
@@ -60,7 +60,7 @@ export function isVisibleUser(user) {
     user.allowContact ||
     user.showCourses ||
     user.showBadges ||
-    (getUserID() && getUserID() === getShortID(user['_id'])) ||
+    (getUserID() && getUserID() === user['_id']) ||
     (getUser() && getUser().isSuperAdmin)
   )
 }

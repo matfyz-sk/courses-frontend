@@ -64,8 +64,9 @@ jobs:
           WEBSITE_PREFIX: ${{ env.GRAPH_IRI_PREFIX }}
           WEBSITE_PORT: ${{ env.WEBSITE_PORT }}
         run: |
-          echo "REACT_APP_BACKEND_URL=https://${WEBSITE_PREFIX}courses3.matfyz.sk:${WEBSITE_PORT}/" > .env
-          echo "REACT_APP_BASE_PREFIX=https://courses3.matfyz.sk/" >> .env
+          echo "REACT_APP_BACKEND_URL=https://${WEBSITE_PREFIX}courses3.matfyz.sk/" > .env
+          # Temporary workaround for matfyz-sk/UltraGraphQL#2
+          echo "REACT_APP_BASE_PREFIX=https://${WEBSITE_PREFIX}courses3.matfyz.sk/" >> .env
       - name: Install dependencies
         run: yarn install
       - name: Build

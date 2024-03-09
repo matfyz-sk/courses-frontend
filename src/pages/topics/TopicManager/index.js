@@ -30,8 +30,8 @@ function TopicManager() {
                 setSelectedTopicId(result._id)
                 setIsEdit(true)
             }
-        } catch {
-            console.log("error")
+        } catch (err) {
+            console.log(err)
         }
     }
 

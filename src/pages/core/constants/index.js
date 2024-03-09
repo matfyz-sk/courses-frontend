@@ -58,7 +58,7 @@ export const SESSIONS = [ 'Lab', 'Lecture' ]
 
 export const INITIAL_MIGRATION_STATE = {
   initialized: false,
-  instanceOf: [],
+  course: [],
   startDate: new Date(),
   endDate: new Date(),
   name: '',

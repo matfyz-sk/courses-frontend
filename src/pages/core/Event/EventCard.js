@@ -87,7 +87,7 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => (
             </CardSubtitle>
             <DocumentReferencesList
               onViewableDocumentClick={onViewableDocumentClick}
-              documentReference={event.documentReference}
+              documentReferences={event.documentReference}
             />
           </>
         )}

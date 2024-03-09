@@ -69,7 +69,7 @@ export const userApi = createApi({
                 courses_memberOf {
                   _id
                   courses_approved
-                  courses_instanceOf {
+                  courses_team {
                     ... on courses_Team {
                       _id
                       courses_name

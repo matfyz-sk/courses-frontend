@@ -15,6 +15,7 @@ import { teamGraphApi } from 'services/teamGraph'
 import { courseTmpApi } from 'services/courseTmp'
 import { topicApi } from '../services/topic'
 import { quizNewApi } from '../services/quiz-new'
+import { documentsGraphApi } from "../services/documentsGraph";
 
 const reducers = combineReducers({
   ...allReducers,
@@ -30,6 +31,7 @@ const reducers = combineReducers({
   [teamGraphApi.reducerPath]: teamGraphApi.reducer,
   [courseTmpApi.reducerPath]: courseTmpApi.reducer,
   [topicApi.reducerPath]: topicApi.reducer,
+  [documentsGraphApi.reducerPath]: documentsGraphApi.reducer,
   [quizNewApi.reducerPath]: quizNewApi.reducer,
 })
 
@@ -58,7 +60,8 @@ const enhancers = composeEnhancers(
       teamGraphApi.middleware,
       courseTmpApi.middleware,
       topicApi.middleware,
-      quizNewApi.middleware
+      quizNewApi.middleware,
+      documentsGraphApi.middleware,
     )
   )
 )

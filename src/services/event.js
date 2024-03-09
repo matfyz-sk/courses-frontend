@@ -24,7 +24,7 @@ export const eventApi = createApi({
                         _id
                         courses_name
                         courses_description
-                        courses_startDate
+                        courses_startDate(order: ASC)
                         courses_endDate
                         courses_location
                         courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -41,6 +41,9 @@ export const eventApi = createApi({
                         }
                         courses_documentReference {
                             _id
+                            courses_document {
+                                _id
+                            }
                         }
                         courses_covers {
                             _id
@@ -64,7 +67,7 @@ export const eventApi = createApi({
                       _type
                       courses_name
                       courses_description
-                      courses_startDate
+                      courses_startDate(order: ASC)
                       courses_endDate
                       courses_location
                       courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -81,6 +84,9 @@ export const eventApi = createApi({
                       }
                       courses_documentReference {
                           _id
+                          courses_document {
+                            _id
+                          }
                       }
                       courses_covers {
                           _id
@@ -95,7 +101,7 @@ export const eventApi = createApi({
           transformResponse: (response, meta, arg) => {
             return (
             new Array().concat(
-              response.Event, 
+              response.Event,
               response.Block,
               response.Lab,
               response.Session,
@@ -113,7 +119,7 @@ export const eventApi = createApi({
                       _type
                       courses_name
                       courses_description
-                      courses_startDate
+                      courses_startDate(order: ASC)
                       courses_endDate
                       courses_location
                       courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -136,6 +142,9 @@ export const eventApi = createApi({
                       }
                       courses_documentReference {
                           _id
+                          courses_document {
+                            _id
+                          }
                       }
                       courses_covers {
                           _id
@@ -149,7 +158,7 @@ export const eventApi = createApi({
                     _type
                     courses_name
                     courses_description
-                    courses_startDate
+                    courses_startDate(order: ASC)
                     courses_endDate
                     courses_location
                     courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -172,6 +181,9 @@ export const eventApi = createApi({
                     }
                     courses_documentReference {
                         _id
+                        courses_document {
+                            _id
+                        }
                     }
                     courses_covers {
                         _id
@@ -185,7 +197,7 @@ export const eventApi = createApi({
                     _type
                     courses_name
                     courses_description
-                    courses_startDate
+                    courses_startDate(order: ASC)
                     courses_endDate
                     courses_location
                     courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -208,6 +220,9 @@ export const eventApi = createApi({
                     }
                     courses_documentReference {
                         _id
+                        courses_document {
+                            _id
+                        }
                     }
                     courses_covers {
                         _id
@@ -221,7 +236,7 @@ export const eventApi = createApi({
                     _type
                     courses_name
                     courses_description
-                    courses_startDate
+                    courses_startDate(order: ASC)
                     courses_endDate
                     courses_location
                     courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -244,6 +259,9 @@ export const eventApi = createApi({
                     }
                     courses_documentReference {
                         _id
+                        courses_document {
+                            _id
+                        }
                     }
                     courses_covers {
                         _id
@@ -257,7 +275,7 @@ export const eventApi = createApi({
                     _type
                     courses_name
                     courses_description
-                    courses_startDate
+                    courses_startDate(order: ASC)
                     courses_endDate
                     courses_location
                     courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -280,6 +298,9 @@ export const eventApi = createApi({
                     }
                     courses_documentReference {
                         _id
+                        courses_document {
+                            _id
+                        }
                     }
                     courses_covers {
                         _id
@@ -294,7 +315,7 @@ export const eventApi = createApi({
           transformResponse: (response, meta, arg) => {
             return (
             new Array().concat(
-              response.Event, 
+              response.Event,
               response.Block,
               response.Lab,
               response.Session,
@@ -302,9 +323,9 @@ export const eventApi = createApi({
             ).filter(e => e !== undefined)
           )},
           providesTags: ['Event'],
-        }),  
+        }),
         newTimelineBlock: builder.mutation({
-            query: (body) => ({ 
+            query: (body) => ({
               document: gql`
                 mutation {
                   insert_courses_Block(
@@ -323,7 +344,7 @@ export const eventApi = createApi({
             invalidatesTags: ['Event'],
         }),
         newEventByType: builder.mutation({
-            query: ({type, body}) => ({ 
+            query: ({type, body}) => ({
               document: gql`
                 mutation {
                   ${getEventHeaderByType("insert", type)}(
@@ -346,7 +367,7 @@ export const eventApi = createApi({
             invalidatesTags: ['Event'],
         }),
         updateEventByType: builder.mutation({
-            query: ({id, type, body}) => ({ 
+            query: ({id, type, body}) => ({
               document: gql`
                 mutation {
                   ${getEventHeaderByType("update", type)}(
@@ -359,6 +380,7 @@ export const eventApi = createApi({
                     ${body.uses ? `courses_uses: ${JSON.stringify(body.uses)}` : ""}
                     ${body.recommends ? `courses_recommends: ${JSON.stringify(body.recommends)}` : ""}
                     ${body.documentReference ? `courses_documentReference: ${JSON.stringify(body.documentReference)}` : ""}
+                    ${body.hasInstructor ? `courses_hasInstructor: ${JSON.stringify(body.hasInstructor)}` : ""}
                   ) {
                     _id
                   }
@@ -369,7 +391,7 @@ export const eventApi = createApi({
             invalidatesTags: ['Event'],
         }),
         deleteEventByType: builder.mutation({
-            query: ({id, type}) => ({ 
+            query: ({id, type}) => ({
               document: gql`
                 mutation {
                   ${getEventHeaderByType("delete", type)}(

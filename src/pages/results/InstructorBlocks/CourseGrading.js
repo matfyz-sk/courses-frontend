@@ -1,54 +1,31 @@
 import React, { useState, useEffect } from 'react'
-import { Alert, Table } from 'reactstrap'
+import { Alert, Table, Row, Col } from 'reactstrap'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import CriteriaModal from '../CriteriaModal'
+import { useGetAllGradingsQuery } from 'services/result'
 
 const CourseGrading = props => {
   const { courseInstanceReducer } = props
   const { courseInstance } = courseInstanceReducer
-
-  const renderGradings = []
-  if (courseInstance && courseInstance.hasGrading.length > 0) {
-    const sortedGrading = courseInstance.hasGrading.sort(function(a, b) {
-      return b.minPoints - a.minPoints
-    })
-    for (let i = 0; i < sortedGrading.length; i++) {
-      const item = sortedGrading[i]
-      let compareString = <th> </th>
-      if (i === 0) {
-        compareString = (
-          <>
-            <th>{item.minPoints}</th>
-            <th>-</th>
-            <th>{String.fromCharCode(8734)}</th>
-          </>
-        )
-      } else {
-        compareString = (
-          <>
-            <th>{item.minPoints}</th>
-            <th>-</th>
-            <th>{sortedGrading[i - 1].minPoints - 1}</th>
-          </>
-        )
-      }
-      renderGradings.push(
-        <tr className="border-bottom" key={`grading-list-${item['@id']}`}>
-          {compareString}
-          <th>{item.grade}</th>
-          <td className="text-right">
-            <CriteriaModal grading={item} />
-          </td>
-        </tr>
-      )
-    }
-  }
+  const courseInstanceId = !courseInstance ? "" : courseInstance._id
+  const { data } = useGetAllGradingsQuery(courseInstanceId, {
+    skip: !courseInstance,
+  })
+  const sortedGradings = !data ? [] 
+  : [...data[0]?.hasGrading].sort((a, b) => b.minPoints - a.minPoints)
 
   return (
     <>
-      <h2 className="mb-4 mt-4">Course grading</h2>
-      <CriteriaModal />
+      <Row>
+        <Col xs="auto">
+          <h2 className="mb-4 mt-4">Course grading</h2>
+        </Col>
+        <Col className="mb-4 mt-4">
+          <CriteriaModal />
+        </Col>
+      </Row>
+      
       <Table hover size="sm" responsive>
         <tbody>
           {courseInstance && courseInstance.hasGrading.length === 0 ? (
@@ -58,7 +35,42 @@ const CourseGrading = props => {
               </td>
             </tr>
           ) : (
-            <>{renderGradings}</>
+            <>
+              {
+                !data ? 
+                <tr>
+                  <td>
+                    <Alert color="info">Loading...</Alert>
+                  </td>
+                </tr>
+                :
+                sortedGradings.map((grading, i) =>
+                i == 0 ? 
+                <tr className="border-bottom" key={`grading-list-${grading['_id']}`}>
+                  <>
+                    <th>{grading.minPoints}</th>
+                    <th>-</th>
+                    <th>{String.fromCharCode(8734)}</th>
+                  </>
+                  <th>{grading.grade}</th>
+                  <td className="text-right">
+                    <CriteriaModal grading={grading} />
+                  </td>
+                </tr>
+                :
+                <tr className="border-bottom" key={`grading-list-${sortedGradings[i]['_id']}`}>
+                <>
+                  <th>{sortedGradings[i].minPoints}</th>
+                  <th>-</th>
+                  <th>{sortedGradings[i - 1].minPoints - 1}</th>
+                </>
+                <th>{sortedGradings[i].grade}</th>
+                <td className="text-right">
+                  <CriteriaModal grading={sortedGradings[i]} />
+                </td>
+                </tr>)
+              }
+            </>
           )}
         </tbody>
       </Table>
