@@ -55,12 +55,14 @@ const CoreRoutes = [
     path={ROUTES.QUIZNEW}
     component={QuizNew}
     layout={CourseLayout}
+    auth
   />,
   <RouteWrapper
     key={ROUTES.ADD_QUIZ_QUESTION_NEW}
     path={ROUTES.ADD_QUIZ_QUESTION_NEW}
     component={AddQuestionForm}
     layout={CourseLayout}
+    auth
   />,
   <RouteWrapper
     key={ROUTES.COURSE_TEAM_CREATE}

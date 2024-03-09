@@ -34,7 +34,6 @@ export const quizNewApi = createApi({
               courses_hasPredefinedAnswer: ${body.hasPredefinedAnswer}
               courses_previous: "${body.previous}"
               courses_questionSubmittedBy: "${userId}"
-              courses_hasNewerVersion: false
             )
             {
               _id
@@ -52,21 +51,6 @@ export const quizNewApi = createApi({
         `,
       }),
       invalidatesTags: ['Questions'],
-    }),
-    setHasNewerVersion: builder.mutation({
-      query: questionId => ({
-        document: gql`
-        mutation {
-          update_courses_QuestionWithPredefinedAnswer (
-            _id: "${questionId}"
-            courses_hasNewerVersion: true
-          ) {
-            _id
-          }
-        }
-        `,
-      }),
-      invalidatesTags: ['Question'],
     }),
     getQuestions: builder.query({
       query: ({ courseInstanceId }) => ({
@@ -90,7 +74,6 @@ export const quizNewApi = createApi({
               courses_questionSubmittedBy {
                 _id
               }
-              courses_hasNewerVersion
             }
           }
         `,
@@ -116,7 +99,6 @@ export const quizNewApi = createApi({
               courses_previous {
                 _id
               }
-              courses_hasNewerVersion
               courses_questionSubmittedBy {
                 _id
               }

@@ -39,7 +39,6 @@ function EditQuestionForm({ match, courseId }) {
   const [submitNewQuestionVersion, { isSubmitError, isSubmitSuccess }] =
     useAddNewMultipleChoiceQuestionMutation()
   const [addNewAnswer] = useAddNewMultipleChoiceAnswerMutation()
-  const [setHasNewerVersion] = useSetHasNewerVersionMutation()
 
   if (isSuccess && !questionText) {
     setQuestionText(questionData.text)
@@ -150,14 +149,7 @@ function EditQuestionForm({ match, courseId }) {
       userId: userId,
     })
     if (!result.error) {
-      setHasNewerVersion(longQuestionId)
-      setTimeout(
-        () =>
-          history.push(
-            redirect(QUIZNEW, [{ key: 'course_id', value: courseId }])
-          ),
-        2000
-      )
+      history.push(redirect(QUIZNEW, [{ key: 'course_id', value: courseId }]))
     }
   }
 

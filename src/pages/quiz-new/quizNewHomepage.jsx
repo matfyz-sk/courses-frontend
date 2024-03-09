@@ -28,8 +28,16 @@ function QuizNewHomepage({ courseId }) {
     renderedContent = <h3>Loading...</h3>
   } else if (isSuccess) {
     if (questions) {
+      let questionsToHide = []
+      questions.forEach(question => {
+        if (question.previous) {
+          questionsToHide.push(question.previous._id)
+        }
+      })
+      console.log('questions to hide')
+      console.log(questionsToHide)
       let questionsToShow = questions.filter(
-        question => question.hasNewerVersion === false
+        question => !questionsToHide.includes(question._id)
       )
       renderedContent = questionsToShow.map(question => {
         return (
