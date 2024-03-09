@@ -36,6 +36,15 @@ export const DELETED_DOCUMENTS = coursePrefix('/documents/deleted')
 export const EDIT_DOCUMENT = coursePrefix('/documents/edit/:document_id')
 export const DOCUMENT_HISTORY = coursePrefix('/documents/history')
 
+export const CREATE_INTERNAL_DOCUMENT = coursePrefix(
+  '/documents/createinternal'
+)
+export const CREATE_EXTERNAL_DOCUMENT = coursePrefix(
+  '/documents/createexternal'
+)
+export const CREATE_FILE_DOCUMENT = coursePrefix('/documents/createfile')
+
+
 export const COURSE_TEAMS = coursePrefix('/teams')
 export const COURSE_TEAM_CREATE = coursePrefix('/team-create')
 export const COURSE_TEAM_DETAIL = coursePrefix('/teams/:team_id')
