@@ -25,20 +25,20 @@ const GlobalMenu = props => (
         <div className="d-none d-md-inline-block">Courses</div>
       </NavLink>
     </NavItem>
-    {/*<NavItem>*/}
-    {/*  <NavLink*/}
-    {/*      to="/topics"*/}
-    {/*      activeClassName="is-active"*/}
-    {/*      className={`clickable nav-link ${*/}
-    {/*          props.current === 'courses' ? 'active' : ''*/}
-    {/*      }`}*/}
-    {/*  >*/}
-    {/*    <div className="d-md-none d-sm-inline-block h-100">*/}
-    {/*      <MdImportContacts size={24} />*/}
-    {/*    </div>*/}
-    {/*    <div className="d-none d-md-inline-block">Topics</div>*/}
-    {/*  </NavLink>*/}
-    {/*</NavItem>*/}
+    <NavItem>
+      <NavLink
+          to="/topics"
+          activeClassName="is-active"
+          className={`clickable nav-link ${
+              props.current === 'courses' ? 'active' : ''
+          }`}
+      >
+        <div className="d-md-none d-sm-inline-block h-100">
+          <MdImportContacts size={24} />
+        </div>
+        <div className="d-none d-md-inline-block">Topics</div>
+      </NavLink>
+    </NavItem>
   </>
 )
 
