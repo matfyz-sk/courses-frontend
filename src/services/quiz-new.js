@@ -8,7 +8,7 @@ export const quizNewApi = createApi({
   baseQuery: graphqlBaseQuery({
     url: `${BACKEND_URL}graphql`,
   }),
-  tagTypes: ['Question', 'Questions'],
+  tagTypes: ['Question', 'Questions', 'Comments'],
   endpoints: builder => ({
     addNewMultipleChoiceAnswer: builder.mutation({
       query: body => ({
@@ -102,12 +102,53 @@ export const quizNewApi = createApi({
               courses_questionSubmittedBy {
                 _id
               }
+              courses_comment {
+                _id
+                courses_commentText
+                courses_createdAt(order: ASC)
+                courses_commentCreatedBy {
+                  _id
+                  courses_firstName
+                  courses_lastName
+                }
+              }
             }
           }
         `,
       }),
-      providesTags: ['Question'],
+      providesTags: ['Question', 'Comments'],
       transformResponse: response => response.QuestionWithPredefinedAnswer[0],
+    }),
+    addNewComment: builder.mutation({
+      query: ({ questionId, commentBody }) => ({
+        document: gql`
+          mutation {
+            insert_courses_Comment (
+              courses_commentText: "${commentBody.commentText ?? ''}"
+              courses_commentCreatedBy: "${commentBody.commentCreatedBy ?? ''}"
+            ) {
+              _id
+            }
+          }
+        `,
+      }),
+
+      transformResponse: response => response.Comment[0]._id,
+    }),
+    insertQuestionComment: builder.mutation({
+      query: ({ questionId, questionComments }) => ({
+        document: gql`
+          mutation {
+            update_courses_QuestionWithPredefinedAnswer (
+              _id: "${questionId}"
+              courses_comment: ${questionComments}
+            ) {
+              _id
+            }
+          }
+        `,
+      }),
+      invalidatesTags: ['Comments'],
     }),
     deleteQuestion: builder.mutation({
       query: questionId => ({
@@ -129,4 +170,6 @@ export const {
   useSetHasNewerVersionMutation,
   useAddNewMultipleChoiceAnswerMutation,
   useAddNewMultipleChoiceQuestionMutation,
+  useAddNewCommentMutation,
+  useInsertQuestionCommentMutation,
 } = quizNewApi

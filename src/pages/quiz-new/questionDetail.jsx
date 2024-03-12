@@ -22,7 +22,11 @@ import {
 import CommentComponent from './commentComponent'
 
 import { MdCheck, MdClose, MdSend } from 'react-icons/md'
-import { useGetQuestionByIdQuery } from '../../services/quiz-new'
+import {
+  useAddNewCommentMutation,
+  useGetQuestionByIdQuery,
+  useInsertQuestionCommentMutation,
+} from '../../services/quiz-new'
 import { DATA_PREFIX } from '../../constants/ontology'
 import { getUserID } from '../../components/Auth'
 import { getShortID } from '../../helperFunctions'
@@ -34,8 +38,28 @@ function QuestionDetail({ courseId, match, isTeacher }) {
   const location = useLocation()
   const hasNewerVersion = location.state ? location.state.hasNewerVersion : true
 
+  const [commentText, setCommentText] = useState('')
+  const [commentError, setCommentError] = useState('')
+
+  const [
+    addNewComment,
+    {
+      isSuccess: isAddCommentSuccess,
+      isError: isAddCommentError,
+      isLoading: isAddCommentLoading,
+    },
+  ] = useAddNewCommentMutation()
+
+  const [
+    insertQuestionComment,
+    {
+      isSuccess: isInsertCommentSuccess,
+      isError: isInsertCommentError,
+      isLoading: isInsertCommentLoading,
+    },
+  ] = useInsertQuestionCommentMutation()
+
   const userId = getUserID()
-  console.log(userId)
 
   const longQuestionId = `${DATA_PREFIX}questionwithpredefinedanswer/${questionId}`
   const longCourseId = `${DATA_PREFIX}courseInstance/${courseId}`
@@ -50,13 +74,50 @@ function QuestionDetail({ courseId, match, isTeacher }) {
     questionId: longQuestionId,
   })
 
+  async function submitComment(commentText) {
+    if (!commentText) {
+      setCommentError('Comment cannot be empty')
+    } else {
+      const commentToSubmit = {
+        commentText: commentText,
+        commentCreatedBy: userId,
+      }
+      let result = await addNewComment({
+        questionId: questionId,
+        commentBody: commentToSubmit,
+      })
+      let addedComment
+      if (!result.error) {
+        let commentIdsString = '['
+        for (const comment of questionData.comment) {
+          commentIdsString += `"${comment._id}", `
+        }
+        commentIdsString += `"${result.data}"]`
+        addedComment = await insertQuestionComment({
+          questionId: longQuestionId,
+          questionComments: commentIdsString,
+        })
+        if (!addedComment.error) {
+          setCommentText('')
+          setCommentError('')
+        }
+      }
+      if (result.error || addedComment.error) {
+        setCommentError(
+          'There was an error submitting your comment. Please try again.'
+        )
+      }
+    }
+  }
+
   let questionContent
+  let comments
   let prevVersionButton = ''
   let editButton = ''
   if (isLoading) {
     questionContent = <CircularProgress />
   } else if (isSuccess) {
-    console.log(questionData)
+    //console.log(questionData)
     const renderedAnswers = questionData.hasPredefinedAnswer.map(answer => {
       let icon
       if (answer.correct) {
@@ -66,6 +127,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
       }
       return (
         <div
+          key={crypto.randomUUID()}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -78,6 +140,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
         </div>
       )
     })
+    comments = renderComments(questionData.comment)
     questionContent = (
       <div>
         <h3 style={{ margin: '10px 0' }}>
@@ -112,7 +175,9 @@ function QuestionDetail({ courseId, match, isTeacher }) {
 
     if (
       !hasNewerVersion &&
-      (userId === questionData.questionSubmittedBy._id || isTeacher)
+      ((questionData.questionSubmittedBy &&
+        userId === questionData.questionSubmittedBy._id) ||
+        isTeacher)
     ) {
       editButton = (
         <Link
@@ -130,19 +195,6 @@ function QuestionDetail({ courseId, match, isTeacher }) {
     questionContent = <div>There was an error while loading the question.</div>
   }
 
-  const testComments = [
-    {
-      commentAuthor: 'John Doe',
-      commentText: 'i like this question',
-      replies: [
-        {
-          commentAuthor: 'Matt Smith',
-          commentText: 'thanks!',
-        },
-      ],
-    },
-  ]
-
   function renderComments(comments) {
     const renderedComments = []
     comments.forEach(comment => {
@@ -150,8 +202,9 @@ function QuestionDetail({ courseId, match, isTeacher }) {
         <CommentComponent
           key={crypto.randomUUID()}
           isReply={false}
-          commentAuthor={comment.commentAuthor}
+          commentAuthor={comment.commentCreatedBy}
           commentContent={comment.commentText}
+          isLoading={isAddCommentLoading || isInsertCommentLoading}
         />
       )
       if (comment.replies) {
@@ -162,6 +215,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
               key={crypto.randomUUID()}
               commentAuthor={reply.commentAuthor}
               commentContent={reply.commentText}
+              isLoading={isAddCommentLoading || isInsertCommentLoading}
             />
           )
         })
@@ -169,8 +223,6 @@ function QuestionDetail({ courseId, match, isTeacher }) {
     })
     return renderedComments
   }
-
-  const comments = renderComments(testComments)
 
   return (
     <div className={classes.container}>
@@ -196,15 +248,34 @@ function QuestionDetail({ courseId, match, isTeacher }) {
       {questionContent}
       <h3 style={{ marginTop: '20px' }}>Comments</h3>
       {comments}
-      <div style={{ display: 'flex' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+        }}
+      >
         <CustomTextField
+          error={commentError !== ''}
+          helperText={commentError}
+          style={{}}
           placeholder="Add a comment..."
           variant="outlined"
+          value={commentText}
+          onChange={e => setCommentText(e.target.value)}
           fullWidth
         />
-        <IconButton aria-label="send comment" style={{ flexShrink: 0 }}>
-          <MdSend />
-        </IconButton>
+        <Button
+          disabled={isAddCommentLoading || isInsertCommentLoading}
+          style={{ marginLeft: '20px' }}
+          variant="contained"
+          color="default"
+          className={classes.button}
+          onClick={() => submitComment(commentText)}
+          endIcon={<MdSend>send</MdSend>}
+        >
+          Send
+        </Button>
       </div>
     </div>
   )
