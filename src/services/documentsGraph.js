@@ -154,11 +154,11 @@ export const documentsGraphApi = createApi({
             providesTags: ["ExternalDocument", "InternalDocument", "File"],
         }),
         getFolder: builder.query({
-            query: ({ id, deletedContent }) => {
+            query: ({ id, deletedContent, folderContent, courseInstanceId }) => {
                 return {
                     document: gql`
                           query {
-                            courses_Folder${getSelectById(id)} {
+                            courses_Folder${id ? getSelectById(id) : ""} {
                               _id
                               _type
                               courses_name
@@ -166,7 +166,10 @@ export const documentsGraphApi = createApi({
                                 _id
                                 courses_name
                               }
-                              courses_folderContent {
+                              courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
+                                _id
+                              }
+                              courses_folderContent${folderContent ? `(_id: ${getArrayFormat(folderContent)})` : ""} {
                                 _id
                                 _type
                                 courses_name
@@ -516,8 +519,8 @@ export const documentsGraphApi = createApi({
                   insert_courses_InternalDocument(
                     courses_name: "${body.name}"
                     courses_courseInstances: ${getArrayFormat(body.courseInstances)}
-                    courses_mimeType: "${body.mimeType}"
-                    ${body.editorContent ? `courses_editorContent: "${body.editorContent}"` : ""}
+                    courses_mimeType: "${body.mimeType ?? ""}"
+                    courses_editorContent: "${body.editorContent ?? ""}"
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
@@ -538,11 +541,11 @@ export const documentsGraphApi = createApi({
                   insert_courses_File(
                     courses_name: "${body.name}"
                     courses_courseInstances: ${getArrayFormat(body.courseInstances)}
+                    courses_mimeType: "${body.mimeType ?? ""}"
+                    courses_filename: "${body.filename ?? ""}"
+                    courses_rawContent: "${body.rawContent ?? ""}"
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
-                    ${body.mimeType ? `courses_mimeType: "${body.mimeType}"` : ""}
-                    ${body.filename ? `courses_filename: "${body.filename}"` : ""}
-                    ${body.rawContent ? `courses_rawContent: "${body.rawContent}"` : ""}
                     ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
                     ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
                     ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
@@ -658,6 +661,103 @@ export const documentsGraphApi = createApi({
             transformResponse: (response, meta, arg) => response.File?.[0],
             invalidatesTags: ["File"],
         }),
+        addDocument: builder.mutation({
+            query: ({entityName, body}) => {
+                let capitalizedEntityName
+                if (entityName === DocumentEnums.internalDocument.entityName)
+                    capitalizedEntityName = DocumentEnums.internalDocument.capitalized
+                else if (entityName === DocumentEnums.externalDocument.entityName)
+                    capitalizedEntityName = DocumentEnums.externalDocument.capitalized
+                else if (entityName === DocumentEnums.file.entityName)
+                    capitalizedEntityName = DocumentEnums.file.capitalized
+                else
+                    throw new Error("Invalid entity name")
+                return {
+                    document: gql`
+                        mutation {
+                            insert_courses_${capitalizedEntityName}(
+                                courses_name: "${body.name}"
+                                courses_courseInstances: ${getArrayFormat(body.courseInstances)}
+                                ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
+                                ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
+                                ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                                ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
+                                ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
+                                
+                                ${(entityName === DocumentEnums.internalDocument.entityName) ? (`
+                                        courses_mimeType: "${body.mimeType}"
+                                        courses_editorContent: "${body.editorContent}"
+                                `) : ""}
+                                ${(entityName === DocumentEnums.externalDocument.entityName) ? (`
+                                        courses_uri: "${body.uri}"
+                                `) : ""}
+                                ${(entityName === DocumentEnums.file.entityName) ? (`
+                                        courses_filename: "${body.filename}"
+                                        courses_mimeType: "${body.mimeType}"
+                                        courses_rawContent: "${body.rawContent}"
+                                `) : ""}
+                            ) {
+                                _id
+                            }
+                        }
+                    `
+                }
+            },
+            transformResponse: (response, meta, arg) => {
+                return response.InternalDocument?.[0] ?? response.ExternalDocument?.[0] ?? response.File?.[0]
+            },
+            invalidatesTags: ["ExternalDocument", "InternalDocument", "File"],
+        }),
+        updateDocument: builder.mutation({
+            query: ({id,entityName, body}) => {
+                console.log({entityName, id, body})
+                let capitalizedEntityName
+                if (entityName === DocumentEnums.internalDocument.entityName)
+                    capitalizedEntityName = DocumentEnums.internalDocument.capitalized
+                else if (entityName === DocumentEnums.externalDocument.entityName)
+                    capitalizedEntityName = DocumentEnums.externalDocument.capitalized
+                else if (entityName === DocumentEnums.file.entityName)
+                    capitalizedEntityName = DocumentEnums.file.capitalized
+                else
+                    throw new Error("Invalid entity name")
+                console.log({entityName, capitalizedEntityName, body})
+
+                return {
+                    document: gql`
+                        mutation {
+                            update_courses_${capitalizedEntityName}(
+                                _id: "${id}"
+                                ${body.name ? `courses_name: "${body.name}"` : ""}
+                                ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
+                                ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
+                                ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                                ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
+                                ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
+                                
+                                ${(entityName === DocumentEnums.internalDocument.entityName) ? (`
+                                    ${body.mimeType ? `courses_mimeType: "${body.mimeType}"` : ""}
+                                    ${body.editorContent ? `courses_editorContent: "${body.editorContent}"` : ""}
+                                `) : ""}
+                                ${(entityName === DocumentEnums.externalDocument.entityName) ? (`
+                                    ${body.uri ? `courses_uri: "${body.uri}"` : ""}
+                                `) : ""}
+                                ${(entityName === DocumentEnums.file.entityName) ? (`
+                                    ${body.filename ? `courses_filename: "${body.filename}"` : ""}
+                                    ${body.mimeType ? `courses_mimeType: "${body.mimeType}"` : ""}
+                                    ${body.rawContent ? `courses_rawContent: "${body.rawContent}"` : ""}
+                                `) : ""}
+                            ) {
+                                _id
+                            }
+                        }
+                    `
+                }
+            },
+            transformResponse: (response, meta, arg) => {
+                return response.InternalDocument?.[0] ?? response.ExternalDocument?.[0] ?? response.File?.[0]
+            },
+            invalidatesTags: ["ExternalDocument", "InternalDocument", "File"],
+        }),
     }),
 })
 export const {
@@ -686,4 +786,6 @@ export const {
     useUpdateInternalDocumentMutation,
     useUpdateFileMutation,
     useGetDeletedDocumentsQuery,
+    useAddDocumentMutation,
+    useUpdateDocumentMutation,
 } = documentsGraphApi
