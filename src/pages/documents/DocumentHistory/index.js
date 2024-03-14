@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { Alert } from "reactstrap"
-import { Redirect, withRouter } from "react-router"
+import { withRouter } from "react-router"
 import { getShortID } from "../../../helperFunctions"
 import { redirect } from "../../../constants/redirect"
 import * as ROUTES from "../../../constants/routes"
@@ -12,21 +12,10 @@ import { customTheme } from "../styles"
 import TextComparator from "./TextComparator"
 import RevisionsSidebar from "./RevisionsSidebar"
 import EntityComparator from "./EntityComparator"
-import { useAddFileMutation, useUpdateFileMutation } from "../../../services/documents"
-import {
-    useAddExternalDocumentMutation,
-    useAddInternalDocumentMutation,
-    useGetDocumentReferenceQuery,
-    useGetFolderQuery,
-    useLazyGetDocumentQuery,
-    useUpdateDocumentReferenceMutation,
-    useUpdateExternalDocumentMutation,
-    useUpdateFolderMutation,
-    useUpdateInternalDocumentMutation,
-} from "../../../services/documentsGraph"
-import { useGetCourseInstanceQuery, useUpdateCourseInstanceMutation } from "../../../services/course"
-import { DocumentEnums, getEntityName } from "../common/enums/document-enums"
+import { useLazyGetDocumentQuery } from "../../../services/documentsGraph"
+import { getEntityName } from "../common/enums/document-enums"
 import { DATA_PREFIX } from "../../../constants/ontology"
+import useNewDocumentVersion from "../common/useNewDocumentVersion"
 
 const LOOP_ARBITRARY_LIMIT = 100
 
@@ -48,35 +37,19 @@ const useStyles = makeStyles({
     },
 })
 
-function DocumentHistory({ match, history, location }) {
+function DocumentHistory({ match, history }) {
     const courseId = match.params.course_id
+    const newestVersionId = match.params.document_id
     const courseInstanceFullId = `${DATA_PREFIX}courseInstance/${courseId}`
     const style = useStyles()
-    const newestVersionId = location.state?.documentId
-    const parentFolderId = location.state?.parentFolderId
-    const parentFolderFullId = `${DATA_PREFIX}folder/${parentFolderId}`
     const isMobile = useMediaQuery("(max-width:760px)")
     const [showSidebar, setShowSidebar] = useState(false)
-
-    const { data: folder, isError: isFolderError, isFetching: isFolderFetching } = useGetFolderQuery({
-        id: parentFolderFullId,
-    })
 
     const [getDocument] = useLazyGetDocumentQuery()
     const [isFetchingHistory, setIsFetchingHistory] = useState(true)
 
-    const [addInternalDocument] = useAddInternalDocumentMutation()
-    const [addExternalDocument] = useAddExternalDocumentMutation()
-    const [updateInternalDocument] = useUpdateInternalDocumentMutation()
-    const [updateExternalDocument] = useUpdateExternalDocumentMutation()
-    const [updateDocumentReference] = useUpdateDocumentReferenceMutation()
-    const [updateFolder] = useUpdateFolderMutation()
-    const [updateCourseInstance] = useUpdateCourseInstanceMutation()
-
     // REST API
     const [versions, setVersions] = useState([])
-    const [addFile] = useAddFileMutation()
-    const [updateFile] = useUpdateFileMutation()
 
     const [error, setError] = useState(null)
 
@@ -87,25 +60,10 @@ function DocumentHistory({ match, history, location }) {
     const pickedVersionB = versions.length > 1 ? versions[indexOfVersionBefore] : {}
     const pickedVersionA = versions.length > 1 ? versions[indexOfVersionAfter] : {}
 
-    const {
-        data: courseInstanceData,
-        isError: isCourseInstanceError,
-        isFetching: isCourseInstanceFetching,
-    } = useGetCourseInstanceQuery({
-        id: courseInstanceFullId,
-    })
-    const courseInstance = courseInstanceData?.[0]
+    const { createNewDocumentVersion, error: newVersionError } = useNewDocumentVersion()
 
-    const { data: documentReference, isError: isRefError, isFetching: isRefFetching } = useGetDocumentReferenceQuery(
-        {
-            courseInstanceId: courseInstanceFullId,
-            documentId: `${DATA_PREFIX}${entityName}/${newestVersionId}`,
-        },
-        { skip: !entityName }
-    )
-
-    const isFetching = isFolderFetching || isRefFetching || isCourseInstanceFetching || isFetchingHistory
-    const isError = isFolderError || isRefError || isCourseInstanceError
+    const isFetching = isFetchingHistory
+    const isError = newVersionError
     const latestVersion = versions[0]
 
     const fetchDocumentVersions = useCallback(async () => {
@@ -117,7 +75,9 @@ function DocumentHistory({ match, history, location }) {
             fetchedVersions.push(current)
             let previousDocumentVersion = null
             if (current.previousDocumentVersion) {
-                previousDocumentVersion = await getDocument({ shortId: getShortID(current.previousDocumentVersion._id) }).unwrap()
+                previousDocumentVersion = await getDocument({
+                    shortId: getShortID(current.previousDocumentVersion._id),
+                }).unwrap()
             }
             current = previousDocumentVersion
         }
@@ -137,6 +97,7 @@ function DocumentHistory({ match, history, location }) {
     useEffect(() => {
         if (isError) {
             setError(isError)
+            console.error(isError)
         }
     }, [isError])
 
@@ -152,67 +113,17 @@ function DocumentHistory({ match, history, location }) {
             previousDocumentVersion: latestVersion._id,
         }
 
-        try {
-            let newVersionId
-            if (entityName === DocumentEnums.internalDocument.entityName) {
-                newVersionId = await addInternalDocument(versionToRestore).unwrap()
-                newVersionId = newVersionId._id
-                await updateInternalDocument({
-                    id: latestVersion._id,
-                    body: { nextDocumentVersion: newVersionId },
-                }).unwrap()
-            } else if (entityName === DocumentEnums.externalDocument.entityName) {
-                newVersionId = await addExternalDocument(versionToRestore).unwrap()
-                newVersionId = newVersionId._id
-                await updateExternalDocument({
-                    id: latestVersion._id,
-                    body: { nextDocumentVersion: newVersionId },
-                }).unwrap()
-            } else if (entityName === DocumentEnums.file.entityName) {
-                // REST API because of base64 issues
-                newVersionId = await addFile(versionToRestore).unwrap()
-                await updateFile({
-                    id: getShortID(latestVersion._id),
-                    body: { nextDocumentVersion: newVersionId },
-                }).unwrap()
-            }
-            await updateDocumentReference({
-                id: documentReference._id,
-                body: { document: newVersionId },
-            }).unwrap()
-            await updateFolder({
-                id: parentFolderFullId,
-                body: {
-                    folderContent: [
-                        ...folder.folderContent.map(item => item._id).filter(_id => _id !== latestVersion._id),
-                        newVersionId,
-                    ],
-                },
-            }).unwrap()
-            await updateCourseInstance({
-                id: courseInstanceFullId,
-                body: {
-                    hasDocument: [
-                        ...courseInstance.hasDocument.map(item => item._id).filter(_id => _id !== latestVersion._id),
-                        newVersionId,
-                    ],
-                },
-            }).unwrap()
-
-            history.push(
-                redirect(ROUTES.DOCUMENTS_IN_FOLDER, [
-                    { key: "course_id", value: courseId },
-                    { key: "folder_id", value: parentFolderId },
-                ])
-            )
-        } catch (err) {
-            setError(err)
-            console.log(err)
+        const newDocument = await createNewDocumentVersion({
+            previousVersionId: latestVersion._id,
+            entityName,
+            body: versionToRestore,
+            courseInstanceId: courseInstanceFullId,
+        })
+        if (!newDocument) {
+            return
         }
-    }
 
-    if (!location.state) {
-        return <Redirect to={redirect(ROUTES.DOCUMENTS, [{ key: "course_id", value: courseId }])} />
+        history.push(redirect(ROUTES.DOCUMENTS, [{ key: "course_id", value: courseId }]))
     }
 
     if (isFetching) {

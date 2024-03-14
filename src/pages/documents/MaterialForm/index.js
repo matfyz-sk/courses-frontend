@@ -1,55 +1,18 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import MultipleSelectCheckmarks from "../common/MultipleSelectCheckmarks"
-import { axiosGetEntities, getResponseBody } from "../../../helperFunctions"
 import { Box, Grid, TextField } from "@material-ui/core"
 import DocumentsReferencer from "../common/DocumentsReferencer"
+import { useGetTopicsQuery } from "../../../services/topic"
 
-export default function MaterialForm({
-    description,
-    setDescription,
-    handleLoading,
-    statusHandler,
-    isAlternativeTo,
-    setIsAlternativeTo,
-    refersTo,
-    setRefersTo,
-    generalizes,
-    setGeneralizes,
-    covers,
-    setCovers,
-    mentions,
-    setMentions,
-    requires,
-    setRequires,
-    assumes,
-    setAssumes,
-    isReadOnly,
-}) {
-    const [topics, setTopics] = useState([])
-
-    useEffect(() => {
-        handleLoading(true)
-        // const topicsUrl = `topic?courseInstance=${courseId}`
-        axiosGetEntities("topic").then(response => {
-            if (response.failed) {
-                statusHandler(response.response ? response.response : 500)
-                return
-            }
-            setTopics(getResponseBody(response))
-            handleLoading(false)
-        })
-    }, [])
+export default function MaterialForm({ material, onMaterialChange, isReadOnly }) {
+    const { data: topics, isFetching } = useGetTopicsQuery()
+    const { description, covers, mentions, requires, assumes, isAlternativeTo, refersTo, generalizes } = material
+    if (isFetching) return <div></div>
 
     return (
         <>
             <hr style={{ borderColor: "lightgray" }} />
-            <Box
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                }}
-            >
+            <Box display="flex" alignItems="center" justifyContent="center">
                 <TextField
                     id="description-textarea"
                     style={{ width: "50%" }}
@@ -57,7 +20,7 @@ export default function MaterialForm({
                     multiline
                     variant="outlined"
                     value={description}
-                    onChange={e => setDescription(e.target.value)}
+                    onChange={e => onMaterialChange({ description: e.target.value })}
                     disabled={isReadOnly}
                 />
             </Box>
@@ -72,7 +35,7 @@ export default function MaterialForm({
                         <MultipleSelectCheckmarks
                             allItems={topics}
                             items={covers}
-                            setItems={setCovers}
+                            setItems={values => onMaterialChange({ covers: values })}
                             label={"covers"}
                             isReadOnly={isReadOnly}
                         />
@@ -81,7 +44,7 @@ export default function MaterialForm({
                         <MultipleSelectCheckmarks
                             allItems={topics}
                             items={mentions}
-                            setItems={setMentions}
+                            setItems={values => onMaterialChange({ mentions: values })}
                             label={"mentions"}
                             isReadOnly={isReadOnly}
                         />
@@ -90,7 +53,7 @@ export default function MaterialForm({
                         <MultipleSelectCheckmarks
                             allItems={topics}
                             items={requires}
-                            setItems={setRequires}
+                            setItems={values => onMaterialChange({ requires: values })}
                             label={"required"}
                             isReadOnly={isReadOnly}
                         />
@@ -99,7 +62,7 @@ export default function MaterialForm({
                         <MultipleSelectCheckmarks
                             allItems={topics}
                             items={assumes}
-                            setItems={setAssumes}
+                            setItems={values => onMaterialChange({ assumes: values })}
                             label={"assumes mastery of"}
                             isReadOnly={isReadOnly}
                         />
@@ -113,7 +76,7 @@ export default function MaterialForm({
                         <DocumentsReferencer
                             label="is an alternative to"
                             documentReferences={isAlternativeTo}
-                            onDocumentReferencesChange={setIsAlternativeTo}
+                            onDocumentReferencesChange={data => onMaterialChange({ isAlternativeTo: data })}
                             isReadOnly={isReadOnly}
                         />
                     </Grid>
@@ -121,7 +84,7 @@ export default function MaterialForm({
                         <DocumentsReferencer
                             label="refers to"
                             documentReferences={refersTo}
-                            onDocumentReferencesChange={setRefersTo}
+                            onDocumentReferencesChange={data => onMaterialChange({ refersTo: data })}
                             isReadOnly={isReadOnly}
                         />
                     </Grid>
@@ -129,7 +92,7 @@ export default function MaterialForm({
                         <DocumentsReferencer
                             label="generalizes"
                             documentReferences={generalizes}
-                            onDocumentReferencesChange={setGeneralizes}
+                            onDocumentReferencesChange={data => onMaterialChange({ generalizes: data })}
                             isReadOnly={isReadOnly}
                         />
                     </Grid>

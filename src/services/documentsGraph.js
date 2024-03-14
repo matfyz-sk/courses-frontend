@@ -87,7 +87,6 @@ export const documentsGraphApi = createApi({
         }),
         getDocuments: builder.query({
             query: ({ documentIds }) => {
-                console.log({ documentIds })
                 const internalDocIds = documentIds.filter(id => id.includes(DocumentEnums.internalDocument.entityName))
                 const externalDocIds = documentIds.filter(id => id.includes(DocumentEnums.externalDocument.entityName))
                 const fileDocIds = documentIds.filter(id => id.includes(DocumentEnums.file.entityName))
@@ -710,7 +709,6 @@ export const documentsGraphApi = createApi({
         }),
         updateDocument: builder.mutation({
             query: ({id,entityName, body}) => {
-                console.log({entityName, id, body})
                 let capitalizedEntityName
                 if (entityName === DocumentEnums.internalDocument.entityName)
                     capitalizedEntityName = DocumentEnums.internalDocument.capitalized
@@ -720,7 +718,6 @@ export const documentsGraphApi = createApi({
                     capitalizedEntityName = DocumentEnums.file.capitalized
                 else
                     throw new Error("Invalid entity name")
-                console.log({entityName, capitalizedEntityName, body})
 
                 return {
                     document: gql`
