@@ -67,6 +67,9 @@ export const quizNewApi = createApi({
                 courses_text
                 courses_correct
               }
+              courses_approver {
+                _id
+              }
               courses_previous {
                 _id
               }
@@ -97,6 +100,9 @@ export const quizNewApi = createApi({
                 courses_correct
               }
               courses_previous {
+                _id
+              }
+              courses_approver {
                 _id
               }
               courses_questionSubmittedBy {
@@ -135,15 +141,30 @@ export const quizNewApi = createApi({
 
       transformResponse: response => response.Comment[0]._id,
     }),
-    insertQuestionComment: builder.mutation({
-      query: ({ questionId, questionComments }) => ({
+    updateQuestion: builder.mutation({
+      query: ({ questionId, questionBody }) => ({
         document: gql`
           mutation {
             update_courses_QuestionWithPredefinedAnswer (
               _id: "${questionId}"
-              courses_comment: ${questionComments}
+              ${
+                questionBody.comments
+                  ? `courses_comment: ${questionBody.comments}`
+                  : ``
+              }
+              ${
+                questionBody.approver
+                  ? `courses_approver: "${questionBody.approver}"`
+                  : ``
+              }
             ) {
               _id
+              courses_comment {
+                _id
+              }
+              courses_approver {
+                _id
+              }
             }
           }
         `,
@@ -171,5 +192,5 @@ export const {
   useAddNewMultipleChoiceAnswerMutation,
   useAddNewMultipleChoiceQuestionMutation,
   useAddNewCommentMutation,
-  useInsertQuestionCommentMutation,
+  useUpdateQuestionMutation,
 } = quizNewApi

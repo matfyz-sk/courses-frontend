@@ -1,18 +1,6 @@
 import React from 'react'
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-  Card,
-  Checkbox,
-  Chip,
-  FormControlLabel,
-  FormGroup,
-  Input,
-  withStyles,
-} from '@material-ui/core'
-
+import { Button, Card, FormControlLabel, Chip } from '@material-ui/core'
+import { MdDone } from 'react-icons/md'
 import {
   baseTheme,
   CustomAccordion,
@@ -20,8 +8,6 @@ import {
   useNewQuizStyles,
 } from './styles'
 
-import { MdCheck, MdLocalPizza } from 'react-icons/md'
-import { FaAngleDown } from 'react-icons/fa'
 import { Link, withRouter } from 'react-router-dom'
 import { redirect } from '../../constants/redirect'
 import { QUIZ_QUESTION_DETAIL_NEW } from '../../constants/routes'
@@ -31,6 +17,7 @@ function QuestionListItem({
   questionId,
   questionText,
   questionAnswers,
+  isApproved,
 }) {
   const classes = useNewQuizStyles()
 
@@ -73,8 +60,18 @@ function QuestionListItem({
       </AccordionDetails>*!/}
     </CustomAccordion>*/
     <Card variant="outlined" className={classes.questionListItem}>
-      <div style={{ display: 'flex', columnGap: '5px', alignItems: 'center' }}>
+      <div>
         {questionText}
+        {isApproved ? (
+          <Chip
+            style={{ marginLeft: '10px' }}
+            size="small"
+            label="Approved"
+            icon={<MdDone />}
+          />
+        ) : (
+          ''
+        )}
       </div>
 
       <Link

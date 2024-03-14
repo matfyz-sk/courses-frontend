@@ -45,6 +45,7 @@ function QuizNewHomepage({ courseId }) {
             questionId={question._id}
             questionText={question.text}
             questionAnswers={question.hasPredefinedAnswer}
+            isApproved={question.approver}
           />
         )
       })

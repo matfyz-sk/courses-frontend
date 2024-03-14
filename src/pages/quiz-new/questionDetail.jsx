@@ -15,6 +15,7 @@ import {
 } from './styles'
 import {
   Button,
+  Chip,
   CircularProgress,
   FormControlLabel,
   IconButton,
@@ -25,7 +26,7 @@ import { MdCheck, MdClose, MdSend } from 'react-icons/md'
 import {
   useAddNewCommentMutation,
   useGetQuestionByIdQuery,
-  useInsertQuestionCommentMutation,
+  useUpdateQuestionMutation,
 } from '../../services/quiz-new'
 import { DATA_PREFIX } from '../../constants/ontology'
 import { getUserID } from '../../components/Auth'
@@ -51,13 +52,13 @@ function QuestionDetail({ courseId, match, isTeacher }) {
   ] = useAddNewCommentMutation()
 
   const [
-    insertQuestionComment,
+    updateQuestion,
     {
       isSuccess: isInsertCommentSuccess,
       isError: isInsertCommentError,
       isLoading: isInsertCommentLoading,
     },
-  ] = useInsertQuestionCommentMutation()
+  ] = useUpdateQuestionMutation()
 
   const userId = getUserID()
 
@@ -83,7 +84,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
         commentCreatedBy: userId,
       }
       let result = await addNewComment({
-        questionId: questionId,
+        questionId: longQuestionId,
         commentBody: commentToSubmit,
       })
       let addedComment
@@ -93,9 +94,11 @@ function QuestionDetail({ courseId, match, isTeacher }) {
           commentIdsString += `"${comment._id}", `
         }
         commentIdsString += `"${result.data}"]`
-        addedComment = await insertQuestionComment({
+        addedComment = await updateQuestion({
           questionId: longQuestionId,
-          questionComments: commentIdsString,
+          questionBody: {
+            comments: commentIdsString,
+          },
         })
         if (!addedComment.error) {
           setCommentText('')
@@ -110,10 +113,23 @@ function QuestionDetail({ courseId, match, isTeacher }) {
     }
   }
 
+  async function handleApprove() {
+    let result = await updateQuestion({
+      questionId: longQuestionId,
+      questionBody: {
+        approver: userId,
+      },
+    })
+    if (!result.error) {
+      console.log(result)
+    }
+  }
+
   let questionContent
   let comments
   let prevVersionButton = ''
   let editButton = ''
+  let approvedInfo = ''
   if (isLoading) {
     questionContent = <CircularProgress />
   } else if (isSuccess) {
@@ -142,7 +158,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
     })
     comments = renderComments(questionData.comment)
     questionContent = (
-      <div>
+      <div style={{ marginBottom: '20px' }}>
         <h3 style={{ margin: '10px 0' }}>
           {questionData ? questionData.text : 'no question data'}
         </h3>
@@ -189,6 +205,21 @@ function QuestionDetail({ courseId, match, isTeacher }) {
         >
           Edit question
         </Link>
+      )
+    }
+
+    if (isTeacher && !questionData.approver) {
+      approvedInfo = (
+        <Button variant="contained" disableElevation onClick={handleApprove}>
+          Approve question
+        </Button>
+      )
+    } else if (questionData.approver) {
+      approvedInfo = (
+        <Chip
+          size="small"
+          label="This question version has been approved by a teacher."
+        />
       )
     }
   } else if (isError) {
@@ -246,6 +277,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
       </div>
 
       {questionContent}
+      {approvedInfo}
       <h3 style={{ marginTop: '20px' }}>Comments</h3>
       {comments}
       <div
@@ -267,6 +299,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
         />
         <Button
           disabled={isAddCommentLoading || isInsertCommentLoading}
+          disableElevation
           style={{ marginLeft: '20px' }}
           variant="contained"
           color="default"
