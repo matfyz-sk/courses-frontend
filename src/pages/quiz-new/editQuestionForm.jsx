@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
-import { useHistory, withRouter } from 'react-router-dom'
+import { Link, useHistory, withRouter } from 'react-router-dom'
 
-import { Button } from '@material-ui/core'
+import { Button, CircularProgress } from '@material-ui/core'
 
 import QuestionAnswerField from './questionAnswerField'
 import {
@@ -11,12 +11,18 @@ import {
   useSetHasNewerVersionMutation,
   useGetQuestionByIdQuery,
 } from '../../services/quiz-new'
-import { CustomTextField, GreenButton, useNewQuizStyles } from './styles'
+import {
+  CustomTextField,
+  GreenButton,
+  GreenCircularProgress,
+  useNewQuizStyles,
+} from './styles'
 import { DATA_PREFIX } from '../../constants/ontology'
 import { Alert } from '@material-ui/lab'
-import { QUIZNEW } from '../../constants/routes'
+import { QUIZ_QUESTION_DETAIL_NEW, QUIZNEW } from '../../constants/routes'
 import { redirect } from '../../constants/redirect'
-import { getUser, getUserID } from '../../components/Auth' // TODO lepsi sposob ziskavania userID
+import { getUser, getUserID } from '../../components/Auth'
+import { getShortID } from '../../helperFunctions' // TODO lepsi sposob ziskavania userID
 
 function EditQuestionForm({ match, courseId }) {
   const [questionText, setQuestionText] = useState('')
@@ -36,8 +42,14 @@ function EditQuestionForm({ match, courseId }) {
     questionId: longQuestionId,
   })
 
-  const [submitNewQuestionVersion, { isSubmitError, isSubmitSuccess }] =
-    useAddNewMultipleChoiceQuestionMutation()
+  const [
+    submitNewQuestionVersion,
+    {
+      isError: isSubmitError,
+      isSuccess: isSubmitSuccess,
+      isLoading: isSubmitLoading,
+    },
+  ] = useAddNewMultipleChoiceQuestionMutation()
   const [addNewAnswer] = useAddNewMultipleChoiceAnswerMutation()
 
   if (isSuccess && !questionText) {
@@ -93,7 +105,7 @@ function EditQuestionForm({ match, courseId }) {
       noCorrectAnswer: false, // should this be an error or not idk
       noAnswers: false,
     }
-    if (questionText === '') {
+    if (questionText.trim() === '') {
       errorsNew.emptyQuestionText = true
     } else if (answerFields.length === 0) {
       errorsNew.noAnswers = true
@@ -103,7 +115,7 @@ function EditQuestionForm({ match, courseId }) {
       errorsNew.noCorrectAnswer = true
     }
     answerFields.forEach(answerField => {
-      if (answerField.answerText === '') {
+      if (answerField.answerText.trim() === '') {
         errorsNew.emptyAnswerText.push(answerField.id)
       }
     })
@@ -149,7 +161,18 @@ function EditQuestionForm({ match, courseId }) {
       userId: userId,
     })
     if (!result.error) {
-      history.push(redirect(QUIZNEW, [{ key: 'course_id', value: courseId }]))
+      history.push({
+        pathname: redirect(QUIZ_QUESTION_DETAIL_NEW, [
+          { key: 'course_id', value: courseId },
+          {
+            key: 'question_id',
+            value: getShortID(result.data.QuestionWithPredefinedAnswer[0]._id),
+          },
+        ]),
+        state: {
+          hasNewerVersion: false,
+        },
+      })
     }
   }
 
@@ -234,6 +257,23 @@ function EditQuestionForm({ match, courseId }) {
 
   return (
     <section className={classes.container}>
+      <Link
+        to={{
+          pathname: redirect(QUIZ_QUESTION_DETAIL_NEW, [
+            { key: 'course_id', value: courseId },
+            {
+              key: 'question_id',
+              value: questionId,
+            },
+          ]),
+          state: {
+            hasNewerVersion: false,
+          },
+        }}
+        className="btn btn-outline-success mb-2"
+      >
+        Back
+      </Link>
       <h2>New Question Version</h2>
       <CustomTextField
         error={errors.emptyQuestionText}
@@ -257,9 +297,16 @@ function EditQuestionForm({ match, courseId }) {
           Add Answer
         </GreenButton>
       </div>
-      <GreenButton style={{ marginBottom: '10px' }} onClick={validateForm}>
-        Submit New Version
-      </GreenButton>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <GreenButton
+          style={{ marginBottom: '10px', marginRight: '10px' }}
+          onClick={validateForm}
+          disabled={isSubmitLoading}
+        >
+          Submit New Version
+        </GreenButton>
+        {isSubmitLoading ? <GreenCircularProgress /> : ''}
+      </div>
       {alertContent}
     </section>
   )

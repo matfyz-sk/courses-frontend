@@ -5,6 +5,7 @@ import {
   createTheme,
   withStyles,
   Button,
+  CircularProgress,
 } from '@material-ui/core'
 import { grey, red } from '@material-ui/core/colors'
 import React from 'react'
@@ -180,6 +181,12 @@ const GreenButton = withStyles({
   },
 })(Button)
 
+const GreenCircularProgress = withStyles({
+  root: {
+    color: baseTheme.palette.primary.light,
+  },
+})(CircularProgress)
+
 export {
   baseTheme,
   customQuizTheme,
@@ -188,4 +195,5 @@ export {
   GreenCheckbox,
   CustomTextField,
   GreenButton,
+  GreenCircularProgress,
 }

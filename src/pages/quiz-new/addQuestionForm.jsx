@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
-import { useHistory, withRouter } from 'react-router-dom'
+import { Link, useHistory, withRouter } from 'react-router-dom'
 
-import { Button } from '@material-ui/core'
+import { Button, CircularProgress } from '@material-ui/core'
 
 import QuestionAnswerField from './questionAnswerField'
 import {
@@ -11,7 +11,12 @@ import {
   useAddNewMultipleChoiceQuestionMutation,
   useGetQuestionByIdQuery,
 } from '../../services/quiz-new'
-import { CustomTextField, GreenButton, useNewQuizStyles } from './styles'
+import {
+  CustomTextField,
+  GreenButton,
+  GreenCircularProgress,
+  useNewQuizStyles,
+} from './styles'
 import { DATA_PREFIX } from '../../constants/ontology'
 import { Alert } from '@material-ui/lab'
 import { QUIZNEW } from '../../constants/routes'
@@ -45,7 +50,7 @@ function AddQuestionForm({ match, courseId }) {
 
   const onQuestionTextChanged = e => setQuestionText(e.target.value)
 
-  const [addNewQuestion, { isError, isSuccess }] =
+  const [addNewQuestion, { isError, isLoading, isSuccess }] =
     useAddNewMultipleChoiceQuestionMutation()
   const [addNewAnswer] = useAddNewMultipleChoiceAnswerMutation()
 
@@ -71,7 +76,7 @@ function AddQuestionForm({ match, courseId }) {
       noCorrectAnswer: false, // should this be an error or not idk
       noAnswers: false,
     }
-    if (questionText === '') {
+    if (questionText.trim() === '') {
       errorsNew.emptyQuestionText = true
     } else if (answerFields.length === 0) {
       errorsNew.noAnswers = true
@@ -81,7 +86,7 @@ function AddQuestionForm({ match, courseId }) {
       errorsNew.noCorrectAnswer = true
     }
     answerFields.forEach(answerField => {
-      if (answerField.answerText === '') {
+      if (answerField.answerText.trim() === '') {
         errorsNew.emptyAnswerText.push(answerField.id)
       }
     })
@@ -215,6 +220,12 @@ function AddQuestionForm({ match, courseId }) {
 
   return (
     <section className={classes.container}>
+      <Link
+        to={redirect(QUIZNEW, [{ key: 'course_id', value: courseId }])}
+        className="btn btn-outline-success mb-2"
+      >
+        Back
+      </Link>
       <h2>Add New Question</h2>
       <CustomTextField
         error={errors.emptyQuestionText}
@@ -237,9 +248,16 @@ function AddQuestionForm({ match, courseId }) {
           Add Answer
         </GreenButton>
       </div>
-      <GreenButton style={{ marginBottom: '10px' }} onClick={validateForm}>
-        Submit Question
-      </GreenButton>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <GreenButton
+          style={{ marginBottom: '10px' }}
+          onClick={validateForm}
+          disabled={isLoading}
+        >
+          Submit Question
+        </GreenButton>
+        {isLoading ? <GreenCircularProgress /> : ''}
+      </div>
       {alertContent}
     </section>
   )
