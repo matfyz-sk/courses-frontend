@@ -11,15 +11,10 @@ import {
   baseTheme,
   CustomTextField,
   GreenCheckbox,
+  GreenCircularProgress,
   useNewQuizStyles,
 } from './styles'
-import {
-  Button,
-  Chip,
-  CircularProgress,
-  FormControlLabel,
-  IconButton,
-} from '@material-ui/core'
+import { Button, Chip } from '@material-ui/core'
 import CommentComponent from './commentComponent'
 
 import { MdCheck, MdClose, MdSend } from 'react-icons/md'
@@ -131,7 +126,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
   let editButton = ''
   let approvedInfo = ''
   if (isLoading) {
-    questionContent = <CircularProgress />
+    questionContent = <GreenCircularProgress />
   } else if (isSuccess) {
     //console.log(questionData)
     const renderedAnswers = questionData.hasPredefinedAnswer.map(answer => {
