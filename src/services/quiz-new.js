@@ -76,6 +76,8 @@ export const quizNewApi = createApi({
               courses_createdAt(order: DESC)
               courses_questionSubmittedBy {
                 _id
+                courses_firstName
+                courses_lastName
               }
             }
           }
@@ -107,6 +109,8 @@ export const quizNewApi = createApi({
               }
               courses_questionSubmittedBy {
                 _id
+                courses_firstName
+                courses_lastName
               }
               courses_comment {
                 _id
@@ -169,7 +173,7 @@ export const quizNewApi = createApi({
           }
         `,
       }),
-      invalidatesTags: ['Comments'],
+      invalidatesTags: ['Comments', 'Question', 'Questions'],
     }),
     deleteQuestion: builder.mutation({
       query: questionId => ({

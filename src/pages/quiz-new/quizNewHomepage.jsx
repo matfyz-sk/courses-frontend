@@ -46,6 +46,11 @@ function QuizNewHomepage({ courseId }) {
             questionText={question.text}
             questionAnswers={question.hasPredefinedAnswer}
             isApproved={question.approver}
+            questionAuthor={
+              question.questionSubmittedBy
+                ? `${question.questionSubmittedBy.firstName} ${question.questionSubmittedBy.lastName}`
+                : 'Unknown'
+            }
           />
         )
       })

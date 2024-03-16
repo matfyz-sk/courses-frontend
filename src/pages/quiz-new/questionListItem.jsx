@@ -17,6 +17,7 @@ function QuestionListItem({
   questionId,
   questionText,
   questionAnswers,
+  questionAuthor,
   isApproved,
 }) {
   const classes = useNewQuizStyles()
@@ -60,18 +61,23 @@ function QuestionListItem({
       </AccordionDetails>*!/}
     </CustomAccordion>*/
     <Card variant="outlined" className={classes.questionListItem}>
-      <div>
-        {questionText}
-        {isApproved ? (
-          <Chip
-            style={{ marginLeft: '10px' }}
-            size="small"
-            label="Approved"
-            icon={<MdDone />}
-          />
-        ) : (
-          ''
-        )}
+      <div className={classes.flexColumn}>
+        <div>
+          {questionText}
+          {isApproved ? (
+            <Chip
+              style={{ marginLeft: '10px' }}
+              size="small"
+              label="Approved"
+              icon={<MdDone />}
+            />
+          ) : (
+            ''
+          )}
+        </div>
+        <text style={{ color: 'grey', fontSize: '0.9em' }}>
+          {questionAuthor}
+        </text>
       </div>
 
       <Link

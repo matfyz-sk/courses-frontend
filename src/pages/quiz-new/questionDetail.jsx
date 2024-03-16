@@ -125,10 +125,19 @@ function QuestionDetail({ courseId, match, isTeacher }) {
   let prevVersionButton = ''
   let editButton = ''
   let approvedInfo = ''
+  let author = ''
   if (isLoading) {
     questionContent = <GreenCircularProgress />
   } else if (isSuccess) {
     //console.log(questionData)
+    author = (
+      <text style={{ color: 'gray', fontSize: '0.8em' }}>
+        {questionData.questionSubmittedBy
+          ? `Submitted by ${questionData.questionSubmittedBy.firstName} ${questionData.questionSubmittedBy.lastName}`
+          : 'Unknown'}
+      </text>
+    )
+
     const renderedAnswers = questionData.hasPredefinedAnswer.map(answer => {
       let icon
       if (answer.correct) {
@@ -158,6 +167,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
           {questionData ? questionData.text : 'no question data'}
         </h3>
         <div className={classes.flexColumn}>{renderedAnswers}</div>
+        {author}
       </div>
     )
 
@@ -272,6 +282,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
       </div>
 
       {questionContent}
+
       {approvedInfo}
       <h3 style={{ marginTop: '20px' }}>Comments</h3>
       {comments}
