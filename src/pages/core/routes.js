@@ -33,6 +33,9 @@ import Dashboard from './Dashboard'
 import ResultDetail from '../results/ResultDetail'
 import TopicManager from '../topics/TopicManager'
 
+import QuizNew from '../quiz-new'
+import AddQuestionForm from '../quiz-new/addQuestionForm'
+
 const CoreRoutes = [
   <RouteWrapper
     key={ROUTES.DASHBOARD}
@@ -48,6 +51,20 @@ const CoreRoutes = [
     key={ROUTES.TIMELINE}
     path={ROUTES.TIMELINE}
     component={Timeline}
+    layout={CourseLayout}
+    auth
+  />,
+  <RouteWrapper
+    key={ROUTES.QUIZNEW}
+    path={ROUTES.QUIZNEW}
+    component={QuizNew}
+    layout={CourseLayout}
+    auth
+  />,
+  <RouteWrapper
+    key={ROUTES.ADD_QUIZ_QUESTION_NEW}
+    path={ROUTES.ADD_QUIZ_QUESTION_NEW}
+    component={AddQuestionForm}
     layout={CourseLayout}
     auth
   />,
