@@ -2,8 +2,6 @@ import React from 'react'
 import { NavLink} from 'react-router-dom'
 import { NavItem } from 'reactstrap'
 import CoursesIcon from "../assets/hat.svg";
-import { MdImportContacts } from "react-icons/md"
-import { Icon } from "@material-ui/core";
 
 const GlobalMenu = props => (
   <>
