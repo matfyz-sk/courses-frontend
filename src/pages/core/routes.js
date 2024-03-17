@@ -1,6 +1,5 @@
 import React from 'react'
 import { Route } from 'react-router-dom'
-import LandingPage from './Landing'
 import CoursesPage from './Courses'
 import Course from './Course'
 import Assignments from '../assignments'
@@ -39,11 +38,11 @@ const CoreRoutes = [
     path={ROUTES.DASHBOARD}
     auth
   />,
-  // <RouteWrapper
-  //     key={ROUTES.TOPICS}
-  //     path={ROUTES.TOPICS}
-  //     component={TopicManager}
-  // />,
+  <SuperAdminRoute
+      key={ROUTES.TOPICS}
+      path={ROUTES.TOPICS}
+      component={TopicManager}
+  />,
   <StudentRoute
     key={ROUTES.TIMELINE}
     path={ROUTES.TIMELINE}

@@ -86,7 +86,7 @@ export const topicApi = createApi({
                 mutation {
                     update_courses_Topic(
                         _id: "${id}",
-                        courses_name: "${body.name}",
+                        ${body.name ? `courses_name: "${body.name}"` : ""}
                         ${body.description ? `courses_description: "${body.description}"` : ""}
                         ${body.subtopicOf ? `courses_subtopicOf: ${getArrayFormat(body.subtopicOf)}` : ""}
                         ${
