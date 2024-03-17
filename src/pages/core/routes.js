@@ -39,7 +39,7 @@ const CoreRoutes = [
     path={ROUTES.DASHBOARD}
     auth
   />,
-  <RouteWrapper
+  <SuperAdminRoute
       key={ROUTES.TOPICS}
       path={ROUTES.TOPICS}
       component={TopicManager}
