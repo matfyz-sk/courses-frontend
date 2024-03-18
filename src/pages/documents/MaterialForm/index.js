@@ -3,10 +3,26 @@ import MultipleSelectCheckmarks from "../common/MultipleSelectCheckmarks"
 import { Box, Grid, TextField } from "@material-ui/core"
 import DocumentsReferencer from "../common/DocumentsReferencer"
 import { useGetTopicsQuery } from "../../../services/topic"
+import { useGetDocumentReferencesByIdsQuery, useGetDocumentReferencesQuery } from "../../../services/documentsGraph";
 
 export default function MaterialForm({ material, onMaterialChange, isReadOnly }) {
+    const { description, covers, mentions, requires, isAlternativeTo, refersTo, generalizes } = material
     const { data: topics, isFetching } = useGetTopicsQuery()
-    const { description, covers, mentions, requires, assumes, isAlternativeTo, refersTo, generalizes } = material
+    const { data: documentReferences } = useGetDocumentReferencesByIdsQuery(
+        {
+            documentReferenceIds: [
+                ...isAlternativeTo.map(({ _id }) => _id),
+                ...refersTo.map(({ _id }) => _id),
+                ...generalizes.map(({ _id }) => _id),
+            ],
+        }
+    )
+    const isAlternativeToRefs = documentReferences?.filter(ref =>
+        isAlternativeTo.map(({ _id }) => _id).includes(ref._id)
+    ) ?? []
+    const refersToRefs = documentReferences?.filter(ref => refersTo.map(({ _id }) => _id).includes(ref._id)) ?? []
+    const generalizesRefs = documentReferences?.filter(ref => generalizes.map(({ _id }) => _id).includes(ref._id)) ?? []
+
     if (isFetching) return <div></div>
 
     return (
@@ -58,15 +74,6 @@ export default function MaterialForm({ material, onMaterialChange, isReadOnly })
                             isReadOnly={isReadOnly}
                         />
                     </Grid>
-                    <Grid item xs={12}>
-                        <MultipleSelectCheckmarks
-                            allItems={topics}
-                            items={assumes}
-                            setItems={values => onMaterialChange({ assumes: values })}
-                            label={"assumes mastery of"}
-                            isReadOnly={isReadOnly}
-                        />
-                    </Grid>
                 </Grid>
                 <Grid container item spacing={2} xs={12} sm={6}>
                     <Grid style={{ textAlign: "center" }} item xs={12}>
@@ -75,24 +82,27 @@ export default function MaterialForm({ material, onMaterialChange, isReadOnly })
                     <Grid item xs={12}>
                         <DocumentsReferencer
                             label="is an alternative to"
-                            documentReferences={isAlternativeTo}
+                            documentReferences={isAlternativeToRefs}
                             onDocumentReferencesChange={data => onMaterialChange({ isAlternativeTo: data })}
+                            materialReferencer={true}
                             isReadOnly={isReadOnly}
                         />
                     </Grid>
                     <Grid item xs={12}>
                         <DocumentsReferencer
                             label="refers to"
-                            documentReferences={refersTo}
+                            documentReferences={refersToRefs}
                             onDocumentReferencesChange={data => onMaterialChange({ refersTo: data })}
+                            materialReferencer={true}
                             isReadOnly={isReadOnly}
                         />
                     </Grid>
                     <Grid item xs={12}>
                         <DocumentsReferencer
                             label="generalizes"
-                            documentReferences={generalizes}
+                            documentReferences={generalizesRefs}
                             onDocumentReferencesChange={data => onMaterialChange({ generalizes: data })}
+                            materialReferencer={true}
                             isReadOnly={isReadOnly}
                         />
                     </Grid>

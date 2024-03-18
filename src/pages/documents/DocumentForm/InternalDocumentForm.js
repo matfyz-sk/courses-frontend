@@ -6,17 +6,8 @@ import { Alert } from "@material-ui/lab"
 import CustomEditor from "../CustomEditor"
 
 // Todo This also works with images encoded with base 64...
-function InternalDocumentForm({ document, handleDocumentChange }) {
-    const { name, mimeType, editorContent, isDeleted } = document ?? {}
-    const isReadOnly = isDeleted
-
-    if (!document) {
-        return (
-            <Alert color="success" className="empty-message">
-                Loading...
-            </Alert>
-        )
-    }
+function InternalDocumentForm({ document, handleDocumentChange, isReadOnly }) {
+    const { name, mimeType, editorContent } = document ?? {}
 
     return (
         <>

@@ -15,7 +15,7 @@ import EntityComparator from "./EntityComparator"
 import { useLazyGetDocumentQuery } from "../../../services/documentsGraph"
 import { getEntityName } from "../common/enums/document-enums"
 import { DATA_PREFIX } from "../../../constants/ontology"
-import useNewDocumentVersion from "../common/useNewDocumentVersion"
+import useDocument from "../common/useDocument"
 
 const LOOP_ARBITRARY_LIMIT = 100
 
@@ -60,7 +60,7 @@ function DocumentHistory({ match, history }) {
     const pickedVersionB = versions.length > 1 ? versions[indexOfVersionBefore] : {}
     const pickedVersionA = versions.length > 1 ? versions[indexOfVersionAfter] : {}
 
-    const { createNewDocumentVersion, error: newVersionError } = useNewDocumentVersion()
+    const { createNextDocumentVersion, error: newVersionError } = useDocument()
 
     const isFetching = isFetchingHistory
     const isError = newVersionError
@@ -113,7 +113,7 @@ function DocumentHistory({ match, history }) {
             previousDocumentVersion: latestVersion._id,
         }
 
-        const newDocument = await createNewDocumentVersion({
+        const newDocument = await createNextDocumentVersion({
             previousVersionId: latestVersion._id,
             entityName,
             body: versionToRestore,

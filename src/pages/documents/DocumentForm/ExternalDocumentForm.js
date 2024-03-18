@@ -4,17 +4,8 @@ import { withRouter } from "react-router-dom"
 import React from "react"
 import { Alert } from "@material-ui/lab"
 
-function ExternalDocumentForm({ document, handleDocumentChange }) {
-    const { name, uri, isDeleted } = document ?? {}
-    const isReadOnly = isDeleted
-
-    if (!document) {
-        return (
-            <Alert color="success" className="empty-message">
-                Loading...
-            </Alert>
-        )
-    }
+function ExternalDocumentForm({ document, handleDocumentChange, isReadOnly }) {
+    const { name, uri } = document ?? {}
 
     return (
         <>

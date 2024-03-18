@@ -10,10 +10,12 @@ import { customTheme } from "../../styles"
 import { useGetCourseInstanceQuery } from "../../../../services/course"
 import {
     useGetDocumentsQuery,
+    useGetMaterialsQuery,
     useLazyGetDocumentReferenceQuery,
     useLazyGetFolderQuery,
+    useGetDocumentReferencesQuery,
 } from "../../../../services/documentsGraph"
-import { DATA_PREFIX } from "../../../../constants/ontology"
+import { getFullID } from "../../../../helperFunctions"
 
 // dialog's intended behaviour is to reset the styling theme so this is a workaround for the progress bar
 const useStyles = makeStyles(() => ({
@@ -28,17 +30,43 @@ const useStyles = makeStyles(() => ({
 }))
 
 // kinda tightly coupled 🥲
-function DocumentReferencer({ label, documentReferences, onDocumentReferencesChange, match, isReadOnly }) {
+function DocumentReferencer({
+    materialReferencer,
+    label,
+    documentReferences,
+    onDocumentReferencesChange,
+    match,
+    isReadOnly,
+}) {
     const classes = useStyles()
     const courseId = match.params.course_id
-    const courseInstanceFullId = `${DATA_PREFIX}courseInstance/${courseId}`
 
     const [getFolder, { data: folder, isUninitialized: folderForExplorerIsUninitialized }] = useLazyGetFolderQuery()
-    const fsObjects = folder?.folderContent ?? []
-    const { data: courseInstanceData } = useGetCourseInstanceQuery({ id: courseInstanceFullId })
+    const { data: courseDocumentReferences, error } = useGetDocumentReferencesQuery({
+        courseInstanceId: getFullID(courseId, "courseInstance"),
+    })
+    const { data: materials } = useGetMaterialsQuery(
+        {
+            documentReferenceIds: courseDocumentReferences?.map(ref => ref._id),
+        },
+        { skip: !courseDocumentReferences }
+    )
+
+    let fsObjects = folder?.folderContent ?? []
+    const courseMaterialDocumentReferences =
+        courseDocumentReferences?.filter(ref => materials?.map(m => m._id).includes(ref._id)) ?? []
+    if (materialReferencer) {
+        fsObjects = fsObjects
+            .filter(fsObject => getEntityName(fsObject._type) === DocumentEnums.folder.entityName)
+            .concat(
+                fsObjects
+                    .filter(fsObject => courseMaterialDocumentReferences.some(ref => ref.document._id === fsObject._id))
+                    .map(fsObject => ({ ...fsObject, isMaterial: true }))
+            )
+    }
+    const { data: courseInstanceData } = useGetCourseInstanceQuery({ id: getFullID(courseId, "courseInstance") })
     const courseInstance = courseInstanceData?.[0]
 
-    const [fsPath, setFsPath] = useState([])
     const [status, setStatus] = useState(200)
     const [loading, setLoading] = useState(false)
 
@@ -98,7 +126,7 @@ function DocumentReferencer({ label, documentReferences, onDocumentReferencesCha
                 style={{ padding: "8px 12px" }}
             >
                 <DialogTitle id="referencer-dialog-title" aria-label="add document">
-                    Choose document to add
+                    {materialReferencer ? "Choose a material to add" : "Choose a document to add"}
                 </DialogTitle>
                 <DialogContent ref={dialogRef}>
                     {status !== 200 && (
