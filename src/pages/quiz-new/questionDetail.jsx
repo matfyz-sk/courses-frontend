@@ -71,7 +71,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
   })
 
   async function submitComment(commentText) {
-    if (!commentText) {
+    if (commentText.trim() === '') {
       setCommentError('Comment cannot be empty')
     } else {
       const commentToSubmit = {
