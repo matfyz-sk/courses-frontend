@@ -168,7 +168,7 @@ function TopicDetailEditing({ topic, handleEditCancel, handleTopicDelete }) {
     )
 }
 
-function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange }) {
+function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange, setShowGraph }) {
     const { data: allTopics, isFetching } = useGetTopicsQuery()
     const [newTopic, { isError: isAddError }] = useNewTopicMutation()
     const [updateTopic, { isError: isUpdateError }] = useUpdateTopicMutation()
@@ -237,9 +237,12 @@ function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange 
                             >
                                 <MdEdit />
                             </IconButton>
-                            <IconButton style={{ alignSelf: "center" }}>
-                                <MdDeviceHub />
-                            </IconButton>
+                          <IconButton
+                              style={{ alignSelf: "center" }}
+                              onClick={_ => setShowGraph(true)}>
+                            <MdDeviceHub />
+                          </IconButton>
+
                         </Box>
                         <p>{topic.description}</p>
                     </>

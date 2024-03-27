@@ -1,14 +1,11 @@
 import React, { useState } from "react"
 import { withRouter } from "react-router-dom"
 import { Box, Divider, Grid, ThemeProvider } from "@material-ui/core"
-import {Button, Divider, IconButton, List, ThemeProvider} from "@material-ui/core"
 import { customTheme } from "../../documents/styles"
 import { useNewTopicMutation } from "../../../services/topic"
 import TopicManagerSidebar from "./TopicManagerSidebar"
 import TopicManagerContent from "./TopicManagerContent"
 import { Alert, AlertTitle } from "@material-ui/lab"
-import {MdDeviceHub} from "react-icons/md";
-import TopicsGraph from "./TopicsGraph";
 
 function TopicManager() {
     const [newTopic, {error: newTopicError}] = useNewTopicMutation()
@@ -20,10 +17,6 @@ function TopicManager() {
 
     const handleIsEditChange = bool => {
         setIsEdit(bool)
-    }
-
-    const handleShowGraphChange = bool => {
-      setShowGraph(bool)
     }
 
     const addTopic = async () => {
@@ -42,10 +35,9 @@ function TopicManager() {
             console.log(err)
         }
     }
-
     return (
         <ThemeProvider theme={customTheme}>
-            <Box margin="auto" alignItems="space-between" maxWidth={1300} minHeight={800} padding={5}>
+            <Box margin="auto" alignItems="space-between" maxWidth={1300} padding={5}>
                 <Grid item container spacing={2}>
                     <Grid item xs={12}>
                         {error && (
@@ -55,7 +47,7 @@ function TopicManager() {
                             </Alert>
                         )}
                     </Grid>
-                    <Grid item container xs={12}>
+                    <Grid item container xs={12} >
                         {isSidebarOpen && (
                             <>
                                 <Grid item xs={3}>
@@ -73,18 +65,14 @@ function TopicManager() {
                             </>
                         )}
                         <Grid item xs={8}>
-                          {showGraph ? (
-                              <div style={{width: "100%", height: "100%"}}>
-                                <TopicsGraph
-                                  selectedTopicId={selectedTopicId}/>
-                              </div>) : (
                             < TopicManagerContent
                             selectedTopicId = {selectedTopicId}
                             setSelectedTopicId={setSelectedTopicId}
                             isEdit={isEdit}
                             handleIsEditChange={handleIsEditChange}
-                            />)
-                          }
+                            setShowGraph = {setShowGraph}
+                            showGraph = {showGraph}
+                            />
                         </Grid>
                     </Grid>
                 </Grid>
