@@ -22,11 +22,16 @@ import { Alert } from '@material-ui/lab'
 import { QUIZ_QUESTION_DETAIL_NEW, QUIZNEW } from '../../constants/routes'
 import { redirect } from '../../constants/redirect'
 import { getUser, getUserID } from '../../components/Auth'
-import { getShortID } from '../../helperFunctions' // TODO lepsi sposob ziskavania userID
+import { getShortID } from '../../helperFunctions'
+import { Prompt } from 'react-router'
+import { escapeText } from './helperFunctions' // TODO lepsi sposob ziskavania userID
 
 function EditQuestionForm({ match, courseId }) {
-  const [questionText, setQuestionText] = useState('')
-  const [answerFields, setAnswerFields] = useState([])
+  const [questionText, setQuestionText] = useState(null)
+  const [answerFields, setAnswerFields] = useState(null)
+  const [answersLoaded, setAnswersLoaded] = useState(false)
+  const [questionLoaded, setQuestionLoaded] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   const questionId = match.params.question_id
   let longQuestionId = `${DATA_PREFIX}questionwithpredefinedanswer/${questionId}`
@@ -52,11 +57,12 @@ function EditQuestionForm({ match, courseId }) {
   ] = useAddNewMultipleChoiceQuestionMutation()
   const [addNewAnswer] = useAddNewMultipleChoiceAnswerMutation()
 
-  if (isSuccess && !questionText) {
+  if (isSuccess && questionText === null) {
     setQuestionText(questionData.text)
+    setQuestionLoaded(true)
   }
 
-  if (isSuccess && answerFields.length === 0) {
+  if (isSuccess && answerFields === null) {
     const existingAnswers = []
     questionData.hasPredefinedAnswer.forEach(answer => {
       let answerObject = {
@@ -68,6 +74,7 @@ function EditQuestionForm({ match, courseId }) {
       existingAnswers.push(answerObject)
     })
     setAnswerFields(existingAnswers)
+    setAnswersLoaded(true)
   }
 
   const [errors, setErrors] = useState({
@@ -75,14 +82,17 @@ function EditQuestionForm({ match, courseId }) {
     emptyTopic: false,
     emptyAnswerText: [],
     noCorrectAnswer: false,
-    noAnswers: false,
+    lessThanTwoAnswers: false,
   })
 
   const userId = getUserID()
   const classes = useNewQuizStyles()
   const history = useHistory()
 
-  const onQuestionTextChanged = e => setQuestionText(e.target.value)
+  const onQuestionTextChanged = e => {
+    setQuestionText(e.target.value)
+    setHasUnsavedChanges(true)
+  }
   function onAddAnswerButtonClicked() {
     let randomId = crypto.randomUUID()
     let newKey = answerFields.length
@@ -98,17 +108,18 @@ function EditQuestionForm({ match, courseId }) {
   }
 
   function validateForm() {
+    setHasUnsavedChanges(false)
     const errorsNew = {
       emptyQuestionText: false,
       emptyTopic: false,
       emptyAnswerText: [],
       noCorrectAnswer: false, // should this be an error or not idk
-      noAnswers: false,
+      lessThanTwoAnswers: false,
     }
     if (questionText.trim() === '') {
       errorsNew.emptyQuestionText = true
-    } else if (answerFields.length === 0) {
-      errorsNew.noAnswers = true
+    } else if (answerFields.length < 2) {
+      errorsNew.lessThanTwoAnswers = true
     } else if (
       answerFields.every(answerField => answerField.correct === false)
     ) {
@@ -125,13 +136,14 @@ function EditQuestionForm({ match, courseId }) {
       errorsNew.emptyTopic === false &&
       errorsNew.emptyAnswerText.length === 0 &&
       errorsNew.noCorrectAnswer === false &&
-      errorsNew.noAnswers === false
+      errorsNew.lessThanTwoAnswers === false
     setErrors(errorsNew)
 
     if (isValid) {
       submitForm()
     } else {
       console.log(errors)
+      setHasUnsavedChanges(true)
     }
   }
 
@@ -139,7 +151,7 @@ function EditQuestionForm({ match, courseId }) {
     let answerIdsStringified = '['
     const answersToSubmit = answerFields.map(answerField => {
       return {
-        text: answerField.answerText,
+        text: escapeText(answerField.answerText),
         correct: answerField.correct,
       }
     })
@@ -151,7 +163,7 @@ function EditQuestionForm({ match, courseId }) {
     }
     answerIdsStringified += ']'
     const questionToSubmit = {
-      text: questionText,
+      text: escapeText(questionText),
       courseInstance: longCourseId,
       hasPredefinedAnswer: answerIdsStringified,
       previous: longQuestionId,
@@ -178,6 +190,7 @@ function EditQuestionForm({ match, courseId }) {
 
   function deleteAnswer(answerId) {
     setAnswerFields(answerFields.filter(item => item.id !== answerId))
+    setHasUnsavedChanges(true)
   }
 
   function changeAnswerText(answerId, text) {
@@ -192,6 +205,7 @@ function EditQuestionForm({ match, courseId }) {
       }
     })
     setAnswerFields(newAnswerFields)
+    setHasUnsavedChanges(true)
   }
 
   function changeAnswerCorrect(answerId, correctValue) {
@@ -206,21 +220,26 @@ function EditQuestionForm({ match, courseId }) {
       }
     })
     setAnswerFields(newAnswerFields)
+    setHasUnsavedChanges(true)
   }
 
-  const renderedAnswerFields = answerFields.map(item => (
-    <QuestionAnswerField
-      error={errors.emptyAnswerText.includes(item.id)}
-      key={item.key}
-      onDeleteButtonClicked={() => deleteAnswer(item.id)}
-      onTextChanged={text => changeAnswerText(item.id, text)}
-      onCorrectChanged={correctValue =>
-        changeAnswerCorrect(item.id, correctValue)
-      }
-      defaultTextValue={item.answerText}
-      defaultCheckedValue={item.correct}
-    />
-  ))
+  let renderedAnswerFields = ''
+
+  if (answerFields) {
+    renderedAnswerFields = answerFields.map(item => (
+      <QuestionAnswerField
+        error={errors.emptyAnswerText.includes(item.id)}
+        key={item.key}
+        onDeleteButtonClicked={() => deleteAnswer(item.id)}
+        onTextChanged={text => changeAnswerText(item.id, text)}
+        onCorrectChanged={correctValue =>
+          changeAnswerCorrect(item.id, correctValue)
+        }
+        defaultTextValue={item.answerText}
+        defaultCheckedValue={item.correct}
+      />
+    ))
+  }
 
   let alertContent
   if (isSubmitSuccess) {
@@ -241,10 +260,10 @@ function EditQuestionForm({ match, courseId }) {
         At least one answer must be correct.
       </Alert>
     )
-  } else if (errors.noAnswers) {
+  } else if (errors.lessThanTwoAnswers) {
     alertContent = (
       <Alert style={{ width: 'fit-content' }} severity="error">
-        Your question must contain at least one answer.
+        Your question must contain at least two answers.
       </Alert>
     )
   } else if (isSubmitError) {
@@ -276,11 +295,12 @@ function EditQuestionForm({ match, courseId }) {
       </Link>
       <h2>New Question Version</h2>
       <CustomTextField
+        multiline
         error={errors.emptyQuestionText}
         helperText={
           errors.emptyQuestionText ? 'Question text cannot be empty' : false
         }
-        value={questionText}
+        value={questionText || ''}
         className={classes.questionTextField}
         label="Question text"
         variant="outlined"
@@ -308,6 +328,10 @@ function EditQuestionForm({ match, courseId }) {
         {isSubmitLoading ? <GreenCircularProgress /> : ''}
       </div>
       {alertContent}
+      <Prompt
+        when={hasUnsavedChanges}
+        message="You have unsaved changes. Are you sure you want to leave?"
+      />
     </section>
   )
 }

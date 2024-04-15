@@ -1,12 +1,15 @@
-import { request, ClientError } from 'graphql-request'
-import { capitalizeFirstLetter, decapitalizeFirstLetter } from "../helperFunctions";
-import { ONTOLOGY_PREFIX } from "../constants/ontology";
+import { request, ClientError, rawRequest } from 'graphql-request'
+import {
+  capitalizeFirstLetter,
+  decapitalizeFirstLetter,
+} from '../helperFunctions'
+import { ONTOLOGY_PREFIX } from '../constants/ontology'
 
 export const graphqlBaseQuery =
   ({ url }) =>
-  async ({ document }) => {
+  async ({ document, variables }) => {
     try {
-      const result = await request(url, document)
+      const result = await request(url, document, variables)
       return { data: result }
     } catch (error) {
       if (error instanceof ClientError) {
@@ -16,15 +19,15 @@ export const graphqlBaseQuery =
     }
   }
 
-export const getStringEquals = (value) => {
+export const getStringEquals = value => {
   return `(equals: ["${value}"])`
 }
 
-export const getNonStringEquals = (value) => {
+export const getNonStringEquals = value => {
   return `(equals: [${value}])`
 }
 
-export const getSelectById = (id) => {
+export const getSelectById = id => {
   return `(_id: ["${id}"])`
 }
 
@@ -32,6 +35,6 @@ export const getOrderBy = () => {
   return `(order: ASC)`
 }
 
-export const getArrayFormat = (array) => {
+export const getArrayFormat = array => {
   return JSON.stringify(array)
 }

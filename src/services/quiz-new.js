@@ -13,14 +13,15 @@ export const quizNewApi = createApi({
     addNewMultipleChoiceAnswer: builder.mutation({
       query: body => ({
         document: gql`
-        mutation {
-          insert_courses_PredefinedAnswer (
-            courses_text: "${body.text}"
-            courses_correct: ${body.correct}
-          ) {
-          _id
+          mutation {
+            insert_courses_PredefinedAnswer(
+              courses_text: ${JSON.stringify(body.text)}
+              courses_correct: ${JSON.stringify(body.correct)}
+            ) {
+              _id
+            }
           }
-        }`,
+        `,
       }),
       transformResponse: response => response.PredefinedAnswer[0]._id,
     }),
@@ -29,11 +30,11 @@ export const quizNewApi = createApi({
         document: gql`
           mutation {
             insert_courses_QuestionWithPredefinedAnswer (
-              courses_text: "${body.text}"
-              courses_courseInstance: "${body.courseInstance}"
+              courses_text: ${JSON.stringify(body.text)}
+              courses_courseInstance: ${JSON.stringify(body.courseInstance)}
               courses_hasPredefinedAnswer: ${body.hasPredefinedAnswer}
               courses_previous: "${body.previous}"
-              courses_questionSubmittedBy: "${userId}"
+              courses_questionSubmittedBy: ${JSON.stringify(userId)}
             )
             {
               _id
@@ -130,19 +131,21 @@ export const quizNewApi = createApi({
       transformResponse: response => response.QuestionWithPredefinedAnswer[0],
     }),
     addNewComment: builder.mutation({
-      query: ({ questionId, commentBody }) => ({
+      query: ({ commentBody }) => ({
         document: gql`
           mutation {
-            insert_courses_Comment (
-              courses_commentText: "${commentBody.commentText ?? ''}"
-              courses_commentCreatedBy: "${commentBody.commentCreatedBy ?? ''}"
+            insert_courses_Comment(
+              courses_commentText: ${JSON.stringify(commentBody.commentText)}
+              courses_commentCreatedBy: ${JSON.stringify(
+                commentBody.commentCreatedBy
+              )}
             ) {
               _id
+              courses_commentText
             }
           }
         `,
       }),
-
       transformResponse: response => response.Comment[0]._id,
     }),
     updateQuestion: builder.mutation({

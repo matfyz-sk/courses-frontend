@@ -35,6 +35,7 @@ function QuestionAnswerField({
         label="Correct"
       />
       <CustomTextField
+        multiline
         error={error}
         helperText={error ? 'Answer text cannot be empty' : ''}
         className={classes.answerTextField}

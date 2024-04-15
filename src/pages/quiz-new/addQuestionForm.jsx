@@ -21,7 +21,9 @@ import { DATA_PREFIX } from '../../constants/ontology'
 import { Alert } from '@material-ui/lab'
 import { QUIZNEW } from '../../constants/routes'
 import { redirect } from '../../constants/redirect'
-import { getUser, getUserID } from '../../components/Auth' // TODO lepsi sposob ziskavania userID
+import { getUser, getUserID } from '../../components/Auth'
+import { Prompt } from 'react-router'
+import { escapeText } from './helperFunctions' // TODO lepsi sposob ziskavania userID
 
 function AddQuestionForm({ match, courseId }) {
   let randomId = crypto.randomUUID()
@@ -41,18 +43,24 @@ function AddQuestionForm({ match, courseId }) {
     emptyTopic: false,
     emptyAnswerText: [],
     noCorrectAnswer: false,
-    noAnswers: false,
+    lessThanTwoAnswers: false,
   })
+
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   const userId = getUserID()
   const classes = useNewQuizStyles()
   const history = useHistory()
 
-  const onQuestionTextChanged = e => setQuestionText(e.target.value)
+  const onQuestionTextChanged = e => {
+    setQuestionText(e.target.value)
+    setHasUnsavedChanges(true)
+  }
 
   const [addNewQuestion, { isError, isLoading, isSuccess }] =
     useAddNewMultipleChoiceQuestionMutation()
-  const [addNewAnswer] = useAddNewMultipleChoiceAnswerMutation()
+  const [addNewAnswer, { isAnswerError }] =
+    useAddNewMultipleChoiceAnswerMutation()
 
   function onAddAnswerButtonClicked() {
     let randomId = crypto.randomUUID()
@@ -66,6 +74,7 @@ function AddQuestionForm({ match, courseId }) {
         correct: false,
       },
     ])
+    setHasUnsavedChanges(true)
   }
 
   function validateForm() {
@@ -73,13 +82,13 @@ function AddQuestionForm({ match, courseId }) {
       emptyQuestionText: false,
       emptyTopic: false,
       emptyAnswerText: [],
-      noCorrectAnswer: false, // should this be an error or not idk
-      noAnswers: false,
+      noCorrectAnswer: false,
+      lessThanTwoAnswers: false,
     }
     if (questionText.trim() === '') {
       errorsNew.emptyQuestionText = true
-    } else if (answerFields.length === 0) {
-      errorsNew.noAnswers = true
+    } else if (answerFields.length < 2) {
+      errorsNew.lessThanTwoAnswers = true
     } else if (
       answerFields.every(answerField => answerField.correct === false)
     ) {
@@ -96,7 +105,7 @@ function AddQuestionForm({ match, courseId }) {
       errorsNew.emptyTopic === false &&
       errorsNew.emptyAnswerText.length === 0 &&
       errorsNew.noCorrectAnswer === false &&
-      errorsNew.noAnswers === false
+      errorsNew.lessThanTwoAnswers === false
     setErrors(errorsNew)
 
     if (isValid) {
@@ -106,43 +115,51 @@ function AddQuestionForm({ match, courseId }) {
     }
   }
 
+  let answerSubmitError = false
   const submitForm = async () => {
     let answerIdsStringified = '['
     const answersToSubmit = answerFields.map(answerField => {
       return {
-        text: answerField.answerText,
+        text: escapeText(answerField.answerText),
         correct: answerField.correct,
       }
     })
+
     for (const answer of answersToSubmit) {
       const result = await addNewAnswer(answer)
-      if (result) {
+      if (result.error) {
+        answerSubmitError = true
+      } else if (result) {
         answerIdsStringified += `"${result.data}", `
       }
     }
     answerIdsStringified += ']'
-    const questionToSubmit = {
-      text: questionText,
-      courseInstance: `${DATA_PREFIX}courseInstance/${courseId}`,
-      hasPredefinedAnswer: answerIdsStringified,
-    }
-    const result = await addNewQuestion({
-      body: questionToSubmit,
-      userId: userId,
-    })
-    if (!result.error) {
-      setTimeout(
-        () =>
-          history.push(
-            redirect(QUIZNEW, [{ key: 'course_id', value: courseId }])
-          ),
-        2000
-      )
+    if (!answerSubmitError) {
+      const questionToSubmit = {
+        text: escapeText(questionText),
+        courseInstance: `${DATA_PREFIX}courseInstance/${courseId}`,
+        hasPredefinedAnswer: answerIdsStringified,
+      }
+      const result = await addNewQuestion({
+        body: questionToSubmit,
+        userId: userId,
+      })
+      if (!result.error) {
+        setHasUnsavedChanges(false)
+        setTimeout(
+          () =>
+            history.push(
+              redirect(QUIZNEW, [{ key: 'course_id', value: courseId }])
+            ),
+          2000
+        )
+      }
     }
   }
 
   function deleteAnswer(answerId) {
     setAnswerFields(answerFields.filter(item => item.id !== answerId))
+    setHasUnsavedChanges(true)
   }
 
   function changeAnswerText(answerId, text) {
@@ -157,6 +174,7 @@ function AddQuestionForm({ match, courseId }) {
       }
     })
     setAnswerFields(newAnswerFields)
+    setHasUnsavedChanges(true)
   }
 
   function changeAnswerCorrect(answerId, correctValue) {
@@ -171,10 +189,12 @@ function AddQuestionForm({ match, courseId }) {
       }
     })
     setAnswerFields(newAnswerFields)
+    setHasUnsavedChanges(true)
   }
 
   const renderedAnswerFields = answerFields.map(item => (
     <QuestionAnswerField
+      multiline
       error={errors.emptyAnswerText.includes(item.id)}
       key={item.key}
       onDeleteButtonClicked={() => deleteAnswer(item.id)}
@@ -204,13 +224,13 @@ function AddQuestionForm({ match, courseId }) {
         At least one answer must be correct.
       </Alert>
     )
-  } else if (errors.noAnswers) {
+  } else if (errors.lessThanTwoAnswers) {
     alertContent = (
       <Alert style={{ width: 'fit-content' }} severity="error">
-        Your question must contain at least one answer.
+        Your question must contain at least two answers.
       </Alert>
     )
-  } else if (isError) {
+  } else if (isError || answerSubmitError) {
     alertContent = (
       <Alert style={{ width: 'fit-content' }} severity="error">
         There was an error while submitting the question. Please try again.
@@ -228,6 +248,7 @@ function AddQuestionForm({ match, courseId }) {
       </Link>
       <h2>Add New Question</h2>
       <CustomTextField
+        multiline
         error={errors.emptyQuestionText}
         helperText={
           errors.emptyQuestionText ? 'Question text cannot be empty' : false
@@ -259,6 +280,12 @@ function AddQuestionForm({ match, courseId }) {
         {isLoading ? <GreenCircularProgress /> : ''}
       </div>
       {alertContent}
+      {
+        <Prompt
+          when={hasUnsavedChanges}
+          message="You have unsaved changes. Are you sure you want to leave?"
+        />
+      }
     </section>
   )
 }

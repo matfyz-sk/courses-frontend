@@ -123,6 +123,7 @@ const useNewQuizStyles = makeStyles(theme => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+    whiteSpace: 'pre-wrap',
   },
   commentReplyButton: {
     color: baseTheme.palette.primary.main,

@@ -26,6 +26,7 @@ import {
 import { DATA_PREFIX } from '../../constants/ontology'
 import { getUserID } from '../../components/Auth'
 import { getShortID } from '../../helperFunctions'
+import { escapeText } from './helperFunctions'
 
 function QuestionDetail({ courseId, match, isTeacher }) {
   const classes = useNewQuizStyles()
@@ -74,12 +75,13 @@ function QuestionDetail({ courseId, match, isTeacher }) {
     if (commentText.trim() === '') {
       setCommentError('Comment cannot be empty')
     } else {
+      const escapedText = escapeText(commentText)
+      console.log(JSON.stringify(escapedText))
       const commentToSubmit = {
-        commentText: commentText,
+        commentText: escapedText,
         commentCreatedBy: userId,
       }
       let result = await addNewComment({
-        questionId: longQuestionId,
         commentBody: commentToSubmit,
       })
       let addedComment
@@ -131,11 +133,11 @@ function QuestionDetail({ courseId, match, isTeacher }) {
   } else if (isSuccess) {
     //console.log(questionData)
     author = (
-      <text style={{ color: 'gray', fontSize: '0.8em' }}>
+      <p style={{ color: 'gray', fontSize: '0.8em' }}>
         {questionData.questionSubmittedBy
           ? `Submitted by ${questionData.questionSubmittedBy.firstName} ${questionData.questionSubmittedBy.lastName}`
           : 'Unknown'}
-      </text>
+      </p>
     )
 
     const renderedAnswers = questionData.hasPredefinedAnswer.map(answer => {
@@ -153,17 +155,19 @@ function QuestionDetail({ courseId, match, isTeacher }) {
             alignItems: 'center',
             columnGap: '10px',
             fontSize: '1.2em',
+            paddingBottom: '10px',
+            borderBottom: '1px solid rgba(0,0,0,0.3)',
           }}
         >
           {icon}
-          {answer.text}
+          <span style={{ whiteSpace: 'pre-wrap' }}>{answer.text}</span>
         </div>
       )
     })
     comments = renderComments(questionData.comment)
     questionContent = (
       <div style={{ marginBottom: '20px' }}>
-        <h3 style={{ margin: '10px 0' }}>
+        <h3 style={{ margin: '10px 0', whiteSpace: 'pre-wrap' }}>
           {questionData ? questionData.text : 'no question data'}
         </h3>
         <div className={classes.flexColumn}>{renderedAnswers}</div>
@@ -294,6 +298,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
         }}
       >
         <CustomTextField
+          multiline
           error={commentError !== ''}
           helperText={commentError}
           style={{}}

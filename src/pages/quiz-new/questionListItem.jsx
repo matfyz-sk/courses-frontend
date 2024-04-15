@@ -63,7 +63,7 @@ function QuestionListItem({
     <Card variant="outlined" className={classes.questionListItem}>
       <div className={classes.flexColumn}>
         <div>
-          {questionText}
+          <span style={{ whiteSpace: 'pre-wrap' }}>{questionText}</span>
           {isApproved ? (
             <Chip
               style={{ marginLeft: '10px' }}
@@ -75,9 +75,9 @@ function QuestionListItem({
             ''
           )}
         </div>
-        <text style={{ color: 'grey', fontSize: '0.9em' }}>
+        <span style={{ color: 'grey', fontSize: '0.9em' }}>
           {questionAuthor}
-        </text>
+        </span>
       </div>
 
       <Link
