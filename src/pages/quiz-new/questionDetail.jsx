@@ -128,6 +128,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
   let editButton = ''
   let approvedInfo = ''
   let author = ''
+  let imageElement = ''
   if (isLoading) {
     questionContent = <GreenCircularProgress />
   } else if (isSuccess) {
@@ -164,12 +165,20 @@ function QuestionDetail({ courseId, match, isTeacher }) {
         </div>
       )
     })
+
+    if (questionData.image) {
+      imageElement = (
+        <img style={{ maxWidth: '60%' }} src={questionData.image} />
+      )
+    }
+
     comments = renderComments(questionData.comment)
     questionContent = (
       <div style={{ marginBottom: '20px' }}>
         <h3 style={{ margin: '10px 0', whiteSpace: 'pre-wrap' }}>
           {questionData ? questionData.text : 'no question data'}
         </h3>
+        {imageElement}
         <div className={classes.flexColumn}>{renderedAnswers}</div>
         {author}
       </div>

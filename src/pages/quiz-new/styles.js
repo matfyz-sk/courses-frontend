@@ -6,6 +6,7 @@ import {
   withStyles,
   Button,
   CircularProgress,
+  IconButton,
 } from '@material-ui/core'
 import { grey, red } from '@material-ui/core/colors'
 import React from 'react'
@@ -138,6 +139,21 @@ const useNewQuizStyles = makeStyles(theme => ({
   commentReplyBox: {
     marginLeft: '50px',
   },
+  imagePreviewDiv: {
+    position: 'relative',
+    width: 'fit-content',
+    maxWidth: '50%',
+    objectFit: 'contain',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: '20px',
+    '&:hover': {
+      '& .closeButton': {
+        visibility: 'visible',
+      },
+    },
+  },
 }))
 
 const CustomAccordion = withStyles({
@@ -182,6 +198,24 @@ const GreenButton = withStyles({
   },
 })(Button)
 
+const GreenIconButton = withStyles({
+  root: {
+    color: baseTheme.palette.secondary.main,
+  },
+})(IconButton)
+
+const CustomCloseIconButton = withStyles({
+  root: {
+    position: 'absolute',
+    background: 'rgba(0,0,0,0.7)',
+    color: 'white',
+    visibility: 'hidden',
+    '&:hover': {
+      background: 'rgba(0,0,0,0.7)',
+    },
+  },
+})(IconButton)
+
 const GreenCircularProgress = withStyles({
   root: {
     color: baseTheme.palette.primary.light,
@@ -196,5 +230,7 @@ export {
   GreenCheckbox,
   CustomTextField,
   GreenButton,
+  GreenIconButton,
+  CustomCloseIconButton,
   GreenCircularProgress,
 }

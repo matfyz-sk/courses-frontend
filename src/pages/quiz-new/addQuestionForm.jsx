@@ -1,33 +1,37 @@
-import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
-
+import React, { useState } from 'react'
 import { Link, useHistory, withRouter } from 'react-router-dom'
-
-import { Button, CircularProgress } from '@material-ui/core'
-
 import QuestionAnswerField from './questionAnswerField'
 import {
   useAddNewMultipleChoiceAnswerMutation,
   useAddNewMultipleChoiceQuestionMutation,
-  useGetQuestionByIdQuery,
 } from '../../services/quiz-new'
 import {
   CustomTextField,
   GreenButton,
   GreenCircularProgress,
+  GreenIconButton,
   useNewQuizStyles,
 } from './styles'
 import { DATA_PREFIX } from '../../constants/ontology'
 import { Alert } from '@material-ui/lab'
 import { QUIZNEW } from '../../constants/routes'
 import { redirect } from '../../constants/redirect'
-import { getUser, getUserID } from '../../components/Auth'
+import { getUserID } from '../../components/Auth'
 import { Prompt } from 'react-router'
-import { escapeText } from './helperFunctions' // TODO lepsi sposob ziskavania userID
+import { escapeText } from './helperFunctions'
+import { fileToBase64 } from '../../helperFunctions'
+import { IconButton, Input } from '@material-ui/core'
+import { MdImage } from 'react-icons/md'
+import ImagePreview from './ImagePreview'
+// TODO lepsi sposob ziskavania userID
+
+const MAX_FILE_SIZE = 1024 * 1024
+const MAX_FILE_SIZE_BEFORE_BASE64 = 3 * (MAX_FILE_SIZE / 4)
 
 function AddQuestionForm({ match, courseId }) {
   let randomId = crypto.randomUUID()
-
+  const [file, setFile] = useState(null)
+  const [rawContent, setRawContent] = useState(null)
   const [questionText, setQuestionText] = useState('')
   const [answerFields, setAnswerFields] = useState([
     {
@@ -44,6 +48,7 @@ function AddQuestionForm({ match, courseId }) {
     emptyAnswerText: [],
     noCorrectAnswer: false,
     lessThanTwoAnswers: false,
+    fileTooBigError: false,
   })
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -55,6 +60,18 @@ function AddQuestionForm({ match, courseId }) {
   const onQuestionTextChanged = e => {
     setQuestionText(e.target.value)
     setHasUnsavedChanges(true)
+  }
+
+  const handleFileChange = e => {
+    console.log(e.target.files)
+    setRawContent(e.target.files[0])
+    setFile(e.target.files[0])
+  }
+
+  const handleImageDelete = () => {
+    setRawContent(null)
+    URL.revokeObjectURL(file)
+    setFile(null)
   }
 
   const [addNewQuestion, { isError, isLoading, isSuccess }] =
@@ -84,6 +101,7 @@ function AddQuestionForm({ match, courseId }) {
       emptyAnswerText: [],
       noCorrectAnswer: false,
       lessThanTwoAnswers: false,
+      fileTooBigError: false,
     }
     if (questionText.trim() === '') {
       errorsNew.emptyQuestionText = true
@@ -93,6 +111,8 @@ function AddQuestionForm({ match, courseId }) {
       answerFields.every(answerField => answerField.correct === false)
     ) {
       errorsNew.noCorrectAnswer = true
+    } else if (file && file.size > MAX_FILE_SIZE_BEFORE_BASE64) {
+      errorsNew.fileTooBigError = true
     }
     answerFields.forEach(answerField => {
       if (answerField.answerText.trim() === '') {
@@ -105,7 +125,8 @@ function AddQuestionForm({ match, courseId }) {
       errorsNew.emptyTopic === false &&
       errorsNew.emptyAnswerText.length === 0 &&
       errorsNew.noCorrectAnswer === false &&
-      errorsNew.lessThanTwoAnswers === false
+      errorsNew.lessThanTwoAnswers === false &&
+      errorsNew.fileTooBigError === false
     setErrors(errorsNew)
 
     if (isValid) {
@@ -116,6 +137,7 @@ function AddQuestionForm({ match, courseId }) {
   }
 
   let answerSubmitError = false
+
   const submitForm = async () => {
     let answerIdsStringified = '['
     const answersToSubmit = answerFields.map(answerField => {
@@ -135,10 +157,17 @@ function AddQuestionForm({ match, courseId }) {
     }
     answerIdsStringified += ']'
     if (!answerSubmitError) {
+      let base64ToSubmit = ''
+      await fileToBase64(rawContent).then(result => {
+        console.log(result)
+        base64ToSubmit = result
+        console.log(base64ToSubmit)
+      })
       const questionToSubmit = {
         text: escapeText(questionText),
         courseInstance: `${DATA_PREFIX}courseInstance/${courseId}`,
         hasPredefinedAnswer: answerIdsStringified,
+        image: base64ToSubmit,
       }
       const result = await addNewQuestion({
         body: questionToSubmit,
@@ -236,6 +265,12 @@ function AddQuestionForm({ match, courseId }) {
         There was an error while submitting the question. Please try again.
       </Alert>
     )
+  } else if (errors.fileTooBigError) {
+    alertContent = (
+      <Alert style={{ width: 'fit-content' }} severity="error">
+        The size of images must be less than 750kB.
+      </Alert>
+    )
   }
 
   return (
@@ -247,18 +282,49 @@ function AddQuestionForm({ match, courseId }) {
         Back
       </Link>
       <h2>Add New Question</h2>
-      <CustomTextField
-        multiline
-        error={errors.emptyQuestionText}
-        helperText={
-          errors.emptyQuestionText ? 'Question text cannot be empty' : false
-        }
-        className={classes.questionTextField}
-        label="Question text"
-        variant="outlined"
-        size="small"
-        onChange={onQuestionTextChanged}
-      />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row-reverse',
+          alignItems: 'center',
+        }}
+      >
+        <CustomTextField
+          multiline
+          error={errors.emptyQuestionText}
+          helperText={
+            errors.emptyQuestionText ? 'Question text cannot be empty' : false
+          }
+          className={classes.questionTextField}
+          label="Question text"
+          variant="outlined"
+          size="small"
+          onChange={onQuestionTextChanged}
+        />
+        <Input
+          accept="image/*"
+          style={{ display: 'none' }}
+          id="question-text-picture"
+          type="file"
+          onChange={handleFileChange}
+        />
+        <label htmlFor="question-text-picture">
+          <GreenIconButton aria-label="upload picture" component="span">
+            <MdImage />
+          </GreenIconButton>
+        </label>
+      </div>
+      {file && (
+        <>
+          <ImagePreview
+            src={URL.createObjectURL(file)}
+            handleDelete={handleImageDelete}
+          />
+          <Alert style={{ width: 'fit-content' }} severity="info">
+            Image files must be under 750kB.
+          </Alert>
+        </>
+      )}
       <div className={classes.questionAnswers}>
         <h3>Answers</h3>
         {renderedAnswerFields}

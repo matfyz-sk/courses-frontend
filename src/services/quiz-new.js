@@ -35,18 +35,14 @@ export const quizNewApi = createApi({
               courses_hasPredefinedAnswer: ${body.hasPredefinedAnswer}
               courses_previous: "${body.previous}"
               courses_questionSubmittedBy: ${JSON.stringify(userId)}
+              courses_image: "${body.image}"
             )
             {
               _id
-              courses_courseInstance {
-                _id
-                courses_location
-                courses_createdAt
-                _type
-              }
               courses_questionSubmittedBy {
                 _id
               }
+              courses_image
             }
           }
         `,
@@ -123,6 +119,7 @@ export const quizNewApi = createApi({
                   courses_lastName
                 }
               }
+              courses_image
             }
           }
         `,
