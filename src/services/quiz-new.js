@@ -163,6 +163,20 @@ export const quizNewApi = createApi({
       transformResponse: response => response.Comment[0]._id,
       invalidatesTags: ['Comments'],
     }),
+    deleteComment: builder.mutation({
+      query: commentId => ({
+        document: gql`
+          mutation {
+            delete_courses_Comment (
+              _id: "${commentId}"
+            ) {
+            _id
+            }
+          }
+        `,
+      }),
+      invalidatesTags: ['Comments'],
+    }),
     updateQuestion: builder.mutation({
       query: ({ questionId, questionBody }) => ({
         document: gql`
@@ -197,12 +211,15 @@ export const quizNewApi = createApi({
       query: questionId => ({
         document: gql`
           mutation {
-            delete_courses_Question (
-              _id: ${questionId}
+            delete_courses_QuestionWithPredefinedAnswer (
+              _id: "${questionId}"
+            ) {
+              _id
             }
           }
         `,
       }),
+      invalidatesTags: ['Questions'],
     }),
   }),
 })
@@ -215,5 +232,7 @@ export const {
   useAddNewMultipleChoiceQuestionMutation,
   useAddNewCommentMutation,
   useUpdateCommentMutation,
+  useDeleteCommentMutation,
   useUpdateQuestionMutation,
+  useDeleteQuestionMutation,
 } = quizNewApi

@@ -3,7 +3,10 @@ import React, { useState } from 'react'
 import { CustomTextField, useNewQuizStyles } from './styles'
 import { MdDelete, MdEdit, MdSend } from 'react-icons/md'
 import { Button, IconButton } from '@material-ui/core'
-import { useUpdateCommentMutation } from '../../services/quiz-new'
+import {
+  useDeleteCommentMutation,
+  useUpdateCommentMutation,
+} from '../../services/quiz-new'
 import { escapeText } from './helperFunctions'
 import { getUserID } from '../../components/Auth'
 import { connect } from 'react-redux'
@@ -24,6 +27,10 @@ function CommentComponent({
   const [commentError, setCommentError] = useState('')
 
   const [updateComment, { isSuccess, isError }] = useUpdateCommentMutation()
+  const [
+    deleteComment,
+    { isSuccess: isDeleteSuccess, isError: isDeleteError },
+  ] = useDeleteCommentMutation()
 
   const userID = getUserID()
 
@@ -75,6 +82,17 @@ function CommentComponent({
     </Button>
   )
 
+  const deleteButton = (
+    <Button
+      size="small"
+      aria-label="delete comment"
+      startIcon={<MdDelete />}
+      onClick={() => handleDelete(commentId)}
+    >
+      Delete
+    </Button>
+  )
+
   let renderedCommentContent
   if (isEdit) {
     renderedCommentContent = (
@@ -119,6 +137,10 @@ function CommentComponent({
     setEditingCommentContent(commentContent)
   }
 
+  function handleDelete(commentId) {
+    deleteComment(commentId)
+  }
+
   return (
     <div
       className={classes.commentBox}
@@ -139,14 +161,7 @@ function CommentComponent({
       <div className={classes.commentContent}>{renderedCommentContent}</div>
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         {isTeacher || commentAuthor._id === userID ? editButton : ''}
-        <Button
-          size="small"
-          aria-label="delete comment"
-          startIcon={<MdDelete />}
-          onClick={''}
-        >
-          Delete
-        </Button>
+        {isTeacher || commentAuthor._id === userID ? deleteButton : ''}
       </div>
     </div>
   )

@@ -75,7 +75,7 @@ function AddQuestionForm({ match, courseId }) {
 
   const [addNewQuestion, { isError, isLoading, isSuccess }] =
     useAddNewMultipleChoiceQuestionMutation()
-  const [addNewAnswer, { isAnswerError }] =
+  const [addNewAnswer, { isError: isAnswerError }] =
     useAddNewMultipleChoiceAnswerMutation()
 
   function onAddAnswerButtonClicked() {
@@ -266,7 +266,7 @@ function AddQuestionForm({ match, courseId }) {
   }
 
   const renderedAnswerFields = answerFields.map(item => (
-    <div key={crypto.randomUUID()}>
+    <div key={item.id}>
       <QuestionAnswerField
         multiline
         error={errors.emptyAnswerText.includes(item.id)}

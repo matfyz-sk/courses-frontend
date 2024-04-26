@@ -6,7 +6,7 @@ import {
   QUIZ_QUESTION_DETAIL_NEW,
   QUIZNEW,
 } from '../../constants/routes'
-import { Link, withRouter, useLocation } from 'react-router-dom'
+import { Link, withRouter, useLocation, useHistory } from 'react-router-dom'
 import {
   baseTheme,
   CustomTextField,
@@ -17,9 +17,10 @@ import {
 import { Button, Chip } from '@material-ui/core'
 import CommentComponent from './commentComponent'
 
-import { MdCheck, MdClose, MdSend } from 'react-icons/md'
+import { MdCheck, MdClose, MdDelete, MdSend } from 'react-icons/md'
 import {
   useAddNewCommentMutation,
+  useDeleteQuestionMutation,
   useGetQuestionByIdQuery,
   useUpdateQuestionMutation,
 } from '../../services/quiz-new'
@@ -56,7 +57,14 @@ function QuestionDetail({ courseId, match, isTeacher }) {
     },
   ] = useUpdateQuestionMutation()
 
+  const [
+    deleteQuestion,
+    { isSuccess: isDeleteSuccess, isError: isDeleteError },
+  ] = useDeleteQuestionMutation()
+
   const userId = getUserID()
+
+  const history = useHistory()
 
   const longQuestionId = `${DATA_PREFIX}questionwithpredefinedanswer/${questionId}`
   const longCourseId = `${DATA_PREFIX}courseInstance/${courseId}`
@@ -121,17 +129,35 @@ function QuestionDetail({ courseId, match, isTeacher }) {
     }
   }
 
+  async function handleDelete(questionId) {
+    if (
+      window.confirm(
+        'Are you sure you want to delete this question version? Previous versions will not be affected.'
+      )
+    ) {
+      let result = await deleteQuestion(questionId)
+      if (!result.error && !isDeleteError) {
+        history.push(redirect(QUIZNEW, [{ key: 'course_id', value: courseId }]))
+      } else {
+        window.confirm(
+          'There was an issue while deleting the question. Please try again'
+        )
+      }
+    }
+  }
+
   let questionContent
   let comments
   let prevVersionButton = ''
   let editButton = ''
+  let deleteButton = ''
   let approvedInfo = ''
   let author = ''
   let imageElement = ''
+  let questionAuthorName
   if (isLoading) {
     questionContent = <GreenCircularProgress />
   } else if (isSuccess) {
-    let questionAuthorName
     if (!questionData.questionSubmittedBy) {
       questionAuthorName = 'Unknown'
     } else {
@@ -232,9 +258,31 @@ function QuestionDetail({ courseId, match, isTeacher }) {
       )
     }
 
+    if (
+      !hasNewerVersion &&
+      ((questionData.questionSubmittedBy &&
+        userId === questionData.questionSubmittedBy._id) ||
+        isTeacher)
+    ) {
+      deleteButton = (
+        <Button
+          startIcon={<MdDelete />}
+          color="secondary"
+          onClick={() => handleDelete(questionData._id)}
+        >
+          Delete question
+        </Button>
+      )
+    }
+
     if (isTeacher && !questionData.approver) {
       approvedInfo = (
-        <Button variant="contained" disableElevation onClick={handleApprove}>
+        <Button
+          variant="contained"
+          disableElevation
+          startIcon={<MdCheck />}
+          onClick={handleApprove}
+        >
           Approve question
         </Button>
       )
@@ -305,8 +353,17 @@ function QuestionDetail({ courseId, match, isTeacher }) {
       </div>
 
       {questionContent}
-
-      {approvedInfo}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: 'fit-content',
+          rowGap: '5px',
+        }}
+      >
+        {approvedInfo}
+        {deleteButton}
+      </div>
       <h3 style={{ marginTop: '20px' }}>Comments</h3>
       {comments}
       <div
