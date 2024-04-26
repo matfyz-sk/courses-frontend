@@ -17,6 +17,7 @@ export const quizNewApi = createApi({
             insert_courses_PredefinedAnswer(
               courses_text: ${JSON.stringify(body.text)}
               courses_correct: ${JSON.stringify(body.correct)}
+              courses_image: ${JSON.stringify(body.image)}
             ) {
               _id
             }
@@ -98,6 +99,7 @@ export const quizNewApi = createApi({
                 _id
                 courses_text
                 courses_correct
+                courses_image
               }
               courses_previous {
                 _id

@@ -75,16 +75,29 @@ function EditQuestionForm({ match, courseId }) {
   }
 
   if (isSuccess && answerFields === null) {
+    loadAnswers()
+  }
+
+  async function loadAnswers() {
     const existingAnswers = []
-    questionData.hasPredefinedAnswer.forEach(answer => {
+
+    for (let answer of questionData.hasPredefinedAnswer) {
+      let imageFile
+      if (answer.image) {
+        await base64dataToFile(answer.image).then(result => {
+          imageFile = result
+        })
+      }
       let answerObject = {
         key: answer._id,
         id: answer._id,
         answerText: answer.text,
         correct: answer.correct,
+        image: imageFile,
       }
       existingAnswers.push(answerObject)
-    })
+    }
+    console.log(existingAnswers)
     setAnswerFields(existingAnswers)
     setAnswersLoaded(true)
   }
@@ -140,6 +153,22 @@ function EditQuestionForm({ match, courseId }) {
     setFile(null)
   }
 
+  function deleteAnswerImage(answerId) {
+    console.log(answerId)
+    const newAnswerFields = answerFields.map(answerField => {
+      console.log(answerField.id)
+      if (answerField.id === answerId) {
+        return {
+          ...answerField,
+          image: null,
+        }
+      } else {
+        return answerField
+      }
+    })
+    setAnswerFields(newAnswerFields)
+  }
+
   function validateForm() {
     setHasUnsavedChanges(false)
     const errorsNew = {
@@ -165,6 +194,12 @@ function EditQuestionForm({ match, courseId }) {
       if (answerField.answerText.trim() === '') {
         errorsNew.emptyAnswerText.push(answerField.id)
       }
+      if (
+        answerField.image &&
+        answerField.image.size > MAX_FILE_SIZE_BEFORE_BASE64
+      ) {
+        errorsNew.fileTooBigError = true
+      }
     })
 
     const isValid =
@@ -188,13 +223,20 @@ function EditQuestionForm({ match, courseId }) {
 
   const submitForm = async () => {
     let answerIdsStringified = '['
-
-    const answersToSubmit = answerFields.map(answerField => {
-      return {
+    let answersToSubmit = []
+    for (let answerField of answerFields) {
+      let base64 = ''
+      if (answerField.image) {
+        await fileToBase64(answerField.image).then(result => {
+          base64 = result
+        })
+      }
+      answersToSubmit.push({
         text: escapeText(answerField.answerText),
         correct: answerField.correct,
-      }
-    })
+        image: base64,
+      })
+    }
     for (const answer of answersToSubmit) {
       const result = await addNewAnswer(answer)
       if (result.error) {
@@ -259,6 +301,22 @@ function EditQuestionForm({ match, courseId }) {
     setHasUnsavedChanges(true)
   }
 
+  function changeAnswerImage(answerId, image) {
+    console.log(image)
+    const newAnswerFields = answerFields.map(answerField => {
+      if (answerField.id === answerId) {
+        return {
+          ...answerField,
+          image: image.target.files[0],
+        }
+      } else {
+        return answerField
+      }
+    })
+    setAnswerFields(newAnswerFields)
+    setHasUnsavedChanges(true)
+  }
+
   function changeAnswerCorrect(answerId, correctValue) {
     const newAnswerFields = answerFields.map(answerField => {
       if (answerField.id === answerId) {
@@ -278,18 +336,27 @@ function EditQuestionForm({ match, courseId }) {
 
   if (answerFields) {
     renderedAnswerFields = answerFields.map(item => (
-      <QuestionAnswerField
-        error={errors.emptyAnswerText.includes(item.id)}
-        key={item.key}
-        onDeleteButtonClicked={() => deleteAnswer(item.id)}
-        onTextChanged={text => changeAnswerText(item.id, text)}
-        onCorrectChanged={correctValue =>
-          changeAnswerCorrect(item.id, correctValue)
-        }
-        defaultTextValue={item.answerText}
-        defaultCheckedValue={item.correct}
-        inputId={crypto.randomUUID()}
-      />
+      <>
+        <QuestionAnswerField
+          error={errors.emptyAnswerText.includes(item.id)}
+          key={item.key}
+          onDeleteButtonClicked={() => deleteAnswer(item.id)}
+          onTextChanged={text => changeAnswerText(item.id, text)}
+          onCorrectChanged={correctValue =>
+            changeAnswerCorrect(item.id, correctValue)
+          }
+          defaultTextValue={item.answerText}
+          defaultCheckedValue={item.correct}
+          inputId={crypto.randomUUID()}
+          onImageChanged={e => changeAnswerImage(item.id, e)}
+        />
+        {item.image && (
+          <ImagePreview
+            src={URL.createObjectURL(item.image)}
+            handleDelete={() => deleteAnswerImage(item.id)}
+          />
+        )}
+      </>
     ))
   }
 
@@ -322,6 +389,12 @@ function EditQuestionForm({ match, courseId }) {
     alertContent = (
       <Alert style={{ width: 'fit-content' }} severity="error">
         There was an error while submitting the question. Please try again.
+      </Alert>
+    )
+  } else if (errors.fileTooBigError) {
+    alertContent = (
+      <Alert style={{ width: 'fit-content' }} severity="error">
+        The size of images must be less than 750kB.
       </Alert>
     )
   }

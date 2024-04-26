@@ -28,6 +28,7 @@ import { DATA_PREFIX } from '../../constants/ontology'
 import { getUserID } from '../../components/Auth'
 import { getShortID } from '../../helperFunctions'
 import { escapeText } from './helperFunctions'
+import ImagePreview from './ImagePreview'
 
 function QuestionDetail({ courseId, match, isTeacher }) {
   const classes = useNewQuizStyles()
@@ -175,25 +176,35 @@ function QuestionDetail({ courseId, match, isTeacher }) {
 
     const renderedAnswers = questionData.hasPredefinedAnswer.map(answer => {
       let icon
+      let answerImage = ''
       if (answer.correct) {
         icon = <MdCheck style={{ color: baseTheme.palette.primary.main }} />
       } else {
         icon = <MdClose style={{ color: 'red' }} />
       }
+      if (answer.image) {
+        answerImage = <img style={{ maxWidth: '40%' }} src={answer.image} />
+      }
       return (
         <div
-          key={crypto.randomUUID()}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            columnGap: '10px',
             fontSize: '1.2em',
             paddingBottom: '10px',
             borderBottom: '1px solid rgba(0,0,0,0.3)',
           }}
         >
-          {icon}
-          <span style={{ whiteSpace: 'pre-wrap' }}>{answer.text}</span>
+          <div
+            key={crypto.randomUUID()}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              columnGap: '10px',
+            }}
+          >
+            {icon}
+            <span style={{ whiteSpace: 'pre-wrap' }}>{answer.text}</span>
+          </div>
+          {answerImage}
         </div>
       )
     })

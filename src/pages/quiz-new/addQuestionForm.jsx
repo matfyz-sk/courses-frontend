@@ -141,19 +141,21 @@ function AddQuestionForm({ match, courseId }) {
   const submitForm = async () => {
     let answerIdsStringified = '['
 
-    const answersToSubmit = answerFields.map(answerField => {
+    let answersToSubmit = []
+
+    for (let answerField of answerFields) {
       let base64image
       if (answerField.image) {
-        fileToBase64(answerField.image).then(result => {
+        await fileToBase64(answerField.image).then(result => {
           base64image = result
         })
       }
-      return {
+      answersToSubmit.push({
         text: escapeText(answerField.answerText),
         correct: answerField.correct,
         image: base64image,
-      }
-    })
+      })
+    }
 
     for (const answer of answersToSubmit) {
       console.log(answer)
@@ -232,10 +234,8 @@ function AddQuestionForm({ match, courseId }) {
     setHasUnsavedChanges(true)
   }
 
-  const onAnswerImageChanged = e => {
-    console.log(e.target.id)
-    console.log(answerFields)
-    changeAnswerImage(e.target.id, e.target.files[0])
+  const onAnswerImageChanged = (itemId, e) => {
+    changeAnswerImage(itemId, e.target.files[0])
   }
   function changeAnswerImage(answerId, image) {
     const newAnswerFields = answerFields.map(answerField => {
@@ -249,6 +249,7 @@ function AddQuestionForm({ match, courseId }) {
       }
     })
     setAnswerFields(newAnswerFields)
+    setHasUnsavedChanges(true)
   }
 
   function deleteAnswerImage(answerId) {
@@ -276,12 +277,12 @@ function AddQuestionForm({ match, courseId }) {
           changeAnswerCorrect(item.id, correctValue)
         }
         inputId={crypto.randomUUID()}
-        onImageChanged={onAnswerImageChanged}
+        onImageChanged={e => onAnswerImageChanged(item.id, e)}
       />
       {item.image && (
         <ImagePreview
           src={URL.createObjectURL(item.image)}
-          handleDelete={() => deleteAnswerImage(item.id)}
+          handleDelete={e => deleteAnswerImage(e, item.id)}
         />
       )}
     </div>
