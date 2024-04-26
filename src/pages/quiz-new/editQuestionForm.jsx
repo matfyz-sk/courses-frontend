@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import { Link, useHistory, withRouter } from 'react-router-dom'
 
-import { Button, CircularProgress } from '@material-ui/core'
+import { Button, CircularProgress, Input } from '@material-ui/core'
 
 import QuestionAnswerField from './questionAnswerField'
 import {
@@ -15,6 +15,7 @@ import {
   CustomTextField,
   GreenButton,
   GreenCircularProgress,
+  GreenIconButton,
   useNewQuizStyles,
 } from './styles'
 import { DATA_PREFIX } from '../../constants/ontology'
@@ -22,20 +23,31 @@ import { Alert } from '@material-ui/lab'
 import { QUIZ_QUESTION_DETAIL_NEW, QUIZNEW } from '../../constants/routes'
 import { redirect } from '../../constants/redirect'
 import { getUser, getUserID } from '../../components/Auth'
-import { getShortID } from '../../helperFunctions'
+import {
+  base64dataToFile,
+  fileToBase64,
+  getShortID,
+} from '../../helperFunctions'
 import { Prompt } from 'react-router'
-import { escapeText } from './helperFunctions' // TODO lepsi sposob ziskavania userID
+import { escapeText } from './helperFunctions'
+import ImagePreview from './ImagePreview'
+import { MdImage } from 'react-icons/md' // TODO lepsi sposob ziskavania userID
 
 function EditQuestionForm({ match, courseId }) {
   const [questionText, setQuestionText] = useState(null)
   const [answerFields, setAnswerFields] = useState(null)
+  const [file, setFile] = useState(null)
   const [answersLoaded, setAnswersLoaded] = useState(false)
   const [questionLoaded, setQuestionLoaded] = useState(false)
+  const [fileLoaded, setFileLoaded] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   const questionId = match.params.question_id
   let longQuestionId = `${DATA_PREFIX}questionwithpredefinedanswer/${questionId}`
   let longCourseId = `${DATA_PREFIX}courseInstance/${courseId}`
+
+  const MAX_FILE_SIZE = 1024 * 1024
+  const MAX_FILE_SIZE_BEFORE_BASE64 = 3 * (MAX_FILE_SIZE / 4)
 
   const {
     data: questionData,
@@ -77,12 +89,22 @@ function EditQuestionForm({ match, courseId }) {
     setAnswersLoaded(true)
   }
 
+  if (isSuccess && fileLoaded === false) {
+    if (questionData.image) {
+      let convertedFile = base64dataToFile(questionData.image).then(result => {
+        setFile(result)
+        setFileLoaded(true)
+      })
+    }
+  }
+
   const [errors, setErrors] = useState({
     emptyQuestionText: false,
     emptyTopic: false,
     emptyAnswerText: [],
     noCorrectAnswer: false,
     lessThanTwoAnswers: false,
+    fileTooBigError: false,
   })
 
   const userId = getUserID()
@@ -107,6 +129,17 @@ function EditQuestionForm({ match, courseId }) {
     ])
   }
 
+  const handleFileChange = e => {
+    console.log(e.target.files)
+    setFile(e.target.files[0])
+    setHasUnsavedChanges(true)
+  }
+
+  const handleImageDelete = () => {
+    URL.revokeObjectURL(file)
+    setFile(null)
+  }
+
   function validateForm() {
     setHasUnsavedChanges(false)
     const errorsNew = {
@@ -115,6 +148,7 @@ function EditQuestionForm({ match, courseId }) {
       emptyAnswerText: [],
       noCorrectAnswer: false, // should this be an error or not idk
       lessThanTwoAnswers: false,
+      fileTooBigError: false,
     }
     if (questionText.trim() === '') {
       errorsNew.emptyQuestionText = true
@@ -124,6 +158,8 @@ function EditQuestionForm({ match, courseId }) {
       answerFields.every(answerField => answerField.correct === false)
     ) {
       errorsNew.noCorrectAnswer = true
+    } else if (file && file.size > MAX_FILE_SIZE_BEFORE_BASE64) {
+      errorsNew.fileTooBigError = true
     }
     answerFields.forEach(answerField => {
       if (answerField.answerText.trim() === '') {
@@ -136,7 +172,8 @@ function EditQuestionForm({ match, courseId }) {
       errorsNew.emptyTopic === false &&
       errorsNew.emptyAnswerText.length === 0 &&
       errorsNew.noCorrectAnswer === false &&
-      errorsNew.lessThanTwoAnswers === false
+      errorsNew.lessThanTwoAnswers === false &&
+      errorsNew.fileTooBigError === false
     setErrors(errorsNew)
 
     if (isValid) {
@@ -147,8 +184,11 @@ function EditQuestionForm({ match, courseId }) {
     }
   }
 
+  let answerSubmitError = false
+
   const submitForm = async () => {
     let answerIdsStringified = '['
+
     const answersToSubmit = answerFields.map(answerField => {
       return {
         text: escapeText(answerField.answerText),
@@ -157,34 +197,45 @@ function EditQuestionForm({ match, courseId }) {
     })
     for (const answer of answersToSubmit) {
       const result = await addNewAnswer(answer)
-      if (result) {
+      if (result.error) {
+        answerSubmitError = true
+      } else if (result) {
         answerIdsStringified += `"${result.data}", `
       }
     }
     answerIdsStringified += ']'
-    const questionToSubmit = {
-      text: escapeText(questionText),
-      courseInstance: longCourseId,
-      hasPredefinedAnswer: answerIdsStringified,
-      previous: longQuestionId,
-    }
-    const result = await submitNewQuestionVersion({
-      body: questionToSubmit,
-      userId: userId,
-    })
-    if (!result.error) {
-      history.push({
-        pathname: redirect(QUIZ_QUESTION_DETAIL_NEW, [
-          { key: 'course_id', value: courseId },
-          {
-            key: 'question_id',
-            value: getShortID(result.data.QuestionWithPredefinedAnswer[0]._id),
-          },
-        ]),
-        state: {
-          hasNewerVersion: false,
-        },
+    if (!answerSubmitError) {
+      let base64File = ''
+      if (file) {
+        base64File = await fileToBase64(file)
+      }
+      const questionToSubmit = {
+        text: escapeText(questionText),
+        courseInstance: longCourseId,
+        hasPredefinedAnswer: answerIdsStringified,
+        previous: longQuestionId,
+        image: base64File,
+      }
+      const result = await submitNewQuestionVersion({
+        body: questionToSubmit,
+        userId: userId,
       })
+      if (!result.error) {
+        history.push({
+          pathname: redirect(QUIZ_QUESTION_DETAIL_NEW, [
+            { key: 'course_id', value: courseId },
+            {
+              key: 'question_id',
+              value: getShortID(
+                result.data.QuestionWithPredefinedAnswer[0]._id
+              ),
+            },
+          ]),
+          state: {
+            hasNewerVersion: false,
+          },
+        })
+      }
     }
   }
 
@@ -237,6 +288,7 @@ function EditQuestionForm({ match, courseId }) {
         }
         defaultTextValue={item.answerText}
         defaultCheckedValue={item.correct}
+        inputId={crypto.randomUUID()}
       />
     ))
   }
@@ -266,7 +318,7 @@ function EditQuestionForm({ match, courseId }) {
         Your question must contain at least two answers.
       </Alert>
     )
-  } else if (isSubmitError) {
+  } else if (isSubmitError || answerSubmitError) {
     alertContent = (
       <Alert style={{ width: 'fit-content' }} severity="error">
         There was an error while submitting the question. Please try again.
@@ -294,19 +346,48 @@ function EditQuestionForm({ match, courseId }) {
         Back
       </Link>
       <h2>New Question Version</h2>
-      <CustomTextField
-        multiline
-        error={errors.emptyQuestionText}
-        helperText={
-          errors.emptyQuestionText ? 'Question text cannot be empty' : false
-        }
-        value={questionText || ''}
-        className={classes.questionTextField}
-        label="Question text"
-        variant="outlined"
-        size="small"
-        onChange={onQuestionTextChanged}
-      />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row-reverse',
+          alignItems: 'center',
+        }}
+      >
+        <CustomTextField
+          multiline
+          error={errors.emptyQuestionText}
+          helperText={
+            errors.emptyQuestionText ? 'Question text cannot be empty' : false
+          }
+          value={questionText || ''}
+          className={classes.questionTextField}
+          label="Question text"
+          variant="outlined"
+          size="small"
+          onChange={onQuestionTextChanged}
+        />
+        <Input
+          accept="image/*"
+          style={{ display: 'none' }}
+          id="question-text-picture"
+          type="file"
+          onChange={handleFileChange}
+        />
+        <label htmlFor="question-text-picture">
+          <GreenIconButton aria-label="upload picture" component="span">
+            <MdImage />
+          </GreenIconButton>
+        </label>
+      </div>
+
+      {file && (
+        <>
+          <ImagePreview
+            src={URL.createObjectURL(file)}
+            handleDelete={handleImageDelete}
+          />
+        </>
+      )}
       <div className={classes.questionAnswers}>
         <h3>Answers</h3>
         {renderedAnswerFields}

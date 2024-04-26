@@ -39,6 +39,7 @@ function AddQuestionForm({ match, courseId }) {
       id: randomId,
       answerText: '',
       correct: false,
+      image: null,
     },
   ])
 
@@ -63,13 +64,11 @@ function AddQuestionForm({ match, courseId }) {
   }
 
   const handleFileChange = e => {
-    console.log(e.target.files)
-    setRawContent(e.target.files[0])
     setFile(e.target.files[0])
+    setHasUnsavedChanges(true)
   }
 
   const handleImageDelete = () => {
-    setRawContent(null)
     URL.revokeObjectURL(file)
     setFile(null)
   }
@@ -89,6 +88,7 @@ function AddQuestionForm({ match, courseId }) {
         id: randomId,
         answerText: '',
         correct: false,
+        image: null,
       },
     ])
     setHasUnsavedChanges(true)
@@ -140,14 +140,23 @@ function AddQuestionForm({ match, courseId }) {
 
   const submitForm = async () => {
     let answerIdsStringified = '['
+
     const answersToSubmit = answerFields.map(answerField => {
+      let base64image
+      if (answerField.image) {
+        fileToBase64(answerField.image).then(result => {
+          base64image = result
+        })
+      }
       return {
         text: escapeText(answerField.answerText),
         correct: answerField.correct,
+        image: base64image,
       }
     })
 
     for (const answer of answersToSubmit) {
+      console.log(answer)
       const result = await addNewAnswer(answer)
       if (result.error) {
         answerSubmitError = true
@@ -158,11 +167,13 @@ function AddQuestionForm({ match, courseId }) {
     answerIdsStringified += ']'
     if (!answerSubmitError) {
       let base64ToSubmit = ''
-      await fileToBase64(rawContent).then(result => {
-        console.log(result)
-        base64ToSubmit = result
-        console.log(base64ToSubmit)
-      })
+      if (file) {
+        await fileToBase64(file).then(result => {
+          console.log(result)
+          base64ToSubmit = result
+          console.log(base64ToSubmit)
+        })
+      }
       const questionToSubmit = {
         text: escapeText(questionText),
         courseInstance: `${DATA_PREFIX}courseInstance/${courseId}`,
@@ -221,17 +232,59 @@ function AddQuestionForm({ match, courseId }) {
     setHasUnsavedChanges(true)
   }
 
-  const renderedAnswerFields = answerFields.map(item => (
-    <QuestionAnswerField
-      multiline
-      error={errors.emptyAnswerText.includes(item.id)}
-      key={item.key}
-      onDeleteButtonClicked={() => deleteAnswer(item.id)}
-      onTextChanged={text => changeAnswerText(item.id, text)}
-      onCorrectChanged={correctValue =>
-        changeAnswerCorrect(item.id, correctValue)
+  const onAnswerImageChanged = e => {
+    console.log(e.target.id)
+    console.log(answerFields)
+    changeAnswerImage(e.target.id, e.target.files[0])
+  }
+  function changeAnswerImage(answerId, image) {
+    const newAnswerFields = answerFields.map(answerField => {
+      if (answerField.id === answerId) {
+        return {
+          ...answerField,
+          image: image,
+        }
+      } else {
+        return answerField
       }
-    />
+    })
+    setAnswerFields(newAnswerFields)
+  }
+
+  function deleteAnswerImage(answerId) {
+    const newAnswerFields = answerFields.map(answerField => {
+      if (answerField.id === answerId) {
+        return {
+          ...answerField,
+          image: null,
+        }
+      } else {
+        return answerField
+      }
+    })
+    setAnswerFields(newAnswerFields)
+  }
+
+  const renderedAnswerFields = answerFields.map(item => (
+    <div key={crypto.randomUUID()}>
+      <QuestionAnswerField
+        multiline
+        error={errors.emptyAnswerText.includes(item.id)}
+        onDeleteButtonClicked={() => deleteAnswer(item.id)}
+        onTextChanged={text => changeAnswerText(item.id, text)}
+        onCorrectChanged={correctValue =>
+          changeAnswerCorrect(item.id, correctValue)
+        }
+        inputId={crypto.randomUUID()}
+        onImageChanged={onAnswerImageChanged}
+      />
+      {item.image && (
+        <ImagePreview
+          src={URL.createObjectURL(item.image)}
+          handleDelete={() => deleteAnswerImage(item.id)}
+        />
+      )}
+    </div>
   ))
 
   let alertContent
@@ -320,9 +373,6 @@ function AddQuestionForm({ match, courseId }) {
             src={URL.createObjectURL(file)}
             handleDelete={handleImageDelete}
           />
-          <Alert style={{ width: 'fit-content' }} severity="info">
-            Image files must be under 750kB.
-          </Alert>
         </>
       )}
       <div className={classes.questionAnswers}>

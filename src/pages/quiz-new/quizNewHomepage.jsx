@@ -21,8 +21,6 @@ function QuizNewHomepage({ courseId }) {
     isError,
   } = useGetQuestionsQuery({ courseInstanceId: longCourseId })
 
-  console.log(questions)
-
   let renderedContent
   if (isLoading) {
     renderedContent = <h3>Loading...</h3>
@@ -38,6 +36,16 @@ function QuizNewHomepage({ courseId }) {
         question => !previousVersions.includes(question._id)
       )
       renderedContent = questionsToShow.map(question => {
+        let questionAuthorName
+        if (!question.questionSubmittedBy) {
+          questionAuthorName = 'Unknown'
+        } else {
+          if (question.questionSubmittedBy.nickname) {
+            questionAuthorName = question.questionSubmittedBy.nickname
+          } else {
+            questionAuthorName = `${question.questionSubmittedBy.firstName} ${question.questionSubmittedBy.lastName}`
+          }
+        }
         return (
           <QuestionListItem
             key={crypto.randomUUID()}
@@ -46,11 +54,7 @@ function QuizNewHomepage({ courseId }) {
             questionText={question.text}
             questionAnswers={question.hasPredefinedAnswer}
             isApproved={question.approver}
-            questionAuthor={
-              question.questionSubmittedBy
-                ? `${question.questionSubmittedBy.firstName} ${question.questionSubmittedBy.lastName}`
-                : 'Unknown'
-            }
+            questionAuthor={questionAuthorName}
           />
         )
       })

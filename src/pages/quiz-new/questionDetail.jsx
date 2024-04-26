@@ -76,7 +76,6 @@ function QuestionDetail({ courseId, match, isTeacher }) {
       setCommentError('Comment cannot be empty')
     } else {
       const escapedText = escapeText(commentText)
-      console.log(JSON.stringify(escapedText))
       const commentToSubmit = {
         commentText: escapedText,
         commentCreatedBy: userId,
@@ -132,12 +131,19 @@ function QuestionDetail({ courseId, match, isTeacher }) {
   if (isLoading) {
     questionContent = <GreenCircularProgress />
   } else if (isSuccess) {
-    //console.log(questionData)
+    let questionAuthorName
+    if (!questionData.questionSubmittedBy) {
+      questionAuthorName = 'Unknown'
+    } else {
+      if (questionData.questionSubmittedBy.nickname) {
+        questionAuthorName = questionData.questionSubmittedBy.nickname
+      } else {
+        questionAuthorName = `${questionData.questionSubmittedBy.firstName} ${questionData.questionSubmittedBy.lastName}`
+      }
+    }
     author = (
       <p style={{ color: 'gray', fontSize: '0.8em' }}>
-        {questionData.questionSubmittedBy
-          ? `Submitted by ${questionData.questionSubmittedBy.firstName} ${questionData.questionSubmittedBy.lastName}`
-          : 'Unknown'}
+        {`Submitted by ${questionAuthorName}`}
       </p>
     )
 
@@ -252,7 +258,9 @@ function QuestionDetail({ courseId, match, isTeacher }) {
           key={crypto.randomUUID()}
           isReply={false}
           commentAuthor={comment.commentCreatedBy}
+          commentTimestamp={comment.createdAt.millis}
           commentContent={comment.commentText}
+          commentId={comment._id}
           isLoading={isAddCommentLoading || isInsertCommentLoading}
         />
       )
@@ -263,7 +271,9 @@ function QuestionDetail({ courseId, match, isTeacher }) {
               isReply={true}
               key={crypto.randomUUID()}
               commentAuthor={reply.commentAuthor}
+              commentTimestamp={comment.createdAt.millis}
               commentContent={reply.commentText}
+              commentId={comment._id}
               isLoading={isAddCommentLoading || isInsertCommentLoading}
             />
           )

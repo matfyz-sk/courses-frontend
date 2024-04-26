@@ -75,6 +75,7 @@ export const quizNewApi = createApi({
                 _id
                 courses_firstName
                 courses_lastName
+                courses_nickname
               }
             }
           }
@@ -108,6 +109,7 @@ export const quizNewApi = createApi({
                 _id
                 courses_firstName
                 courses_lastName
+                courses_nickname
               }
               courses_comment {
                 _id
@@ -117,6 +119,7 @@ export const quizNewApi = createApi({
                   _id
                   courses_firstName
                   courses_lastName
+                  courses_nickname
                 }
               }
               courses_image
@@ -138,12 +141,27 @@ export const quizNewApi = createApi({
               )}
             ) {
               _id
-              courses_commentText
             }
           }
         `,
       }),
       transformResponse: response => response.Comment[0]._id,
+    }),
+    updateComment: builder.mutation({
+      query: ({ commentBody }) => ({
+        document: gql`
+          mutation {
+            update_courses_Comment (
+              _id: "${commentBody.commentId}"
+              courses_commentText: ${JSON.stringify(commentBody.commentText)}
+          ) {
+            _id
+          }
+        }
+        `,
+      }),
+      transformResponse: response => response.Comment[0]._id,
+      invalidatesTags: ['Comments'],
     }),
     updateQuestion: builder.mutation({
       query: ({ questionId, questionBody }) => ({
@@ -196,5 +214,6 @@ export const {
   useAddNewMultipleChoiceAnswerMutation,
   useAddNewMultipleChoiceQuestionMutation,
   useAddNewCommentMutation,
+  useUpdateCommentMutation,
   useUpdateQuestionMutation,
 } = quizNewApi
