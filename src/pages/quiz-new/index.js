@@ -9,6 +9,7 @@ import { ThemeProvider } from '@material-ui/styles'
 import { customQuizTheme } from './styles'
 import QuestionDetail from './questionDetail'
 import EditQuestionForm from './editQuestionForm'
+import GeneratedQuiz from './generatedQuiz'
 
 function QuizNew({ match }) {
   const courseId = match.params.course_id
@@ -39,6 +40,11 @@ function QuizNew({ match }) {
           exact
           path={ROUTES.EDIT_QUESTION_NEW}
           render={() => <EditQuestionForm courseId={courseId} />}
+        />
+        <Route
+          exact
+          path={ROUTES.GENERATED_QUIZ}
+          render={() => <GeneratedQuiz courseId={courseId} />}
         />
       </Switch>
     </ThemeProvider>

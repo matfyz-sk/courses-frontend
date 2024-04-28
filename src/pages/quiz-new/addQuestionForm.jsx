@@ -144,7 +144,7 @@ function AddQuestionForm({ match, courseId }) {
     let answersToSubmit = []
 
     for (let answerField of answerFields) {
-      let base64image
+      let base64image = ''
       if (answerField.image) {
         await fileToBase64(answerField.image).then(result => {
           base64image = result

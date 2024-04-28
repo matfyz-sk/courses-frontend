@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { redirect } from '../../constants/redirect'
-import { ADD_QUIZ_QUESTION_NEW } from '../../constants/routes'
+import { ADD_QUIZ_QUESTION_NEW, GENERATED_QUIZ } from '../../constants/routes'
 import QuestionListItem from './questionListItem'
 import { useNewQuizStyles } from './styles'
 import { withRouter } from 'react-router'
@@ -22,6 +22,7 @@ function QuizNewHomepage({ courseId }) {
   } = useGetQuestionsQuery({ courseInstanceId: longCourseId })
 
   let renderedContent
+  let generateButton = ''
   if (isLoading) {
     renderedContent = <h3>Loading...</h3>
   } else if (isSuccess) {
@@ -34,6 +35,21 @@ function QuizNewHomepage({ courseId }) {
       })
       let questionsToShow = questions.filter(
         question => !previousVersions.includes(question._id)
+      )
+      generateButton = (
+        <Link
+          to={{
+            pathname: redirect(GENERATED_QUIZ, [
+              { key: 'course_id', value: courseId },
+            ]),
+            state: {
+              questions: questions,
+            },
+          }}
+          className="btn btn-outline-success mb-2"
+        >
+          Generate Quiz
+        </Link>
       )
       renderedContent = questionsToShow.map(question => {
         let questionAuthorName
@@ -76,6 +92,7 @@ function QuizNewHomepage({ courseId }) {
           Add new question
         </Link>
       </div>
+      {generateButton}
       {renderedContent}
     </div>
   )

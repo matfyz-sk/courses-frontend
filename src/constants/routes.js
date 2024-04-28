@@ -25,6 +25,7 @@ export const QUIZ_QUESTION_DETAIL_NEW = coursePrefix(
 export const EDIT_QUESTION_NEW = coursePrefix(
   '/quiz-new/question/:question_id/edit'
 )
+export const GENERATED_QUIZ = coursePrefix('/quiz-new/generated-quiz')
 export const INFO_PAGE = '/info/:course_id'
 export const ACCESS_DENIED = '/accessdenied'
 export const NOT_FOUND = '/notfound'
@@ -43,7 +44,6 @@ export const CREATE_EXTERNAL_DOCUMENT = coursePrefix(
   '/documents/createexternal'
 )
 export const CREATE_FILE_DOCUMENT = coursePrefix('/documents/createfile')
-
 
 export const COURSE_TEAMS = coursePrefix('/teams')
 export const COURSE_TEAM_CREATE = coursePrefix('/team-create')
