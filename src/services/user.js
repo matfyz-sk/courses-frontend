@@ -18,7 +18,7 @@ export const userApi = createApi({
     tagTypes: ['User'],
     endpoints: (builder) => ({
       getUser: builder.query({
-        query: ({id, order, email, nickname, studentOfId, instructorOfId, requestId}) => ({
+        query: ({id, order, email, nickname, studentOfId, instructorOfId, understands, requestId}) => ({
           document: gql`
             query {
               courses_User${id ? getSelectById(id) : ""} {
@@ -29,7 +29,7 @@ export const userApi = createApi({
                 courses_avatar
                 courses_lastName
                 courses_showCourses
-                courses_allowContact 
+                courses_allowContact
                 courses_isSuperAdmin
                 courses_githubId
                 courses_useNickName
@@ -45,7 +45,7 @@ export const userApi = createApi({
                 courses_instructorOf${instructorOfId ? getSelectById(instructorOfId) : ""} {
                   _id
                 }
-                courses_understands {
+                courses_understands${understands ? getSelectById(understands) : ""} {
                   _id
                 }
                 courses_memberOf {
@@ -60,7 +60,7 @@ export const userApi = createApi({
         }),
         transformResponse: (response, meta, arg) => response.User,
         providesTags: ['User'],
-      }),  
+      }),
       getUserTeamInstanceAndTeam: builder.query({
         query: (id) => ({
           document: gql`
@@ -88,7 +88,7 @@ export const userApi = createApi({
         providesTags: ['User'],
       }),
       updateUserInfo: builder.mutation({
-        query: ({id, body}) => ({ 
+        query: ({id, body}) => ({
           document: gql`
             mutation {
               update_courses_User(
@@ -107,6 +107,7 @@ export const userApi = createApi({
                 ${body.studentOf ? `courses_studentOf: ${getArrayFormat(body.studentOf)}` : ""}
                 ${body.memberOf ? `courses_memberOf: ${getArrayFormat(body.memberOf)}` : ""}
                 ${body.requests ? `courses_requests: ${getArrayFormat(body.requests)}` : ""}
+                ${body.understands ? `courses_understands: ${getArrayFormat(body.understands)}` : ""}
               ) {
                 _id
               }
@@ -117,7 +118,7 @@ export const userApi = createApi({
         invalidatesTags: ['User'],
       }),
       deleteUser: builder.mutation({
-        query: (id) => ({ 
+        query: (id) => ({
           document: gql`
             mutation {
               delete_courses_User(
@@ -134,7 +135,7 @@ export const userApi = createApi({
     }),
 })
 
-export const { 
+export const {
     useGetUserQuery,
     useLazyGetUserQuery,
     useGetUserTeamInstanceAndTeamQuery,

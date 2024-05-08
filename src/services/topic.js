@@ -40,6 +40,7 @@ export const topicApi = createApi({
                     query {
                         courses_Topic {
                             _id
+                            _type
                             courses_createdAt
                             courses_name
                             courses_description
