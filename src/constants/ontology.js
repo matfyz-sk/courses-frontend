@@ -9,3 +9,6 @@ export const ONTOLOGY_PREFIX =
 export const DATA_PREFIX =
   process.env.REACT_APP_DATA_PREFIX ??
   BASE_PREFIX + "data/";
+
+export const VISUAL_ONTOLOGY_PREFIX =
+  BASE_PREFIX + "visual-ontology#";
