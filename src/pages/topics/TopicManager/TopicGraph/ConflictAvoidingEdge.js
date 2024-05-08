@@ -21,6 +21,7 @@ export function ConflictAvoidingEdge(props) {
   const sourceNode = useNodes().filter(node => node.id === source)[0]
   const targetNode = useNodes().filter(node => node.id === target)[0]
 
+  // can conflict with target and source group nodes
   const nodes = useNodes().filter(node => node.id !== sourceNode.parentNode && node.id !== targetNode.parentNode);
 
   const myOptions = {

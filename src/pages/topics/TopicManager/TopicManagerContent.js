@@ -8,7 +8,7 @@ function TopicManagerContent({ selectedTopicId, setSelectedTopicId, isEdit, hand
           {showGraph ? (
               <div style={{width: "100%", height: "600px"}}>
                 <TopicGraph
-                  selectedTopicId={selectedTopicId}
+                  selectedElementId={selectedTopicId}
                   setSelectedTopicId={setSelectedTopicId}
                   setShowGraph={setShowGraph}/>
               </div>) :

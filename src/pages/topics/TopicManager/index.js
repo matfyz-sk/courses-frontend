@@ -55,6 +55,7 @@ function TopicManager() {
                                         addTopic={addTopic}
                                         courseInstanceId={null}
                                         setSelectedTopicId={setSelectedTopicId}
+                                        selectedTopicId={selectedTopicId}
                                         open={isSidebarOpen}
                                         setOpen={setIsSidebarOpen}
                                     />

@@ -5,7 +5,7 @@ import TreeItem from "@material-ui/lab/TreeItem"
 import { TreeView } from "@material-ui/lab"
 import { useGetTopicsQuery } from "../../../services/topic";
 
-function TopicTreeList({ courseInstanceId, setSelectedTopicId }) {
+function TopicTreeList({ courseInstanceId, setSelectedTopicId, selectedTopicId }) {
     const { data: allTopics, isLoading } = useGetTopicsQuery()
     const topLevelTopics = allTopics?.filter(topic => topic.subtopicOf.length === 0) ?? []
 
@@ -27,6 +27,7 @@ function TopicTreeList({ courseInstanceId, setSelectedTopicId }) {
 
     return (
         <TreeView
+            selected={selectedTopicId}
             onNodeSelect={(event, nodeId) => setSelectedTopicId(nodeId)}
             defaultCollapseIcon={<MdExpandMore />}
             defaultExpandIcon={<MdChevronRight />}
