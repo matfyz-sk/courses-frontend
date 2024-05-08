@@ -28,6 +28,7 @@
     "node-htmldiff": "^0.9.3",
     "prop-types": "^15.7.2",
     "rc-slider": "^9.2.4",
+    "rdflib": "^2.2.34",
     "react": "^16.13.1",
     "react-beautiful-dnd": "^12.2.0",
     "react-compound-slider": "^1.2.1",
