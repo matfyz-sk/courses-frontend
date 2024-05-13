@@ -8,6 +8,7 @@ import {useUpdateUserInfoMutation} from "../../../../services/user";
 import { getUserID } from '../../../../components/Auth'
 
 import {useContextMenuStyle} from "./styles";
+import {createCustomNode} from "./functions";
 
 export default function ContextMenu(
   {id, top, left, right, bottom, setSelectedTopicId, ...props}) {
@@ -36,14 +37,10 @@ export default function ContextMenu(
         x: 0,
         y: 0,
       };
-      setNodes((nds) => nds.concat({...node, id: `${node.id}-copy`, position}))
-      setEdges((edges) => edges.concat(
-        {
-          id: id + '-' + 'subtopic',
-          source: id,
-          target: `${node.id}-copy`,
-          type: 'straight',
-        }))
+
+      let newNode = {...node, id: result._id, data: {subtopicOf: [id], topicPrerequisite: [], label: 'New topic'}, hidden: true, position}
+      console.log("new node", newNode)
+      setNodes((nds) => nds.concat(newNode))
     }
   }
 

@@ -23,9 +23,8 @@ import 'reactflow/dist/style.css';
 import {useTipsPanelStyle} from "./styles";
 import {reason} from "../../../../services/Reasoner/reason";
 
-
-const nodeWidth = 250;
-const nodeHeight = 150;
+import createLayout from "./createLayout";
+import {createCustomNode} from "./functions";
 
 const edgeTypes = {
   smart: ConflictAvoidingEdge };
@@ -33,178 +32,27 @@ const edgeTypes = {
 const nodeTypes =
   { custom: CustomNode };
 
-// returns nodes with new positions and their sizes
-const getLayoutedElements = (nodes, edges, options) => {
-    let g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-    g.setGraph({rankdir: options.direction, nodesep: 70, edgesep: 50, ranksep: 70});
-
-    nodes.forEach((node) => g.setNode(node.id, {width: node?.style?.width || nodeWidth, height: node?.style?.height || nodeHeight}));
-    edges.forEach((edge) => g.setEdge(edge.source, edge.target));
-
-    Dagre.layout(g);
-    let graphInfo = g.graph();
-
-  return {
-    nodes: (
-      nodes.map((node) => {
-          let { x, y } = g.node(node.id);
-          return { ...node, position: { x: x-nodeWidth/2, y: y-nodeHeight/2 } };
-        }
-      )),
-    sizes: {width: graphInfo.width, height: graphInfo.height}
-  }
-};
-
-const createCustomNode = (element, user) => {
-  let understands = user?.understands?.includes(element._id)
-  return {
-    id: element._id,
-    data: {
-      label: element.name,
-      description: element.description,
-      color: understands ? element['isVisualizedBy']['hasSecondaryColor'] : element['isVisualizedBy']['hasPrimaryColor'],
-      shape: element['isVisualizedBy'].hasShape
-    },
-    position: { x: 0, y: 0 },
-    type: 'custom',
-  }
-}
-
 
 function LayoutFlow({ selectedElementId, setSelectedTopicId}) {
-  // console.log("new layoutFlow")
   const {data: user, userIsLoading} = useGetUserQuery({id: getUserID()})
 
-  // console.log(user)
-
   const { data: allTopics, isLoading, isFetching } = useGetTopicsQuery() ?? []
-  if (isFetching)
-    console.log("loading") ;
   let topicsWithVisualProperties = reason(allTopics)
   const topLevelTopics = topicsWithVisualProperties?.filter(topic => topic.subtopicOf.length === 0) ?? []
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const { fitView } = useReactFlow();
 
-  const createLayout = useCallback(
-    () => {
-      let topicNodeTrees = []
-      let subtopicEdges = []
-      let i = 0
+  const [nodes, setNodes, onNodesChange] = useNodesState(topicsWithVisualProperties.map(
+    (topic) => {
+      let topicNode = createCustomNode(topic, user)
+      topicNode.data.subtopicOf = topic.subtopicOf.map(t => t._id)
+      topicNode.data.topicPrerequisite = topic.topicPrerequisite.map(t => t._id)
+      return topicNode;
+    }));
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-      topLevelTopics.forEach(baseTopic => {
-        topicNodeTrees[i] = []
-        subtopicEdges[i] = []
-
-        // graph nodes from base topics
-        let topics = []
-        topics[0] = baseTopic
-        topicNodeTrees[i].push(
-          createCustomNode(baseTopic, user)
-        );
-
-        // graph nodes from subtopics, saved to topicNodeTrees
-        while (topics.length !== 0) {
-          let topic = topics.shift()
-          let subtopics = topicsWithVisualProperties?.filter(a => a.subtopicOf.map(b => b._id).includes(topic._id)) ?? []
-          topicNodeTrees[i] = topicNodeTrees[i].concat(
-            subtopics?.map(subtopic => {
-              topics.push(subtopic);
-              return createCustomNode(subtopic, user);
-            }));
-
-          // edges from subtopic relations
-          subtopicEdges[i] = subtopicEdges[i].concat(
-            subtopics?.map(subtopic => {
-                return {
-                  id: subtopic._id+'-'+topic._id,
-                  source: topic._id,
-                  target: subtopic._id,
-                  type: 'straight',
-                }
-              }
-            ))
-        }
-        i++;
-      })
-
-
-      // layouts topic trees' internal structures, computes trees' sizes
-      let layouted = {nodes: [], sizes: []}
-      for (let i = 0; i < topicNodeTrees.length; i++) {
-        let topicTree = topicNodeTrees[i]
-        let topicTreeEdges = subtopicEdges[i]
-
-        let l = getLayoutedElements(topicTree, topicTreeEdges, {direction: 'TB'})
-        layouted.nodes[i] = l.nodes
-        layouted.sizes[i] = l.sizes
-      }
-
-      // 'group' type graph nodes for topic trees (only for layouting purposes, won't be visible)
-      let parentNodes = []
-      let topParents = []
-      for (let i = 0; i < layouted.nodes.length; i++) {
-        let {width, height} = layouted.sizes[i]
-        let parentNode = {
-          id: 'tree'+ i,
-          position: { x: 0, y: 0 },
-          style: { backgroundColor: 'rgba(0, 255, 0, 0.2)', width: width, height: height},
-          type: 'group',
-          hidden: true
-        }
-        parentNodes[i] = parentNode
-        layouted.nodes[i].forEach(node => {
-          node.parentNode = parentNode.id;
-          topParents[node.id] = parentNode.id
-        })
-      }
-
-      // edges from prerequisite relations between whole topic trees
-      let prereqGroupEdges = []
-      topicsWithVisualProperties.forEach(topic => {
-        let prerequisities = topicsWithVisualProperties?.filter(a => a.topicPrerequisite.map(b => b._id).includes(topic._id)) ?? []
-        prereqGroupEdges = prereqGroupEdges.concat(
-            prerequisities?.map(prereq => {
-              let topicGroupId = topParents[topic._id]
-              let prereqGroupId = topParents[prereq._id]
-              return {
-                id: 'layout-' + prereqGroupId + '-' + topicGroupId,
-                source: topicGroupId,
-                target: prereqGroupId,
-              }}))})
-
-      let layoutedTrees = getLayoutedElements(parentNodes, prereqGroupEdges, {direction: 'LR'})
-
-      // real graph edges from prerequisite relations between topics
-      let prereqEdges = []
-      topicsWithVisualProperties.forEach(topic => {
-        let prerequisities = topic.topicPrerequisite
-        prereqEdges = prereqEdges.concat(
-          prerequisities?.map(prereq => {
-            return {
-              id: prereq._id + '-' + topic._id,
-              source: topic._id,
-              target: prereq._id,
-              type: 'smart',
-              sourceHandle: 'c',
-              targetHandle: 'd',
-            }}))})
-
-
-      let newNodes = layoutedTrees.nodes.concat([].concat(...layouted.nodes))
-      setNodes(newNodes);
-      // console.log("resetting to new nodes", nodes)
-      setEdges(prereqEdges.concat([].concat(...subtopicEdges)))
-    },
-    [nodes]
-  );
-
-  useEffect(() => {
-    createLayout();
-  }, []);
-
+  createLayout();
 
   useEffect(()=>{
     console.log("fitting view to ", selectedElementId)
