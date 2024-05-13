@@ -33,6 +33,20 @@ const customTheme = createMuiTheme(
                     },
                 },
             },
+            MuiButton: {
+                root: {
+                    "&:focus": {
+                        outline: "none", // Remove the outline on focus
+                    },
+                },
+            },
+            MuiIconButton: {
+                root: {
+                    "&:focus": {
+                        outline: "none", // Remove the outline on focus
+                    },
+                },
+            },
         },
     },
     baseTheme

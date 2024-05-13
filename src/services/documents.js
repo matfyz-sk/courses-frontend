@@ -1,84 +1,90 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { getToken } from 'components/Auth'
-import { API_URL } from "../constants";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { getToken } from "components/Auth"
+import { API_URL } from "../constants"
 
 export const documentsApi = createApi({
-    reducerPath: 'documentsApi',
+    reducerPath: "documentsApi",
     baseQuery: fetchBaseQuery({
         baseUrl: API_URL,
         prepareHeaders: (headers, {}) => {
             const token = getToken()
             if (token) {
-                headers.set('authorization', `Bearer ${token}`)
+                headers.set("authorization", `Bearer ${token}`)
             }
-            headers.set('Content-Type', 'application/json')
-            headers.set('Accept', 'application/json')
-            headers.set('Cache-Control', 'no-cache')
+            headers.set("Content-Type", "application/json")
+            headers.set("Accept", "application/json")
+            headers.set("Cache-Control", "no-cache")
             return headers
         },
     }),
-    tagTypes: ['Documents'],
-    endpoints: (builder) => ({
+    tagTypes: ["Documents"],
+    endpoints: builder => ({
         getMaterials: builder.query({
             query: () => ({ url: `material` }),
             transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Documents'],
+            providesTags: ["Documents"],
         }),
         getMaterial: builder.query({
-            query: (id) => ({ url: `material/${id}` }),
+            query: id => ({ url: `material/${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Documents'],
+            providesTags: ["Documents"],
         }),
         getFile: builder.query({
-            query: (id) => ({ url: `file/${id}` }),
+            query: id => ({ url: `file/${id}` }),
             transformResponse: (response, meta, arg) => response["@graph"],
-            providesTags: ['Documents'],
+            providesTags: ["Documents"],
         }),
         addMaterial: builder.mutation({
-            query: (body) => ({ 
+            query: body => ({
                 url: `material`,
-                method: 'POST',
+                method: "POST",
                 body: body,
             }),
             transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Documents'],
+            invalidatesTags: ["Documents"],
         }),
         newFolder: builder.mutation({
-            query: (body) => ({ 
+            query: body => ({
                 url: `folder`,
-                method: 'POST',
+                method: "POST",
                 body: body,
             }),
             transformResponse: (response, meta, arg) => response,
-            invalidatesTags: ['Documents'],
+            invalidatesTags: ["Documents"],
         }),
         addFile: builder.mutation({
-            query: (body) => ({
+            query: body => ({
                 url: `file`,
-                method: 'POST',
+                method: "POST",
                 body: body,
             }),
-            transformResponse: (response, meta, arg) => response.resource.iri,
-            invalidatesTags: ['Documents'],
+            transformResponse: (response, meta, arg) => ({
+                _id: response.resource.iri,
+                "@id": response.resource.iri,
+            }),
+            invalidatesTags: ["Documents"],
         }),
         updateFile: builder.mutation({
             query: ({ id, body }) => ({
                 url: `file/${id}`,
-                method: 'PATCH',
+                method: "PATCH",
                 body: body,
             }),
-            transformResponse: (response, meta, arg) => response.resource.iri,
-            invalidatesTags: ['Documents'],
-        })
+            transformResponse: (response, meta, arg) => ({
+                _id: response.resource.iri,
+                "@id": response.resource.iri,
+            }),
+            invalidatesTags: ["Documents"],
+        }),
     }),
 })
 
-export const { 
+export const {
     useGetMaterialsQuery,
     useGetMaterialQuery,
     useAddMaterialMutation,
     useGetFileQuery,
     useNewFolderMutation,
     useAddFileMutation,
-    useUpdateFileMutation
+    useUpdateFileMutation,
 } = documentsApi

@@ -1,55 +1,34 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import MultipleSelectCheckmarks from "../common/MultipleSelectCheckmarks"
-import { axiosGetEntities, getResponseBody } from "../../../helperFunctions"
 import { Box, Grid, TextField } from "@material-ui/core"
 import DocumentsReferencer from "../common/DocumentsReferencer"
+import { useGetTopicsQuery } from "../../../services/topic"
+import { useGetDocumentReferencesByIdsQuery, useGetDocumentReferencesQuery } from "../../../services/documentsGraph";
 
-export default function MaterialForm({
-    description,
-    setDescription,
-    handleLoading,
-    statusHandler,
-    isAlternativeTo,
-    setIsAlternativeTo,
-    refersTo,
-    setRefersTo,
-    generalizes,
-    setGeneralizes,
-    covers,
-    setCovers,
-    mentions,
-    setMentions,
-    requires,
-    setRequires,
-    assumes,
-    setAssumes,
-    isReadOnly,
-}) {
-    const [topics, setTopics] = useState([])
+export default function MaterialForm({ material, onMaterialChange, isReadOnly }) {
+    const { description, covers, mentions, requires, isAlternativeTo, refersTo, generalizes } = material
+    const { data: topics, isFetching } = useGetTopicsQuery()
+    const { data: documentReferences } = useGetDocumentReferencesByIdsQuery(
+        {
+            documentReferenceIds: [
+                ...isAlternativeTo.map(({ _id }) => _id),
+                ...refersTo.map(({ _id }) => _id),
+                ...generalizes.map(({ _id }) => _id),
+            ],
+        }
+    )
+    const isAlternativeToRefs = documentReferences?.filter(ref =>
+        isAlternativeTo.map(({ _id }) => _id).includes(ref._id)
+    ) ?? []
+    const refersToRefs = documentReferences?.filter(ref => refersTo.map(({ _id }) => _id).includes(ref._id)) ?? []
+    const generalizesRefs = documentReferences?.filter(ref => generalizes.map(({ _id }) => _id).includes(ref._id)) ?? []
 
-    useEffect(() => {
-        handleLoading(true)
-        // const topicsUrl = `topic?courseInstance=${courseId}`
-        axiosGetEntities("topic").then(response => {
-            if (response.failed) {
-                statusHandler(response.response ? response.response : 500)
-                return
-            }
-            setTopics(getResponseBody(response))
-            handleLoading(false)
-        })
-    }, [])
+    if (isFetching) return <div></div>
 
     return (
         <>
             <hr style={{ borderColor: "lightgray" }} />
-            <Box
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                }}
-            >
+            <Box display="flex" alignItems="center" justifyContent="center">
                 <TextField
                     id="description-textarea"
                     style={{ width: "50%" }}
@@ -57,7 +36,7 @@ export default function MaterialForm({
                     multiline
                     variant="outlined"
                     value={description}
-                    onChange={e => setDescription(e.target.value)}
+                    onChange={e => onMaterialChange({ description: e.target.value })}
                     disabled={isReadOnly}
                 />
             </Box>
@@ -72,7 +51,7 @@ export default function MaterialForm({
                         <MultipleSelectCheckmarks
                             allItems={topics}
                             items={covers}
-                            setItems={setCovers}
+                            setItems={values => onMaterialChange({ covers: values })}
                             label={"covers"}
                             isReadOnly={isReadOnly}
                         />
@@ -81,7 +60,7 @@ export default function MaterialForm({
                         <MultipleSelectCheckmarks
                             allItems={topics}
                             items={mentions}
-                            setItems={setMentions}
+                            setItems={values => onMaterialChange({ mentions: values })}
                             label={"mentions"}
                             isReadOnly={isReadOnly}
                         />
@@ -90,17 +69,8 @@ export default function MaterialForm({
                         <MultipleSelectCheckmarks
                             allItems={topics}
                             items={requires}
-                            setItems={setRequires}
+                            setItems={values => onMaterialChange({ requires: values })}
                             label={"required"}
-                            isReadOnly={isReadOnly}
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <MultipleSelectCheckmarks
-                            allItems={topics}
-                            items={assumes}
-                            setItems={setAssumes}
-                            label={"assumes mastery of"}
                             isReadOnly={isReadOnly}
                         />
                     </Grid>
@@ -112,24 +82,27 @@ export default function MaterialForm({
                     <Grid item xs={12}>
                         <DocumentsReferencer
                             label="is an alternative to"
-                            documentReferences={isAlternativeTo}
-                            onDocumentReferencesChange={setIsAlternativeTo}
+                            documentReferences={isAlternativeToRefs}
+                            onDocumentReferencesChange={data => onMaterialChange({ isAlternativeTo: data })}
+                            materialReferencer={true}
                             isReadOnly={isReadOnly}
                         />
                     </Grid>
                     <Grid item xs={12}>
                         <DocumentsReferencer
                             label="refers to"
-                            documentReferences={refersTo}
-                            onDocumentReferencesChange={setRefersTo}
+                            documentReferences={refersToRefs}
+                            onDocumentReferencesChange={data => onMaterialChange({ refersTo: data })}
+                            materialReferencer={true}
                             isReadOnly={isReadOnly}
                         />
                     </Grid>
                     <Grid item xs={12}>
                         <DocumentsReferencer
                             label="generalizes"
-                            documentReferences={generalizes}
-                            onDocumentReferencesChange={setGeneralizes}
+                            documentReferences={generalizesRefs}
+                            onDocumentReferencesChange={data => onMaterialChange({ generalizes: data })}
+                            materialReferencer={true}
                             isReadOnly={isReadOnly}
                         />
                     </Grid>

@@ -21,7 +21,7 @@ export const documentsGraphApi = createApi({
     baseQuery: graphqlBaseQuery({
         url: `${BACKEND_URL}graphql`,
     }),
-    tagTypes: ["Folder", "ExternalDocument", "InternalDocument", "File", "DocumentReference"],
+    tagTypes: ["Folder", "ExternalDocument", "InternalDocument", "File", "DocumentReference", "Material"],
     endpoints: builder => ({
         getDeletedDocuments: builder.query({
             query: ({ courseInstanceId }) => {
@@ -87,7 +87,6 @@ export const documentsGraphApi = createApi({
         }),
         getDocuments: builder.query({
             query: ({ documentIds }) => {
-                console.log({ documentIds })
                 const internalDocIds = documentIds.filter(id => id.includes(DocumentEnums.internalDocument.entityName))
                 const externalDocIds = documentIds.filter(id => id.includes(DocumentEnums.externalDocument.entityName))
                 const fileDocIds = documentIds.filter(id => id.includes(DocumentEnums.file.entityName))
@@ -154,11 +153,11 @@ export const documentsGraphApi = createApi({
             providesTags: ["ExternalDocument", "InternalDocument", "File"],
         }),
         getFolder: builder.query({
-            query: ({ id, deletedContent }) => {
+            query: ({ id, deletedContent, folderContent, courseInstanceId }) => {
                 return {
                     document: gql`
                           query {
-                            courses_Folder${getSelectById(id)} {
+                            courses_Folder${id ? getSelectById(id) : ""} {
                               _id
                               _type
                               courses_name
@@ -166,7 +165,10 @@ export const documentsGraphApi = createApi({
                                 _id
                                 courses_name
                               }
-                              courses_folderContent {
+                              courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
+                                _id
+                              }
+                              courses_folderContent${folderContent ? `(_id: ${getArrayFormat(folderContent)})` : ""} {
                                 _id
                                 _type
                                 courses_name
@@ -219,15 +221,37 @@ export const documentsGraphApi = createApi({
                 document: gql`
                     query {
                       courses_DocumentReference {
-                        _id
-                        courses_document(_id: ${getArrayFormat(documentIds)}) {
                             _id
+                            courses_document${
+                                documentIds && documentIds.length > 0 ? `(_id: ${getArrayFormat(documentIds)})` : ""
+                            } {
+                                _id
+                            }
+                            courses_courseInstance${getSelectById(courseInstanceId)} {
+                                _id
+                            }
                         }
-                        courses_courseInstance${getSelectById(courseInstanceId)} {
+                    }`,
+            }),
+            transformResponse: (response, meta, arg) => response.DocumentReference,
+            providesTags: ["DocumentReference"],
+        }),
+        getDocumentReferencesByIds: builder.query({
+            query: ({ documentReferenceIds }) => ({
+                document: gql`
+                    query {
+                      courses_DocumentReference${
+                    documentReferenceIds && documentReferenceIds.length > 0 ? `(_id: ${getArrayFormat(documentReferenceIds)})` : ""
+                } {
                             _id
+                            courses_document {
+                                _id
+                            }
+                            courses_courseInstance {
+                                _id
+                            }
                         }
-                      }
-                   }`,
+                    }`,
             }),
             transformResponse: (response, meta, arg) => response.DocumentReference,
             providesTags: ["DocumentReference"],
@@ -498,9 +522,17 @@ export const documentsGraphApi = createApi({
                     courses_courseInstances: ${getArrayFormat(body.courseInstances)}
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
-                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${
+                        body.previousDocumentVersion
+                            ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"`
+                            : ""
+                    }
                     ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
-                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
+                    ${
+                        body.historicDocumentVersions
+                            ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}`
+                            : ""
+                    }
                   ) {
                     _id
                   }
@@ -516,13 +548,21 @@ export const documentsGraphApi = createApi({
                   insert_courses_InternalDocument(
                     courses_name: "${body.name}"
                     courses_courseInstances: ${getArrayFormat(body.courseInstances)}
-                    courses_mimeType: "${body.mimeType}"
-                    ${body.editorContent ? `courses_editorContent: "${body.editorContent}"` : ""}
+                    courses_mimeType: "${body.mimeType ?? ""}"
+                    courses_editorContent: "${body.editorContent ?? ""}"
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
-                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${
+                        body.previousDocumentVersion
+                            ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"`
+                            : ""
+                    }
                     ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
-                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
+                    ${
+                        body.historicDocumentVersions
+                            ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}`
+                            : ""
+                    }
                   ) {
                     _id
                   }
@@ -538,14 +578,22 @@ export const documentsGraphApi = createApi({
                   insert_courses_File(
                     courses_name: "${body.name}"
                     courses_courseInstances: ${getArrayFormat(body.courseInstances)}
+                    courses_mimeType: "${body.mimeType ?? ""}"
+                    courses_filename: "${body.filename ?? ""}"
+                    courses_rawContent: "${body.rawContent ?? ""}"
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
-                    ${body.mimeType ? `courses_mimeType: "${body.mimeType}"` : ""}
-                    ${body.filename ? `courses_filename: "${body.filename}"` : ""}
-                    ${body.rawContent ? `courses_rawContent: "${body.rawContent}"` : ""}
-                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${
+                        body.previousDocumentVersion
+                            ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"`
+                            : ""
+                    }
                     ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
-                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
+                    ${
+                        body.historicDocumentVersions
+                            ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}`
+                            : ""
+                    }
                   ) {
                     _id
                   }
@@ -575,7 +623,6 @@ export const documentsGraphApi = createApi({
         }),
         updateDocumentReference: builder.mutation({
             query: ({ id, body }) => ({
-                // TODO what about material?
                 document: gql`
                 mutation {
                   update_courses_DocumentReference(
@@ -600,9 +647,17 @@ export const documentsGraphApi = createApi({
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${body.courseInstances ? `courses_courseInstances: ${getArrayFormat(body.courseInstances)}` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
-                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${
+                        body.previousDocumentVersion
+                            ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"`
+                            : ""
+                    }
                     ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
-                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
+                    ${
+                        body.historicDocumentVersions
+                            ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}`
+                            : ""
+                    }
                   ) {
                     _id
                   }
@@ -623,9 +678,17 @@ export const documentsGraphApi = createApi({
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.courseInstances ? `courses_courseInstances: ${getArrayFormat(body.courseInstances)}` : ""}
-                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${
+                        body.previousDocumentVersion
+                            ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"`
+                            : ""
+                    }
                     ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
-                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
+                    ${
+                        body.historicDocumentVersions
+                            ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}`
+                            : ""
+                    }
                   ) {
                     _id
                   }
@@ -647,9 +710,17 @@ export const documentsGraphApi = createApi({
                     ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
                     ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
                     ${body.courseInstances ? `courses_courseInstances: ${getArrayFormat(body.courseInstances)}` : ""}
-                    ${body.previousDocumentVersion ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"` : ""}
+                    ${
+                        body.previousDocumentVersion
+                            ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"`
+                            : ""
+                    }
                     ${body.nextDocumentVersion ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"` : ""}
-                    ${body.historicDocumentVersions ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}` : ""}
+                    ${
+                        body.historicDocumentVersions
+                            ? `courses_historicDocumentVersions: ${getArrayFormat(body.historicDocumentVersions)}`
+                            : ""
+                    }
                   ) {
                     _id
                   }
@@ -657,6 +728,278 @@ export const documentsGraphApi = createApi({
             }),
             transformResponse: (response, meta, arg) => response.File?.[0],
             invalidatesTags: ["File"],
+        }),
+        addDocument: builder.mutation({
+            query: ({ entityName, body }) => {
+                let capitalizedEntityName
+                if (entityName === DocumentEnums.internalDocument.entityName)
+                    capitalizedEntityName = DocumentEnums.internalDocument.capitalized
+                else if (entityName === DocumentEnums.externalDocument.entityName)
+                    capitalizedEntityName = DocumentEnums.externalDocument.capitalized
+                else if (entityName === DocumentEnums.file.entityName)
+                    capitalizedEntityName = DocumentEnums.file.capitalized
+                else throw new Error("Invalid entity name")
+
+                return {
+                    document: gql`
+                        mutation {
+                            insert_courses_${capitalizedEntityName}(
+                                courses_name: "${body.name}"
+                                courses_courseInstances: ${getArrayFormat(body.courseInstances)}
+                                ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
+                                ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
+                                ${
+                                    body.previousDocumentVersion
+                                        ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"`
+                                        : ""
+                                }
+                                ${
+                                    body.nextDocumentVersion
+                                        ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"`
+                                        : ""
+                                }
+                                ${
+                                    body.historicDocumentVersions
+                                        ? `courses_historicDocumentVersions: ${getArrayFormat(
+                                              body.historicDocumentVersions
+                                          )}`
+                                        : ""
+                                }
+                                
+                                ${
+                                    entityName === DocumentEnums.internalDocument.entityName
+                                        ? `
+                                            courses_mimeType: "${body.mimeType}"
+                                            courses_editorContent: "${body.editorContent}"
+                                        `
+                                        : ""
+                                }
+                                ${
+                                    entityName === DocumentEnums.externalDocument.entityName
+                                        ? `courses_uri: "${body.uri}"`
+                                        : ""
+                                }
+                                ${
+                                    entityName === DocumentEnums.file.entityName
+                                        ? `
+                                            courses_filename: "${body.filename}"
+                                            courses_mimeType: "${body.mimeType}"
+                                            courses_rawContent: "${body.rawContent}"
+                                        `
+                                        : ""
+                                }
+                            ) {
+                                _id
+                            }
+                        }
+                    `,
+                }
+            },
+            transformResponse: (response, meta, arg) => {
+                return response.InternalDocument?.[0] ?? response.ExternalDocument?.[0] ?? response.File?.[0]
+            },
+            invalidatesTags: ["ExternalDocument", "InternalDocument", "File"],
+        }),
+        updateDocument: builder.mutation({
+            query: ({ id, entityName, body }) => {
+                let capitalizedEntityName
+                if (entityName === DocumentEnums.internalDocument.entityName)
+                    capitalizedEntityName = DocumentEnums.internalDocument.capitalized
+                else if (entityName === DocumentEnums.externalDocument.entityName)
+                    capitalizedEntityName = DocumentEnums.externalDocument.capitalized
+                else if (entityName === DocumentEnums.file.entityName)
+                    capitalizedEntityName = DocumentEnums.file.capitalized
+                else throw new Error("Invalid entity name")
+
+                return {
+                    document: gql`
+                        mutation {
+                            update_courses_${capitalizedEntityName}(
+                                _id: "${id}"
+                                ${body.name ? `courses_name: "${body.name}"` : ""}
+                                ${body.restoredFrom ? `courses_restoredFrom: "${body.restoredFrom}"` : ""}
+                                ${typeof body.isDeleted === "boolean" ? `courses_isDeleted: ${body.isDeleted}` : ""}
+                                ${
+                                    body.previousDocumentVersion
+                                        ? `courses_previousDocumentVersion: "${body.previousDocumentVersion}"`
+                                        : ""
+                                }
+                                ${
+                                    body.nextDocumentVersion
+                                        ? `courses_nextDocumentVersion: "${body.nextDocumentVersion}"`
+                                        : ""
+                                }
+                                ${
+                                    body.historicDocumentVersions
+                                        ? `courses_historicDocumentVersions: ${getArrayFormat(
+                                              body.historicDocumentVersions
+                                          )}`
+                                        : ""
+                                }
+                                
+                                ${
+                                    entityName === DocumentEnums.internalDocument.entityName
+                                        ? `
+                                    ${body.mimeType ? `courses_mimeType: "${body.mimeType}"` : ""}
+                                    ${body.editorContent ? `courses_editorContent: "${body.editorContent}"` : ""}
+                                `
+                                        : ""
+                                }
+                                ${
+                                    entityName === DocumentEnums.externalDocument.entityName
+                                        ? `
+                                    ${body.uri ? `courses_uri: "${body.uri}"` : ""}
+                                `
+                                        : ""
+                                }
+                                ${
+                                    entityName === DocumentEnums.file.entityName
+                                        ? `
+                                    ${body.filename ? `courses_filename: "${body.filename}"` : ""}
+                                    ${body.mimeType ? `courses_mimeType: "${body.mimeType}"` : ""}
+                                    ${body.rawContent ? `courses_rawContent: "${body.rawContent}"` : ""}
+                                `
+                                        : ""
+                                }
+                            ) {
+                                _id
+                            }
+                        }
+                    `,
+                }
+            },
+            transformResponse: (response, meta, arg) => {
+                return response.InternalDocument?.[0] ?? response.ExternalDocument?.[0] ?? response.File?.[0]
+            },
+            invalidatesTags: ["ExternalDocument", "InternalDocument", "File"],
+        }),
+        getMaterial: builder.query({
+            query: ({ documentReferenceId }) => ({
+                document: gql`
+                    query {
+                        courses_Material(_id: "${documentReferenceId}") {
+                            _id
+                            courses_covers {
+                                _id
+                                courses_name
+                            }
+                            courses_requires {
+                                _id
+                                courses_name
+                            }
+                            courses_mentions {
+                                _id
+                                courses_name
+                            }
+                            courses_isAlternativeTo {
+                                _id
+                            }
+                            courses_refersTo {
+                                _id
+                            }
+                            courses_generalizes {
+                                _id
+                            }
+                        }
+                    }
+                `,
+            }),
+            transformResponse: (response, meta, arg) => response.Material?.[0],
+            providesTags: ["Material"],
+        }),
+        getMaterials: builder.query({
+            query: ({ documentReferenceIds }) => ({
+                document: gql`
+                    query {
+                        courses_Material(_id: ${getArrayFormat(documentReferenceIds)}) {
+                            _id
+                            courses_covers {
+                                _id
+                                courses_name
+                            }
+                            courses_requires {
+                                _id
+                                courses_name
+                            }
+                            courses_mentions {
+                                _id
+                                courses_name
+                            }
+                            courses_isAlternativeTo {
+                                _id
+                            }
+                            courses_refersTo {
+                                _id
+                            }
+                            courses_generalizes {
+                                _id
+                            }
+                        }
+                    }
+                `,
+            }),
+            transformResponse: (response, meta, arg) => response.Material,
+            providesTags: ["Material"],
+        }),
+        addMaterial: builder.mutation({
+            query: ({ documentReferenceId, body }) => ({
+                document: gql`
+                    mutation {
+                        insert_courses_Material(
+                            _id: "${documentReferenceId}"
+                            ${body.covers ? `courses_covers: ${getArrayFormat(body.covers)}` : ""}
+                            ${body.requires ? `courses_requires: ${getArrayFormat(body.requires)}` : ""}
+                            ${body.mentions ? `courses_mentions: ${getArrayFormat(body.mentions)}` : ""}
+                            ${
+                                body.isAlternativeTo
+                                    ? `courses_isAlternativeTo: ${getArrayFormat(body.isAlternativeTo)}`
+                                    : ""
+                            }
+                            ${body.refersTo ? `courses_refersTo: ${getArrayFormat(body.refersTo)}` : ""}
+                            ${body.generalizes ? `courses_generalizes: ${getArrayFormat(body.generalizes)}` : ""}
+                        ) {
+                            _id
+                        }
+                    }
+                `,
+            }),
+            transformResponse: (response, meta, arg) => response.Material?.[0],
+            invalidatesTags: ["Material"],
+        }),
+        updateMaterial: builder.mutation({
+            query: ({ documentReferenceId, body }) => ({
+                document: gql`
+                    mutation {
+                        update_courses_Material(
+                            _id: "${documentReferenceId}"
+                            ${body.covers ? `courses_covers: ${getArrayFormat(body.covers)}` : ""}
+                            ${body.requires ? `courses_requires: ${getArrayFormat(body.requires)}` : ""}
+                            ${body.mentions ? `courses_mentions: ${getArrayFormat(body.mentions)}` : ""}
+                            ${
+                                body.isAlternativeTo
+                                    ? `courses_isAlternativeTo: ${getArrayFormat(body.isAlternativeTo)}`
+                                    : ""
+                            }
+                            ${body.refersTo ? `courses_refersTo: ${getArrayFormat(body.refersTo)}` : ""}
+                            ${body.generalizes ? `courses_generalizes: ${getArrayFormat(body.generalizes)}` : ""}
+                        ) {
+                            _id
+                        }
+                    }
+                `,
+            }),
+            transformResponse: (response, meta, arg) => response.Material?.[0],
+            invalidatesTags: ["Material"],
+        }),
+        deleteMaterial: builder.mutation({
+            query: documentReferenceId => ({
+                document: gql`
+                    mutation {
+                        delete_courses_Material(_id: "${documentReferenceId}")
+                    }
+                `,
+            }),
+            invalidatesTags: ["Material"],
         }),
     }),
 })
@@ -669,6 +1012,7 @@ export const {
     useGetDocumentReferenceQuery,
     useLazyGetDocumentReferenceQuery,
     useGetDocumentReferencesQuery,
+    useGetDocumentReferencesByIdsQuery,
     useGetDocumentQuery,
     useLazyGetDocumentQuery,
     useGetExternalDocumentQuery,
@@ -686,4 +1030,11 @@ export const {
     useUpdateInternalDocumentMutation,
     useUpdateFileMutation,
     useGetDeletedDocumentsQuery,
+    useAddDocumentMutation,
+    useUpdateDocumentMutation,
+    useGetMaterialQuery,
+    useGetMaterialsQuery,
+    useAddMaterialMutation,
+    useUpdateMaterialMutation,
+    useDeleteMaterialMutation,
 } = documentsGraphApi

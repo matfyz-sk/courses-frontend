@@ -102,7 +102,7 @@ function Submit(props) {
         const newStartDate = addDays(event.startDate, noOfDays)
         const newEndDate = addDays(event.endDate, noOfDays)
         const newDocumentReference = event.documentReference.map(ref => ({
-          hasDocument: ref.hasDocument,
+          document: ref.document,
           courseInstance: courseId,
         }))
         const e = {

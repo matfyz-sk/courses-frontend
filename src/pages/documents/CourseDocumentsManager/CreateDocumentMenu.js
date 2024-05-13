@@ -65,7 +65,7 @@ function CreateDocumentMenu({ onFolderCreate, loading, match, history }) {
         } else if (entityName === DocumentEnums.externalDocument.entityName) {
             result = await addExternalDocument({ ...sharedData, uri: "" }).unwrap()
         } else if (entityName === DocumentEnums.file.entityName) {
-            result = await addFile({ ...sharedData }).unwrap()
+            result = await addFile({ ...sharedData, filename: "", mimeType: "", rawContent: "" }).unwrap()
         }
 
         if (result === null) return

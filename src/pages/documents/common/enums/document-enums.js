@@ -26,25 +26,30 @@ export const DocumentEnums = Object.freeze({
         id: `${ONTOLOGY_PREFIX}InternalDocument`,
         entityName: "internaldocument",
         name: "Internal Document",
+        capitalized: "InternalDocument",
     },
     externalDocument: {
         id: `${ONTOLOGY_PREFIX}ExternalDocument`,
         entityName: "externaldocument",
         name: "External Document",
+        capitalized: "ExternalDocument",
     },
     file: {
         id: `${ONTOLOGY_PREFIX}File`,
         entityName: "file",
         name: "File",
+        capitalized: "File",
     },
     material: {
         id: `${ONTOLOGY_PREFIX}Material`,
         entityName: "material",
         name: "Material",
+        capitalized: "Material",
     },
     folder: {
         id: `${ONTOLOGY_PREFIX}Folder`,
         entityName: "folder",
         name: "Folder",
+        capitalized: "Folder",
     },
 })

@@ -24,7 +24,7 @@ export const eventApi = createApi({
                         _id
                         courses_name
                         courses_description
-                        courses_startDate
+                        courses_startDate(order: ASC)
                         courses_endDate
                         courses_location
                         courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -67,7 +67,7 @@ export const eventApi = createApi({
                       _type
                       courses_name
                       courses_description
-                      courses_startDate
+                      courses_startDate(order: ASC)
                       courses_endDate
                       courses_location
                       courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -119,7 +119,7 @@ export const eventApi = createApi({
                       _type
                       courses_name
                       courses_description
-                      courses_startDate
+                      courses_startDate(order: ASC)
                       courses_endDate
                       courses_location
                       courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -158,7 +158,7 @@ export const eventApi = createApi({
                     _type
                     courses_name
                     courses_description
-                    courses_startDate
+                    courses_startDate(order: ASC)
                     courses_endDate
                     courses_location
                     courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -197,7 +197,7 @@ export const eventApi = createApi({
                     _type
                     courses_name
                     courses_description
-                    courses_startDate
+                    courses_startDate(order: ASC)
                     courses_endDate
                     courses_location
                     courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -236,7 +236,7 @@ export const eventApi = createApi({
                     _type
                     courses_name
                     courses_description
-                    courses_startDate
+                    courses_startDate(order: ASC)
                     courses_endDate
                     courses_location
                     courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {
@@ -275,7 +275,7 @@ export const eventApi = createApi({
                     _type
                     courses_name
                     courses_description
-                    courses_startDate
+                    courses_startDate(order: ASC)
                     courses_endDate
                     courses_location
                     courses_courseInstance${courseInstanceId ? getSelectById(courseInstanceId) : ""} {

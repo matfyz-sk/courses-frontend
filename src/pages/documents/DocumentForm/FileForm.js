@@ -1,143 +1,44 @@
-import { Button, FormHelperText, IconButton, Input, InputLabel, TextField } from "@material-ui/core"
-import { customTheme } from "../styles"
-import { MdDelete, MdHistory, MdRestorePage } from "react-icons/md"
+import { Box, Button, FormHelperText, Input, InputLabel, TextField } from "@material-ui/core"
 import { Link, withRouter } from "react-router-dom"
 import React, { useEffect, useState } from "react"
-import { Alert } from "@material-ui/lab"
-import { HiDownload } from "react-icons/hi"
-import { fileToBase64, getShortID } from "../../../helperFunctions"
+import { fileToBase64 } from "../../../helperFunctions"
 import downloadBase64File from "../common/functions/downloadBase64File"
-import { redirect } from "../../../constants/redirect"
-import * as ROUTES from "../../../constants/routes"
-import { useAddFileMutation, useGetFileQuery, useUpdateFileMutation } from "../../../services/documents"
 
-function FileForm({ match, history, parentFolderId, handleEdit }) {
-    const { course_id: courseId, document_id: documentId } = match.params
+const MAX_FILE_SIZE = 8 * 1024 * 1024
+const MAX_FILE_SIZE_BEFORE_BASE64 = 3 * (MAX_FILE_SIZE / 4)
 
-    const [updateFile] = useUpdateFileMutation()
-    // GraphQL would not suffice for base64 conversions because of it's 1MB limit, so I had to use REST with limit 8MB
-    const [addFile] = useAddFileMutation()
-    const { data: fileData, isFetching } = useGetFileQuery(documentId, { skip: !documentId })
-    const file = fileData?.[0]
-
-    const [name, setName] = useState(file?.name ?? "")
-    const [filename, setFilename] = useState(file?.filename ?? "")
-    const [mimeType, setMimeType] = useState(file?.mimeType ?? "")
-    const [rawContent, setRawContent] = useState(file?.rawContent ?? "")
-    const [isDeleted, setIsDeleted] = useState(file?.isDeleted ?? false)
-
-    const [filePath, setFilePath] = useState("")
-
-    // const [isMaterial, setIsMaterial] = useState(false)
-
-    const isInEditingMode = documentId !== undefined
-    const isReadOnly = isDeleted
+function FileForm({ document, handleDocumentChange, isReadOnly }) {
+    const { name, filename, mimeType, rawContent } = document ?? {}
+    const [file, setFile] = useState(null)
+    const [error, setError] = useState("")
 
     useEffect(() => {
-        if (file) {
-            setName(file.name ?? "")
-            setFilename(file.filename ?? "")
-            setMimeType(file.mimeType ?? "")
-            setRawContent(file.rawContent ?? "")
-            setIsDeleted(file.isDeleted ?? false)
+        if (!file) return
+        if (file.size > MAX_FILE_SIZE_BEFORE_BASE64) {
+            setError(`File size is too big (max size is ${MAX_FILE_SIZE_BEFORE_BASE64} B)`)
+            return
         }
-    }, [isFetching])
+        setError("")
+        fileToBase64(file)
+            .then(base64Content =>
+                handleDocumentChange({
+                    rawContent: base64Content,
+                    mimeType: file.type,
+                    filename: file.name,
+                })
+            )
+            .catch(() => setError("Error while reading file"))
+    }, [file])
 
-    const onChangeFile = e => {
-        fileToBase64(e.target.files[0]).then(base64Content => {
-            setRawContent(base64Content)
-        })
-        setMimeType(e.target.files[0].type)
-        setFilename(e.target.files[0].name)
-        setFilePath(e.target.value)
-    }
 
     const onDownloadFile = async e => {
         e.preventDefault()
         downloadBase64File(rawContent, filename, mimeType, window)
     }
 
-    const onEdit = async _ => {
-        const body = {
-            name,
-            filename,
-            mimeType,
-            rawContent,
-            isDeleted: false,
-            courseInstances: file?.courseInstances?.map(item => item["@id"]) ?? [],
-            previousDocumentVersion: file["@id"],
-            historicDocumentVersions: [...file.historicDocumentVersions.map(item => item["@id"]), file["@id"]],
-        }
-        try {
-            const newDocumentId = await addFile(body).unwrap()
-            await updateFile({
-                id: getShortID(file["@id"]),
-                body: { nextDocumentVersion: newDocumentId },
-            }).unwrap()
-            await handleEdit(newDocumentId)
-        } catch (e) {
-            console.error(e)
-        }
-    }
-
-    const onInvertIsDeleted = async _ => {
-        try {
-            await updateFile({ id: getShortID(file["@id"]), body: { isDeleted: !isDeleted } }).unwrap()
-            history.push(redirect(ROUTES.DOCUMENTS, [{ key: "course_id", value: courseId }]))
-        } catch (err) {
-            console.error(err)
-        }
-    }
-
-    if (isFetching) {
-        return (
-            <Alert color="success" className="empty-message">
-                Loading...
-            </Alert>
-        )
-    }
-
     return (
         <>
-            <div>
-                {isInEditingMode && (
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            marginBottom: "1em",
-                        }}
-                    >
-                        <IconButton
-                            color="primary"
-                            aria-label="history"
-                            style={{ outline: "None" }}
-                            disabled={isReadOnly || !file?.previousDocumentVersion}
-                            onClick={() =>
-                                history.push(
-                                    redirect(ROUTES.DOCUMENT_HISTORY, [{ key: "course_id", value: courseId }]),
-                                    {
-                                        documentId,
-                                        parentFolderId,
-                                    }
-                                )
-                            }
-                        >
-                            <MdHistory />
-                        </IconButton>
-                        <IconButton
-                            color="primary"
-                            style={{ outline: "None" }}
-                            aria-label={isDeleted ? "restore" : "delete"}
-                            onClick={onInvertIsDeleted}
-                        >
-                            {isDeleted ? <MdRestorePage /> : <MdDelete />}
-                        </IconButton>
-                    </div>
-                )}
-            </div>
-            <div style={{ display: "flex", justifyContent: "center" }}>
+            <Box display="flex" justifyContent="center">
                 <TextField
                     error={name.length === 0}
                     id="name-textfield"
@@ -145,12 +46,12 @@ function FileForm({ match, history, parentFolderId, handleEdit }) {
                     type="text"
                     fullWidth
                     value={name}
-                    onChange={e => setName(e.target.value)}
+                    onChange={e => handleDocumentChange({ name: e.target.value })}
                     helperText={name.length === 0 ? "Name is required" : ""}
                     variant="outlined"
                     disabled={isReadOnly}
                 />
-            </div>
+            </Box>
             <br />
             <Input
                 error={filename.length === 0}
@@ -158,8 +59,7 @@ function FileForm({ match, history, parentFolderId, handleEdit }) {
                 type="file"
                 style={{ display: "none" }}
                 aria-describedby="file-upload-helper-text"
-                value={filePath}
-                onChange={onChangeFile}
+                onChange={e => setFile(e.target.files[0])}
                 disabled={isReadOnly}
             />
             <InputLabel style={{ display: "inline" }} htmlFor="upload-button-file">
@@ -167,57 +67,18 @@ function FileForm({ match, history, parentFolderId, handleEdit }) {
                     Upload
                 </Button>
             </InputLabel>
-            <span style={{ marginLeft: "3em" }}>{filename.length === 0 ? "No file chosen" : filename}</span>
 
-            {filename.length === 0 ? (
-                <FormHelperText id="file-upload-helper-text" error={filename.length === 0}>
-                    {filename.length === 0 ? "A file has to be chosen" : ""}
+            {error || filename.length === 0 ? (
+                <FormHelperText id="file-upload-helper-text" error={!!error}>
+                    Please choose a file
+                    <br />
+                    {error}
                 </FormHelperText>
             ) : (
                 <Link style={{ marginLeft: "1.5em" }} id="file-download" to={{}} onClick={onDownloadFile}>
-                    {mimeType.startsWith("image") ? (
-                        <img
-                            style={{ display: "inline", maxWidth: "150px" }}
-                            src={rawContent}
-                            alt="image of document"
-                        />
-                    ) : (
-                        <HiDownload
-                            style={{
-                                fontSize: "400%",
-                                color: customTheme.palette.primary.main,
-                            }}
-                        />
-                    )}
+                    {file ? file.name : filename}
                 </Link>
             )}
-            <br />
-            <br />
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                }}
-            >
-                <Button
-                    style={{ width: "30%", margin: "auto" }}
-                    size="large"
-                    type="submit"
-                    color="primary"
-                    variant="contained"
-                    disabled={isReadOnly}
-                    onClick={onEdit}
-                >
-                    Save document
-                </Button>
-            </div>
-            {/*<Re  locateDialog*/}
-            {/*    isOpen={isRelocateDialogOpen}*/}
-            {/*    onIsOpenChanged={setIsRelocateDialogOpen}*/}
-            {/*    label={"Restore to"}*/}
-            {/*    onPaste={handlePaste}*/}
-            {/*/>*/}
         </>
     )
 }
