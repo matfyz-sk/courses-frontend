@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {Card, CardBody, CardHeader, CardSubtitle} from 'reactstrap'
 import {NavLink} from 'react-router-dom'
 import './Event.css'
@@ -12,13 +12,21 @@ import {redirect} from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import DocumentReferencesList from '../../documents/common/DocumentReferencesList'
 
-const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => (
+import TopicGraph from "../../topics/TopicManager/TopicGraph";
+import {MdDeviceHub} from "react-icons/md";
+import {IconButton} from "@material-ui/core";
+
+const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => {
+  const [showGraph, setShowGraph] = useState(false)
+
+  return (
+    <>
     <Card id={`${event.id}`} name={`${event.id}`} className="event-card">
       <CardHeader className="event-card-header-flex">
         <NavLink
           to={redirect(ROUTES.EVENT_ID, [
-            { key: 'course_id', value: getShortId(event.courseInstance) },
-            { key: 'event_id', value: event.type + "-" + event.id },
+            {key: 'course_id', value: getShortId(event.courseInstance)},
+            {key: 'event_id', value: event.type + "-" + event.id},
           ])}
           className="subevent-name"
         >
@@ -26,14 +34,19 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => (
             {event.name} ({event.type})
           </div>
         </NavLink>
+        <div style={{marginLeft: 'auto'}}>
+          <IconButton onClick={_ => setShowGraph(true)}>
+            <MdDeviceHub/>
+          </IconButton>
+        </div>
         {isAdmin &&
           (SESSIONS.includes(event.type) ||
             TASKS_EXAMS.includes(event.type) ||
             event.type === 'Block') && (
             <NavLink
               to={redirect(ROUTES.EDIT_EVENT_ID, [
-                { key: 'course_id', value: getShortId(event.courseInstance) },
-                { key: 'event_id', value: event.type + "-" + event.id },
+                {key: 'course_id', value: getShortId(event.courseInstance)},
+                {key: 'event_id', value: event.type + "-" + event.id},
               ])}
               className="edit-delete-buttons"
             >
@@ -42,6 +55,13 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => (
           )}
       </CardHeader>
       <CardBody>
+        {showGraph &&
+          <div style={{width: "100%", height: "600px"}}>
+            <TopicGraph
+              selectedTopicId={null}
+              setSelectedTopicId={null}
+              setShowGraph={setShowGraph}/>
+          </div>}
         <div className="event-dates-container">
           <div className="event-dates-col">
             <CardSubtitle className="event-card-subtitle-double">
@@ -67,22 +87,22 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => (
             </CardSubtitle>
           </>
         )}
-  
+
         {event.type === 'Block' && !detail && (
           <div className="timeline-sessions-tasks-container">
             <div className="subevents-col-left">
               <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
-              <SubEventList events={event.sessions} />
+              <SubEventList events={event.sessions}/>
             </div>
             <div className="subevents-col-right">
               <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
-              <SubEventList events={event.tasks} />
+              <SubEventList events={event.tasks}/>
             </div>
           </div>
         )}
         {event.documentReference && event.documentReference.length > 0 && (
           <>
-            <CardSubtitle  className="event-card-table-subtitle">
+            <CardSubtitle className="event-card-table-subtitle">
               <div style={{width: "100%"}} className="event-subtitle">Documents</div>
             </CardSubtitle>
             <DocumentReferencesList
@@ -112,6 +132,7 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => (
         {/*)}*/}
       </CardBody>
     </Card>
-)
+  </>)
+}
 
 export { EventCard }
