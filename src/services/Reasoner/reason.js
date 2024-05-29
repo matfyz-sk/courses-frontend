@@ -17,7 +17,7 @@ export function reason(data, axioms= visualAxioms, secondaryOnt= visualOntologyT
 
   let restrictions = axiomsOntology.getRestrictions()
 
-  return data.map((dataRow) => {
+  return data?.map((dataRow) => {
     let type = dataRow._type
     let newDataRow = {...dataRow}
 
@@ -39,5 +39,5 @@ export function reason(data, axioms= visualAxioms, secondaryOnt= visualOntologyT
     })
 
     return newDataRow
-  })
+  }) ?? []
 }

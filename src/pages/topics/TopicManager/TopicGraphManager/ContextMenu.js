@@ -8,15 +8,13 @@ import {useUpdateUserInfoMutation} from "../../../../services/user";
 import { getUserID } from '../../../../components/Auth'
 
 import {useContextMenuStyle} from "./styles";
-import {createCustomNode} from "./functions";
 
 export default function ContextMenu(
-  {id, top, left, right, bottom, setSelectedTopicId, ...props}) {
+  {id, top, left, right, bottom, setSelectedTopicId, user, ...props}) {
 
   const contextMenuStyle = useContextMenuStyle()
 
   const { getNode, setNodes, addNodes, setEdges, getNodes } = useReactFlow();
-  const userId = getUserID()
   const [topicDelete, { isError: isDeleteError }] = useDeleteTopicMutation()
   const [newTopic, {error: newTopicError}] = useNewTopicMutation()
   const [updateUser, updateUserResult] = useUpdateUserInfoMutation()
@@ -39,7 +37,6 @@ export default function ContextMenu(
       };
 
       let newNode = {...node, id: result._id, data: {subtopicOf: [id], topicPrerequisite: [], label: 'New topic'}, hidden: true, position}
-      console.log("new node", newNode)
       setNodes((nds) => nds.concat(newNode))
     }
   }
@@ -62,9 +59,21 @@ export default function ContextMenu(
       understands: id
     }
 
-    await updateUser({id: userId, body}).unwrap()
+    await updateUser({id: user._id, body}).unwrap()
       .then(() => {
-        setSelectedTopicId(id)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
+
+  const unmarkAsAchieved = async () => {
+    const body = {
+      understands: user.understands.map(t => t._id).filter(t => t !== id)
+    }
+
+    await updateUser({id: user._id, body}).unwrap()
+      .then(() => {
       })
       .catch(err => {
         console.log(err)
@@ -77,10 +86,11 @@ export default function ContextMenu(
       className={contextMenuStyle.root}
       {...props}
     >
-      {<button onClick={addSubtopic}>Add subtopic</button>}
-      {<button onClick={deleteTopic}>Remove topic</button>}
-      {<button>Set as the learning goal</button>}
-      {<button onClick={markAsAchieved}>Goal achieved</button>}
+      <button onClick={addSubtopic}>Add subtopic</button>
+      <button onClick={deleteTopic}>Remove topic</button>
+      <button>Set as the learning goal</button>
+      <button onClick={markAsAchieved}>Goal achieved</button>
+      <button onClick={unmarkAsAchieved}>Remove from achieved</button>
     </div>
   );
 }

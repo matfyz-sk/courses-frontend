@@ -1,4 +1,3 @@
-import Dagre from '@dagrejs/dagre';
 import React, {useCallback, useEffect, useState, useRef, useMemo} from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -7,10 +6,11 @@ import ReactFlow, {
   useReactFlow, MarkerType, Background, Panel, Controls, useNodesInitialized
 } from 'reactflow';
 
-import {Box, IconButton} from "@material-ui/core";
-import { MdFormatAlignLeft, MdLightbulbOutline } from "react-icons/md";
+import { Box } from "@material-ui/core";
+import { MdLightbulbOutline } from "react-icons/md";
 
 import {useGetTopicsQuery} from "../../../../services/topic";
+import {useGetMaterialsQuery} from "../../../../services/documentsGraph";
 import { getUserID, getUser } from '../../../../components/Auth';
 import {useGetUserQuery, useUpdateUserInfoMutation} from "../../../../services/user";
 
@@ -33,31 +33,44 @@ const nodeTypes =
   { custom: CustomNode };
 
 
-function LayoutFlow({ selectedElementId, setSelectedTopicId}) {
-  const {data: user, userIsLoading} = useGetUserQuery({id: getUserID()})
+function LayoutFlow({ topics, selectedElementId, setSelectedTopicId}) {
+  // const { data: allMaterials } = useGetMaterialsQuery() ?? []
+  const {data: user, isSuccess: isUserSuccess} = useGetUserQuery({id: getUserID()})
+  // if (isUserSuccess) console.log(user)
 
-  const { data: allTopics, isLoading, isFetching } = useGetTopicsQuery() ?? []
-  let topicsWithVisualProperties = reason(allTopics)
-  const topLevelTopics = topicsWithVisualProperties?.filter(topic => topic.subtopicOf.length === 0) ?? []
+  let topicsWithVisualProperties = reason(topics)
+  // let materialsWithVisualProperties = reason(allMaterials)
+  // console.log(materialsWithVisualProperties)
+  //
+  // let entitiesWithVisualProperties = topicsWithVisualProperties.concat(materialsWithVisualProperties)
 
+
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+  if (topics.length > 0 && nodes.length === 0 && isUserSuccess) {
+    console.log("pomoc", topics)
+    setNodes(topicsWithVisualProperties.map(
+      (topic) => {
+        let topicNode = createCustomNode(topic, user[0])
+        topicNode.data.subtopicOf = topic.subtopicOf.map(t => t._id)
+        topicNode.data.topicPrerequisite = topic.topicPrerequisite.map(t => t._id)
+        return topicNode;
+      }))
+  }
 
   const { fitView } = useReactFlow();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(topicsWithVisualProperties.map(
-    (topic) => {
-      let topicNode = createCustomNode(topic, user)
-      topicNode.data.subtopicOf = topic.subtopicOf.map(t => t._id)
-      topicNode.data.topicPrerequisite = topic.topicPrerequisite.map(t => t._id)
-      return topicNode;
-    }));
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  console.log("rerendering LayoutFlow", nodes)
 
   createLayout();
 
   useEffect(()=>{
-    console.log("fitting view to ", selectedElementId)
-    fitView({nodes: [{id: selectedElementId}], duration: 1000})
-  }, [selectedElementId])
+    selectedElementId
+      ? fitView({nodes: [{id: selectedElementId}], duration: 1000})
+      : fitView({duration: 1000})
+
+  }, [selectedElementId, nodes])
 
 
   const [menu, setMenu] = useState(null);
@@ -117,25 +130,23 @@ function LayoutFlow({ selectedElementId, setSelectedTopicId}) {
   }, []);
 
   const highlightNode = useCallback((node) => {
-    setSelectedTopicId(null);
-    console.log("resetting selected topic id", selectedElementId)
+    // console.log("resetting selected topic id", selectedElementId)
     setSelectedTopicId(node.id);
-    console.log("setting selected topic id", selectedElementId)
-    setNodes((prevNodes) => {
-      return prevNodes.map((prevNode) => {
-        if (prevNode.id === node.id) {
-          return {
-            ...prevNode,
-            style: {
-              borderColor: 'orange',
-              strokeWidth: '4px'
-            }
-          };
-        } else {
-          return prevNode;
-        }
-      });
-    });
+    // console.log("setting selected topic id", selectedElementId)
+    // setNodes((prevNodes) => {
+    //   return prevNodes.map((prevNode) => {
+    //     if (prevNode.id === node.id) {
+    //       return {
+    //         ...prevNode,
+    //         style: {
+    //           border: '2px solid orange'
+    //         }
+    //       };
+    //     } else {
+    //       return prevNode;
+    //     }
+    //   });
+    // });
   }, []);
 
 
@@ -161,9 +172,9 @@ function LayoutFlow({ selectedElementId, setSelectedTopicId}) {
       fitView
     >
       <Background />
-      {menu && <ContextMenu setSelectedTopicId={setSelectedTopicId} onClick={onPaneClick} {...menu} />}
+      {menu && <ContextMenu user={user[0]} setSelectedTopicId={setSelectedTopicId} onClick={onPaneClick} {...menu} />}
       <Panel position="top-left" className={tipsPanelStyle.root}>
-        <p><MdLightbulbOutline className={tipsPanelStyle.icon}/> Left click on topic to see options</p>
+        <p><MdLightbulbOutline className={tipsPanelStyle.icon}/> Left click on node to see options</p>
         <p><MdLightbulbOutline className={tipsPanelStyle.icon}/> Hover over topic to highlight prerequisites</p>
       </Panel>
     </ReactFlow>
@@ -172,24 +183,22 @@ function LayoutFlow({ selectedElementId, setSelectedTopicId}) {
 
 
 
-export default function TopicGraph ({selectedElementId, setSelectedTopicId, setShowGraph}) {
+function TopicGraph ({topics, selectedElementId, setSelectedTopicId}) {
   console.log("topics graph")
   return (
     <>
       <Box display="flex" width="100%">
         <h2 style={{ width: "70%" }}></h2>
-        <IconButton
-          style={{ alignSelf: "center", marginLeft: "auto" }}
-          onClick={_ => setShowGraph(false)}>
-          <MdFormatAlignLeft />
-        </IconButton>
       </Box>
 
       <ReactFlowProvider>
         <LayoutFlow
+          topics={topics}
           selectedElementId={selectedElementId}
           setSelectedTopicId={setSelectedTopicId}/>
       </ReactFlowProvider>
     </>
   );
 }
+
+export default TopicGraph

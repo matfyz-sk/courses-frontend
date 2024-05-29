@@ -42,6 +42,7 @@ const useCustomNodeStyle = makeStyles(theme => ({
     height: 100,
   }),
   name: {
+    border: 'none',
     color: '#777',
     fontSize: 14,
     justifySelf: 'center',
@@ -52,6 +53,7 @@ const useCustomNodeStyle = makeStyles(theme => ({
     fontSize: 7,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
     padding: '0 20px 50px',
   },
 }));

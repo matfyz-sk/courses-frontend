@@ -99,8 +99,8 @@ visual-ontology:Document rdf:type owl:NamedIndividual ,
                                   visual-ontology:Icon .
 
 
-###  http://www.courses.matfyz.sk/visual-ontology#Green
-visual-ontology:Green rdf:type owl:NamedIndividual ,
+###  http://www.courses.matfyz.sk/visual-ontology#Palegreen
+visual-ontology:Palegreen rdf:type owl:NamedIndividual ,
                                visual-ontology:Color .
 
 
@@ -134,7 +134,7 @@ visual-ontology:VisualMaterial rdf:type owl:NamedIndividual ,
 visual-ontology:VisualTopic rdf:type owl:NamedIndividual ,
                                      visual-ontology:VisualGraphNode ;
                             visual-ontology:hasPrimaryColor visual-ontology:Lightyellow ;
-                            visual-ontology:hasSecondaryColor visual-ontology:Green ;
+                            visual-ontology:hasSecondaryColor visual-ontology:Palegreen ;
                             visual-ontology:hasShape visual-ontology:Oval .
 
 

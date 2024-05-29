@@ -1,5 +1,5 @@
 export const createCustomNode = (element, user) => {
-  let understands = user?.understands?.includes(element._id)
+  let understands = user?.understands?.some(item => item._id === element._id);
   return {
     id: element._id,
     data: {
@@ -12,3 +12,4 @@ export const createCustomNode = (element, user) => {
     type: 'custom',
   }
 }
+

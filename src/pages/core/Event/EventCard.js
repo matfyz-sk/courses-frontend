@@ -12,9 +12,8 @@ import {redirect} from '../../../constants/redirect'
 import * as ROUTES from '../../../constants/routes'
 import DocumentReferencesList from '../../documents/common/DocumentReferencesList'
 
-import TopicGraph from "../../topics/TopicManager/TopicGraph";
-import {MdDeviceHub} from "react-icons/md";
-import {IconButton} from "@material-ui/core";
+import TopicGraphManager from "../../topics/TopicManager/TopicGraphManager";
+import TopicGraphToggle from "../../topics/TopicManager/TopicGraphToggle";
 
 const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => {
   const [showGraph, setShowGraph] = useState(false)
@@ -34,11 +33,12 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => {
             {event.name} ({event.type})
           </div>
         </NavLink>
-        <div style={{marginLeft: 'auto'}}>
-          <IconButton onClick={_ => setShowGraph(true)}>
-            <MdDeviceHub/>
-          </IconButton>
-        </div>
+
+        <TopicGraphToggle
+          showGraph={showGraph}
+          setShowGraph={setShowGraph}
+        />
+
         {isAdmin &&
           (SESSIONS.includes(event.type) ||
             TASKS_EXAMS.includes(event.type) ||
@@ -54,83 +54,86 @@ const EventCard = ({ onViewableDocumentClick, event, isAdmin, detail }) => {
             </NavLink>
           )}
       </CardHeader>
-      <CardBody>
-        {showGraph &&
-          <div style={{width: "100%", height: "600px"}}>
-            <TopicGraph
-              selectedTopicId={null}
-              setSelectedTopicId={null}
-              setShowGraph={setShowGraph}/>
-          </div>}
-        <div className="event-dates-container">
-          <div className="event-dates-col">
-            <CardSubtitle className="event-card-subtitle-double">
-              <div className="event-subtitle-double">From</div>
-              {getDisplayDateTime(event.startDate, true)}
-            </CardSubtitle>
-          </div>
-          <div className="event-dates-col">
-            <CardSubtitle className="event-card-subtitle-double">
-              <div className="event-subtitle-double">To</div>
-              {getDisplayDateTime(event.endDate, true)}
-            </CardSubtitle>
-          </div>
+      {showGraph ?
+        <div style={{width: "100%", height: "600px"}}>
+          <TopicGraphManager
+            eventId={event.id}
+            selectedTopicId={null}
+            setSelectedTopicId={null}
+            setShowGraph={setShowGraph}/>
         </div>
-        {/*<CardText className="event-card-text">{event.description}</CardText>*/}
-        <CardSubtitle className="event-card-subtitle">Description</CardSubtitle>
-        <div className="fake-table">{event.description}</div>
-        {event.place && (
-          <>
-            <CardSubtitle className="event-card-subtitle-one-line">
-              <div className="event-subtitle">Location</div>
-              <div className="event-one-line-text">{event.place}</div>
-            </CardSubtitle>
-          </>
-        )}
-
-        {event.type === 'Block' && !detail && (
-          <div className="timeline-sessions-tasks-container">
-            <div className="subevents-col-left">
-              <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
-              <SubEventList events={event.sessions}/>
+        :
+        <CardBody>
+          <div className="event-dates-container">
+            <div className="event-dates-col">
+              <CardSubtitle className="event-card-subtitle-double">
+                <div className="event-subtitle-double">From</div>
+                {getDisplayDateTime(event.startDate, true)}
+              </CardSubtitle>
             </div>
-            <div className="subevents-col-right">
-              <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
-              <SubEventList events={event.tasks}/>
+            <div className="event-dates-col">
+              <CardSubtitle className="event-card-subtitle-double">
+                <div className="event-subtitle-double">To</div>
+                {getDisplayDateTime(event.endDate, true)}
+              </CardSubtitle>
             </div>
           </div>
-        )}
-        {event.documentReference && event.documentReference.length > 0 && (
-          <>
-            <CardSubtitle className="event-card-table-subtitle">
-              <div style={{width: "100%"}} className="event-subtitle">Documents</div>
-            </CardSubtitle>
-            <DocumentReferencesList
-              onViewableDocumentClick={onViewableDocumentClick}
-              documentReferences={event.documentReference}
-            />
-          </>
-        )}
-        {/*{event.materials && event.materials.length > 0 && (*/}
-        {/*  <>*/}
-        {/*    <CardSubtitle className="event-card-table-subtitle">*/}
-        {/*      Materials*/}
-        {/*    </CardSubtitle>*/}
-        {/*    <Table key={event.id} className="materials-table">*/}
-        {/*      <tbody>*/}
-        {/*        {event.materials.map(material => (*/}
-        {/*          <tr key={material.id} className="event-list-group-item">*/}
-        {/*            <td className="materials-td">*/}
-        {/*              {getIcon('Material')}*/}
-        {/*              <div className="material-name">{material.name}</div>*/}
-        {/*            </td>*/}
-        {/*          </tr>*/}
-        {/*        ))}*/}
-        {/*      </tbody>*/}
-        {/*    </Table>*/}
-        {/*  </>*/}
-        {/*)}*/}
-      </CardBody>
+          {/*<CardText className="event-card-text">{event.description}</CardText>*/}
+          <CardSubtitle className="event-card-subtitle">Description</CardSubtitle>
+          <div className="fake-table">{event.description}</div>
+          {event.place && (
+            <>
+              <CardSubtitle className="event-card-subtitle-one-line">
+                <div className="event-subtitle">Location</div>
+                <div className="event-one-line-text">{event.place}</div>
+              </CardSubtitle>
+            </>
+          )}
+
+          {event.type === 'Block' && !detail && (
+            <div className="timeline-sessions-tasks-container">
+              <div className="subevents-col-left">
+                <CardSubtitle className="subevents-title">Sessions</CardSubtitle>
+                <SubEventList events={event.sessions}/>
+              </div>
+              <div className="subevents-col-right">
+                <CardSubtitle className="subevents-title">Tasks</CardSubtitle>
+                <SubEventList events={event.tasks}/>
+              </div>
+            </div>
+          )}
+          {event.documentReference && event.documentReference.length > 0 && (
+            <>
+              <CardSubtitle className="event-card-table-subtitle">
+                <div style={{width: "100%"}} className="event-subtitle">Documents</div>
+              </CardSubtitle>
+              <DocumentReferencesList
+                onViewableDocumentClick={onViewableDocumentClick}
+                documentReferences={event.documentReference}
+              />
+            </>
+          )}
+          {/*{event.materials && event.materials.length > 0 && (*/}
+          {/*  <>*/}
+          {/*    <CardSubtitle className="event-card-table-subtitle">*/}
+          {/*      Materials*/}
+          {/*    </CardSubtitle>*/}
+          {/*    <Table key={event.id} className="materials-table">*/}
+          {/*      <tbody>*/}
+          {/*        {event.materials.map(material => (*/}
+          {/*          <tr key={material.id} className="event-list-group-item">*/}
+          {/*            <td className="materials-td">*/}
+          {/*              {getIcon('Material')}*/}
+          {/*              <div className="material-name">{material.name}</div>*/}
+          {/*            </td>*/}
+          {/*          </tr>*/}
+          {/*        ))}*/}
+          {/*      </tbody>*/}
+          {/*    </Table>*/}
+          {/*  </>*/}
+          {/*)}*/}
+        </CardBody>
+      }
     </Card>
   </>)
 }

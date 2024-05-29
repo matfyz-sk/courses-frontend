@@ -7,7 +7,7 @@ import {
 import React, { useState } from "react"
 import TextField from "@material-ui/core/TextField"
 import { Box, Button, IconButton, Snackbar, Typography } from "@material-ui/core"
-import { MdChevronRight, MdClear, MdDelete, MdDeviceHub, MdEdit, MdExpandMore } from "react-icons/md"
+import { MdChevronRight, MdClear, MdDelete, MdEdit, MdExpandMore } from "react-icons/md"
 import { withRouter } from "react-router-dom"
 import { useDebouncedCallback } from "use-debounce"
 import TreeItem from "@material-ui/lab/TreeItem"
@@ -168,7 +168,7 @@ function TopicDetailEditing({ topic, handleEditCancel, handleTopicDelete }) {
     )
 }
 
-function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange, setShowGraph }) {
+function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange }) {
     const { data: allTopics, isFetching } = useGetTopicsQuery()
     const [newTopic, { isError: isAddError }] = useNewTopicMutation()
     const [updateTopic, { isError: isUpdateError }] = useUpdateTopicMutation()
@@ -237,12 +237,6 @@ function TopicDetail({ topicId, handleTopicIdChange, isEdit, handleIsEditChange,
                             >
                                 <MdEdit />
                             </IconButton>
-                          <IconButton
-                              style={{ alignSelf: "center" }}
-                              onClick={_ => setShowGraph(true)}>
-                            <MdDeviceHub />
-                          </IconButton>
-
                         </Box>
                         <p>{topic.description}</p>
                     </>

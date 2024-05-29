@@ -23,32 +23,34 @@ function createLayout() {
     }),
     compareElements
   );
-  console.log("nodes to be layouted", elements)
+  // console.log("nodes to be layouted", elements)
 
-  // returns nodes with new positions and their sizes
-  const getLayoutedElements = (nodes, edges, options) => {
+  // returns nodes with new positions, and size of the new graph
+  const layoutElements = (nodes, edges, direction) => {
     let g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-    g.setGraph({rankdir: options.direction, nodesep: 150, edgesep: 70, ranksep: 70});
+    g.setGraph({rankdir: direction, nodesep: 150, edgesep: 70, ranksep: 70});
 
-    nodes.forEach((node) => g.setNode(node.id, {
-      width: node?.style?.width || NODE_WIDTH,
-      height: node?.style?.height || NODE_HEIGHT}));
+    nodes.forEach((node) => {
+      g.setNode(node.id, {
+        width: node.style?.width || NODE_WIDTH,
+        height: node.style?.height || NODE_HEIGHT})}
+    );
     edges.forEach((edge) => g.setEdge(edge.source, edge.target));
 
     Dagre.layout(g);
-    let graphInfo = g.graph();
+    const graphInfo = g.graph();
 
     return {
       nodes: (
         nodes.map((node) => {
-            let { x, y } = g.node(node.id);
+            const { x, y, width, height } = g.node(node.id);
             return { ...node, position: {
-              x: x-NODE_WIDTH/2,
-              y: y-NODE_HEIGHT/2 }
+              x: x - width / 2,
+              y: y - height / 2 }
             };
           }
         )),
-      sizes: {width: graphInfo.width, height: graphInfo.height}
+      size: {width: graphInfo.width, height: graphInfo.height}
     }
   };
 
@@ -107,9 +109,9 @@ function createLayout() {
         let topicTree = topicNodeTrees[i]
         let topicTreeEdges = subtopicEdges[i]
 
-        let l = getLayoutedElements(topicTree, topicTreeEdges, {direction: 'TB'})
+        let l = layoutElements(topicTree, topicTreeEdges, 'TB')
         layouted.nodes[i] = l.nodes
-        layouted.sizes[i] = l.sizes
+        layouted.sizes[i] = l.size
       }
 
       // 'group' type graph nodes for topic trees (only for layouting purposes, won't be visible)
@@ -145,7 +147,7 @@ function createLayout() {
               target: prereqGroupId,
             }}))})
 
-      let layoutedTrees = getLayoutedElements(parentNodes, prereqGroupEdges, {direction: 'LR'})
+      let layoutedTrees = layoutElements(parentNodes, prereqGroupEdges, 'LR')
 
       // real graph edges from prerequisite relations between topics
       let prereqEdges = []
@@ -158,14 +160,14 @@ function createLayout() {
               source: topic.id,
               target: prereq,
               type: 'smart',
-              sourceHandle: 'c',
-              targetHandle: 'd',
+              sourceHandle: 'left',
+              targetHandle: 'right',
             }}))})
 
 
       let newNodes = layoutedTrees.nodes.concat([].concat(...layouted.nodes))
       setNodes(newNodes);
-      console.log("layouting done", newNodes)
+      // console.log("layouting done", newNodes)
       setEdges(prereqEdges.concat([].concat(...subtopicEdges)))
     };
 

@@ -13,7 +13,6 @@ function TopicManager() {
     const [isEdit, setIsEdit] = useState(false)
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
     const error = newTopicError
-    const [showGraph, setShowGraph] = useState(false)
 
     const handleIsEditChange = bool => {
         setIsEdit(bool)
@@ -71,8 +70,6 @@ function TopicManager() {
                             setSelectedTopicId={setSelectedTopicId}
                             isEdit={isEdit}
                             handleIsEditChange={handleIsEditChange}
-                            setShowGraph = {setShowGraph}
-                            showGraph = {showGraph}
                             />
                         </Grid>
                     </Grid>

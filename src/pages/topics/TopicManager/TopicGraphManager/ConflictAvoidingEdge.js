@@ -18,14 +18,15 @@ export function ConflictAvoidingEdge(props) {
     markerEnd,
   } = props
 
-  const sourceNode = useNodes().filter(node => node.id === source)[0]
-  const targetNode = useNodes().filter(node => node.id === target)[0]
+  const allNodes = useNodes()
+  const sourceNode = allNodes.filter(node => node.id === source)[0]
+  const targetNode = allNodes.filter(node => node.id === target)[0]
 
   // can conflict with target and source group nodes
-  const nodes = useNodes().filter(node => node.id !== sourceNode.parentNode && node.id !== targetNode.parentNode);
+  const nodes = allNodes.filter(node => node.id !== sourceNode.parentNode && node.id !== targetNode.parentNode);
 
   const myOptions = {
-    nodePadding: 10
+    nodePadding: 20
   }
 
   const smartEdge = getSmartEdge({

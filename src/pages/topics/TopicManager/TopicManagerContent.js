@@ -1,15 +1,25 @@
 import TopicDetail from "./TopicDetail"
-import React from "react"
-import TopicGraph from "./TopicGraph";
+import React, {useState} from "react"
+import TopicGraphManager from "./TopicGraphManager";
+import {MdDeviceHub, MdEdit, MdFormatAlignLeft} from "react-icons/md";
+import {Box, IconButton} from "@material-ui/core";
+import TopicGraphToggle from "./TopicGraphToggle";
 
-function TopicManagerContent({ selectedTopicId, setSelectedTopicId, isEdit, handleIsEditChange, setShowGraph, showGraph }) {
+function TopicManagerContent({ selectedTopicId, setSelectedTopicId, isEdit, handleIsEditChange }) {
+  const [showGraph, setShowGraph] = useState(false)
+
     return (
         <>
+          <TopicGraphToggle
+            showGraph={showGraph}
+            setShowGraph={setShowGraph}
+          />
+
           {showGraph ? (
               <div style={{width: "100%", height: "600px"}}>
-                <TopicGraph
+                <TopicGraphManager
                   selectedElementId={selectedTopicId}
-                  setSelectedTopicId={setSelectedTopicId}
+                  setSelectedElementId={setSelectedTopicId}
                   setShowGraph={setShowGraph}/>
               </div>) :
             (selectedTopicId ? (
