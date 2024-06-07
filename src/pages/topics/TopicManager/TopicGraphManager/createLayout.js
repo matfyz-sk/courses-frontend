@@ -23,7 +23,6 @@ function createLayout() {
     }),
     compareElements
   );
-  // console.log("nodes to be layouted", elements)
 
   // returns nodes with new positions, and size of the new graph
   const layoutElements = (nodes, edges, direction) => {
@@ -60,7 +59,8 @@ function createLayout() {
     }
 
     const runLayout = () => {
-      const nodes = [...elements.nodeMap.values().filter((n) => n.type !== 'group')];
+      const nodes = [...elements.nodeMap.values().filter((n) => n.type !== 'group' && n.data.type !== 'event')];
+      const eventNode = [...elements.nodeMap.values().filter((n) => n.data?.type === 'event')];
 
       let topicNodeTrees = []
       let subtopicEdges = []
@@ -68,7 +68,6 @@ function createLayout() {
 
       let topNodes = nodes?.filter(node => node.data?.subtopicOf?.length === 0) ?? []
       topNodes.forEach(node => {
-
         topicNodeTrees[i] = []
         subtopicEdges[i] = []
 
@@ -133,6 +132,7 @@ function createLayout() {
         })
       }
 
+
       // edges from prerequisite relations between whole topic trees
       let prereqGroupEdges = []
       nodes.forEach(topic => {
@@ -147,12 +147,12 @@ function createLayout() {
               target: prereqGroupId,
             }}))})
 
-      let layoutedTrees = layoutElements(parentNodes, prereqGroupEdges, 'LR')
+      let layoutedTrees = layoutElements(parentNodes.concat(eventNode), prereqGroupEdges, 'LR')
 
       // real graph edges from prerequisite relations between topics
       let prereqEdges = []
       nodes.forEach(topic => {
-        let prerequisities = topic.data?.topicPrerequisite
+        let prerequisities = topic.data?.topicPrerequisite ?? []
         prereqEdges = prereqEdges.concat(
           prerequisities?.map(prereq => {
             return {
@@ -167,7 +167,6 @@ function createLayout() {
 
       let newNodes = layoutedTrees.nodes.concat([].concat(...layouted.nodes))
       setNodes(newNodes);
-      // console.log("layouting done", newNodes)
       setEdges(prereqEdges.concat([].concat(...subtopicEdges)))
     };
 
@@ -179,33 +178,10 @@ export default createLayout;
 
 function compareElements(xs, ys) {
   return (
-    compareNodes(xs.nodeMap, ys.nodeMap) && compareEdges(xs.edgeMap, ys.edgeMap)
+    compareNodes(xs.nodeMap, ys.nodeMap)
   );
 }
 
 function compareNodes(xs, ys) {
-  if (xs.size !== ys.size) return false;
-
-  for (const [id, x] of xs.entries()) {
-    const y = ys.get(id);
-
-    if (!y) return false;
-    if (x.resizing || x.dragging) return true;
-    if (x.width !== y.width || x.height !== y.height) return false;
-  }
-
-  return true;
-}
-
-function compareEdges(xs, ys) {
-  if (xs.size !== ys.size) return false;
-
-  for (const [id, x] of xs.entries()) {
-    const y = ys.get(id);
-
-    if (!y) return false;
-    if (x.source !== y.source || x.target !== y.target) return false;
-  }
-
-  return true;
+  return (xs.size === ys.size);
 }

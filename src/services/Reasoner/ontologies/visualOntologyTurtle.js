@@ -133,7 +133,7 @@ visual-ontology:VisualMaterial rdf:type owl:NamedIndividual ,
 ###  http://www.courses.matfyz.sk/visual-ontology#VisualTopic
 visual-ontology:VisualTopic rdf:type owl:NamedIndividual ,
                                      visual-ontology:VisualGraphNode ;
-                            visual-ontology:hasPrimaryColor visual-ontology:Lightyellow ;
+                            visual-ontology:hasPrimaryColor visual-ontology:LemonChiffon ;
                             visual-ontology:hasSecondaryColor visual-ontology:Palegreen ;
                             visual-ontology:hasShape visual-ontology:Oval .
 
@@ -143,8 +143,8 @@ visual-ontology:White rdf:type owl:NamedIndividual ,
                                visual-ontology:Color .
 
 
-###  http://www.courses.matfyz.sk/visual-ontology#Lightyellow
-visual-ontology:Lightyellow rdf:type owl:NamedIndividual ,
+###  http://www.courses.matfyz.sk/visual-ontology#LemonChiffon
+visual-ontology:LemonChiffon rdf:type owl:NamedIndividual ,
                                 visual-ontology:Color .
 
 

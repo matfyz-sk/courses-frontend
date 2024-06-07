@@ -765,7 +765,7 @@ export const documentsGraphApi = createApi({
                                           )}`
                                         : ""
                                 }
-                                
+
                                 ${
                                     entityName === DocumentEnums.internalDocument.entityName
                                         ? `
@@ -836,7 +836,7 @@ export const documentsGraphApi = createApi({
                                           )}`
                                         : ""
                                 }
-                                
+
                                 ${
                                     entityName === DocumentEnums.internalDocument.entityName
                                         ? `
@@ -908,10 +908,10 @@ export const documentsGraphApi = createApi({
             providesTags: ["Material"],
         }),
         getMaterials: builder.query({
-            query: ({ documentReferenceIds }) => ({
+            query: () => ({
                 document: gql`
                     query {
-                        courses_Material(_id: ${getArrayFormat(documentReferenceIds)}) {
+                        courses_Material {
                             _id
                             courses_covers {
                                 _id

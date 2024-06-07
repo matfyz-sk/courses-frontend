@@ -46,17 +46,6 @@ class Ontology {
       .map((uri) => {
         return fromNT(uri).value}
       )
-
-    // let openedClasses = [className]
-    // let subclasses = []
-    // while (openedClasses.length !== 0) {
-    //   let subclass = openedClasses.pop()
-    //   subclasses.push(subclass.value)
-    //   let newSubclasses = this.store.each(null, RDFS('subClassOf'), subclass)
-    //   openedClasses.push(...newSubclasses)
-    // }
-    //
-    // return subclasses
   }
 
   getClasses() {

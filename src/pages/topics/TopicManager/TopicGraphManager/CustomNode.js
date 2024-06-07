@@ -1,42 +1,63 @@
-import React, {memo, useCallback} from 'react';
+import React, {memo, useCallback, useState} from 'react';
 import {Handle, Position, useReactFlow, useStore} from 'reactflow';
-import {useCustomNodeStyle} from "./styles";
+import './styles.css'
+import {useDebouncedCallback} from "use-debounce";
+import {useUpdateTopicMutation} from "../../../../services/topic";
 
 function CustomNode({ id, data }) {
-  const customNodeStyle = useCustomNodeStyle({ background: data.color})
+  const [updateTopic, { error }] = useUpdateTopicMutation()
 
-  const zoomSelector = (s) => s.transform[2] >= 1;
-  const showContent = useStore(zoomSelector);
+  const showDescription = useStore((s) => s.transform[2] >= 1);
   const { setNodes } = useReactFlow();
+  const [name, setName] = useState(data.label ?? "")
 
-
-  const updateNodeName = useCallback((newLabel) =>
-    setNodes((prevNodes) => {
-        return prevNodes.map((prevNode) => {
-          if (prevNode.id === id) {
-            return {
-              ...prevNode,
-              data: {
-                ...prevNode.data,
-                label: newLabel
+  const debouncedUpdateNodeName = useDebouncedCallback((newName) => {
+    updateTopic({
+      id: id,
+      body: { name: newName },
+    })
+      .unwrap()
+      .then((response) => {
+        if (response) {
+          setNodes((prevNodes) => {
+            return prevNodes.map((prevNode) => {
+              if (prevNode.id === id) {
+                return {
+                  ...prevNode,
+                  data: {
+                    ...prevNode.data,
+                    label: newName },
+                };
               }
-            };
-          }
-          return prevNode;
-        });
-      }
-    ), [setNodes, id]);
+
+              return prevNode;
+            });
+          });
+        }
+
+        else {
+          console.log('topic name could not be updated');
+        }
+      })
+      .catch((error) => console.log(error));
+  }, 1000);
+
+  const handleNameChange = useCallback((evt) => {
+    const newName = evt.target.value;
+    setName(newName);
+    debouncedUpdateNodeName(newName);
+  }, [debouncedUpdateNodeName]);
 
 
   return (
-    <div className={customNodeStyle.root}>
+    <div className="custom-node" style={{backgroundColor: data.understood ? data.secondaryColor : data.primaryColor}}>
       <input
-        value={data.label}
-        className={customNodeStyle.name}
-        onChange={(evt) => updateNodeName(evt.target.value)}
+        value={name}
+        className="custom-node-name"
+        onChange={handleNameChange}
       />
-      {/*<p className={customNodeStyle.name}>{data.label}</p>*/}
-      { showContent && <p className={customNodeStyle.description}>{data.description}</p>}
+
+      { showDescription && <p className="custom-node-description">{data.description}</p>}
       <Handle type="target" position={Position.Top} id="top" isConnectable={true} />
       <Handle type="source" position={Position.Bottom} id="bottom" isConnectable={true} />
       <Handle type="source" position={Position.Left} id="left" isConnectable={true} />

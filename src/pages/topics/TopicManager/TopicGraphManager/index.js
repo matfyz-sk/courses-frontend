@@ -4,10 +4,14 @@ import TopicGraph from "./TopicGraph"
 import {useGetEventByTypeQuery} from "../../../../services/event";
 import {getFullID} from "../../../../helperFunctions";
 import {useGetTopicsQuery} from "../../../../services/topic";
+import {ReactFlowProvider} from "reactflow";
+import {withRouter} from "react-router-dom";
+import {connect} from "react-redux";
 
 
-function TopicGraphManager({selectedElementId, setSelectedElementId, eventId}) {
+function TopicGraphManager({selectedElementId, setSelectedElementId, eventId, privileges}) {
   let topics = []
+
   const {
     data: allTopics,
     isSuccess: isTopicsSuccess,
@@ -32,15 +36,26 @@ function TopicGraphManager({selectedElementId, setSelectedElementId, eventId}) {
   if (eventId && isEventSuccess) {
       const topicIds = event[0].requires
       topics = allTopics.filter(t1 => topicIds.some(t2 => t2._id === t1._id))
-      console.log()
   }
 
   return (
-    <TopicGraph
-      topics={topics}
-      selectedElementId={selectedElementId}
-      setSelectedTopicId={setSelectedElementId}/>
-  )
+    <>
+      <ReactFlowProvider>
+        <TopicGraph
+          topics={topics}
+          event={event}
+          selectedElementId={selectedElementId}
+          setSelectedTopicId={setSelectedElementId}/>
+      </ReactFlowProvider>
+    </>
+  );
 }
 
-export default TopicGraphManager
+const mapStateToProps = ({ privilegesReducer }) => {
+  const privileges = privilegesReducer
+  return {
+    privileges,
+  }
+}
+
+export default withRouter(connect(mapStateToProps)(TopicGraphManager))

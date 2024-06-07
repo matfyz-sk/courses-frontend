@@ -7,7 +7,7 @@ import {domainOntologyTurtle} from "./ontologies/domainOntologyTurtle";
 import {visualAxioms} from "./ontologies/axioms";
 
 import { ONTOLOGY_PREFIX, VISUAL_ONTOLOGY_PREFIX } from "../../constants/ontology";
-import Ontology from "./OntologyParser";
+import Ontology from "./Ontology";
 
 
 export function reason(data, axioms= visualAxioms, secondaryOnt= visualOntologyTurtle, secondaryOntPrefix = VISUAL_ONTOLOGY_PREFIX) {

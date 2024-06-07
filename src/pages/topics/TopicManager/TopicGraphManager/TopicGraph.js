@@ -1,67 +1,62 @@
-import React, {useCallback, useEffect, useState, useRef, useMemo} from 'react';
-import ReactFlow, {
-  ReactFlowProvider,
-  useNodesState,
-  useEdgesState,
-  useReactFlow, MarkerType, Background, Panel, Controls, useNodesInitialized
-} from 'reactflow';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import ReactFlow, {Background, Panel, useEdgesState, useNodesState, useReactFlow} from 'reactflow';
 
-import { Box } from "@material-ui/core";
-import { MdLightbulbOutline } from "react-icons/md";
+import {MdLightbulbOutline} from "react-icons/md";
 
-import {useGetTopicsQuery} from "../../../../services/topic";
-import {useGetMaterialsQuery} from "../../../../services/documentsGraph";
-import { getUserID, getUser } from '../../../../components/Auth';
-import {useGetUserQuery, useUpdateUserInfoMutation} from "../../../../services/user";
-
+import {getUserID} from '../../../../components/Auth';
+import {useGetUserQuery} from "../../../../services/user";
 
 import {ConflictAvoidingEdge} from "./ConflictAvoidingEdge";
 import CustomNode from "./CustomNode";
-import ContextMenu from './ContextMenu';
+import createLayout from "./createLayout";
+import {createCustomNode} from "./functions";
+
+import StudentContextMenu from './ContextMenu/StudentContextMenu'
+import InstructorContextMenu from './ContextMenu/InstructorContextMenu'
 
 import 'reactflow/dist/style.css';
 import {useTipsPanelStyle} from "./styles";
 import {reason} from "../../../../services/Reasoner/reason";
 
-import createLayout from "./createLayout";
-import {createCustomNode} from "./functions";
+import {withRouter} from "react-router-dom";
+import {connect} from "react-redux";
 
-const edgeTypes = {
-  smart: ConflictAvoidingEdge };
-
-const nodeTypes =
-  { custom: CustomNode };
+const edgeTypes = { smart: ConflictAvoidingEdge };
+const nodeTypes = { custom: CustomNode };
 
 
-function LayoutFlow({ topics, selectedElementId, setSelectedTopicId}) {
-  // const { data: allMaterials } = useGetMaterialsQuery() ?? []
+function TopicGraph({ topics, event, selectedElementId, setSelectedTopicId, privileges}) {
   const {data: user, isSuccess: isUserSuccess} = useGetUserQuery({id: getUserID()})
-  // if (isUserSuccess) console.log(user)
 
   let topicsWithVisualProperties = reason(topics)
-  // let materialsWithVisualProperties = reason(allMaterials)
-  // console.log(materialsWithVisualProperties)
-  //
-  // let entitiesWithVisualProperties = topicsWithVisualProperties.concat(materialsWithVisualProperties)
+  let eventWithVisualProperties = reason(event)
 
+  // for now, since the topics UI is global now and is not tied to any course
+  const canEdit = privileges.inGlobal === 'admin'
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   if (topics.length > 0 && nodes.length === 0 && isUserSuccess) {
-    console.log("pomoc", topics)
-    setNodes(topicsWithVisualProperties.map(
+    let initialNodes = topicsWithVisualProperties.map(
       (topic) => {
         let topicNode = createCustomNode(topic, user[0])
         topicNode.data.subtopicOf = topic.subtopicOf.map(t => t._id)
         topicNode.data.topicPrerequisite = topic.topicPrerequisite.map(t => t._id)
+        topicNode.data.type = 'topic'
         return topicNode;
-      }))
+      })
+
+    if (event) {
+      const eventNode = createCustomNode(eventWithVisualProperties[0])
+      eventNode.data.type = 'event'
+      initialNodes = initialNodes.concat(eventNode)
+    }
+
+    setNodes(initialNodes)
   }
 
   const { fitView } = useReactFlow();
-
-  console.log("rerendering LayoutFlow", nodes)
 
   createLayout();
 
@@ -78,9 +73,10 @@ function LayoutFlow({ topics, selectedElementId, setSelectedTopicId}) {
 
   const onNodeContextMenu = useCallback(
     (event, node) => {
-      if (node.type === "group") {
+      if (node.type === "group" || node.data.type !== 'topic') {
         return
       }
+
       event.preventDefault();
 
       const pane = ref.current.getBoundingClientRect();
@@ -130,26 +126,10 @@ function LayoutFlow({ topics, selectedElementId, setSelectedTopicId}) {
   }, []);
 
   const highlightNode = useCallback((node) => {
-    // console.log("resetting selected topic id", selectedElementId)
-    setSelectedTopicId(node.id);
-    // console.log("setting selected topic id", selectedElementId)
-    // setNodes((prevNodes) => {
-    //   return prevNodes.map((prevNode) => {
-    //     if (prevNode.id === node.id) {
-    //       return {
-    //         ...prevNode,
-    //         style: {
-    //           border: '2px solid orange'
-    //         }
-    //       };
-    //     } else {
-    //       return prevNode;
-    //     }
-    //   });
-    // });
+    if (setSelectedTopicId) {
+      setSelectedTopicId(node.id);
+    }
   }, []);
-
-
 
   const tipsPanelStyle = useTipsPanelStyle()
   return (
@@ -172,7 +152,10 @@ function LayoutFlow({ topics, selectedElementId, setSelectedTopicId}) {
       fitView
     >
       <Background />
-      {menu && <ContextMenu user={user[0]} setSelectedTopicId={setSelectedTopicId} onClick={onPaneClick} {...menu} />}
+      {menu && (canEdit ? <InstructorContextMenu setSelectedTopicId={setSelectedTopicId}
+                                              onClick={onPaneClick} {...menu} />
+                        : <StudentContextMenu user={user[0]}
+                                              onClick={onPaneClick} {...menu} />)}
       <Panel position="top-left" className={tipsPanelStyle.root}>
         <p><MdLightbulbOutline className={tipsPanelStyle.icon}/> Left click on node to see options</p>
         <p><MdLightbulbOutline className={tipsPanelStyle.icon}/> Hover over topic to highlight prerequisites</p>
@@ -182,23 +165,13 @@ function LayoutFlow({ topics, selectedElementId, setSelectedTopicId}) {
 }
 
 
-
-function TopicGraph ({topics, selectedElementId, setSelectedTopicId}) {
-  console.log("topics graph")
-  return (
-    <>
-      <Box display="flex" width="100%">
-        <h2 style={{ width: "70%" }}></h2>
-      </Box>
-
-      <ReactFlowProvider>
-        <LayoutFlow
-          topics={topics}
-          selectedElementId={selectedElementId}
-          setSelectedTopicId={setSelectedTopicId}/>
-      </ReactFlowProvider>
-    </>
-  );
+const mapStateToProps = ({ privilegesReducer, userReducer }) => {
+  const privileges = privilegesReducer
+  const user = userReducer
+  return {
+    privileges,
+    user
+  }
 }
 
-export default TopicGraph
+export default withRouter(connect(mapStateToProps)(TopicGraph))

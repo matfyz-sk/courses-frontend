@@ -1,0 +1,31 @@
+/* Custom Node Styles */
+.custom-node {
+  border: 2px solid darkgrey;
+  border-radius: 50%;
+  text-align: center;
+  padding: 20px 10px;
+  width: 200px;
+  height: 100px;
+}
+
+.custom-node-name {
+  border: none;
+  color: #777;
+  background-color: transparent;
+  font-size: 14px;
+  text-align: center;
+  padding-bottom: 10px;
+  margin-bottom: 0;
+}
+
+.custom-node-name:focus {
+  background: white;
+}
+
+.custom-node-description {
+  font-size: 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 20px 50px;
+}

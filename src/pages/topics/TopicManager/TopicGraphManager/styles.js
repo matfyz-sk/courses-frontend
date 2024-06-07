@@ -10,10 +10,12 @@ const useContextMenuStyle = makeStyles(theme => ({
     zIndex: "10",
     '& button': {
       border: "none",
-      display: "block",
+      borderBottom: "1px solid #e0e0e0",
+      display: "flex",
       padding: "0.5em",
       textAlign: "left",
       width: "100%",
+      alignItems: 'center',
       '&:hover': {
         background: "white",
       }
@@ -31,32 +33,5 @@ const useTipsPanelStyle = makeStyles(theme => ({
   }
 }))
 
-const useCustomNodeStyle = makeStyles(theme => ({
-  root: props => ({
-    border: props.border || '2px solid darkgrey',
-    borderRadius: '50%',
-    background: props.background || 'lightyellow',
-    textAlign: 'center',
-    padding: '20px 10px',
-    width: 200,
-    height: 100,
-  }),
-  name: {
-    border: 'none',
-    color: '#777',
-    fontSize: 14,
-    justifySelf: 'center',
-    paddingBottom: 10,
-    marginBottom: 0,
-  },
-  description: {
-    fontSize: 7,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    padding: '0 20px 50px',
-  },
-}));
 
-
-export { useContextMenuStyle, useTipsPanelStyle, useCustomNodeStyle }
+export { useContextMenuStyle, useTipsPanelStyle }

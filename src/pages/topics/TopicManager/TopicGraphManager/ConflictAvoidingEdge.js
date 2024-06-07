@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNodes, BezierEdge, StraightEdge, MarkerType } from 'reactflow'
+import { useNodes, BezierEdge } from 'reactflow'
 import { getSmartEdge } from '@tisoap/react-flow-smart-edge'
 
 export function ConflictAvoidingEdge(props) {
@@ -23,25 +23,24 @@ export function ConflictAvoidingEdge(props) {
   const targetNode = allNodes.filter(node => node.id === target)[0]
 
   // can conflict with target and source group nodes
-  const nodes = allNodes.filter(node => node.id !== sourceNode.parentNode && node.id !== targetNode.parentNode);
+  const nodes = allNodes.filter(
+    node => node.id !== sourceNode.parentNode
+         && node.id !== targetNode.parentNode);
 
   const myOptions = {
     nodePadding: 20
   }
 
   const smartEdge = getSmartEdge({
-    sourcePosition,
-    targetPosition,
-    sourceX,
-    sourceY,
-    targetX,
-    targetY,
+    sourcePosition, targetPosition,
+    sourceX, sourceY,
+    targetX, targetY,
     nodes,
     options: myOptions
   })
 
   if (smartEdge === null) {
-    return <StraightEdge {...props} />
+    return <BezierEdge {...props} />
   }
 
   const { svgPathString } = smartEdge
