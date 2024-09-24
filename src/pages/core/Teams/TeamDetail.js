@@ -153,8 +153,9 @@ function TeamsDetail(props) {
   let canEdit = false
   let isMember = false
   if(users) {
+    console.log(users)
     for(let i = 0; i < users.length; i++) {
-      if(users[i].hasUser['_id'] === getUserID()) {
+      if(users[i].hasUser && users[i].hasUser['_id'] === getUserID()) {
         isMember = true
       }
       if(

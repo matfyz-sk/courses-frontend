@@ -32,6 +32,8 @@ import ResultsTypeDetail from '../results/ResultsTypeDetail'
 import Dashboard from './Dashboard'
 import ResultDetail from '../results/ResultDetail'
 import TopicManager from '../topics/TopicManager'
+import BadgeTypesManager from '../badges/BadgeType/badgeTypesManager'
+import CourseBadgesOverview from '../badges/awardableBadge/courseBadgesOverview'
 
 const CoreRoutes = [
   <RouteWrapper
@@ -44,6 +46,11 @@ const CoreRoutes = [
   //     path={ROUTES.TOPICS}
   //     component={TopicManager}
   // />,
+  <RouteWrapper
+    key={ROUTES.BADGES}
+    path={ROUTES.BADGES}
+    component={BadgeTypesManager}
+  />,
   <StudentRoute
     key={ROUTES.TIMELINE}
     path={ROUTES.TIMELINE}
@@ -71,6 +78,14 @@ const CoreRoutes = [
     key={ROUTES.COURSE_TEAMS}
     path={ROUTES.COURSE_TEAMS}
     component={Teams}
+    layout={CourseLayout}
+    exact
+    auth
+  />,
+  <RouteWrapper
+    key={ROUTES.COURSE_BADGES}
+    path={ROUTES.COURSE_BADGES}
+    component={CourseBadgesOverview}
     layout={CourseLayout}
     exact
     auth

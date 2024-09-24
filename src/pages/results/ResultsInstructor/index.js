@@ -8,6 +8,7 @@ import CourseGrading from '../InstructorBlocks/CourseGrading'
 import { connect } from 'react-redux'
 import instructorOnly from '../instructorOnly'
 import DetailedStudentList from '../InstructorBlocks/DetailedStudentList'
+import BadgeTypePicker from '../../badges/courseBadgeType/courseBadgeTypePicker'
 
 const ResultsInstructor = props => {
   const [ viewDetails, setViewDetails ] = useState(false)
@@ -27,6 +28,9 @@ const ResultsInstructor = props => {
           <ResultTypes />
           <CourseGrading />
         </Col>
+      </Row>
+      <Row>
+        <BadgeTypePicker />
       </Row>
   </>)
 

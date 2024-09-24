@@ -116,7 +116,7 @@ const ShowList = ({ list, ...props }) => {
           <ListGroupItemHeading>
             <Link
               to={redirect(INFO_PAGE, [
-                { key: 'course_id', value: getShortID(list[i]['@id']) },
+                { key: 'course_id', value: getShortID(list[i]['_id']) },
               ])}
             >
               {list[i].name}

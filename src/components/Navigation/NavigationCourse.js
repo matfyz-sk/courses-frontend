@@ -204,6 +204,7 @@ class NavigationCourseClass extends React.Component {
             {/*  </NavLink>*/}
             {/*</NavItem>*/}
             {privileges.inCourseInstance !== 'visitor' ? (
+              <>
               <NavItem>
                 <NavLink
                   activeClassName="is-active"
@@ -215,6 +216,18 @@ class NavigationCourseClass extends React.Component {
                   Teams
                 </NavLink>
               </NavItem>
+              <NavItem>
+              <NavLink
+                activeClassName="is-active"
+                to={redirect(ROUTES.COURSE_BADGES, [
+                  { key: 'course_id', value: this.state.courseId },
+                ])}
+                className="nav-link nav-button"
+              >
+                My Badges
+              </NavLink>
+            </NavItem>
+            </>
             ) : null}
           </Nav>
         </Collapse>

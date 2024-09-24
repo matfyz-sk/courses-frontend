@@ -101,6 +101,9 @@ export const courseApi = createApi({
                     courses_hasResultType {
                       _id
                     }
+                    courses_hasBadgeType {
+                      _id
+                    }
                     courses_hasInstructor${instructorId ? getSelectById(instructorId) : ""} {
                       _id
                       courses_firstName
@@ -159,6 +162,7 @@ export const courseApi = createApi({
                 ${body.hasGrading ? `courses_hasGrading: ${getArrayFormat(body.hasGrading)}` : ""}
                 ${body.documentReference ? `courses_documentReference: ${getArrayFormat(body.documentReference)}` : ""}
                 ${body.hasDocument ? `courses_hasDocument: ${getArrayFormat(body.hasDocument)}` : ""}
+                ${body.hasBadgeType ? `courses_hasBadgeType: ${JSON.stringify(body.hasBadgeType)}` : ""}
               ) {
                 _id
               }

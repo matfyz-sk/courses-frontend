@@ -25,7 +25,7 @@ export const getNonStringEquals = (value) => {
 }
 
 export const getSelectById = (id) => {
-  return `(_id: ["${id}"])`
+  return `(_id: "${id}")`
 }
 
 export const getOrderBy = () => {

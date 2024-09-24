@@ -15,6 +15,7 @@ function Teams(props) {
   if (isSuccess && data) {
     teams = data
   }
+  console.log(props)
 
   const render_teams = []
   if(teams) {
