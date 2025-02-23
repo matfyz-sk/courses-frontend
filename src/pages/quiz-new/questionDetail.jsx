@@ -133,7 +133,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
   async function handleDelete(questionId) {
     if (
       window.confirm(
-        'Are you sure you want to delete this question version? Previous versions will not be affected.'
+        'Are you sure you want to delete this question version? If there are previous versions, they will not be affected.'
       )
     ) {
       let result = await deleteQuestion(questionId)
@@ -187,6 +187,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
       }
       return (
         <div
+          key={crypto.randomUUID()}
           style={{
             fontSize: '1.2em',
             paddingBottom: '10px',
@@ -194,7 +195,6 @@ function QuestionDetail({ courseId, match, isTeacher }) {
           }}
         >
           <div
-            key={crypto.randomUUID()}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -211,7 +211,7 @@ function QuestionDetail({ courseId, match, isTeacher }) {
 
     if (questionData.image) {
       imageElement = (
-        <img style={{ maxWidth: '60%' }} src={questionData.image} />
+        <img style={{ maxWidth: '50%' }} src={questionData.image} />
       )
     }
 

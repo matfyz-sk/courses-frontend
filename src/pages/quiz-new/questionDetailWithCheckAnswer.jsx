@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { GreenCheckbox, useNewQuizStyles } from './styles'
 import { Button, FormControlLabel } from '@material-ui/core'
@@ -17,6 +17,7 @@ function QuestionDetailWithCheckAnswer(question) {
 
   const onAnswerCheckChanged = answerId => {
     let checkedAnswersNew
+    console.log('answer check changed')
     if (checkedAnswers.includes(answerId)) {
       checkedAnswersNew = checkedAnswers.filter(answer => answer !== answerId)
     } else {
@@ -39,6 +40,7 @@ function QuestionDetailWithCheckAnswer(question) {
       }
     })
     if (isCorrect) {
+      console.log('correct')
       setAlertContent(
         <Alert icon={<MdCheck />} severity="success">
           <AlertTitle>Correct</AlertTitle>
@@ -57,22 +59,33 @@ function QuestionDetailWithCheckAnswer(question) {
   let questionContent
   const renderedAnswers = question.question.hasPredefinedAnswer.map(answer => {
     return (
-      <FormControlLabel
-        style={{ width: 'fit-content' }}
-        key={crypto.randomUUID()}
-        control={<GreenCheckbox />}
-        label={answer.text}
-        defaultChecked={false}
-        checked={checkedAnswers.includes(answer._id)}
-        onChange={() => onAnswerCheckChanged(answer._id)}
-      />
+      <div key={answer._id}>
+        <FormControlLabel
+          style={{ width: 'fit-content' }}
+          control={<GreenCheckbox />}
+          label={answer.text}
+          defaultChecked={false}
+          checked={checkedAnswers.includes(answer._id)}
+          onChange={() => onAnswerCheckChanged(answer._id)}
+        />
+        {answer.image ? (
+          <img style={{ maxWidth: '50%' }} src={answer.image} />
+        ) : (
+          ''
+        )}
+      </div>
     )
   })
   questionContent = (
     <div>
-      <h3 style={{ marginTop: '10px', marginBottom: '10px' }}>
+      <h4 style={{ marginTop: '10px', marginBottom: '10px' }}>
         {question ? question.question.text : 'no question data'}
-      </h3>
+      </h4>
+      {question.question.image ? (
+        <img style={{ maxWidth: '50%' }} src={question.question.image} />
+      ) : (
+        ''
+      )}
       <div className={classes.flexColumn}>{renderedAnswers}</div>
     </div>
   )

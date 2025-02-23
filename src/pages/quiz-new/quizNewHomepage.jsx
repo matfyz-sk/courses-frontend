@@ -36,6 +36,22 @@ function QuizNewHomepage({ courseId }) {
       let questionsToShow = questions.filter(
         question => !previousVersions.includes(question._id)
       )
+
+      let approvedQuestions = questions.filter(question => question.approver)
+      for (let i = approvedQuestions.length - 1; i > 0; i--) {
+        // shuffle array
+        let j = Math.floor(Math.random() * (i + 1))
+        ;[approvedQuestions[i], approvedQuestions[j]] = [
+          approvedQuestions[j],
+          approvedQuestions[i],
+        ]
+      }
+
+      while (approvedQuestions.length > 10) {
+        let rnd = Math.floor(Math.random() * approvedQuestions.length)
+        approvedQuestions.splice(rnd, 1)
+      }
+
       generateButton = (
         <Link
           to={{
@@ -43,7 +59,7 @@ function QuizNewHomepage({ courseId }) {
               { key: 'course_id', value: courseId },
             ]),
             state: {
-              questions: questions,
+              questions: approvedQuestions,
             },
           }}
           className="btn btn-outline-success mb-2"

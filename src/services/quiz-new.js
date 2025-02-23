@@ -64,6 +64,7 @@ export const quizNewApi = createApi({
                 _id
                 courses_text
                 courses_correct
+                courses_image
               }
               courses_approver {
                 _id
@@ -71,6 +72,7 @@ export const quizNewApi = createApi({
               courses_previous {
                 _id
               }
+              courses_image
               courses_createdAt(order: DESC)
               courses_questionSubmittedBy {
                 _id

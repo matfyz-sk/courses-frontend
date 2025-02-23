@@ -31,7 +31,7 @@ const MAX_FILE_SIZE_BEFORE_BASE64 = 3 * (MAX_FILE_SIZE / 4)
 function AddQuestionForm({ match, courseId }) {
   let randomId = crypto.randomUUID()
   const [file, setFile] = useState(null)
-  const [rawContent, setRawContent] = useState(null)
+  const [disableSubmitButton, setDisableSubmitButton] = useState(false)
   const [questionText, setQuestionText] = useState('')
   const [answerFields, setAnswerFields] = useState([
     {
@@ -75,7 +75,7 @@ function AddQuestionForm({ match, courseId }) {
 
   const [addNewQuestion, { isError, isLoading, isSuccess }] =
     useAddNewMultipleChoiceQuestionMutation()
-  const [addNewAnswer, { isError: isAnswerError }] =
+  const [addNewAnswer, { isError: isAnswerError, isLoading: isAnswerLoading }] =
     useAddNewMultipleChoiceAnswerMutation()
 
   function onAddAnswerButtonClicked() {
@@ -132,6 +132,7 @@ function AddQuestionForm({ match, courseId }) {
     if (isValid) {
       submitForm()
     } else {
+      setDisableSubmitButton(false)
       console.log(errors)
     }
   }
@@ -139,6 +140,7 @@ function AddQuestionForm({ match, courseId }) {
   let answerSubmitError = false
 
   const submitForm = async () => {
+    setDisableSubmitButton(true)
     let answerIdsStringified = '['
 
     let answersToSubmit = []
@@ -167,7 +169,7 @@ function AddQuestionForm({ match, courseId }) {
       }
     }
     answerIdsStringified += ']'
-    if (!answerSubmitError) {
+    if (!answerSubmitError && !isAnswerError) {
       let base64ToSubmit = ''
       if (file) {
         await fileToBase64(file).then(result => {
@@ -182,6 +184,7 @@ function AddQuestionForm({ match, courseId }) {
         hasPredefinedAnswer: answerIdsStringified,
         image: base64ToSubmit,
       }
+
       const result = await addNewQuestion({
         body: questionToSubmit,
         userId: userId,
@@ -195,6 +198,8 @@ function AddQuestionForm({ match, courseId }) {
             ),
           2000
         )
+      } else {
+        setDisableSubmitButton(false)
       }
     }
   }
@@ -360,6 +365,7 @@ function AddQuestionForm({ match, courseId }) {
           style={{ display: 'none' }}
           id="question-text-picture"
           type="file"
+          inputProps={{ multiple: true }}
           onChange={handleFileChange}
         />
         <label htmlFor="question-text-picture">
@@ -390,11 +396,11 @@ function AddQuestionForm({ match, courseId }) {
         <GreenButton
           style={{ marginBottom: '10px' }}
           onClick={validateForm}
-          disabled={isLoading}
+          disabled={disableSubmitButton}
         >
           Submit Question
         </GreenButton>
-        {isLoading ? <GreenCircularProgress /> : ''}
+        {isLoading || isAnswerLoading ? <GreenCircularProgress /> : ''}
       </div>
       {alertContent}
       {
