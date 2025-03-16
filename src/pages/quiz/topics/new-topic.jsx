@@ -19,17 +19,16 @@ class NewTopic extends Component {
     const topic = {
       name: topicName,
     }
-    postTopicConnect(topic, token)
-    .then(
+    postTopicConnect(topic, token).then(
       response => {
-        this.props.history.push("/quiz/questionGroups");
+        this.props.history.push('/quiz/questionGroups')
       }
-    // error => {
-    //   if (error.statusCode === 401) {
-    //     return <Redirect to="/login" />;
-    //   }
-    // }
-    );
+      // error => {
+      //   if (error.statusCode === 401) {
+      //     return <Redirect to="/login" />;
+      //   }
+      // }
+    )
   }
 
   changeHandler = e => {
@@ -43,6 +42,7 @@ class NewTopic extends Component {
   render() {
     const { topicName } = this.state
     const { isTeacher } = this.props
+    console.log(this.props)
     return (
       <>
         {isTeacher ? (

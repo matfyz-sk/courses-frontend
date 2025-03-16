@@ -1,0 +1,242 @@
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { BACKEND_URL } from '../constants'
+import { gql } from 'graphql-request'
+import { getOrderBy, getSelectById, graphqlBaseQuery } from './baseQuery'
+
+export const quizNewApi = createApi({
+  reducerPath: 'quizNewApi',
+  baseQuery: graphqlBaseQuery({
+    url: `${BACKEND_URL}graphql`,
+  }),
+  tagTypes: ['Question', 'Questions', 'Comments'],
+  endpoints: builder => ({
+    addNewMultipleChoiceAnswer: builder.mutation({
+      query: body => ({
+        document: gql`
+          mutation {
+            insert_courses_PredefinedAnswer(
+              courses_text: ${JSON.stringify(body.text)}
+              courses_correct: ${JSON.stringify(body.correct)}
+              courses_image: ${JSON.stringify(body.image)}
+            ) {
+              _id
+            }
+          }
+        `,
+      }),
+      transformResponse: response => response.PredefinedAnswer[0]._id,
+    }),
+    addNewMultipleChoiceQuestion: builder.mutation({
+      query: ({ body, userId }) => ({
+        document: gql`
+          mutation {
+            insert_courses_QuestionWithPredefinedAnswer (
+              courses_text: ${JSON.stringify(body.text)}
+              courses_courseInstance: ${JSON.stringify(body.courseInstance)}
+              courses_hasPredefinedAnswer: ${body.hasPredefinedAnswer}
+              courses_previous: "${body.previous}"
+              courses_questionSubmittedBy: ${JSON.stringify(userId)}
+              courses_image: "${body.image}"
+            )
+            {
+              _id
+              courses_questionSubmittedBy {
+                _id
+              }
+              courses_image
+            }
+          }
+        `,
+      }),
+      invalidatesTags: ['Questions'],
+    }),
+    getQuestions: builder.query({
+      query: ({ courseInstanceId }) => ({
+        document: gql`
+          query {
+            courses_QuestionWithPredefinedAnswer {
+              _id
+              courses_text
+              courses_courseInstance${getSelectById(courseInstanceId)} {
+                _id
+              }
+              courses_hasPredefinedAnswer {
+                _id
+                courses_text
+                courses_correct
+                courses_image
+              }
+              courses_approver {
+                _id
+              }
+              courses_previous {
+                _id
+              }
+              courses_image
+              courses_createdAt(order: DESC)
+              courses_questionSubmittedBy {
+                _id
+                courses_firstName
+                courses_lastName
+                courses_nickname
+              }
+            }
+          }
+        `,
+      }),
+      transformResponse: response => response.QuestionWithPredefinedAnswer,
+      providesTags: ['Questions'],
+    }),
+    getQuestionById: builder.query({
+      query: ({ courseInstanceId, questionId }) => ({
+        document: gql`
+          query {
+            courses_QuestionWithPredefinedAnswer${getSelectById(questionId)} {
+              _id
+              courses_text
+              courses_courseInstance${getSelectById(courseInstanceId)} {
+                _id
+              }
+              courses_hasPredefinedAnswer {
+                _id
+                courses_text
+                courses_correct
+                courses_image
+              }
+              courses_previous {
+                _id
+              }
+              courses_approver {
+                _id
+              }
+              courses_questionSubmittedBy {
+                _id
+                courses_firstName
+                courses_lastName
+                courses_nickname
+              }
+              courses_comment {
+                _id
+                courses_commentText
+                courses_createdAt(order: ASC)
+                courses_commentCreatedBy {
+                  _id
+                  courses_firstName
+                  courses_lastName
+                  courses_nickname
+                }
+              }
+              courses_image
+            }
+          }
+        `,
+      }),
+      providesTags: ['Question', 'Comments'],
+      transformResponse: response => response.QuestionWithPredefinedAnswer[0],
+    }),
+    addNewComment: builder.mutation({
+      query: ({ commentBody }) => ({
+        document: gql`
+          mutation {
+            insert_courses_Comment(
+              courses_commentText: ${JSON.stringify(commentBody.commentText)}
+              courses_commentCreatedBy: ${JSON.stringify(
+                commentBody.commentCreatedBy
+              )}
+            ) {
+              _id
+            }
+          }
+        `,
+      }),
+      transformResponse: response => response.Comment[0]._id,
+    }),
+    updateComment: builder.mutation({
+      query: ({ commentBody }) => ({
+        document: gql`
+          mutation {
+            update_courses_Comment (
+              _id: "${commentBody.commentId}"
+              courses_commentText: ${JSON.stringify(commentBody.commentText)}
+          ) {
+            _id
+          }
+        }
+        `,
+      }),
+      transformResponse: response => response.Comment[0]._id,
+      invalidatesTags: ['Comments'],
+    }),
+    deleteComment: builder.mutation({
+      query: commentId => ({
+        document: gql`
+          mutation {
+            delete_courses_Comment (
+              _id: "${commentId}"
+            ) {
+            _id
+            }
+          }
+        `,
+      }),
+      invalidatesTags: ['Comments'],
+    }),
+    updateQuestion: builder.mutation({
+      query: ({ questionId, questionBody }) => ({
+        document: gql`
+          mutation {
+            update_courses_QuestionWithPredefinedAnswer (
+              _id: "${questionId}"
+              ${
+                questionBody.comments
+                  ? `courses_comment: ${questionBody.comments}`
+                  : ``
+              }
+              ${
+                questionBody.approver
+                  ? `courses_approver: "${questionBody.approver}"`
+                  : ``
+              }
+            ) {
+              _id
+              courses_comment {
+                _id
+              }
+              courses_approver {
+                _id
+              }
+            }
+          }
+        `,
+      }),
+      invalidatesTags: ['Comments', 'Question', 'Questions'],
+    }),
+    deleteQuestion: builder.mutation({
+      query: questionId => ({
+        document: gql`
+          mutation {
+            delete_courses_QuestionWithPredefinedAnswer (
+              _id: "${questionId}"
+            ) {
+              _id
+            }
+          }
+        `,
+      }),
+      invalidatesTags: ['Questions'],
+    }),
+  }),
+})
+
+export const {
+  useGetQuestionsQuery,
+  useGetQuestionByIdQuery,
+  useSetHasNewerVersionMutation,
+  useAddNewMultipleChoiceAnswerMutation,
+  useAddNewMultipleChoiceQuestionMutation,
+  useAddNewCommentMutation,
+  useUpdateCommentMutation,
+  useDeleteCommentMutation,
+  useUpdateQuestionMutation,
+  useDeleteQuestionMutation,
+} = quizNewApi

@@ -114,7 +114,7 @@ class NavigationCourseClass extends React.Component {
 
         <NavbarToggler
           onClick={() => this.toggle(false)}
-          className={isAdmin ? "bars-toggler" : ""}
+          className={isAdmin ? 'bars-toggler' : ''}
         >
           <img src={Bars} alr="bars" style={{ width: '30px' }} />
         </NavbarToggler>
@@ -171,7 +171,7 @@ class NavigationCourseClass extends React.Component {
               </NavLink>
             </NavItem>
             {privileges.inCourseInstance === 'instructor' && (
-               <NavItem>
+              <NavItem>
                 <NavLink
                   activeClassName="is-active"
                   to={redirect(ROUTES.DOCUMENTS, [
@@ -186,7 +186,7 @@ class NavigationCourseClass extends React.Component {
             <NavItem>
               <NavLink
                 activeClassName="is-active"
-                to={redirect(ROUTES.QUIZ, [
+                to={redirect(ROUTES.QUIZNEW, [
                   { key: 'course_id', value: this.state.courseId },
                 ])}
                 className="nav-link nav-button"

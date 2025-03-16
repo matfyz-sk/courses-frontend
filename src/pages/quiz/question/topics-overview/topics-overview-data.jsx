@@ -5,31 +5,25 @@ import { connect } from 'react-redux'
 
 import { fetchCourseInstance } from '../../../../redux/actions'
 import TopicsOverview from './topics-overview'
+import { useLazyGetCourseInstanceQuery } from 'services/course'
 
-class TopicsOverviewData extends Component {
-  componentDidMount() {
-    const {
-      getCourseInstanceConnect,
-      courseInstanceId,
-      token,
-      history,
-    } = this.props
-    if (courseInstanceId && token) {
-      getCourseInstanceConnect(
+function TopicsOverviewData(props) {
+  const [getCourseInstance] = useLazyGetCourseInstanceQuery()
+  const componentDidMount = () => {
+    if (props.courseInstanceId && props.token) {
+      props.getCourseInstanceConnect(
         history,
-        courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-        token
+        props.courseInstanceId.substring(
+          props.courseInstanceId.lastIndexOf('/') + 1
+        ),
+        props.token
       )
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const {
-      courseInstanceId,
-      getCourseInstanceConnect,
-      token,
-      history,
-    } = this.props
+  const componentDidUpdate = (prevProps, prevState) => {
+    const { courseInstanceId, getCourseInstanceConnect, token, history } = props
+
     if (
       courseInstanceId &&
       token &&
@@ -39,31 +33,21 @@ class TopicsOverviewData extends Component {
       getCourseInstanceConnect(
         history,
         courseInstanceId.substring(courseInstanceId.lastIndexOf('/') + 1),
-        token
+        getCourseInstance
       )
     }
   }
 
-  render() {
-    const {
-      isTeacher,
-      courseInstance,
-      token,
-      courseInstanceId,
-      userId,
-      match,
-    } = this.props
-    return (
-      <TopicsOverview
-        courseInstanceId={courseInstanceId}
-        token={token}
-        isTeacher={isTeacher}
-        topics={courseInstance && courseInstance.covers}
-        userId={userId}
-        match={match}
-      />
-    )
-  }
+  return (
+    <TopicsOverview
+      courseInstanceId={props.courseInstanceId}
+      token={props.token}
+      isTeacher={props.isTeacher}
+      topics={props.courseInstance && props.courseInstance.covers}
+      userId={props.userId}
+      match={props.match}
+    />
+  )
 }
 
 TopicsOverviewData.propTypes = {

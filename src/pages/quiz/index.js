@@ -23,7 +23,7 @@ import QuizTakesOverviewData from './quiz/quiz-take/quiz-takes-overview-data'
 import QuizTakeStudentResult from './quiz/quiz-take/quiz-take-student-result'
 import SelfQuizzes from './quiz/self-quiz/self-quizzes'
 import { DATA_PREFIX } from 'constants/ontology'
-import { API_URL } from '../../constants';
+import { API_URL } from '../../constants'
 
 class Quiz extends Component {
   componentDidMount() {
@@ -58,44 +58,44 @@ class Quiz extends Component {
   }
 
   getUser = (userId, token) => {
-      return axios
-        .get(`${API_URL}user/${userId}`, {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-        })
-        .then(({ data }) => {
-          if (
-            data &&
-            data['@graph'] &&
-            data['@graph'].length &&
-            data['@graph'].length > 0
-          ) {
-            const user = data['@graph'][0]
-            const {
-              studentOf: studentOfData,
-              instructorOf: instructorOfData,
-            } = user
-            const id = user['@id']
-            const studentOf = studentOfData.map(courseInstance => {
-              return courseInstance['@id']
-            })
-            const instructorOf = instructorOfData.map(courseInstance => {
-              return courseInstance['@id']
-            })
-            const activeUserMapped = {
-              id,
-              studentOf,
-              instructorOf,
-            }
-            this.setState({
-              activeUser: activeUserMapped,
-            })
+    return axios
+      .get(`${API_URL}user/${userId}`, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      })
+      .then(({ data }) => {
+        if (
+          data &&
+          data['@graph'] &&
+          data['@graph'].length &&
+          data['@graph'].length > 0
+        ) {
+          const user = data['@graph'][0]
+          const {
+            studentOf: studentOfData,
+            instructorOf: instructorOfData,
+          } = user
+          const id = user['@id']
+          const studentOf = studentOfData.map(courseInstance => {
+            return courseInstance['@id']
+          })
+          const instructorOf = instructorOfData.map(courseInstance => {
+            return courseInstance['@id']
+          })
+          const activeUserMapped = {
+            id,
+            studentOf,
+            instructorOf,
           }
-        })
-        .catch(error => console.log(error))
+          this.setState({
+            activeUser: activeUserMapped,
+          })
+        }
+      })
+      .catch(error => console.log(error))
   }
 
   render() {
@@ -108,7 +108,7 @@ class Quiz extends Component {
     }
 
     const courseInstanceId = match?.params?.course_id
-      ? `${ DATA_PREFIX }courseInstance/${ match.params.course_id }`
+      ? `${DATA_PREFIX}courseInstance/${match.params.course_id}`
       : null
     let isTeacher = null
     if (
@@ -116,11 +116,13 @@ class Quiz extends Component {
       courseInstance.hasInstructor &&
       courseInstance.hasInstructor.length
     ) {
-      isTeacher = courseInstance.hasInstructor.some((instructor) => instructor['@id'] === user.user.fullURI)
+      isTeacher = courseInstance.hasInstructor.some(
+        instructor => instructor['_id'] === user.user.fullURI
+      )
     }
     return (
       <div className="container">
-        <QuizNav match={match}/>
+        <QuizNav match={match} />
         <Switch>
           <Route
             exact
@@ -356,7 +358,6 @@ class Quiz extends Component {
         </Switch>
       </div>
     )
-
   }
 }
 
